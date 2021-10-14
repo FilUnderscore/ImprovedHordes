@@ -1,0 +1,19 @@
+<ihhordes>
+	<append xpath="/entitygroups">
+		<entitygroup name="IHZombiesAllFeral">
+			<entity name="zombieSpiderFeral"/>
+			<entity name="zombieBoeFeral"/>
+			<entity name="zombieJoeFeral"/>
+			<entity name="zombieSteveFeral"/>
+			<entity name="zombieMoeFeral"/>
+			<entity name="zombieYoFeral"/>
+			<entity name="zombieBusinessManFeral"/>
+			<entity name="zombieArleneFeral"/>
+			<entity name="zombieDarleneFeral"/>
+			<entity name="zombieMarleneFeral"/>
+			<entity name="zombieNurseFeral"/>
+			<entity name="zombieFatHawaiianFeral"/>
+			<entity name="zombieSteveCrawlerFeral"/>
+		</entitygroup>
+	</append>
+</ihhordes>

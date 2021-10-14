@@ -1,0 +1,10 @@
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\bin\Debug\RandomHordeMod.dll.config
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\bin\Debug\RandomHordeMod.dll
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\bin\Debug\RandomHordeMod.pdb
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\bin\Debug\0Harmony.dll
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\bin\Debug\0Harmony.xml
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\obj\Debug\RandomHordeMod.csproj.CoreCompileInputs.cache
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\obj\Debug\RandomHordeMod.csproj.CopyComplete
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\obj\Debug\RandomHordeMod.dll
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\obj\Debug\RandomHordeMod.pdb
+C:\Users\Filip\Desktop\7DTDMods\RandomHordeMod\obj\Debug\RandomHordeMod.csproj.AssemblyReference.cache

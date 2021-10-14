@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Conditionals example
+	{} - To evaluate and return result within.
+	&lt; - Less than
+	&gt; - Greater than
+	&amp; - AND
+	e.g. {week=1?{weekDay<3?1:{weekDay}}:{week}}
+	
+	becomes
+	    If Week = 1:
+			SubValue = 0
+			
+			If WeekDay < 3:
+				SubValue = 1
+			Else:
+				SubValue = WeekDay
+			
+			Return SubValue
+		Else:
+			Return Week
+		
+	Conditional variables
+	week - Current in-game week.
+	weekDay - Current day in the week (1-7).
+	totalDay - Current day in the game (1-1000+). -->
+
+<!-- Define horde enemies for Improved Hordes. -->
+<hordes>
+	<horde type="wandering">
+		<hordegroup name="ZombieDogs" prefWeekDay="3,6,7" maxWeeklyOccurances="2">
+			<gs min="5" countIncPerGS="0.025">
+				<entity group="ZombieDogGroup" minCount="{week=1?{weekDay}:7}" maxCount="20"/>
+			</gs>
+			
+			<!--<entity group="ZombieDogGroup" minCount="{test?{1}:2}" countIncPerGS="0.025" maxCount="20"/>-->
+		</hordegroup>
+		
+		<hordegroup name="Wolfs" prefWeekDay="1,2,3,6" maxWeeklyOccurances="1">
+			<gs countIncPerGS="0.2">
+				<entity name="animalCoyote" minCount="1" maxCount="6"/>
+			</gs>
+			
+			<gs min="10" countIncPerGS="0.05">
+				<entity name="animalWolf" minCount="2" maxCount="6"/>
+			</gs>
+			
+			<gs min="30" countIncPerGS="0.025">
+				<entity name="animalDireWolf" minCount="1" maxCount="3"/>
+			</gs>
+		</hordegroup>
+		
+		<hordegroup name="Bears" prefWeekDay="1,2,3" maxWeeklyOccurances="1">
+			<gs min="50" countIncPerGS="0.02">
+				<entity name="animalBear" minCount="2" maxCount="10"/>
+			</gs>
+			
+			<gs min="100" countIncPerGS="0.02">
+				<entity name="animalZombieBear" minCount="1" maxCount="7"/>
+			</gs>
+		</hordegroup>
+		
+		<hordegroup name="Vultures" prefWeekDay="4,5" maxWeeklyOccurances="1">
+			<gs min="20" countIncPerGS="0.03">
+				<entity name="animalZombieVulture" minCount="1" maxCount="6"/>
+			</gs>
+				
+			<gs min="100" countIncPerGS="0.025">
+				<entity name="animalZombieVultureRadiated" minCount="1" maxCount="5"/>
+			</gs>
+		</hordegroup>
+		
+		<hordegroup name="Zombies">
+			<gs max="600" countIncPerGS="0.1" countDecGS="300" countDecPerPostGS="0.1">
+				<entity group="ZombiesAll" minCount="3" maxCount="20"/>
+			</gs>
+			
+			<!-- Example of GS
+			Start spawning at GS100 and increase count by 0.02 per GS from there, 
+			at GS400 start decreasing spawn count by 0.1 per GS after 400, 
+			then cease any remaining spawns at GS700.-->
+			<gs min="100" max="700" countIncPerGS="0.02" countDecGS="400" countDecPerPostGS="0.1">
+				<entity group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
+			</gs>
+		</hordegroup>
+	</horde>
+</hordes>

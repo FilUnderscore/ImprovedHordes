@@ -1,0 +1,8 @@
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\Source\obj\Debug\ImprovedHordes.csproj.CoreCompileInputs.cache
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\Source\obj\Debug\ImprovedHordes.csproj.CopyComplete
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\Source\obj\Debug\ImprovedHorde.dll
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\Source\obj\Debug\ImprovedHorde.pdb
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\ImprovedHordes\ImprovedHorde.dll.config
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\ImprovedHordes\ImprovedHorde.dll
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\ImprovedHordes\ImprovedHorde.pdb
+C:\Users\Filip\Desktop\7DTDMods\ImprovedHordes\Source\obj\Debug\ImprovedHordes.csproj.AssemblyReference.cache
