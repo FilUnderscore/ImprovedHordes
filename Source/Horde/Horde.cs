@@ -7,7 +7,7 @@ using static ImprovedHordes.IHLog;
 
 namespace ImprovedHordes.Horde
 {
-    public abstract class Horde
+    public class Horde
     {
         public HordeGroup group;
         public int count;

@@ -62,18 +62,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />
+    <Compile Include="Horde\AI\Commands\HordeAICommandDestinationPlayer.cs" />
+    <Compile Include="Horde\AI\HordeAICommand.cs" />
     <Compile Include="Horde\Horde.cs" />
     <Compile Include="Horde\HordeGroup.cs" />
     <Compile Include="Horde\Hordes.cs" />
     <Compile Include="Horde\HordesFromXml.cs" />
     <Compile Include="HarmonyModPatches.cs" />
-    <Compile Include="Horde\Wandering\WanderingHorde.cs" />
     <Compile Include="Horde\HordeGenerator.cs" />
     <Compile Include="Horde\HordeManager.cs" />
+    <Compile Include="Horde\AI\HordeAIManager.cs" />
+    <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
     <Compile Include="IHUtils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
-    <Compile Include="Horde\Wandering\WanderingHordeManager.cs" />
-    <Compile Include="Horde\Wandering\WanderingHordes.cs" />
+    <Compile Include="Horde\Wandering\WanderingHordeSpawner.cs" />
+    <Compile Include="Horde\Wandering\WanderingHorde.cs" />
     <Compile Include="ImprovedHordesCommand.cs" />
     <Compile Include="RuntimeEval.cs" />
   </ItemGroup>

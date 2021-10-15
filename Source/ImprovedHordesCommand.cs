@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ImprovedHordes.Horde;
+using ImprovedHordes.Horde.Wandering;
 
 namespace ImprovedHordes
 {
@@ -19,7 +19,8 @@ namespace ImprovedHordes
                     {
                         if (_params[1].EqualsCaseInsensitive("spawn"))
                         {
-                            ImprovedHordesMod.manager.wanderingHorde.SpawnWanderingHordes();
+                            // TODO.
+                            //ImprovedHordesMod.manager.wanderingHorde.SpawnWanderingHordes();
 
                             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Hordes spawning for all groups.");
                         }
@@ -32,15 +33,15 @@ namespace ImprovedHordes
                         }
                         else if (_params[1].EqualsCaseInsensitive("show"))
                         {
-                            var horde = ImprovedHordesMod.manager.wanderingHorde.hordes;
+                            var horde = ImprovedHordesMod.manager.wanderingHorde;
                             var schedule = horde.schedule;
 
                             StringBuilder builder = new StringBuilder();
                             builder.AppendLine("Constants:");
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordes.HOURS_TO_FIRST_OCCURANCE_MIN), WanderingHordes.HOURS_TO_FIRST_OCCURANCE_MIN));
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordes.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX), WanderingHordes.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX));
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordes.MAX_OCCURANCES), WanderingHordes.MAX_OCCURANCES));
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordes.HOURS_APART_MIN), WanderingHordes.HOURS_APART_MIN));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHorde.HOURS_TO_FIRST_OCCURANCE_MIN), WanderingHorde.HOURS_TO_FIRST_OCCURANCE_MIN));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHorde.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX), WanderingHorde.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHorde.MAX_OCCURANCES), WanderingHorde.MAX_OCCURANCES));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHorde.HOURS_APART_MIN), WanderingHorde.HOURS_APART_MIN));
                             builder.AppendLine("");
                             builder.AppendLine("Schedule:");
                             foreach (var occurance in schedule.occurances)
@@ -55,7 +56,7 @@ namespace ImprovedHordes
 
                             builder.AppendLine("");
 
-                            if (horde.state == WanderingHordes.EHordeState.Finished)
+                            if (horde.state == WanderingHorde.EHordeState.Finished)
                             {
                                 if (schedule.currentOccurance < schedule.occurances.Count)
                                     builder.AppendLine(String.Format("Next Occurance {0} ", schedule.currentOccurance + 1));

@@ -5,10 +5,13 @@ using System.Reflection;
 
 using static ImprovedHordes.IHLog;
 
+using ImprovedHordes.Horde.AI;
+
+using ImprovedHordes.Horde.Wandering;
+
 namespace ImprovedHordes.Horde
 {
-    //1000 is one hour
-    class HordeManager
+    public class HordeManager
     {
         public static readonly string DataFile = string.Format("{0}/ImprovedHordes.bin", GameUtils.GetSaveGameDir());
         public static string XmlFilesDir;
@@ -17,14 +20,16 @@ namespace ImprovedHordes.Horde
         public List<int> players = new List<int>();
         public GameRandom random;
 
-        public WanderingHordeManager wanderingHorde;
+        public HordeAIManager aiManager;
+        public WanderingHorde wanderingHorde;
         
         public HordeManager()
         {
             world = GameManager.Instance.World;
             random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
-            
-            wanderingHorde = new WanderingHordeManager(this);
+
+            aiManager = new HordeAIManager();
+            wanderingHorde = new WanderingHorde(this);
 
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", ModManager.GetMod("ImprovedHordes").Path);
             this.LoadXml();
@@ -89,7 +94,7 @@ namespace ImprovedHordes.Horde
 
         public void Update()
         {
-            wanderingHorde.Update();
+            aiManager.Update();
         }
 
         public ulong GetWorldTime()

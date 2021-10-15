@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using ImprovedHordes.Horde.Wandering;
 
 using static ImprovedHordes.IHLog;
 
@@ -10,10 +10,10 @@ namespace ImprovedHordes.Horde
 {
     class HordeGenerators
     {
-        public static readonly HordeGenerator<WanderingHorde> WanderingHordeGenerator = new WanderingHordeGenerator();
+        public static readonly HordeGenerator WanderingHordeGenerator = new WanderingHordeGenerator();
     }
 
-    abstract class HordeGenerator<T> where T : Horde
+    abstract class HordeGenerator
     {
         protected string type;
         public HordeGenerator(string type)
@@ -21,18 +21,18 @@ namespace ImprovedHordes.Horde
             this.type = type;
         }
 
-        public abstract T GenerateHordeFromGameStage(EntityPlayer player, int gamestage);
+        public abstract Horde GenerateHordeFromGameStage(EntityPlayer player, int gamestage);
     }
 
-    sealed class WanderingHordeGenerator : HordeGenerator<WanderingHorde>
+    sealed class WanderingHordeGenerator : HordeGenerator
     {
         public WanderingHordeGenerator() : base("wandering")
         { }
 
-        public override WanderingHorde GenerateHordeFromGameStage(EntityPlayer player, int gamestage)
+        public override Horde GenerateHordeFromGameStage(EntityPlayer player, int gamestage)
         {
-            var manager = ImprovedHordesMod.manager.wanderingHorde;
-            var occurance = manager.hordes.schedule.occurances[manager.hordes.schedule.currentOccurance];
+            var wanderingHorde = ImprovedHordesMod.manager.wanderingHorde;
+            var occurance = wanderingHorde.schedule.occurances[wanderingHorde.schedule.currentOccurance];
 
             var groups = Hordes.hordes[this.type].Values;
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
@@ -42,7 +42,7 @@ namespace ImprovedHordes.Horde
                 if (group.MaxWeeklyOccurances != null)
                 {
                     var maxWeeklyOccurances = group.MaxWeeklyOccurances.Evaluate();
-                    var weeklyOccurancesForPlayer = manager.hordes.schedule.GetWeeklyOccurancesForPlayer(player, group);
+                    var weeklyOccurancesForPlayer = wanderingHorde.schedule.GetWeeklyOccurancesForPlayer(player, group);
 
                     if (weeklyOccurancesForPlayer >= maxWeeklyOccurances)
                         continue;
@@ -51,7 +51,7 @@ namespace ImprovedHordes.Horde
                 if (group.PrefWeekDays != null)
                 {
                     var prefWeekDays = group.PrefWeekDays.Evaluate();
-                    var weekDay = manager.GetCurrentWeekDay();
+                    var weekDay = wanderingHorde.GetCurrentWeekDay();
 
                     if (!prefWeekDays.Contains(weekDay))
                         continue;
@@ -83,7 +83,7 @@ namespace ImprovedHordes.Horde
             if (groupsToPick.Count == 0)
                 groupsToPick.AddRange(groups);
 
-            HordeGroup randomGroup = groupsToPick[manager.manager.random.RandomRange(0, groupsToPick.Count - 1)];
+            HordeGroup randomGroup = groupsToPick[wanderingHorde.manager.random.RandomRange(0, groupsToPick.Count - 1)];
             Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
             foreach(var entity in randomGroup.entities)
@@ -116,10 +116,10 @@ namespace ImprovedHordes.Horde
                 if(gs == null || countIncPerGS == 0)
                 {
                     if (maxCount > 0)
-                        count = manager.manager.random.RandomRange(minCount, maxCount);
+                        count = wanderingHorde.manager.random.RandomRange(minCount, maxCount);
                     else
                     {
-                        Error("Cannot calculate count of entity/entitygroup {0} in group {1} because no gamestage or maximum count has been specified.", entity.name != null ? entity.name : entity.group, randomGroup.name);
+                        Error("Cannot calculate count of entity/entitygroup {0} in group {1} because no gamestage or maximum count has been specified.", entity.name ?? entity.group, randomGroup.name);
                         count = 0;
                     }
                 }
@@ -144,7 +144,7 @@ namespace ImprovedHordes.Horde
                 entitiesToSpawn[entity] = count;
 
 #if DEBUG
-                Log("Spawning {0} of {1}", count, entity.name != null ? entity.name : entity.group);
+                Log("Spawning {0} of {1}", count, entity.name ?? entity.group);
 #endif
             }
 
@@ -170,7 +170,7 @@ namespace ImprovedHordes.Horde
 
                     for(var i = 0; i < count; i++)
                     {
-                        int entityId = EntityGroups.GetRandomFromGroup(ent.group, ref lastEntityId, manager.manager.random);
+                        int entityId = EntityGroups.GetRandomFromGroup(ent.group, ref lastEntityId, wanderingHorde.manager.random);
 
                         entityIds.Add(entityId);
                     }
@@ -184,9 +184,7 @@ namespace ImprovedHordes.Horde
                 }
             }
 
-            WanderingHorde wanderingHorde = new WanderingHorde(randomGroup, totalCount, occurance.feral, entityIds.ToArray());
-
-            return wanderingHorde;
+            return new Horde(randomGroup, totalCount, occurance.feral, entityIds.ToArray());
         }
     }
 }
