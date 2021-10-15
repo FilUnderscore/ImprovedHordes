@@ -246,7 +246,7 @@ namespace ImprovedHordes.Horde.Wandering
                 ulong deltaOccuranceTime = nextOccurance - lastOccurance;
                 ulong hoursApartOccurancesMin = WanderingHorde.HOURS_APART_MIN * 1000UL;
 
-                if (deltaOccuranceTime < hoursApartOccurancesMin)
+                if (deltaOccuranceTime >= hoursApartOccurancesMin)
                 {
                     possible = true;
                     return lastOccurance + (deltaWorldTime / (ulong)occurances);
