@@ -117,6 +117,11 @@ namespace ImprovedHordes.Horde.Wandering
                 this.GetWorldTime() >= this.schedule.occurances[this.schedule.currentOccurance].worldTime;
         }
 
+        public void ForceSpawnWanderingHorde()
+        {
+            this.schedule.occurances.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurance : this.schedule.currentOccurance + 1, new Occurance(this.GetWorldTime(), true));
+        }
+
         public bool IsNextHordeOverdue()
         {
             return this.state == EHordeState.StillAlive && this.schedule.currentOccurance + 1 < this.schedule.occurances.Count && this.GetWorldTime() >= this.schedule.occurances[this.schedule.currentOccurance + 1].worldTime;
@@ -199,7 +204,7 @@ namespace ImprovedHordes.Horde.Wandering
                 }
 
                 bool feral = random.RandomRange(0, 10) >= 5;
-                schedule.occurances.Add(i, new WanderingHorde.Occurance(nextOccurance, feral));
+                schedule.occurances.Add(new WanderingHorde.Occurance(nextOccurance, feral));
                 possibleOccurances++;
 
 #if DEBUG
@@ -276,7 +281,7 @@ namespace ImprovedHordes.Horde.Wandering
             public ulong nextResetTime = 0UL;
             public int currentOccurance = 0;
 
-            public Dictionary<int, Occurance> occurances = new Dictionary<int, Occurance>();
+            public List<Occurance> occurances = new List<Occurance>();
             public Dictionary<int, Dictionary<string, int>> previousHordeGroupsForPlayers = new Dictionary<int, Dictionary<string, int>>();
 
             public void Load(BinaryReader reader)
@@ -288,11 +293,10 @@ namespace ImprovedHordes.Horde.Wandering
                 int occurancesSize = reader.ReadInt32();
                 for(int i = 0; i < occurancesSize; i++)
                 {
-                    int occurance = reader.ReadInt32();
                     ulong occuranceWorldTime = reader.ReadUInt64();
                     bool feral = reader.ReadBoolean();
 
-                    occurances.Add(occurance, new Occurance(occuranceWorldTime, feral));
+                    occurances.Add(new Occurance(occuranceWorldTime, feral));
                 }
 
                 previousHordeGroupsForPlayers.Clear();
@@ -324,6 +328,27 @@ namespace ImprovedHordes.Horde.Wandering
                 return previousHordeGroupsForPlayers[player.entityId][group.name];
             }
 
+            public void AddWeeklyOccurancesForGroup(List<EntityPlayer> players, HordeGroup group)
+            {
+                foreach(var player in players)
+                {
+                    AddWeeklyOccurancesForPlayer(player, group);
+                }
+            }
+
+            public void AddWeeklyOccurancesForPlayer(EntityPlayer player, HordeGroup group)
+            {
+                if (!previousHordeGroupsForPlayers.ContainsKey(player.entityId))
+                    previousHordeGroupsForPlayers.Add(player.entityId, new Dictionary<string, int>());
+
+                var dict = previousHordeGroupsForPlayers[player.entityId];
+
+                if (!dict.ContainsKey(group.name))
+                    dict.Add(group.name, 0);
+
+                dict[group.name]++;
+            }
+
             public void Save(BinaryWriter writer)
             {
                 writer.Write(this.nextResetTime);
@@ -332,9 +357,8 @@ namespace ImprovedHordes.Horde.Wandering
                 writer.Write(this.occurances.Count);
                 foreach(var occurance in this.occurances)
                 {
-                    writer.Write(occurance.Key);
-                    writer.Write(occurance.Value.worldTime);
-                    writer.Write(occurance.Value.feral);
+                    writer.Write(occurance.worldTime);
+                    writer.Write(occurance.feral);
                 }
 
                 writer.Write(this.previousHordeGroupsForPlayers.Count);

@@ -19,6 +19,7 @@ namespace ImprovedHordes
                         {
                             // TODO.
                             //ImprovedHordesMod.manager.wanderingHorde.SpawnWanderingHordes();
+                            ImprovedHordesMod.manager.wanderingHorde.ForceSpawnWanderingHorde();
 
                             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Hordes spawning for all groups.");
                         }
@@ -42,14 +43,14 @@ namespace ImprovedHordes
                             builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHorde.HOURS_APART_MIN), WanderingHorde.HOURS_APART_MIN));
                             builder.AppendLine("");
                             builder.AppendLine("Schedule:");
-                            foreach (var occurance in schedule.occurances)
+                            for (int i = 0; i < schedule.occurances.Count; i++)
                             {
-                                var number = occurance.Key;
-                                var worldTime = occurance.Value.worldTime;
-                                var feral = occurance.Value.feral;
+                                var occurance = schedule.occurances[i];
+                                var worldTime = occurance.worldTime;
+                                var feral = occurance.feral;
 
                                 var (Days, Hours, Minutes) = GameUtils.WorldTimeToElements(worldTime);
-                                builder.AppendLine(String.Format("- {0} at Day {1} {2:D2} {3:D2} ({4})", number + 1, Days, Hours, Minutes, feral ? "Feral" : "Not Feral"));
+                                builder.AppendLine(String.Format("- {0} at Day {1} {2:D2} {3:D2} ({4})", i + 1, Days, Hours, Minutes, feral ? "Feral" : "Not Feral"));
                             }
 
                             builder.AppendLine("");

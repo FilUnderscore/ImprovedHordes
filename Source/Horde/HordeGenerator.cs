@@ -8,6 +8,6 @@
             this.type = type;
         }
 
-        public abstract Horde GenerateHordeFromGameStage(EntityPlayer player, int gamestage);
+        public abstract Horde GenerateHordeFromGameStage(PlayerHordeGroup group, int gamestage);
     }
 }
