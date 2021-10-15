@@ -4,7 +4,7 @@ namespace ImprovedHordes.Horde.AI.Commands
 {
     public class HordeAICommandDestinationPlayer : HordeAICommandDestination
     {
-        public const int PLAYER_DISTANCE_TOLERANCE = 6;
+        public const int PLAYER_DISTANCE_TOLERANCE = 20;
 
         private readonly EntityPlayer player;
 

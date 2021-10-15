@@ -178,7 +178,8 @@ namespace ImprovedHordes.Horde.Wandering
                         commands.Add(wanderCommand);
                     }
 
-                    HordeAICommandDestination wTDCommand = new HordeAICommandDestination(endPos, 6);
+                    const int END_POS_RADIUS = 10;
+                    HordeAICommandDestination wTDCommand = new HordeAICommandDestination(GetRandomNearbyPosition(endPos, END_POS_RADIUS), END_POS_RADIUS);
                     commands.Add(wTDCommand);
 
                     this.horde.manager.aiManager.Add(entity, horde, true, commands);
@@ -192,6 +193,16 @@ namespace ImprovedHordes.Horde.Wandering
             }
 
             this.horde.state = WanderingHorde.EHordeState.StillAlive;
+        }
+
+        private Vector3 GetRandomNearbyPosition(Vector3 target, float radius)
+        {
+            Vector2 random = this.horde.manager.random.RandomOnUnitCircle;
+
+            float x = target.x + random.x * radius;
+            float z = target.z + random.y * radius;
+
+            return new Vector3(x, target.y, z);
         }
 
         public bool CalculateWanderingHordePositions(out Vector3 startPos, out Vector3 endPos, out Vector3 playerPos, EntityPlayer player)
