@@ -7,6 +7,7 @@ namespace ImprovedHordes.Horde.AI.Commands
     public class HordeAICommandDestination : HordeAICommand
     {
         protected Vector3 targetPosition;
+
         protected int distanceTolerance;
 
         public HordeAICommandDestination(Vector3 target, int distanceTolerance)
@@ -26,8 +27,8 @@ namespace ImprovedHordes.Horde.AI.Commands
         public override bool IsFinished(EntityAlive alive)
         {
             Vector3 entityPosition = alive.position;
-
-            if (Vector3.Distance(entityPosition, this.targetPosition) <= this.distanceTolerance)
+            
+            if (Vector2.Distance(ToXZ(entityPosition), ToXZ(targetPosition)) <= this.distanceTolerance)
                 return true;
 
             return false;
@@ -36,6 +37,11 @@ namespace ImprovedHordes.Horde.AI.Commands
         public override void Execute(double _, EntityAlive alive)
         {
             alive.SetInvestigatePosition(this.targetPosition, 6000, false);
+        }
+
+        private Vector2 ToXZ(Vector3 vec3)
+        {
+            return new Vector2(vec3.x, vec3.z);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace ImprovedHordes.Horde.AI.Commands
+﻿using UnityEngine;
+
+namespace ImprovedHordes.Horde.AI.Commands
 {
     public class HordeAICommandDestinationPlayer : HordeAICommandDestination
     {

@@ -167,12 +167,13 @@ namespace ImprovedHordes.Horde.Wandering
                         commands.Add(wTPCommand);
 
                         HordeAICommandWander wanderCommand = new HordeAICommandWander(30);
+                        commands.Add(wanderCommand);
                     }
 
                     HordeAICommandDestination wTDCommand = new HordeAICommandDestination(endPos, 6);
                     commands.Add(wTDCommand);
 
-                    this.horde.manager.aiManager.Add(entity, horde, commands);
+                    this.horde.manager.aiManager.Add(entity, horde, true, commands);
                 }
 
                 this.horde.hordes.Add(horde);

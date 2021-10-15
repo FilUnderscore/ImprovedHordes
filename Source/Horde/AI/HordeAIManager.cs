@@ -2,17 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.Reflection;
+using HarmonyLib;
+
 using static ImprovedHordes.IHLog;
 
 namespace ImprovedHordes.Horde.AI
 {
     public sealed class HordeAIManager
     {
+        private static readonly MethodInfo DespawnMethod = AccessTools.Method(typeof(EntityAlive), "Despawn");
+
+        static HordeAIManager()
+        {
+            if (DespawnMethod == null)
+                throw new NullReferenceException($"{nameof(DespawnMethod)} is null.");
+        }
+
         public event EventHandler<HordeKilledEventArgs> OnHordeKilledEvent;
 
         private readonly Dictionary<Horde, Dictionary<AIHordeEntity, int>> trackedHordes = new Dictionary<Horde, Dictionary<AIHordeEntity, int>>();
 
-        public void Add(EntityAlive entity, Horde horde, List<HordeAICommand> commands)
+        public void Add(EntityAlive entity, Horde horde, bool despawnOnCompletion, List<HordeAICommand> commands)
         {
             if (!trackedHordes.ContainsKey(horde))
             {
@@ -21,13 +32,13 @@ namespace ImprovedHordes.Horde.AI
 
             Dictionary<AIHordeEntity, int> trackedEntities = trackedHordes[horde];
 
-            AIHordeEntity hordeEntity = new AIHordeEntity(entity, commands);
+            AIHordeEntity hordeEntity = new AIHordeEntity(entity, despawnOnCompletion, commands);
             trackedEntities.Add(hordeEntity, 0);
         }
 
-        public void Add(EntityAlive entity, Horde horde, params HordeAICommand[] commands)
+        public void Add(EntityAlive entity, Horde horde, bool despawnOnCompletion, params HordeAICommand[] commands)
         {
-            this.Add(entity, horde, new List<HordeAICommand>(commands));
+            this.Add(entity, horde, despawnOnCompletion, new List<HordeAICommand>(commands));
         }
 
         public int GetAliveInHorde(Horde horde)
@@ -100,7 +111,7 @@ namespace ImprovedHordes.Horde.AI
 
                     int commandIndex = entityEntry.Value;
 
-                    if (commands.Count < commandIndex)
+                    if (commandIndex >= commands.Count)
                     {
                         UpdateHordeEntity(horde, hordeEntity, true);
 #if DEBUG
@@ -153,10 +164,17 @@ namespace ImprovedHordes.Horde.AI
 
                     if(dead)
                     {
-                        if (entity is EntityEnemy enemy)
-                            enemy.IsHordeZombie = false;
+                        if (!hordeEntity.despawnOnCompletion)
+                        {
+                            if (entity is EntityEnemy enemy)
+                                enemy.IsHordeZombie = false;
 
-                        entity.bIsChunkObserver = false;
+                            entity.bIsChunkObserver = false;
+                        }
+                        else
+                        {
+                            DespawnMethod.Invoke(entity, new object[0]);
+                        }
 
                         trackedHordes[horde].Remove(hordeEntity);
                     }
@@ -184,11 +202,13 @@ namespace ImprovedHordes.Horde.AI
         struct AIHordeEntity
         {
             public EntityAlive alive;
+            public bool despawnOnCompletion;
             public List<HordeAICommand> commands;
-
-            public AIHordeEntity(EntityAlive alive, List<HordeAICommand> commands)
+            
+            public AIHordeEntity(EntityAlive alive, bool despawnOnCompletion, List<HordeAICommand> commands)
             {
                 this.alive = alive;
+                this.despawnOnCompletion = despawnOnCompletion;
                 this.commands = commands;
             }
         }
