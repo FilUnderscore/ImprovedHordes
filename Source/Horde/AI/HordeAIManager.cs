@@ -64,31 +64,6 @@ namespace ImprovedHordes.Horde.AI
             }
         }
 
-        private void Clear()
-        {
-            foreach(var entry in trackedHordes)
-            {
-                Dictionary<AIHordeEntity, int> trackedEntities = entry.Value;
-
-                foreach (var hordeEntity in trackedEntities.Keys)
-                {
-                    var entity = hordeEntity.alive;
-
-                    if (entity.IsDead())
-                        continue;
-
-                    if (entity is EntityEnemy enemy)
-                        enemy.IsHordeZombie = false;
-
-                    entity.bIsChunkObserver = false;
-                }
-            }
-
-            trackedHordes.Clear();
-            updates.Clear();
-            hordesToRemove.Clear();
-        }
-
         private readonly Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>> updates = new Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>>();
         private readonly List<Horde> hordesToRemove = new List<Horde>();
 
@@ -107,7 +82,7 @@ namespace ImprovedHordes.Horde.AI
 
         public void Update()
         {
-            double dt = Time.fixedDeltaTime;
+            float dt = Time.fixedDeltaTime;
             
             foreach (var hordeEntry in trackedHordes)
             {

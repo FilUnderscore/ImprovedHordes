@@ -13,7 +13,7 @@ namespace ImprovedHordes.Horde.AI.Commands
             this.player = player;
         }
 
-        public override void Execute(double dt, EntityAlive alive)
+        public override void Execute(float dt, EntityAlive alive)
         {
             base.Execute(dt, alive);
 

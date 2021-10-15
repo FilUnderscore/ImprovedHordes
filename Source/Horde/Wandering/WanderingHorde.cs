@@ -191,7 +191,9 @@ namespace ImprovedHordes.Horde.Wandering
                 if (!possible)
                 {
                     if (possibleOccurances == 0)
-                        Log("No occurances will be scheduled for the remainder of the week.");
+                        Log("[Wandering Horde] No occurances will be scheduled for the remainder of the week.");
+                    else
+                        Log("[Wandering Horde] {0} occurances out of {1} were scheduled for the week.", possibleOccurances, maxOccurances);
 
                     break;
                 }
@@ -214,7 +216,7 @@ namespace ImprovedHordes.Horde.Wandering
             this.schedule = schedule;
         }
 
-        public ulong GenerateNextOccurance(int occurance, int occurances, out bool canHaveNext, GameRandom random, ulong lastOccurance)
+        public ulong GenerateNextOccurance(int occurance, int occurances, out bool possible, GameRandom random, ulong lastOccurance)
         {
             var worldTime = this.GetWorldTime();
             var maxWorldTime = GameUtils.DaysToWorldTime(this.GetTotalDayRelativeToThisWeek(1)) + WanderingHorde.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX * 1000;
@@ -229,19 +231,31 @@ namespace ImprovedHordes.Horde.Wandering
 
                 if (randomHrToWorldTime > maxWorldTime)
                 {
-                    canHaveNext = false;
+                    possible = worldTime <= maxWorldTime;
                     return maxWorldTime - deltaWorldTime / 2;
                 }
                 else
                 {
-                    canHaveNext = true;
+                    possible = true;
                     return randomHrToWorldTime;
                 }
             }
             else
             {
-                canHaveNext = true;
-                return lastOccurance + (deltaWorldTime / (ulong)occurances);
+                ulong nextOccurance = lastOccurance + (deltaWorldTime / (ulong)occurances);
+                ulong deltaOccuranceTime = nextOccurance - lastOccurance;
+                ulong hoursApartOccurancesMin = WanderingHorde.HOURS_APART_MIN * 1000UL;
+
+                if (deltaOccuranceTime < hoursApartOccurancesMin)
+                {
+                    possible = true;
+                    return lastOccurance + (deltaWorldTime / (ulong)occurances);
+                }
+                else
+                {
+                    possible = false;
+                    return 0UL;
+                }
             }
         }
 

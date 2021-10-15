@@ -34,7 +34,7 @@ namespace ImprovedHordes.Horde.AI.Commands
             return false;
         }
 
-        public override void Execute(double _, EntityAlive alive)
+        public override void Execute(float _, EntityAlive alive)
         {
             alive.SetInvestigatePosition(this.targetPosition, 6000, false);
         }

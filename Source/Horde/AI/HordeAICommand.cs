@@ -6,6 +6,6 @@
 
         public abstract bool IsFinished(EntityAlive alive);
 
-        public abstract void Execute(double dt, EntityAlive alive);
+        public abstract void Execute(float dt, EntityAlive alive);
     }
 }

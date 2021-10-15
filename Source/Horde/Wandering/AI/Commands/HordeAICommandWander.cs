@@ -11,9 +11,9 @@ namespace ImprovedHordes.Horde.Wandering.AI.Commands
             this.time = time;
         }
 
-        public override void Execute(double dt, EntityAlive alive)
+        public override void Execute(float dt, EntityAlive alive)
         {
-            time -= (float)dt;
+            time -= dt;
             alive.ResetDespawnTime();
         }
 
