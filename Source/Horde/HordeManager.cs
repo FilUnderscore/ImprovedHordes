@@ -51,7 +51,7 @@ namespace ImprovedHordes.Horde
                 {
                     BinaryWriter writer = new BinaryWriter(stream);
 
-                    wanderingHorde.Save(writer);
+                    this.wanderingHorde.Save(writer);
 
                     Log("Saved horde data.");
                 }
@@ -70,7 +70,7 @@ namespace ImprovedHordes.Horde
                 {
                     BinaryReader reader = new BinaryReader(stream);
 
-                    wanderingHorde.Load(reader);
+                    this.wanderingHorde.Load(reader);
 
                     Log("Loaded horde data.");
                 }
@@ -93,7 +93,8 @@ namespace ImprovedHordes.Horde
 
         public void Update()
         {
-            aiManager.Update();
+            this.aiManager.Update();
+            this.wanderingHorde.Update();
         }
 
         public ulong GetWorldTime()

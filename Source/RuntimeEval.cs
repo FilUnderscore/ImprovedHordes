@@ -52,12 +52,6 @@ namespace ImprovedHordes
 
             Variables.Add(variableName, variable);
         }
-
-        // P - parameter
-        public static void RegisterVariable<T, P>(string variableName, Func<P, T> fetcher)
-        {
-
-        }
     }
 
     public class RuntimeEval<T>

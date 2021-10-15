@@ -2,11 +2,11 @@
 {
     public class Horde
     {
-        public HordeGroup group;
-        public int count;
-        public bool feral;
+        public readonly HordeGroup group;
+        public readonly int count;
+        public readonly bool feral;
 
-        public int[] entities;
+        public readonly int[] entities;
 
         public Horde(HordeGroup group, int count, bool feral, int[] entities)
         {
