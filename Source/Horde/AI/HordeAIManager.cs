@@ -61,6 +61,9 @@ namespace ImprovedHordes.Horde.AI
                 {
                     var entity = hordeEntity.alive;
 
+                    if (entity.IsDead())
+                        continue;
+
                     if (entity is EntityEnemy enemy)
                         enemy.IsHordeZombie = false;
 
@@ -69,22 +72,24 @@ namespace ImprovedHordes.Horde.AI
             }
 
             trackedHordes.Clear();
+            updates.Clear();
+            hordesToRemove.Clear();
         }
 
-        private Dictionary<Horde, Dictionary<AIHordeEntity, bool>> updates = new Dictionary<Horde, Dictionary<AIHordeEntity, bool>>();
+        private Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>> updates = new Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>>();
         private List<Horde> hordesToRemove = new List<Horde>();
 
-        private void UpdateHordeEntity(Horde horde, AIHordeEntity entity, bool dead = false)
+        private void UpdateHordeEntity(Horde horde, AIHordeEntity entity, EHordeEntityUpdateState newState)
         {
             if (!updates.ContainsKey(horde))
-                updates.Add(horde, new Dictionary<AIHordeEntity, bool>());
+                updates.Add(horde, new Dictionary<AIHordeEntity, EHordeEntityUpdateState>());
 
             var toUpdateDict = updates[horde];
 
             if (toUpdateDict.ContainsKey(entity))
-                toUpdateDict[entity] = dead;
+                toUpdateDict[entity] = newState;
             else
-                toUpdateDict.Add(entity, dead);
+                toUpdateDict.Add(entity, newState);
         }
 
         public void Update()
@@ -103,7 +108,7 @@ namespace ImprovedHordes.Horde.AI
 
                     if (entity.IsDead())
                     {
-                        UpdateHordeEntity(horde, hordeEntity, true);
+                        UpdateHordeEntity(horde, hordeEntity, EHordeEntityUpdateState.DEAD);
                         continue;
                     }
 
@@ -113,7 +118,7 @@ namespace ImprovedHordes.Horde.AI
 
                     if (commandIndex >= commands.Count)
                     {
-                        UpdateHordeEntity(horde, hordeEntity, true);
+                        UpdateHordeEntity(horde, hordeEntity, EHordeEntityUpdateState.FINISHED);
 #if DEBUG
                         Log("Entity {0} has finished executing all commands. Being removed from Horde AI control.", entity.entityId);
 #endif
@@ -124,7 +129,7 @@ namespace ImprovedHordes.Horde.AI
 
                     if (command == null)
                     {
-                        UpdateHordeEntity(horde, hordeEntity, false);
+                        UpdateHordeEntity(horde, hordeEntity, EHordeEntityUpdateState.NEXT);
 #if DEBUG
                         Warning("Command at index {0} was null for entity {1}. Skipping.", commandIndex, entity.entityId);
 #endif
@@ -139,7 +144,7 @@ namespace ImprovedHordes.Horde.AI
                     if(command.IsFinished(entity))
                     {
                         Log("Finished command {0}", command.GetType().FullName);
-                        UpdateHordeEntity(horde, hordeEntity, false);
+                        UpdateHordeEntity(horde, hordeEntity, EHordeEntityUpdateState.NEXT);
                     }
                 }
 
@@ -160,27 +165,32 @@ namespace ImprovedHordes.Horde.AI
                 {
                     AIHordeEntity hordeEntity = entityEntry.Key;
                     EntityAlive entity = hordeEntity.alive;
-                    bool dead = entityEntry.Value;
+                    EHordeEntityUpdateState updateState = entityEntry.Value;
 
-                    if(dead)
+                    switch(updateState)
                     {
-                        if (!hordeEntity.despawnOnCompletion)
-                        {
-                            if (entity is EntityEnemy enemy)
-                                enemy.IsHordeZombie = false;
+                        case EHordeEntityUpdateState.NEXT:
+                            trackedHordes[horde][hordeEntity]++;
+                            break;
+                        case EHordeEntityUpdateState.FINISHED:
+                        case EHordeEntityUpdateState.DEAD:
+                            if(updateState == EHordeEntityUpdateState.FINISHED)
+                            {
+                                if (!hordeEntity.despawnOnCompletion)
+                                {
+                                    if (entity is EntityEnemy enemy)
+                                        enemy.IsHordeZombie = false;
 
-                            entity.bIsChunkObserver = false;
-                        }
-                        else
-                        {
-                            DespawnMethod.Invoke(entity, new object[0]);
-                        }
+                                    entity.bIsChunkObserver = false;
+                                }
+                                else
+                                {
+                                    DespawnMethod.Invoke(entity, new object[0]);
+                                }
+                            }
 
-                        trackedHordes[horde].Remove(hordeEntity);
-                    }
-                    else
-                    {
-                        trackedHordes[horde][hordeEntity]++;
+                            trackedHordes[horde].Remove(hordeEntity);
+                            break;
                     }
                 }
             }
@@ -211,6 +221,13 @@ namespace ImprovedHordes.Horde.AI
                 this.despawnOnCompletion = despawnOnCompletion;
                 this.commands = commands;
             }
+        }
+
+        enum EHordeEntityUpdateState
+        {
+            NEXT,
+            FINISHED,
+            DEAD
         }
 
         public class HordeKilledEventArgs : EventArgs
