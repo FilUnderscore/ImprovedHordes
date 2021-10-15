@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.AI.Commands
 {

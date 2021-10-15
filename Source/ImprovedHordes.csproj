@@ -74,7 +74,7 @@
     <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\AI\HordeAIManager.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
-    <Compile Include="IHUtils.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
     <Compile Include="Horde\Wandering\WanderingHordeSpawner.cs" />
     <Compile Include="Horde\Wandering\WanderingHorde.cs" />

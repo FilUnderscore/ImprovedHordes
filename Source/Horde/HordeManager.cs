@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
 
 using ImprovedHordes.Horde.AI;
 

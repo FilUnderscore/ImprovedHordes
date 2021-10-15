@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 
 using ImprovedHordes.Horde.AI;
-using static ImprovedHordes.IHLog;
+
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Wandering
 {
@@ -64,7 +65,20 @@ namespace ImprovedHordes.Horde.Wandering
             {
                 this.spawner.SpawnWanderingHordes();
             }
+            else if (IsNextHordeOverdue())
+            {
+                this.DisbandAllWanderingHordes();
+            }
         }
+
+        private void DisbandAllWanderingHordes()
+        {
+            foreach(var horde in this.hordes)
+            {
+                this.manager.aiManager.DisbandHorde(horde);
+            }
+        }
+
         public void OnWanderingHordeKilled(object sender, HordeAIManager.HordeKilledEventArgs e)
         {
             Horde horde = e.horde;
@@ -101,6 +115,11 @@ namespace ImprovedHordes.Horde.Wandering
             return this.state == WanderingHorde.EHordeState.Finished &&
                 this.schedule.currentOccurance < this.schedule.occurances.Count &&
                 this.GetWorldTime() >= this.schedule.occurances[this.schedule.currentOccurance].worldTime;
+        }
+
+        public bool IsNextHordeOverdue()
+        {
+            return this.state == EHordeState.StillAlive && this.schedule.currentOccurance + 1 < this.schedule.occurances.Count && this.GetWorldTime() >= this.schedule.occurances[this.schedule.currentOccurance + 1].worldTime;
         }
 
         public bool CheckIfNeedsReset()

@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Reflection;
 using HarmonyLib;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.AI
 {
@@ -51,7 +51,20 @@ namespace ImprovedHordes.Horde.AI
             return trackedHordes.Count;
         }
 
-        public void Clear()
+        public void DisbandHorde(Horde horde)
+        {
+            if (!trackedHordes.ContainsKey(horde))
+                return;
+
+            foreach(var entityEntry in trackedHordes[horde])
+            {
+                AIHordeEntity entity = entityEntry.Key;
+
+                UpdateHordeEntity(horde, entity, EHordeEntityUpdateState.FINISHED);
+            }
+        }
+
+        private void Clear()
         {
             foreach(var entry in trackedHordes)
             {
@@ -76,8 +89,8 @@ namespace ImprovedHordes.Horde.AI
             hordesToRemove.Clear();
         }
 
-        private Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>> updates = new Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>>();
-        private List<Horde> hordesToRemove = new List<Horde>();
+        private readonly Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>> updates = new Dictionary<Horde, Dictionary<AIHordeEntity, EHordeEntityUpdateState>>();
+        private readonly List<Horde> hordesToRemove = new List<Horde>();
 
         private void UpdateHordeEntity(Horde horde, AIHordeEntity entity, EHordeEntityUpdateState newState)
         {
@@ -111,6 +124,10 @@ namespace ImprovedHordes.Horde.AI
                         UpdateHordeEntity(horde, hordeEntity, EHordeEntityUpdateState.DEAD);
                         continue;
                     }
+
+                    // Already awaiting update, so wait until it is processed.
+                    if (updates.ContainsKey(horde) && updates[horde].ContainsKey(hordeEntity))
+                        continue;
 
                     List<HordeAICommand> commands = hordeEntity.commands;
 

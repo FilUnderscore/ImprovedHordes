@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde
 {

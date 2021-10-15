@@ -8,7 +8,8 @@ using ImprovedHordes.Horde.AI.Commands;
 
 using ImprovedHordes.Horde.Wandering.AI.Commands;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
+using static ImprovedHordes.Utils.Math;
 
 namespace ImprovedHordes.Horde.Wandering
 {
@@ -105,7 +106,7 @@ namespace ImprovedHordes.Horde.Wandering
             List<EntityPlayer> hordeLeads = DetermineHordeLeads();
 
             #region Spawning Log Info
-            Log("Weekly Wandering Horde {0} Spawning", this.horde.schedule.currentOccurance + 1);
+            Log("[Wandering Horde] Occurance {0} Spawning", this.horde.schedule.currentOccurance + 1);
             StringBuilder leads = new StringBuilder();
 
             for(int i = 0; i < hordeLeads.Count; i++)
@@ -124,7 +125,7 @@ namespace ImprovedHordes.Horde.Wandering
             {
                 if (!CalculateWanderingHordePositions(out Vector3 startPos, out Vector3 endPos, out Vector3 playerPos, player))
                 {
-                    Error("Invalid spawn position for wandering horde.");
+                    Error("[Wandering Horde] Invalid spawn position for wandering horde.");
                     return;
                 }
 
@@ -144,7 +145,7 @@ namespace ImprovedHordes.Horde.Wandering
                     
                     if (!this.horde.manager.world.GetRandomSpawnPositionMinMaxToPosition(startPos, 2, 20, 2, true, out Vector3 randomStartPos))
                     {
-                        //Error("Invalid spawn position. " + randomStartPos.ToString() + " relative to " + startPos.ToString());
+                        // Failed to find a random spawn near position, so just assign default spawn position for horde.
                         randomStartPos = startPos;
                     }
 
@@ -216,56 +217,12 @@ namespace ImprovedHordes.Horde.Wandering
             return true;
         }
 
-        public int FindLineCircleIntersections(float centerX, float centerY, float radius, Vector2 point1, Vector2 point2, out Vector2 int1, out Vector2 int2)
-        {
-            float dx, dy, A, B, C, det, t;
-
-            dx = point2.x - point1.x;
-            dy = point2.y - point1.y;
-
-            A = dx * dx + dy * dy;
-            B = 2 * (dx * (point1.x - centerX) + dy * (point1.y - centerY));
-            C = (point1.x - centerX) * (point1.x - centerX) + (point1.y - centerY) * (point1.y - centerY) - radius * radius;
-
-            det = B * B - 4 * A * C;
-
-            if(A <= 0.0000001 || det < 0)
-            {
-                // No solutions.
-                int1 = Vector2.zero;
-                int2 = Vector2.zero;
-                
-                return 0;
-            }
-            else if(det == 0)
-            {
-                // One solution.
-                t = -B / (2 * A);
-
-                int1 = new Vector2(point1.x + t * dx, point1.y + t * dy);
-                int2 = Vector2.zero;
-                
-                return 1;
-            }
-            else
-            {
-                // Two solutions.
-                t = (float)((-B + Math.Sqrt(det)) / (2 * A));
-                int1 = new Vector2(point1.x + t * dx, point1.y + t * dy);
-
-                t = (float)((-B - Math.Sqrt(det)) / (2 * A));
-                int2 = new Vector2(point1.x + t * dx, point1.y + t * dy);
-
-                return 2;
-            }
-        }
-
         public bool GetSpawnableY(ref Vector3 pos)
         {
             //int y = Utils.Fastfloor(playerY - 1f);
             int y = (int)byte.MaxValue;
-            int x = Utils.Fastfloor(pos.x);
-            int z = Utils.Fastfloor(pos.z);
+            int x = global::Utils.Fastfloor(pos.x);
+            int z = global::Utils.Fastfloor(pos.z);
 
             if(this.horde.manager.world.GetWorldExtent(out Vector3i minSize, out Vector3i maxSize))
             {
@@ -388,7 +345,6 @@ namespace ImprovedHordes.Horde.Wandering
                             continue;
                     }
 
-                    //var count = minCount + (int)Math.Floor(countIncPerGS * gamestage);
                     int count;
 
                     if (gs == null || countIncPerGS == 0)

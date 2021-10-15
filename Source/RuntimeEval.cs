@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes
 {

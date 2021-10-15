@@ -2,7 +2,7 @@
 
 using ImprovedHordes.Horde;
 
-using static ImprovedHordes.IHLog;
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes
 {
