@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static ImprovedHordes.IHLog;
-
-namespace ImprovedHordes.Horde
+﻿namespace ImprovedHordes.Horde
 {
     public class Horde
     {
