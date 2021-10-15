@@ -121,7 +121,7 @@ namespace ImprovedHordes.Horde.Wandering
                     leads.Append(", ");
             }
 
-            Log("Leads {0}", leads.ToString());
+            Log("[Wandering Horde] Player Horde Group Leads {0}", leads.ToString());
             #endregion
 
             foreach (var group in playerHordeGroups)
@@ -218,7 +218,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             if (intersections < 2)
             {
-                Warning("Only 1 intersection was found.");
+                Warning("[Wandering Horde] Only 1 intersection was found.");
 
                 return false;
             }
@@ -262,7 +262,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             if(!result)
             {
-                Log("Failed to find spawnable circle from pos. X" + x + " Z " + z);
+                Log("[Wandering Horde] Failed to find spawnable circle from pos. X" + x + " Z " + z);
                 return GetSpawnableCircleFromPos(playerPos, radius);
             }
 
@@ -391,13 +391,13 @@ namespace ImprovedHordes.Horde.Wandering
                         count = toSpawn;
                     }
 
-                    if (maxCount > 0 && count > maxCount)
+                    if (maxCount >= 0 && count > maxCount)
                         count = maxCount;
 
                     entitiesToSpawn[entity] = count;
 
 #if DEBUG
-                    Log("Spawning {0} of {1}", count, entity.name ?? entity.group);
+                    Log("[Wandering Horde] Spawning {0} of {1}", count, entity.name ?? entity.group);
 #endif
                 }
 
@@ -432,7 +432,7 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                     else
                     {
-                        Error("Horde entity in group {0} has no name or group. Skipping.", randomGroup.name);
+                        Error("[Wandering Horde] Horde entity in group {0} has no name or group. Skipping.", randomGroup.name);
                         continue;
                     }
                 }
