@@ -38,14 +38,9 @@ namespace ImprovedHordes.Horde
                                 XmlElement hordegroupElement = (XmlElement)childNode;
 
                                 string hordegroupName = hordegroupElement.HasAttribute("name") ? hordegroupElement.GetAttribute("name") : throw new Exception("[Improved Hordes] Attribute 'name' missing on hordegroup tag.");
-                                //HashSet<int> prefWeekDays = hordegroupElement.HasAttribute("prefWeekDay") ? ParsePrefWeekDays(hordegroupElement.GetAttribute("prefWeekDay")) : null;
-                                RuntimeEval<HashSet<int>> prefWeekDays = hordegroupElement.HasAttribute("prefWeekDay") ? RuntimeEval<HashSet<int>>.Parse(hordegroupElement.GetAttribute("prefWeekDay"), prefWeekDaysStr => ParsePrefWeekDays(prefWeekDaysStr)) : null;
+                                RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordegroupElement, "prefWeekDay", str => ParsePrefWeekDays(str));
 
-                                //int? maxWeeklyOccurances = null;
-                                RuntimeEval<int> maxWeeklyOccurances = null;
-
-                                if (hordegroupElement.HasAttribute("maxWeeklyOccurances"))
-                                    maxWeeklyOccurances = RuntimeEval<int>.Parse(hordegroupElement.GetAttribute("maxWeeklyOccurances"), maxWeeklyOccurancesStr => StringParsers.ParseSInt32(maxWeeklyOccurancesStr));
+                                RuntimeEval.Value<int> maxWeeklyOccurances = ParseIfExists<int>(hordegroupElement, "maxWeeklyOccurances");
 
                                 HordeGroup group = new HordeGroup(hordegroupName, prefWeekDays, maxWeeklyOccurances);
 
@@ -67,6 +62,16 @@ namespace ImprovedHordes.Horde
                 if (enumerator is IDisposable disposable)
                     disposable.Dispose();
             }
+        }
+
+        private static RuntimeEval.Value<T> ParseIfExists<T>(XmlElement element, string attribute, Func<string, T> parser = null)
+        {
+            RuntimeEval.Value<T> value = null;
+
+            if (element.HasAttribute(attribute))
+                value = RuntimeEval.Value<T>.Parse(element.GetAttribute(attribute), parser);
+
+            return value;
         }
 
         private static HashSet<int> ParsePrefWeekDays(string str)
@@ -119,27 +124,25 @@ namespace ImprovedHordes.Horde
             if (entityName != null && entityGroup != null)
                 throw new Exception(String.Format("[Improved Hordes] Horde group {0} has double defined entity with name {1} and group {2}, only one can be defined.", group.name, entityName, entityGroup));
 
+            RuntimeEval.Value<float> chance = ParseIfExists<float>(entityElement, "chance");
+
             //int minCount = entityElement.HasAttribute("minCount") ? StringParsers.Parseint32(entityElement.GetAttribute("minCount")) : 0;
-            RuntimeEval<int> minCount = entityElement.HasAttribute("minCount") ? RuntimeEval<int>.Parse(entityElement.GetAttribute("minCount"), minCountStr => StringParsers.ParseSInt32(minCountStr)) : null;
-            RuntimeEval<float> countIncPerGS = entityElement.HasAttribute("countIncPerGS") ? RuntimeEval<float>.Parse(entityElement.GetAttribute("countIncPerGS"), countIncPerGSStr => StringParsers.ParseFloat(countIncPerGSStr)) : null;
-            RuntimeEval<int> maxCount = null;
+            RuntimeEval.Value<int> minCount = ParseIfExists<int>(entityElement, "minCount");
+            RuntimeEval.Value<int> maxCount = ParseIfExists<int>(entityElement, "maxCount");
 
-            if (entityElement.HasAttribute("maxCount"))
-                maxCount = RuntimeEval<int>.Parse(entityElement.GetAttribute("maxCount"), maxCountStr => StringParsers.ParseSInt32(maxCountStr));
-
-            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, minCount, maxCount);
+            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, chance, minCount, maxCount);
 
             group.entities.Add(entity);
         }
 
         private static void EvaluateGSThenEntityNode(XmlElement gsElement, HordeGroup group)
         {
-            RuntimeEval<int> minGS = gsElement.HasAttribute("min") ? RuntimeEval<int>.Parse(gsElement.GetAttribute("min"), minValueStr => StringParsers.ParseSInt32(minValueStr)) : null;
-            RuntimeEval<int> maxGS = gsElement.HasAttribute("max") ? RuntimeEval<int>.Parse(gsElement.GetAttribute("max"), minValueStr => StringParsers.ParseSInt32(minValueStr)) : null;
-            RuntimeEval<int> countDecGS = gsElement.HasAttribute("countDecGS") ? RuntimeEval<int>.Parse(gsElement.GetAttribute("countDecGS"), minValueStr => StringParsers.ParseSInt32(minValueStr)) : null;
+            RuntimeEval.Value<int> minGS = ParseIfExists<int>(gsElement, "min");
+            RuntimeEval.Value<int> maxGS = ParseIfExists<int>(gsElement, "max");
+            RuntimeEval.Value<int> countDecGS = ParseIfExists<int>(gsElement, "countDecGS");
 
-            RuntimeEval<float> countIncPerGS = gsElement.HasAttribute("countIncPerGS") ? RuntimeEval<float>.Parse(gsElement.GetAttribute("countIncPerGS"), minValueStr => StringParsers.ParseFloat(minValueStr)) : null;
-            RuntimeEval<float> countDecPerPostGS = gsElement.HasAttribute("countDecPerPostGS") ? RuntimeEval<float>.Parse(gsElement.GetAttribute("countDecPerPostGS"), str => StringParsers.ParseFloat(str)) : null;
+            RuntimeEval.Value<float> countIncPerGS = ParseIfExists<float>(gsElement, "countIncPerGS"); 
+            RuntimeEval.Value<float> countDecPerPostGS = ParseIfExists<float>(gsElement, "countDecPerPostGS");
 
             GS gs = new GS(minGS, maxGS, countDecGS, countIncPerGS, countDecPerPostGS);
 

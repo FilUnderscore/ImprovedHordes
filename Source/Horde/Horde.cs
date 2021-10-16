@@ -43,5 +43,18 @@ namespace ImprovedHordes.Horde
 
             return copy;
         }
+
+        public int GetGroupGamestage()
+        {
+            List<int> gamestages = new List<int>();
+            List<EntityPlayer> allPlayers = GetAllPlayers();
+
+            foreach(var player in allPlayers)
+            {
+                gamestages.Add(player.gameStage);
+            }
+
+            return GameStageDefinition.CalcPartyLevel(gamestages);
+        }
     }
 }

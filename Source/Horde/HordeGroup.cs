@@ -7,10 +7,10 @@ namespace ImprovedHordes.Horde
         public readonly string name;
         public readonly List<HordeGroupEntity> entities = new List<HordeGroupEntity>();
 
-        public readonly RuntimeEval<HashSet<int>> PrefWeekDays;
-        public readonly RuntimeEval<int> MaxWeeklyOccurances;
+        public readonly RuntimeEval.Value<HashSet<int>> PrefWeekDays;
+        public readonly RuntimeEval.Value<int> MaxWeeklyOccurances;
 
-        public HordeGroup(string name, RuntimeEval<HashSet<int>> prefWeekDays, RuntimeEval<int> maxWeeklyOccurances)
+        public HordeGroup(string name, RuntimeEval.Value<HashSet<int>> prefWeekDays, RuntimeEval.Value<int> maxWeeklyOccurances)
         {
             this.name = name;
             this.PrefWeekDays = prefWeekDays;
@@ -25,14 +25,17 @@ namespace ImprovedHordes.Horde
         public readonly string name;
         public readonly string group;
 
-        public readonly RuntimeEval<int> minCount;
-        public readonly RuntimeEval<int> maxCount;
+        public readonly RuntimeEval.Value<float> chance;
 
-        public HordeGroupEntity(GS gs, string name, string group, RuntimeEval<int> minCount, RuntimeEval<int> maxCount)
+        public readonly RuntimeEval.Value<int> minCount;
+        public readonly RuntimeEval.Value<int> maxCount;
+
+        public HordeGroupEntity(GS gs, string name, string group, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount)
         {
             this.gs = gs;
             this.name = name;
             this.group = group;
+            this.chance = chance;
             this.minCount = minCount;
             this.maxCount = maxCount;
         }
@@ -40,16 +43,16 @@ namespace ImprovedHordes.Horde
 
     public class GS
     {
-        public readonly RuntimeEval<int> min;
-        public readonly RuntimeEval<int> max;
-        public readonly RuntimeEval<int> countDecGS;
+        public readonly RuntimeEval.Value<int> min;
+        public readonly RuntimeEval.Value<int> max;
+        public readonly RuntimeEval.Value<int> countDecGS;
 
-        public readonly RuntimeEval<float> countIncPerGS;
-        public readonly RuntimeEval<float> countDecPerPostGS;
+        public readonly RuntimeEval.Value<float> countIncPerGS;
+        public readonly RuntimeEval.Value<float> countDecPerPostGS;
 
         public GS() { }
 
-        public GS(RuntimeEval<int> min, RuntimeEval<int> max, RuntimeEval<int> countDecGS, RuntimeEval<float> countIncPerGS, RuntimeEval<float> countDecPerPostGS)
+        public GS(RuntimeEval.Value<int> min, RuntimeEval.Value<int> max, RuntimeEval.Value<int> countDecGS, RuntimeEval.Value<float> countIncPerGS, RuntimeEval.Value<float> countDecPerPostGS)
         {
             this.min = min;
             this.max = max;

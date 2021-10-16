@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationPlayer.cs" />
+    <Compile Include="Horde\AI\Commands\HordeAICommandDestinationMoving.cs" />
     <Compile Include="Horde\AI\HordeAICommand.cs" />
     <Compile Include="Horde\Horde.cs" />
     <Compile Include="Horde\HordeGroup.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Horde\HordeGenerator.cs" />
     <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\AI\HordeAIManager.cs" />
+    <Compile Include="Horde\ScoutV2\ScoutHorde.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />

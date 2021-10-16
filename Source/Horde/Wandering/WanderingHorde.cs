@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using HarmonyLib;
+
 using ImprovedHordes.Horde.AI;
 
 using static ImprovedHordes.Utils.Logger;
@@ -31,8 +33,8 @@ namespace ImprovedHordes.Horde.Wandering
             this.spawner = new WanderingHordeSpawner(this);
             manager.aiManager.OnHordeKilledEvent += OnWanderingHordeKilled;
 
-            RuntimeEvalRegistry.RegisterVariable("week", this.GetCurrentWeek);
-            RuntimeEvalRegistry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
+            RuntimeEval.Registry.RegisterVariable("week", this.GetCurrentWeek);
+            RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
         }
 
         public void Load(BinaryReader reader)
@@ -381,6 +383,20 @@ namespace ImprovedHordes.Horde.Wandering
             Spawning,
             StillAlive,
             Finished
+        }
+
+        class HarmonyPatches
+        {
+            [HarmonyPatch(typeof(AIDirectorWanderingHordeComponent))]
+            [HarmonyPatch("Tick")]
+            class WanderingHordeSpawnHook
+            {
+                static bool Prefix(double _dt)
+                {
+                    // Prevent default wandering hordes from spawning at all.
+                    return false;
+                }
+            }
         }
     }
 }

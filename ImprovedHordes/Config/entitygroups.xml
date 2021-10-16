@@ -14,6 +14,26 @@
 			<entity name="zombieNurseFeral"/>
 			<entity name="zombieFatHawaiianFeral"/>
 			<entity name="zombieSteveCrawlerFeral"/>
+			<entity name="zombieFemaleFatFeral"/>
+			<entity name="zombieJanitorFeral"/>
+			<entity name="zombieLabFeral"/>
+		</entitygroup>
+		
+		<entitygroup name="IHZombiesAllRadiated">
+			<entity name="zombieSpiderRadiated"/>
+			<entity name="zombieBoeRadiated"/>
+			<entity name="zombieJoeRadiated"/>
+			<entity name="zombieSteveRadiated"/>
+			<entity name="zombieMoeRadiated"/>
+			<entity name="zombieYoRadiated"/>
+			<entity name="zombieArleneRadiated"/>
+			<entity name="zombieDarleneRadiated"/>
+			<entity name="zombieMarleneRadiated"/>
+			<entity name="zombieSkateboarderRadiated"/>
+			<entity name="zombieFemaleFatRadiated"/>
+			<entity name="zombieOldTimerRadiated"/>
+			<entity name="zombieJanitorRadiated"/>
+			<entity name="zombieLabRadiated"/>
 		</entitygroup>
 	</append>
 </ihhordes>

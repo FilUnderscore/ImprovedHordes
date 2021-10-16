@@ -2,22 +2,12 @@
 
 namespace ImprovedHordes.Horde.AI.Commands
 {
-    public class HordeAICommandDestinationPlayer : HordeAICommandDestination
+    public class HordeAICommandDestinationPlayer : HordeAICommandDestinationMoving
     {
         public const int PLAYER_DISTANCE_TOLERANCE = 20;
 
-        private readonly EntityPlayer player;
-
-        public HordeAICommandDestinationPlayer(EntityPlayer player) : base(player.position, PLAYER_DISTANCE_TOLERANCE)
+        public HordeAICommandDestinationPlayer(EntityPlayer player) : base(() => player.position, PLAYER_DISTANCE_TOLERANCE)
         {
-            this.player = player;
-        }
-
-        public override void Execute(float dt, EntityAlive alive)
-        {
-            base.Execute(dt, alive);
-
-            this.targetPosition = player.position;
         }
     }
 }

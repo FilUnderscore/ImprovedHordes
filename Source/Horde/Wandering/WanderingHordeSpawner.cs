@@ -23,21 +23,6 @@ namespace ImprovedHordes.Horde.Wandering
             this.horde = horde;
         }
 
-        private int CalculateNearbyGameStages(EntityPlayer player)
-        {
-            List<int> playerGameStages = new List<int>
-            {
-                player.gameStage // Add player.
-            };
-
-            foreach (var nearbyPlayer in GetNearbyPlayerGroup(player))
-            {
-                playerGameStages.Add(nearbyPlayer.gameStage);
-            }
-
-            return GameStageDefinition.CalcPartyLevel(playerGameStages);
-        }
-
         private List<EntityPlayer> GetNearbyPlayerGroup(EntityPlayer player)
         {
             List<EntityPlayer> players = new List<EntityPlayer>();
@@ -126,19 +111,19 @@ namespace ImprovedHordes.Horde.Wandering
 
             foreach (var group in playerHordeGroups)
             {
-                var groupLeaderPlayer = group.leader;
-                // TODO: Calculate average position between all group leaders.
+                var averageGroupPosition = CalculateAverageGroupPosition(group);
 
-                if (!CalculateWanderingHordePositions(out Vector3 startPos, out Vector3 endPos, out Vector3 playerPos, groupLeaderPlayer))
+                if (!CalculateWanderingHordePositions(averageGroupPosition, out Vector3 startPos, out Vector3 endPos))
                 {
                     Error("[Wandering Horde] Invalid spawn position for wandering horde.");
                     return;
                 }
 
-                Horde horde = HORDE_GENERATOR.GenerateHordeFromGameStage(group, CalculateNearbyGameStages(groupLeaderPlayer));
+                Horde horde = HORDE_GENERATOR.GenerateHorde(group);
 
 #if DEBUG
                 Log("Horde Group: {0}", horde.group.name);
+                Log("GS: {0}", group.GetGroupGamestage());
                 Log("Start Pos: " + startPos.ToString());
                 Log("End Pos: " + endPos.ToString());
                 Log("Horde size: " + horde.count);
@@ -168,21 +153,24 @@ namespace ImprovedHordes.Horde.Wandering
                     entity.IsBloodMoon = false;
 
                     List<HordeAICommand> commands = new List<HordeAICommand>();
+                    const int DEST_RADIUS = 10;
 
                     if (horde.feral)
                     {
-                        HordeAICommandDestinationPlayer wTPCommand = new HordeAICommandDestinationPlayer(groupLeaderPlayer);
+                        HordeAICommand wTPCommand = new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS);
                         commands.Add(wTPCommand);
 
-                        HordeAICommandWander wanderCommand = new HordeAICommandWander(30);
+                        HordeAICommand wanderCommand = new HordeAICommandWander(50);
                         commands.Add(wanderCommand);
                     }
 
-                    const int END_POS_RADIUS = 10;
-                    HordeAICommandDestination wTDCommand = new HordeAICommandDestination(GetRandomNearbyPosition(endPos, END_POS_RADIUS), END_POS_RADIUS);
+                    HordeAICommand wTDCommand = new HordeAICommandDestination(GetRandomNearbyPosition(endPos, DEST_RADIUS), DEST_RADIUS);
                     commands.Add(wTDCommand);
 
                     this.horde.manager.aiManager.Add(entity, horde, true, commands);
+
+                    // Add to pathfinder manager.
+                    AstarManager.Instance.AddLocationLine(randomStartPos, endPos, 64);
                 }
 
                 this.horde.hordes.Add(horde);
@@ -195,6 +183,28 @@ namespace ImprovedHordes.Horde.Wandering
             this.horde.state = WanderingHorde.EHordeState.StillAlive;
         }
 
+        private Vector3 CalculateAverageGroupPosition(PlayerHordeGroup playerHordeGroup)
+        {
+            List<EntityPlayer> players = playerHordeGroup.GetAllPlayers();
+
+            Vector3 avg = Vector3.zero;
+
+            foreach(var player in players)
+            {
+                avg += player.position;
+            }
+
+            avg /= players.Count;
+
+            if(!GetSpawnableY(ref avg))
+            {
+                // Testing this.
+                Error("Failed to get spawnable Y.");
+            }
+
+            return avg;
+        }
+
         private Vector3 GetRandomNearbyPosition(Vector3 target, float radius)
         {
             Vector2 random = this.horde.manager.random.RandomOnUnitCircle;
@@ -205,26 +215,23 @@ namespace ImprovedHordes.Horde.Wandering
             return new Vector3(x, target.y, z);
         }
 
-        public bool CalculateWanderingHordePositions(out Vector3 startPos, out Vector3 endPos, out Vector3 playerPos, EntityPlayer player)
+        public bool CalculateWanderingHordePositions(Vector3 commonPos, out Vector3 startPos, out Vector3 endPos)
         {
             var random = this.horde.manager.random;
 
-            //var radius = 80 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance);
-            //var radius = 80f;
-            var radius = random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
-            playerPos = player.position;
-            startPos = GetSpawnableCircleFromPos(playerPos, radius);
+            var radius = random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance)); // TODO: Make XML setting.
+            startPos = GetSpawnableCircleFromPos(commonPos, radius);
 
-            this.horde.manager.world.GetRandomSpawnPositionMinMaxToPosition(playerPos, 20, 40, 20, true, out Vector3 randomPos);
+            this.horde.manager.world.GetRandomSpawnPositionMinMaxToPosition(commonPos, 20, 40, 20, true, out Vector3 randomPos);
 
-            var intersections = FindLineCircleIntersections(randomPos.x, randomPos.z, radius, startPos, playerPos, out _, out Vector2 intEndPos);
+            var intersections = FindLineCircleIntersections(randomPos.x, randomPos.z, radius, startPos, commonPos, out _, out Vector2 intEndPos);
 
             endPos = new Vector3(intEndPos.x, 0, intEndPos.y);
             var result = GetSpawnableY(ref endPos);
 
             if(!result)
             {
-                return CalculateWanderingHordePositions(out startPos, out endPos, out playerPos, player);
+                return CalculateWanderingHordePositions(commonPos, out startPos, out endPos);
             }
 
             if (intersections < 2)
@@ -284,8 +291,9 @@ namespace ImprovedHordes.Horde.Wandering
             public WanderingHordeGenerator() : base("wandering")
             { }
 
-            public override Horde GenerateHordeFromGameStage(PlayerHordeGroup playerHordeGroup, int gamestage)
+            public override Horde GenerateHorde(PlayerHordeGroup playerHordeGroup)
             {
+                int gamestage = playerHordeGroup.GetGroupGamestage();
                 var groupLeaderPlayer = playerHordeGroup.leader;
 
                 var wanderingHorde = ImprovedHordesMod.manager.wanderingHorde;
@@ -348,6 +356,9 @@ namespace ImprovedHordes.Horde.Wandering
 
                 foreach (var entity in randomGroup.entities)
                 {
+                    if (entity.chance != null && entity.chance.Evaluate() < wanderingHorde.manager.random.RandomFloat)
+                        continue;
+
                     entitiesToSpawn.Add(entity, 0);
 
                     int minCount = entity.minCount != null ? entity.minCount.Evaluate() : 0;

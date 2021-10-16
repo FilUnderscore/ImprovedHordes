@@ -30,7 +30,7 @@
 	<horde type="wandering">
 		<hordegroup name="ZombieDogs" prefWeekDay="3,6,7" maxWeeklyOccurances="2">
 			<gs min="5" countIncPerGS="0.025">
-				<entity group="ZombieDogGroup" minCount="{week=1?{weekDay}:7}" maxCount="20"/>
+				<entity name="animalZombieDog" minCount="{week=1?{weekDay}:7}" maxCount="20"/>
 			</gs>
 			
 			<!--<entity group="ZombieDogGroup" minCount="{test?{1}:2}" countIncPerGS="0.025" maxCount="20"/>-->
@@ -80,6 +80,7 @@
 			at GS400 start decreasing spawn count by 0.1 per GS after 400, 
 			then cease any remaining spawns at GS700.-->
 			<gs min="100" max="700" countIncPerGS="0.02" countDecGS="400" countDecPerPostGS="0.1">
+				<entity name="zombieScreamerFeral" chance="0.5" minCount="1" maxCount="1"/>
 				<entity group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
 			</gs>
 		</hordegroup>
