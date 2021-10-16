@@ -311,6 +311,14 @@ namespace ImprovedHordes.Horde.Wandering
 
                         if (weeklyOccurancesForPlayer >= maxWeeklyOccurances)
                             continue;
+
+                        if (maxWeeklyOccurances > 0)
+                        {
+                            float diminishedChance = (float)Math.Pow(1 / maxWeeklyOccurances, weeklyOccurancesForPlayer);
+
+                            if (wanderingHorde.manager.random.RandomFloat > diminishedChance)
+                                continue;
+                        }
                     }
 
                     if (group.PrefWeekDays != null)
