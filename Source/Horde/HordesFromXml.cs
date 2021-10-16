@@ -9,6 +9,7 @@ namespace ImprovedHordes.Horde
 {
     public class HordesFromXml
     {
+        // TODO: Rewrite XML Element reading, have parsers that allow for deeper nodes and element attribute parsing. E.g. XML base struct that can be inherited and build upon, for hordes, for entities etc.
         public static void LoadHordes(XmlFile xmlFile)
         {
             XmlElement documentElement = xmlFile.XmlDoc.DocumentElement;

@@ -164,9 +164,6 @@ namespace ImprovedHordes.Horde.Wandering
                     commands.Add(new HordeAICommandDestination(GetRandomNearbyPosition(endPos, DEST_RADIUS), DEST_RADIUS));
                     
                     this.horde.manager.aiManager.Add(entity, horde, true, commands);
-
-                    // Add to pathfinder manager.
-                    AstarManager.Instance.AddLocationLine(randomStartPos, endPos, 64);
                 }
 
                 this.horde.hordes.Add(horde);

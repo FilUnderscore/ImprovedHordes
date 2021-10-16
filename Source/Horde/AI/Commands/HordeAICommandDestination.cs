@@ -37,6 +37,8 @@ namespace ImprovedHordes.Horde.AI.Commands
         public override void Execute(float _, EntityAlive alive)
         {
             alive.SetInvestigatePosition(this.targetPosition, 6000, false);
+
+            AstarManager.Instance.AddLocationLine(alive.position, this.targetPosition, 64);
         }
 
         private Vector2 ToXZ(Vector3 vec3)

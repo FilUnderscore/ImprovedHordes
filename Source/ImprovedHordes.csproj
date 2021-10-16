@@ -74,7 +74,7 @@
     <Compile Include="Horde\HordeGenerator.cs" />
     <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\AI\HordeAIManager.cs" />
-    <Compile Include="Horde\ScoutV2\ScoutHorde.cs" />
+    <Compile Include="Horde\Scout\ScoutHordeManager.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
