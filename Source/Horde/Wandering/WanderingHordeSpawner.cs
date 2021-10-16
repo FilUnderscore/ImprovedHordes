@@ -319,7 +319,7 @@ namespace ImprovedHordes.Horde.Wandering
                         var weekDay = wanderingHorde.GetCurrentWeekDay();
 
                         // RNG whether to still spawn this horde, adds variation.
-                        bool randomChance = wanderingHorde.manager.random.RandomRange(0, 100) >= 50;
+                        bool randomChance = wanderingHorde.manager.random.RandomFloat >= 0.5f;
 
                         if (!randomChance && !prefWeekDays.Contains(weekDay))
                             continue;
