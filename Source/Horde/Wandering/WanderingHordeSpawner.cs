@@ -157,16 +157,12 @@ namespace ImprovedHordes.Horde.Wandering
 
                     if (horde.feral)
                     {
-                        HordeAICommand wTPCommand = new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS);
-                        commands.Add(wTPCommand);
-
-                        HordeAICommand wanderCommand = new HordeAICommandWander(50);
-                        commands.Add(wanderCommand);
+                        commands.Add(new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS));
+                        commands.Add(new HordeAICommandWander(50f));
                     }
 
-                    HordeAICommand wTDCommand = new HordeAICommandDestination(GetRandomNearbyPosition(endPos, DEST_RADIUS), DEST_RADIUS);
-                    commands.Add(wTDCommand);
-
+                    commands.Add(new HordeAICommandDestination(GetRandomNearbyPosition(endPos, DEST_RADIUS), DEST_RADIUS));
+                    
                     this.horde.manager.aiManager.Add(entity, horde, true, commands);
 
                     // Add to pathfinder manager.
