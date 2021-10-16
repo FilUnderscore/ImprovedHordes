@@ -386,3 +386,8 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# DLLs and PDBs
+*.dll
+*.pdb
+*.dll.config
