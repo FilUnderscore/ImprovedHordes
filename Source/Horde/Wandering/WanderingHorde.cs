@@ -4,7 +4,7 @@ using System.IO;
 
 using HarmonyLib;
 
-using ImprovedHordes.Horde.AI;
+using ImprovedHordes.Horde.AI.Events;
 
 using static ImprovedHordes.Utils.Logger;
 
@@ -31,7 +31,7 @@ namespace ImprovedHordes.Horde.Wandering
         {
             this.manager = manager;
             this.spawner = new WanderingHordeSpawner(this);
-            manager.aiManager.OnHordeKilledEvent += OnWanderingHordeKilled;
+            manager.AIManager.OnHordeKilled += OnWanderingHordeKilled;
 
             RuntimeEval.Registry.RegisterVariable("week", this.GetCurrentWeek);
             RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
@@ -60,8 +60,10 @@ namespace ImprovedHordes.Horde.Wandering
                 this.GenerateNewSchedule(nextResetTime);
             }
 
-            if (this.manager.players.Count == 0)
+            if (this.manager.Players.Count == 0)
                 return;
+
+            this.spawner.Update();
 
             if (ShouldSpawnWanderingHorde())
             {
@@ -70,6 +72,7 @@ namespace ImprovedHordes.Horde.Wandering
             else if (IsNextHordeOverdue())
             {
                 this.DisbandAllWanderingHordes();
+                this.spawner.StopAllSpawning();
             }
         }
 
@@ -77,11 +80,11 @@ namespace ImprovedHordes.Horde.Wandering
         {
             foreach(var horde in this.hordes)
             {
-                this.manager.aiManager.DisbandHorde(horde);
+                this.manager.AIManager.DisbandHorde(horde);
             }
         }
 
-        public void OnWanderingHordeKilled(object sender, HordeAIManager.HordeKilledEventArgs e)
+        public void OnWanderingHordeKilled(object sender, HordeKilledEvent e)
         {
             Horde horde = e.horde;
 
@@ -107,7 +110,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         private ulong GetWorldTime()
         {
-            return this.manager.GetWorldTime();
+            return this.manager.World.GetWorldTime();
         }
 
         // Spawn on weekly basis # of hordes
@@ -181,7 +184,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void GenerateNewSchedule(ulong nextResetTime)
         {
-            var random = this.manager.random;
+            var random = this.manager.Random;
 
             var schedule = new WanderingHorde.Schedule();
 
@@ -266,7 +269,7 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
-        public struct Occurance
+        public readonly struct Occurance
         {
             public readonly ulong worldTime;
             public readonly bool feral;
@@ -317,6 +320,19 @@ namespace ImprovedHordes.Horde.Wandering
                         previousHordeGroupsForPlayers[playerId].Add(group, count);
                     }
                 }
+            }
+
+            public int GetAverageWeeklyOccurancesForGroup(PlayerHordeGroup group, HordeGroup hordeGroup)
+            {
+                float total = 0.0f;
+                foreach(var player in group.members)
+                {
+                    total += GetWeeklyOccurancesForPlayer(player, hordeGroup);
+                }
+
+                total /= group.members.Count;
+
+                return (int)Math.Ceiling(total);
             }
 
             public int GetWeeklyOccurancesForPlayer(EntityPlayer player, HordeGroup group)
@@ -380,7 +396,6 @@ namespace ImprovedHordes.Horde.Wandering
 
         public enum EHordeState
         {
-            Spawning,
             StillAlive,
             Finished
         }

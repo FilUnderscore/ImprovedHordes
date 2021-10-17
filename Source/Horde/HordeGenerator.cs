@@ -1,6 +1,6 @@
 ﻿namespace ImprovedHordes.Horde
 {
-    abstract class HordeGenerator
+    public abstract class HordeGenerator
     {
         protected string type;
         public HordeGenerator(string type)

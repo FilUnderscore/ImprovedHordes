@@ -1,11 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 using UnityEngine;
+
+using ImprovedHordes.Horde;
 
 namespace ImprovedHordes
 {
     public static class Utils
     {
+        public static string ToString<T>(this List<T> list, Func<T,string> stringFunction)
+        {
+            if (list != null)
+            {
+                StringBuilder builder = new StringBuilder();
+
+                builder.Append("{");
+                for (int i = 0; i < list.Count; i++)
+                {
+                    T element = list[i];
+
+                    string result = "null";
+
+                    if (element != null)
+                        result = stringFunction.Invoke(element);
+
+                    builder.Append(result);
+
+                    if (i != list.Count - 1)
+                        builder.Append(", ");
+                }
+                builder.Append("}");
+
+                return builder.ToString();
+            }
+
+            return "null";
+        }
+
         public static class Logger
         {
             public static void Log(String message)

@@ -7,6 +7,7 @@ using static ImprovedHordes.Utils.Logger;
 using ImprovedHordes.Horde.AI;
 
 using ImprovedHordes.Horde.Wandering;
+using ImprovedHordes.Horde.Scout;
 
 namespace ImprovedHordes.Horde
 {
@@ -15,20 +16,36 @@ namespace ImprovedHordes.Horde
         public static readonly string DataFile = string.Format("{0}/ImprovedHordes.bin", GameUtils.GetSaveGameDir());
         public static string XmlFilesDir;
 
-        public World world;
-        public List<int> players = new List<int>();
-        public GameRandom random;
+        public World World;
+        public List<int> Players = new List<int>();
+        public GameRandom Random;
 
-        public HordeAIManager aiManager;
-        public WanderingHorde wanderingHorde;
+        private static HordeManager instance;
+        public static HordeManager Instance
+        {
+            get
+            {
+                if (instance == null)
+                    throw new NullReferenceException("Tried to access HordeManager while still uninitialized.");
+
+                return instance;
+            }
+        }
+
+        public HordeAIManager AIManager;
+        public WanderingHorde WanderingHorde;
+        public ScoutManager ScoutManager;
         
         public HordeManager()
         {
-            world = GameManager.Instance.World;
-            random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
+            instance = this;
 
-            aiManager = new HordeAIManager();
-            wanderingHorde = new WanderingHorde(this);
+            World = GameManager.Instance.World;
+            Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
+
+            AIManager = new HordeAIManager();
+            WanderingHorde = new WanderingHorde(this);
+            ScoutManager = new ScoutManager(this);
 
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", ModManager.GetMod("ImprovedHordes").Path);
             this.LoadXml();
@@ -51,7 +68,7 @@ namespace ImprovedHordes.Horde
                 {
                     BinaryWriter writer = new BinaryWriter(stream);
 
-                    this.wanderingHorde.Save(writer);
+                    this.WanderingHorde.Save(writer);
 
                     Log("Saved horde data.");
                 }
@@ -70,7 +87,7 @@ namespace ImprovedHordes.Horde
                 {
                     BinaryReader reader = new BinaryReader(stream);
 
-                    this.wanderingHorde.Load(reader);
+                    this.WanderingHorde.Load(reader);
 
                     Log("Loaded horde data.");
                 }
@@ -83,23 +100,18 @@ namespace ImprovedHordes.Horde
 
         public void AddPlayer(int playerId)
         {
-            this.players.Add(playerId);
+            this.Players.Add(playerId);
         }
 
         public void RemovePlayer(int playerId)
         {
-            this.players.Remove(playerId);
+            this.Players.Remove(playerId);
         }
 
         public void Update()
         {
-            this.aiManager.Update();
-            this.wanderingHorde.Update();
-        }
-
-        public ulong GetWorldTime()
-        {
-            return world.GetWorldTime();
+            this.AIManager.Update();
+            this.WanderingHorde.Update();
         }
     }
 }

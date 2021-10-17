@@ -191,9 +191,9 @@ namespace ImprovedHordes
             }
 
             private static readonly Dictionary<string, EEvalCondition> _operators = new Dictionary<string, EEvalCondition>() { { "=", EEvalCondition.EQUAL_TO }, { "!=", EEvalCondition.NOT_EQUAL_TO }, { "<", EEvalCondition.LESS_THAN }, { "<=", EEvalCondition.LESS_THAN_OR_EQUAL_TO }, { ">", EEvalCondition.GREATER_THAN }, { ">=", EEvalCondition.GREATER_THAN_OR_EQUAL_TO } };
-            private EvalVariable? FindConditionalVariable(string exprSub)
+            private EvalVariable FindConditionalVariable(string exprSub)
             {
-                EvalVariable? variable = null;
+                EvalVariable variable = null;
 
                 foreach (var op in _operators)
                 {
@@ -208,9 +208,9 @@ namespace ImprovedHordes
                             compareAgainstValue = exprSub.Substring(exprSub.IndexOf(opSymbol) + 1) // Result
                         };
 
-                        Log(variable.Value.variable);
+                        Log(variable.variable);
                         Log(opSymbol);
-                        Log(variable.Value.compareAgainstValue);
+                        Log(variable.compareAgainstValue);
 
                         return variable;
                     }
@@ -268,10 +268,10 @@ namespace ImprovedHordes
                     string exprSub = expr.Substring(lastIndex, endIndex - lastIndex);
                     Log("ExprSub: {0}", exprSub);
 
-                    EvalVariable? variable = FindConditionalVariable(exprSub);
-                    if (variable.HasValue)
+                    EvalVariable variable = FindConditionalVariable(exprSub);
+                    if (variable != null)
                     {
-                        variables.Add(variable.Value);
+                        variables.Add(variable);
                     }
                     else
                     {
@@ -327,7 +327,7 @@ namespace ImprovedHordes
                 return count;
             }
 
-            struct EvalVariable
+            class EvalVariable
             {
                 public string variable;
                 public EEvalCondition condition;

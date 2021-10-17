@@ -22,39 +22,4 @@ namespace ImprovedHordes.Horde
 
         public Horde(Horde horde) : this(horde.playerGroup, horde.group, horde.count, horde.feral, horde.entities) { }
     }
-    public struct PlayerHordeGroup
-    {
-        public EntityPlayer leader;
-        public List<EntityPlayer> members;
-
-        public PlayerHordeGroup(EntityPlayer leader, List<EntityPlayer> members)
-        {
-            this.leader = leader;
-            this.members = members;
-
-            if (this.members != null && this.members.Contains(this.leader))
-                this.members.Remove(this.leader);
-        }
-
-        public List<EntityPlayer> GetAllPlayers()
-        {
-            List<EntityPlayer> copy = new List<EntityPlayer>(members);
-            copy.Insert(0, this.leader);
-
-            return copy;
-        }
-
-        public int GetGroupGamestage()
-        {
-            List<int> gamestages = new List<int>();
-            List<EntityPlayer> allPlayers = GetAllPlayers();
-
-            foreach(var player in allPlayers)
-            {
-                gamestages.Add(player.gameStage);
-            }
-
-            return GameStageDefinition.CalcPartyLevel(gamestages);
-        }
-    }
 }

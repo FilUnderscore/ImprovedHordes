@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
+using ImprovedHordes.Horde;
 using ImprovedHordes.Horde.Wandering;
 
 namespace ImprovedHordes
@@ -15,25 +17,26 @@ namespace ImprovedHordes
                 {
                     if (_params.Count >= 2)
                     {
+                        var wanderingHorde = HordeManager.Instance.WanderingHorde;
+
                         if (_params[1].EqualsCaseInsensitive("spawn"))
                         {
                             // TODO.
                             //ImprovedHordesMod.manager.wanderingHorde.SpawnWanderingHordes();
-                            ImprovedHordesMod.manager.wanderingHorde.ForceSpawnWanderingHorde();
+                            wanderingHorde.ForceSpawnWanderingHorde();
 
                             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Hordes spawning for all groups.");
                         }
                         else if (_params[1].EqualsCaseInsensitive("reset"))
                         {
-                            var nextResetTime = ImprovedHordesMod.manager.wanderingHorde.GenerateNewResetTime();
-                            ImprovedHordesMod.manager.wanderingHorde.GenerateNewSchedule(nextResetTime);
+                            var nextResetTime = wanderingHorde.GenerateNewResetTime();
+                            wanderingHorde.GenerateNewSchedule(nextResetTime);
 
                             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Horde weekly schedule reset.");
                         }
                         else if (_params[1].EqualsCaseInsensitive("show"))
                         {
-                            var horde = ImprovedHordesMod.manager.wanderingHorde;
-                            var schedule = horde.schedule;
+                            var schedule = wanderingHorde.schedule;
 
                             StringBuilder builder = new StringBuilder();
                             builder.AppendLine("Constants:");
@@ -55,7 +58,7 @@ namespace ImprovedHordes
 
                             builder.AppendLine("");
 
-                            if (horde.state == WanderingHorde.EHordeState.Finished)
+                            if (wanderingHorde.state == WanderingHorde.EHordeState.Finished)
                             {
                                 if (schedule.currentOccurance < schedule.occurances.Count)
                                     builder.AppendLine(String.Format("Next Occurance {0} ", schedule.currentOccurance + 1));
@@ -65,7 +68,7 @@ namespace ImprovedHordes
                             else
                             {
                                 builder.AppendLine(String.Format("Current Occurance: {0}", schedule.currentOccurance + 1));
-                                builder.AppendLine(String.Format("State: {0}", schedule.currentOccurance + 1, nameof(horde.state)));
+                                builder.AppendLine(String.Format("State: {0}", schedule.currentOccurance + 1, nameof(wanderingHorde.state)));
                             }
 
                             builder.AppendLine("");

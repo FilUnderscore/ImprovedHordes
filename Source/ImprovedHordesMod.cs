@@ -8,7 +8,7 @@ namespace ImprovedHordes
 {
     class ImprovedHordesMod : IModApi
     {
-        public static HordeManager manager;
+        private static HordeManager manager;
 
         public void InitMod()
         {
