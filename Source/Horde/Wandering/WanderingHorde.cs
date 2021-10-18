@@ -127,6 +127,11 @@ namespace ImprovedHordes.Horde.Wandering
             this.schedule.occurances.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurance : this.schedule.currentOccurance + 1, new Occurance(this.GetWorldTime(), true));
         }
 
+        public Occurance GetCurrentOccurance()
+        {
+            return this.schedule.occurances[this.schedule.currentOccurance];
+        }
+
         public bool IsNextHordeOverdue()
         {
             return this.state == EHordeState.StillAlive && this.schedule.currentOccurance + 1 < this.schedule.occurances.Count && this.GetWorldTime() >= this.schedule.occurances[this.schedule.currentOccurance + 1].worldTime;

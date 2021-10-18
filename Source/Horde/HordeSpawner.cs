@@ -37,20 +37,20 @@ namespace ImprovedHordes.Horde
 
         public abstract void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde);
 
-        public void StartSpawningFor(List<PlayerHordeGroup> groups)
+        public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral)
         {
             foreach(var group in groups)
             {
-                StartSpawningFor(group);
+                StartSpawningFor(group, feral);
             }
         }
 
-        public void StartSpawningFor(PlayerHordeGroup group)
+        public void StartSpawningFor(PlayerHordeGroup group, bool feral)
         {
             if (hordesSpawning.ContainsKey(group))
                 return;
 
-            Horde horde = this.hordeGenerator.GenerateHorde(group);
+            Horde horde = this.hordeGenerator.GenerateHorde(group, feral);
 
             if (!GetSpawnPosition(group, out Vector3 spawnPosition, out Vector3 targetPosition))
             {

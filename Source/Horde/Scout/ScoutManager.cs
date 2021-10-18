@@ -43,23 +43,12 @@ namespace ImprovedHordes.Horde.Scout
             public ScoutsHordeGenerator() : base("scouts")
             {
             }
-
-            public override Horde GenerateHorde(PlayerHordeGroup group)
-            {
-                // TODO.
-                return null;
-            }
         }
 
         class ScoutHordeGenerator : HordeGenerator
         {
             public ScoutHordeGenerator() : base("scout")
             {
-            }
-
-            public override Horde GenerateHorde(PlayerHordeGroup group)
-            {
-                return null;
             }
         }
 
