@@ -60,6 +60,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             commands.Add(new HordeAICommandDestination(GetRandomNearbyPosition(horde.targetPosition, DEST_RADIUS), DEST_RADIUS));
 
+            AstarManager.Instance.AddLocation(entity.position, 64);
             this.horde.manager.AIManager.Add(entity, horde.horde, true, commands);
         }
 
