@@ -39,6 +39,18 @@ namespace ImprovedHordes
             return "null";
         }
 
+        public static void Randomize<T>(this List<T> list)
+        {
+            for(int i = 0; i < list.Count - 1; i++)
+            {
+                int randomIndex = UnityEngine.Random.Range(i + 1, list.Count - 1);
+
+                T valueAtIndex = list[randomIndex];
+                list[randomIndex] = list[i];
+                list[i] = valueAtIndex;
+            }
+        }
+
         public static class Logger
         {
             public static void Log(String message)

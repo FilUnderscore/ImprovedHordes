@@ -44,6 +44,14 @@ namespace ImprovedHordes
                 return VariableTypes[typeof(T)] as VariableType<T>;
             }
 
+            public static VariableTypeBase GetVariableType(Type type)
+            {
+                if (!VariableTypes.ContainsKey(type))
+                    throw new Exception(String.Format("Variable Type {0} has not been defined.", type.FullName));
+
+                return VariableTypes[type];
+            }
+
             public static ValueParser<T> GetValueParser<T>()
             {
                 if (!ValueParsers.ContainsKey(typeof(T)))
@@ -121,6 +129,11 @@ namespace ImprovedHordes
 
             public T Evaluate()
             {
+                return EvaluateWithArgs(ArgumentBuilder.Create());
+            }
+
+            public T EvaluateWithArgs(ArgumentBuilder arguments)
+            {
                 if (!this.IsValid())
                 {
                     return parser.Invoke(this.expression);
@@ -131,10 +144,17 @@ namespace ImprovedHordes
                 if (!this.IsConditional())
                 {
                     string variable = this.expression.Substring(1, this.expression.Length - 2);
-
+                    
                     if (!Registry.Variables.ContainsKey(variable))
                     {
-                        throw new NullReferenceException(String.Format("Variable {0} has not been defined.", variable));
+                        if (arguments != null && arguments.HasArgument(variable))
+                        {
+                            return ((Argument<T>) arguments.GetArgument(variable)).value;
+                        }
+                        else
+                        {
+                            throw new NullReferenceException(String.Format("Variable/argument {0} has not been defined.", variable));
+                        }
                     }
 
                     return parser.Invoke(Registry.Variables[variable].fetcher.Invoke());
@@ -148,17 +168,34 @@ namespace ImprovedHordes
                     EEvalCondition cond = variable.condition;
                     string toCompare = variable.compareAgainstValue;
 
-                    if (!Registry.Variables.ContainsKey(variableRef))
+                    if (arguments != null && arguments.HasArgument(variableRef))
                     {
-                        Warning(String.Format("Variable {0} has not been defined. Defaulting to false.", variableRef));
-                        success = false;
-                        continue;
-                    }
+                        ArgumentBuilder arg = arguments.GetArgument(variableRef);
 
-                    Variable runtimeVariable = Registry.Variables[variableRef];
-                    if (!runtimeVariable.Compare(cond, toCompare))
+                        VariableTypeBase type = Registry.GetVariableType(arg.GetArgumentType());
+                        Variable runtimeArgument = new Variable(type);
+
+                        if (!runtimeArgument.Compare(cond, arg.ValueToString(), toCompare))
+                        {
+                            success = false;
+                        }
+
+                    }
+                    else
                     {
-                        success = false;
+                        if (!Registry.Variables.ContainsKey(variableRef))
+                        {
+
+                            Warning(String.Format("Variable {0} has not been defined. Defaulting to false.", variableRef));
+                            success = false;
+                            continue;
+                        }
+
+                        Variable runtimeVariable = Registry.Variables[variableRef];
+                        if (!runtimeVariable.Compare(cond, toCompare))
+                        {
+                            success = false;
+                        }
                     }
                 }
 
@@ -356,9 +393,101 @@ namespace ImprovedHordes
                 this.fetcher = fetcher;
             }
 
+            public Variable(VariableTypeBase type)
+            {
+                this.type = type;
+            }
+
+            public bool Compare(EEvalCondition condition, string lhs, string rhs)
+            {
+                return type.Compare(condition, lhs, rhs);
+            }
+
             public bool Compare(EEvalCondition condition, string rhs)
             {
-                return type.Compare(condition, this.fetcher.Invoke(), rhs);
+                if (this.fetcher == null)
+                    throw new NullReferenceException("Cannot compare Variable with null fetcher, try using Compare(EEvalCondition, lhs, rhs).");
+
+                return Compare(condition, this.fetcher.Invoke(), rhs);
+            }
+        }
+
+        public class Test
+        {
+            public void Testa()
+            {
+
+            }
+        }
+
+        public class ArgumentBuilder
+        {
+            public Dictionary<string, ArgumentBuilder> arguments = new Dictionary<string, ArgumentBuilder>();
+
+            protected ArgumentBuilder() { }
+
+            public static ArgumentBuilder Create()
+            {
+                return new ArgumentBuilder();
+            }
+
+            public Argument<T> SetArgument<T>(string argumentName, T value)
+            {
+                Argument<T> argument = new Argument<T>(argumentName, value);
+
+                arguments.Add(argumentName, argument);
+
+                return argument;
+            }
+
+            public Argument<T> GetArgument<T>(string argumentName)
+            {
+                if(HasArgument(argumentName))
+                    return (Argument<T>) arguments[argumentName];
+
+                return null;
+            }
+
+            public ArgumentBuilder GetArgument(string argumentName)
+            {
+                if(HasArgument(argumentName))
+                    return arguments[argumentName];
+
+                return null;
+            }
+
+            public Type GetArgumentType()
+            {
+                if(this.GetType().IsGenericType && this.GetType().IsSubclassOf(typeof(ArgumentBuilder)))
+                {
+                    return this.GetType().GetGenericArguments()[0];
+                }
+
+                throw new InvalidOperationException($"Cannot call GetArgumentType on type {this.GetType().FullName}");
+            }
+
+            public virtual string ValueToString() { throw new NotSupportedException("Cannot convert value to string as method must be implemented."); }
+
+            public bool HasArgument(string argumentName)
+            {
+                return arguments.ContainsKey(argumentName);
+            }
+        }
+
+        public sealed class Argument<T> : ArgumentBuilder
+        {
+            public string name;
+            public T value;
+            
+            public Argument(string name, T value)
+            {
+                this.name = name;
+                this.value = value;
+            }
+
+            public override string ValueToString()
+            {
+                return Registry.GetVariableType<T>().ToString(this.value);
             }
         }
 

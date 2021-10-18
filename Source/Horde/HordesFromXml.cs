@@ -121,6 +121,7 @@ namespace ImprovedHordes.Horde
         {
             string entityName = entityElement.HasAttribute("name") ? entityElement.GetAttribute("name") : null;
             string entityGroup = entityElement.HasAttribute("group") ? entityElement.GetAttribute("group") : null;
+            string horde = entityElement.HasAttribute("horde") ? entityElement.GetAttribute("horde") : null;
 
             if (entityName != null && entityGroup != null)
                 throw new Exception(String.Format("[Improved Hordes] Horde group {0} has double defined entity with name {1} and group {2}, only one can be defined.", group.name, entityName, entityGroup));
@@ -131,7 +132,7 @@ namespace ImprovedHordes.Horde
             RuntimeEval.Value<int> minCount = ParseIfExists<int>(entityElement, "minCount");
             RuntimeEval.Value<int> maxCount = ParseIfExists<int>(entityElement, "maxCount");
 
-            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, chance, minCount, maxCount);
+            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, chance, minCount, maxCount);
 
             group.entities.Add(entity);
         }

@@ -119,7 +119,7 @@ namespace ImprovedHordes.Horde
         public bool CanSpawn(SpawningHorde horde)
         {
             // TODO Optional Spawning Limit
-            if (horde.entityIndex < horde.horde.entities.Length)
+            if (horde.entityIndex < horde.horde.entities.Count)
                 return true;
 
             return false;
@@ -139,7 +139,7 @@ namespace ImprovedHordes.Horde
 
             // returns true if spawned all entities to signal that spawning is complete
             // returns false if more will be spawned.
-            return horde.entityIndex >= horde.horde.entities.Length;
+            return horde.entityIndex >= horde.horde.entities.Count;
         }
 
         public abstract int GetGroupDistance();

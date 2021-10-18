@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using UnityEngine;
 
 using ImprovedHordes.Horde.AI;
@@ -35,7 +35,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             if (horde.horde.feral)
             {
-                commands.Add(new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS));
+                commands.Add(new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS * 2));
                 commands.Add(new HordeAICommandWander(50f));
             }
 
@@ -78,14 +78,14 @@ namespace ImprovedHordes.Horde.Wandering
 
             Vector3 avg = Vector3.zero;
 
-            foreach(var player in players)
+            foreach (var player in players)
             {
                 avg += player.position;
             }
 
             avg /= players.Count;
 
-            if(!GetSpawnableY(ref avg))
+            if (!GetSpawnableY(ref avg))
             {
                 // Testing this.
                 Error("Failed to get spawnable Y.");
@@ -118,7 +118,7 @@ namespace ImprovedHordes.Horde.Wandering
             endPos = new Vector3(intEndPos.x, 0, intEndPos.y);
             var result = GetSpawnableY(ref endPos);
 
-            if(!result)
+            if (!result)
             {
                 return CalculateWanderingHordePositions(commonPos, out startPos, out endPos);
             }
@@ -133,7 +133,6 @@ namespace ImprovedHordes.Horde.Wandering
             return true;
         }
 
-
         public Vector3 GetSpawnableCircleFromPos(Vector3 playerPos, float radius)
         {
             Vector2 startCircle = this.horde.manager.Random.RandomOnUnitCircle;
@@ -144,7 +143,7 @@ namespace ImprovedHordes.Horde.Wandering
             Vector3 circleFromPlayer = new Vector3(x, 0, z);
             bool result = GetSpawnableY(ref circleFromPlayer);
 
-            if(!result)
+            if (!result)
             {
                 Log("[Wandering Horde] Failed to find spawnable circle from pos. X" + x + " Z " + z);
                 return GetSpawnableCircleFromPos(playerPos, radius);
@@ -161,7 +160,7 @@ namespace ImprovedHordes.Horde.Wandering
             public override Horde GenerateHorde(PlayerHordeGroup playerHordeGroup)
             {
                 int gamestage = playerHordeGroup.GetGroupGamestage();
-                
+
                 var wanderingHorde = HordeManager.Instance.WanderingHorde;
                 var occurance = wanderingHorde.schedule.occurances[wanderingHorde.schedule.currentOccurance];
 
@@ -229,77 +228,12 @@ namespace ImprovedHordes.Horde.Wandering
                 HordeGroup randomGroup = groupsToPick[wanderingHorde.manager.Random.RandomRange(0, groupsToPick.Count)];
                 Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
-                foreach (var entity in randomGroup.entities)
-                {
-                    if (entity.chance != null && entity.chance.Evaluate() < wanderingHorde.manager.Random.RandomFloat)
-                        continue;
+                EvaluateEntitiesInGroup(randomGroup, entitiesToSpawn, wanderingHorde, gamestage);
 
-                    entitiesToSpawn.Add(entity, 0);
-
-                    int minCount = entity.minCount != null ? entity.minCount.Evaluate() : 0;
-                    int maxCount = entity.maxCount != null ? entity.maxCount.Evaluate() : -1;
-
-                    GS gs = entity.gs;
-                    int minGS = gs != null && gs.min != null ? gs.min.Evaluate() : 0;
-                    int maxGS = gs != null && gs.max != null ? gs.max.Evaluate() : -1;
-
-                    if (gs != null) // Keep an eye on.
-                    {
-                        if (gamestage < minGS)
-                            continue;
-
-                        if (maxGS > 0 && gamestage > maxGS)
-                            continue;
-                    }
-
-                    int count;
-
-                    if (gs == null || gs.countIncPerGS == null)
-                    {
-                        if (maxCount > 0)
-                            count = wanderingHorde.manager.Random.RandomRange(minCount, maxCount + 1);
-                        else
-                        {
-                            Error("Cannot calculate count of entity/entitygroup {0} in group {1} because no gamestage or maximum count has been specified.", entity.name ?? entity.group, randomGroup.name);
-                            count = 0;
-                        }
-                    }
-                    else
-                    {
-                        float countIncPerGS = gs.countIncPerGS.Evaluate();
-                    
-                        int toSpawn = minCount + (int)Math.Floor(countIncPerGS * (gamestage - minGS));
-                        int countDecGS = 0;
-
-                        if (gs.countDecGS != null && gamestage > (countDecGS = gs.countDecGS.Evaluate()) && gs.countDecPerPostGS != null)
-                        {
-                            float countDecPerPostGS = gs.countDecPerPostGS.Evaluate();
-
-                            int decGSSpawn = (int)Math.Floor(countDecPerPostGS * (gamestage - countDecGS));
-
-                            if (decGSSpawn > 0)
-                                toSpawn -= decGSSpawn;
-                        }
-
-                        // TODO.
-                        if (toSpawn < 0)
-                            toSpawn = 0;
-
-                        count = toSpawn;
-                    }
-
-                    if (maxCount >= 0 && count > maxCount)
-                        count = maxCount;
-
-                    entitiesToSpawn[entity] = count;
-
-#if DEBUG
-                    Log("[Wandering Horde] Spawning {0} of {1}", count, entity.name ?? entity.group);
-#endif
-                }
-
+                // Add entities to list.
                 List<int> entityIds = new List<int>();
                 int totalCount = 0;
+
                 foreach (var entitySet in entitiesToSpawn)
                 {
                     HordeGroupEntity ent = entitySet.Key;
@@ -334,7 +268,112 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                 }
 
-                return new Horde(playerHordeGroup, randomGroup, totalCount, occurance.feral, entityIds.ToArray());
+                // Randomize entities.
+                entityIds.Randomize();
+
+                return new Horde(playerHordeGroup, randomGroup, totalCount, occurance.feral, entityIds);
+            }
+
+            private void EvaluateEntitiesInGroup(HordeGroup randomGroup, Dictionary<HordeGroupEntity, int> entitiesToSpawn, WanderingHorde wanderingHorde, int gamestage)
+            {
+                foreach (var entity in randomGroup.entities)
+                {
+                    if (entity.chance != null && entity.chance.Evaluate() < wanderingHorde.manager.Random.RandomFloat)
+                        continue;
+
+                    entitiesToSpawn.Add(entity, 0);
+
+                    int minCount = entity.minCount != null ? entity.minCount.Evaluate() : 0;
+                    int maxCount = entity.maxCount != null ? entity.maxCount.Evaluate() : -1;
+
+                    GS gs = entity.gs;
+                    int minGS = gs != null && gs.min != null ? gs.min.Evaluate() : 0;
+                    int maxGS = gs != null && gs.max != null ? gs.max.Evaluate() : -1;
+
+                    if (gs != null) // Keep an eye on.
+                    {
+                        if (gamestage < minGS)
+                            continue;
+
+                        if (maxGS > 0 && gamestage > maxGS)
+                            continue;
+                    }
+
+                    int count;
+
+                    if (entity.horde == null)
+                    {
+                        if (gs == null || gs.countIncPerGS == null)
+                        {
+                            if (maxCount > 0)
+                                count = wanderingHorde.manager.Random.RandomRange(minCount, maxCount + 1);
+                            else
+                            {
+                                Error("Cannot calculate count of entity/entitygroup {0} in group {1} because no gamestage or maximum count has been specified.", entity.name ?? entity.group, randomGroup.name);
+                                count = 0;
+                            }
+                        }
+                        else
+                        {
+                            float countIncPerGS = gs.countIncPerGS.Evaluate();
+
+                            int toSpawn = minCount + (int)Math.Floor(countIncPerGS * (gamestage - minGS));
+                            int countDecGS = gs.countDecGS != null ? gs.countDecGS.Evaluate() : 0;
+
+                            Log("{0} {1} {2}", gs.countDecGS == null, gs.countDecPerPostGS == null, countDecGS);
+                            if (countDecGS > 0 && gamestage > countDecGS && gs.countDecPerPostGS != null)
+                            {
+                                float countDecPerPostGS = gs.countDecPerPostGS.Evaluate();
+
+                                int decGSSpawn = (int)Math.Floor(countDecPerPostGS * (gamestage - countDecGS));
+                                Log("Dec GS Spawn {0}", decGSSpawn);
+
+                                if (decGSSpawn > 0)
+                                    toSpawn -= decGSSpawn;
+                            }
+
+                            // TODO.
+                            if (toSpawn < 0)
+                                toSpawn = 0;
+
+                            count = toSpawn;
+                        }
+
+                        if (maxCount >= 0 && count > maxCount)
+                            count = maxCount;
+
+                        entitiesToSpawn[entity] += count;
+
+#if DEBUG
+                        Log("[Wandering Horde] Spawning {0} of {1}", count, entity.name ?? entity.group);
+#endif
+                    }
+                    else
+                    {
+                        if (!Hordes.hordes.ContainsKey(entity.horde))
+                        {
+                            throw new NullReferenceException($"No such horde with type {entity.horde} exists.");
+                        }
+
+                        if (entity.group == null)
+                        {
+                            var hordesDict = Hordes.hordes[entity.horde];
+
+                            var randomHordeGroup = hordesDict.Values.ToList().ElementAt(wanderingHorde.manager.Random.RandomRange(0, hordesDict.Count));
+                            EvaluateEntitiesInGroup(randomHordeGroup, entitiesToSpawn, wanderingHorde, gamestage);
+                        }
+                        else
+                        {
+                            if(!Hordes.hordes[entity.horde].ContainsKey(entity.group))
+                            {
+                                throw new NullReferenceException($"Horde type {entity.group} does not exist in horde type {entity.horde}.");
+                            }
+
+                            var subGroup = Hordes.hordes[entity.horde][entity.group];
+                            EvaluateEntitiesInGroup(subGroup, entitiesToSpawn, wanderingHorde, gamestage);
+                        }
+                    }
+                }
             }
         }
     }

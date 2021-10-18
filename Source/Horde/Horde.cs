@@ -9,9 +9,9 @@ namespace ImprovedHordes.Horde
         public readonly int count;
         public readonly bool feral;
 
-        public readonly int[] entities;
+        public readonly List<int> entities;
 
-        public Horde(PlayerHordeGroup playerGroup, HordeGroup group, int count, bool feral, int[] entities)
+        public Horde(PlayerHordeGroup playerGroup, HordeGroup group, int count, bool feral, List<int> entities)
         {
             this.playerGroup = playerGroup;
             this.group = group;
