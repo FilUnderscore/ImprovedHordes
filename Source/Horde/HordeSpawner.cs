@@ -16,9 +16,9 @@ namespace ImprovedHordes.Horde
             this.hordeGenerator = hordeGenerator;
         }
 
-        public Dictionary<PlayerHordeGroup, SpawningHorde> GetHordeGroups()
+        public bool IsStillSpawningFor(PlayerHordeGroup playerHordeGroup)
         {
-            return hordesSpawning;
+            return hordesSpawning.ContainsKey(playerHordeGroup);
         }
 
         public virtual void SetAttributes(EntityAlive entity) 
@@ -79,6 +79,7 @@ namespace ImprovedHordes.Horde
                 {
                     if(Spawn(playerGroup, horde))
                     {
+                        hordesSpawning.Remove(playerGroup);
                         PostSpawn(playerGroup, horde);
                     }
                 }

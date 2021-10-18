@@ -412,17 +412,9 @@ namespace ImprovedHordes
             }
         }
 
-        public class Test
-        {
-            public void Testa()
-            {
-
-            }
-        }
-
         public class ArgumentBuilder
         {
-            public Dictionary<string, ArgumentBuilder> arguments = new Dictionary<string, ArgumentBuilder>();
+            private Dictionary<string, ArgumentBuilder> arguments = new Dictionary<string, ArgumentBuilder>();
 
             protected ArgumentBuilder() { }
 
@@ -436,6 +428,7 @@ namespace ImprovedHordes
                 Argument<T> argument = new Argument<T>(argumentName, value);
 
                 arguments.Add(argumentName, argument);
+                argument.arguments = arguments;
 
                 return argument;
             }

@@ -71,8 +71,8 @@ namespace ImprovedHordes.Horde.Wandering
             }
             else if (IsNextHordeOverdue())
             {
-                this.DisbandAllWanderingHordes();
                 this.spawner.StopAllSpawning();
+                this.DisbandAllWanderingHordes();
             }
         }
 
@@ -90,7 +90,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             if (this.state == WanderingHorde.EHordeState.StillAlive)
             {
-                if (this.hordes.Contains(horde))
+                if (this.hordes.Contains(horde) && !this.spawner.IsStillSpawningFor(horde.playerGroup))
                 {
                     int index = this.hordes.IndexOf(horde);
                     Log("[Wandering Horde] Horde {0} has ended, all Zombies have either reached their destination or have been killed.", index + 1);

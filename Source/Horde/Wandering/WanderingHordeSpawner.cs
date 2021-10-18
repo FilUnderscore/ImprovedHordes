@@ -32,11 +32,30 @@ namespace ImprovedHordes.Horde.Wandering
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
+            float wanderTime = 90f + this.horde.manager.Random.RandomFloat * 4f;
 
             if (horde.horde.feral)
             {
                 commands.Add(new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS * 2));
-                commands.Add(new HordeAICommandWander(50f));
+                commands.Add(new HordeAICommandWander(wanderTime));
+            }
+            else
+            {
+                // Random wander to try encounter players.
+                //bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
+
+                if (true)
+                {
+                    float halfwayToEnd = this.horde.manager.Random.RandomRange(0f, 0.5f);
+
+                    Vector3 wanderPos = horde.spawnPosition + (horde.targetPosition - horde.spawnPosition) / (1 - halfwayToEnd);
+
+                    if (GetSpawnableY(ref wanderPos))
+                    {
+                        commands.Add(new HordeAICommandDestination(wanderPos, DEST_RADIUS));
+                        commands.Add(new HordeAICommandWander(wanderTime));
+                    }
+                }
             }
 
             commands.Add(new HordeAICommandDestination(GetRandomNearbyPosition(horde.targetPosition, DEST_RADIUS), DEST_RADIUS));
@@ -320,6 +339,9 @@ namespace ImprovedHordes.Horde.Wandering
                             int toSpawn = minCount + (int)Math.Floor(countIncPerGS * (gamestage - minGS));
                             int countDecGS = gs.countDecGS != null ? gs.countDecGS.Evaluate() : 0;
 
+                            if (maxCount >= 0 && toSpawn > maxCount)
+                                toSpawn = maxCount;
+
                             Log("{0} {1} {2}", gs.countDecGS == null, gs.countDecPerPostGS == null, countDecGS);
                             if (countDecGS > 0 && gamestage > countDecGS && gs.countDecPerPostGS != null)
                             {
@@ -332,15 +354,11 @@ namespace ImprovedHordes.Horde.Wandering
                                     toSpawn -= decGSSpawn;
                             }
 
-                            // TODO.
                             if (toSpawn < 0)
                                 toSpawn = 0;
 
                             count = toSpawn;
                         }
-
-                        if (maxCount >= 0 && count > maxCount)
-                            count = maxCount;
 
                         entitiesToSpawn[entity] += count;
 

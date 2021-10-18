@@ -49,11 +49,11 @@
 		</hordegroup>
 		
 		<hordegroup name="Bears" prefWeekDay="1,2,3" maxWeeklyOccurances="1">
-			<gs min="50" countIncPerGS="0.02">
-				<entity name="animalBear" minCount="2" maxCount="10"/>
+			<gs min="50" countIncPerGS="0.02" countDecGS="350" countDecPerPostGS="0.01">
+				<entity name="animalBear" minCount="1" maxCount="6"/>
 			</gs>
 			
-			<gs min="100" countIncPerGS="0.02">
+			<gs min="100" countIncPerGS="0.01">
 				<entity name="animalZombieBear" minCount="1" maxCount="7"/>
 			</gs>
 		</hordegroup>
@@ -102,6 +102,11 @@
 		</hordegroup>
 		
 		<hordegroup name="Stags">
+			<gs m
+		</hordegroup>
+		
+		<hordegroup name="Farm">
+			
 		</hordegroup>
 	</horde>
 	
