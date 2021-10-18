@@ -9,6 +9,7 @@ namespace ImprovedHordes.Horde.Scout
     public class Scout
     {
         private const int DISTANCE_TOLERANCE = 10;
+        private const float WANDER_TIME = 100.0f;
 
         public HordeAIEntity aiEntity;
         public Vector3 targetPosition;
@@ -23,7 +24,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public void Interrupt(Vector3 newPosition)
         {
-            this.aiEntity.InterruptWithNewCommands(new HordeAICommandDestination(newPosition, 10), new HordeAICommandWander(100.0f), new HordeAICommandDestination(endPosition, DISTANCE_TOLERANCE));
+            this.aiEntity.InterruptWithNewCommands(new HordeAICommandDestination(newPosition, 10), new HordeAICommandWander(WANDER_TIME), new HordeAICommandDestination(endPosition, DISTANCE_TOLERANCE));
         }
     }
 }

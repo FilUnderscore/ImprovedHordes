@@ -70,7 +70,8 @@
     <Compile Include="Horde\AI\HordeAIEntity.cs" />
     <Compile Include="Horde\Horde.cs" />
     <Compile Include="Horde\HordeGroup.cs" />
-    <Compile Include="Horde\Hordes.cs" />
+    <Compile Include="Horde\HordeGroupList.cs" />
+    <Compile Include="Horde\HordesList.cs" />
     <Compile Include="Horde\HordesFromXml.cs" />
     <Compile Include="HarmonyModPatches.cs" />
     <Compile Include="Horde\HordeGenerator.cs" />

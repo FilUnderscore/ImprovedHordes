@@ -101,12 +101,20 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Stags">
-			<gs m
+		<hordegroup name="Stags" parent="Farm" maxWeeklyOccurances="1">
+			<entity name="animalStag" minCount="1" maxCount="2"/>
+			<entity name="animalDoe" minCount="1" maxCount="1"/>
 		</hordegroup>
 		
-		<hordegroup name="Farm">
-			
+		<hordegroup name="Boars" parent="Farm" maxWeeklyOccurances="1">
+			<entity name="animalBoar" minCount="1" maxCount="2"/>
+		</hordegroup>
+		
+		<hordegroup name="Farm" maxWeeklyOccurances="1">
+			<entity horde="wandering" group="Stags" maxCount="2"/>
+			<entity horde="wandering" group="Boars" maxCount="2"/>
+			<entity name="animalChicken" minCount="2" maxCount="3"/>
+			<entity name="animalRabbit" minCount="1" maxCount="2"/>
 		</hordegroup>
 	</horde>
 	

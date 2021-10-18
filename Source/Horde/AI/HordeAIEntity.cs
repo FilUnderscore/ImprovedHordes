@@ -4,6 +4,8 @@ namespace ImprovedHordes.Horde.AI
 {
     public class HordeAIEntity
     {
+        public Horde horde;
+
         public EntityAlive alive;
         public bool despawnOnCompletion;
         
@@ -15,6 +17,11 @@ namespace ImprovedHordes.Horde.AI
             this.alive = alive;
             this.despawnOnCompletion = despawnOnCompletion;
             this.commands = commands;
+        }
+
+        public HordeAIEntity(Horde horde, EntityAlive alive, bool despawnOnCompletion, List<HordeAICommand> commands) : this(alive, despawnOnCompletion, commands)
+        {
+            this.horde = horde;
         }
 
         public void InterruptWithNewCommands(params HordeAICommand[] commands)

@@ -29,6 +29,7 @@ namespace ImprovedHordes
                         }
                         else if (_params[1].EqualsCaseInsensitive("reset"))
                         {
+                            wanderingHorde.state = WanderingHorde.EHordeState.Finished;
                             var nextResetTime = wanderingHorde.GenerateNewResetTime();
                             wanderingHorde.GenerateNewSchedule(nextResetTime);
 

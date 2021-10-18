@@ -30,7 +30,8 @@ namespace ImprovedHordes.Horde
                         XmlElement hordeElement = (XmlElement)current;
 
                         string type = hordeElement.HasAttribute("type") ? hordeElement.GetAttribute("type") : throw new Exception("[Improved Hordes] Attribute 'type' missing on horde tag.");
-                        Hordes.hordes[type] = new Dictionary<string, HordeGroup>();
+                        HordeGroupList hordeGroupList = new HordeGroupList(type);
+                        HordesList.hordes.Add(type, hordeGroupList);
                         
                         foreach(XmlNode childNode in hordeElement.ChildNodes)
                         {
@@ -38,20 +39,23 @@ namespace ImprovedHordes.Horde
                             {
                                 XmlElement hordegroupElement = (XmlElement)childNode;
 
+                                string parent = hordegroupElement.HasAttribute("parent") ? hordegroupElement.GetAttribute("parent") : null;
                                 string hordegroupName = hordegroupElement.HasAttribute("name") ? hordegroupElement.GetAttribute("name") : throw new Exception("[Improved Hordes] Attribute 'name' missing on hordegroup tag.");
                                 RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordegroupElement, "prefWeekDay", str => ParsePrefWeekDays(str));
 
                                 RuntimeEval.Value<int> maxWeeklyOccurances = ParseIfExists<int>(hordegroupElement, "maxWeeklyOccurances");
 
-                                HordeGroup group = new HordeGroup(hordegroupName, prefWeekDays, maxWeeklyOccurances);
+                                HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, prefWeekDays, maxWeeklyOccurances);
 
                                 EvaluateChildNodes(hordegroupElement, group);
 
-                                Hordes.hordes[type].Add(hordegroupName, group);
+                                hordeGroupList.hordes.Add(hordegroupName, group);
                             }
                         }
 
-                        if(Hordes.hordes[type].Count == 0)
+                        hordeGroupList.SortParentsAndChildrenOut();
+
+                        if(hordeGroupList.hordes.Count == 0)
                         {
                             throw new Exception(String.Format("[Improved Hordes] Empty hordes are not allowed. Horde type: {0}", type));
                         }

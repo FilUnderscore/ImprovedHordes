@@ -22,7 +22,7 @@ namespace ImprovedHordes.Horde.AI
         }
 
         public event EventHandler<HordeKilledEvent> OnHordeKilled;
-
+        
         private readonly Dictionary<Horde, List<HordeAIEntity>> trackedHordes = new Dictionary<Horde, List<HordeAIEntity>>();
 
         public HordeAIEntity Add(EntityAlive entity, Horde horde, bool despawnOnCompletion, List<HordeAICommand> commands)
@@ -193,8 +193,11 @@ namespace ImprovedHordes.Horde.AI
                 trackedHordes.Remove(horde);
             }
 
-            updates.Clear();
-            hordesToRemove.Clear();
+            if(updates.Count > 0)
+                updates.Clear();
+
+            if(hordesToRemove.Count > 0)
+                hordesToRemove.Clear();
         }
 
         private void OnHordeKilledEvent(Horde horde)

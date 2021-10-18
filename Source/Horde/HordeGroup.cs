@@ -4,17 +4,33 @@ namespace ImprovedHordes.Horde
 {
     public sealed class HordeGroup
     {
+        public readonly HordeGroupList list;
         public readonly string name;
         public readonly List<HordeGroupEntity> entities = new List<HordeGroupEntity>();
 
         public readonly RuntimeEval.Value<HashSet<int>> PrefWeekDays;
         public readonly RuntimeEval.Value<int> MaxWeeklyOccurances;
 
-        public HordeGroup(string name, RuntimeEval.Value<HashSet<int>> prefWeekDays, RuntimeEval.Value<int> maxWeeklyOccurances)
+        public readonly string parent;
+        public List<HordeGroup> children;
+
+        public HordeGroup(HordeGroupList list, string parent, string name, RuntimeEval.Value<HashSet<int>> prefWeekDays, RuntimeEval.Value<int> maxWeeklyOccurances)
         {
+            this.list = list;
+            this.parent = parent;
             this.name = name;
             this.PrefWeekDays = prefWeekDays;
             this.MaxWeeklyOccurances = maxWeeklyOccurances;
+        }
+
+        public HordeGroup GetParent()
+        {
+            return list.hordes[parent];
+        }
+
+        public List<HordeGroup> GetChildren()
+        {
+            return this.children;
         }
     }
 

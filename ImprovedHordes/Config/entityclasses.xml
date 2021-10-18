@@ -1,0 +1,12 @@
+<ihentities>
+	<!-- Allows the animal hordes to work properly -->
+	<setattribute xpath="/entity_classes/entity_class[@name='animalTemplateTimid']/property[@name='AITask-4']" name="value">ApproachSpot</setattribute>
+	<append xpath="/entity_classes/entity_class[@name='animalTemplateTimid']">
+		<property name="AITask-5" value="Wander"/>
+	</append>
+	
+	<setattribute xpath="/entity_classes/entity_class[@name='animalRabbit']/property[@name='AITask-4']" name="value">ApproachSpot</setattribute>
+	<append xpath="/entity_classes/entity_class[@name='animalRabbit']">
+		<property name="AITask-5" value="Wander"/>
+	</append>
+</ihentities>

@@ -65,25 +65,34 @@ namespace ImprovedHordes.Horde
             PreSpawn(group, spawningHorde);
         }
 
+        private readonly List<PlayerHordeGroup> toRemove = new List<PlayerHordeGroup>();
         public void Update()
         {
             if (hordesSpawning.Count == 0)
                 return;
 
-            foreach(var playerHordeEntry in hordesSpawning)
+            foreach (var playerHordeEntry in hordesSpawning)
             {
                 var playerGroup = playerHordeEntry.Key;
                 var horde = playerHordeEntry.Value;
 
-                if(CanSpawn(horde))
+                if (CanSpawn(horde))
                 {
-                    if(Spawn(playerGroup, horde))
+                    if (Spawn(playerGroup, horde))
                     {
-                        hordesSpawning.Remove(playerGroup);
+                        toRemove.Add(playerGroup);
                         PostSpawn(playerGroup, horde);
                     }
                 }
             }
+
+            foreach (var playerHordeGroup in toRemove)
+            {
+                hordesSpawning.Remove(playerHordeGroup);
+            }
+
+            if(toRemove.Count > 0)
+                toRemove.Clear();
         }
 
         public virtual void PreSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }

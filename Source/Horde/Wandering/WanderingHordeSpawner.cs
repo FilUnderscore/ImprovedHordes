@@ -73,7 +73,40 @@ namespace ImprovedHordes.Horde.Wandering
         public override void PreSpawn(PlayerHordeGroup group, SpawningHorde horde)
         {
             this.horde.hordes.Add(horde.horde);
-            this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+
+            // TODO: Parents.
+            if (horde.horde.group.parent == null && horde.horde.group.children == null)
+            {
+                this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+            }
+            else
+            {
+                List<HordeGroup> children = horde.horde.group.children;
+
+                if (horde.horde.group.parent != null)
+                {
+                    HordeGroup parentGroup = horde.horde.group.GetParent();
+
+                    this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, parentGroup);
+                    
+                    foreach(var child in parentGroup.children)
+                    {
+                        this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, child);
+                    }
+                }
+                else
+                {
+                    this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+                }
+
+                if (children != null)
+                {
+                    foreach (var child in children)
+                    {
+                        this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, child);
+                    }
+                }
+            }
 
             Log("Horde for group: {0}", group.ToString());
             Log("Horde Group: {0}", horde.horde.group.name);
@@ -152,7 +185,7 @@ namespace ImprovedHordes.Horde.Wandering
             return true;
         }
 
-        public Vector3 GetSpawnableCircleFromPos(Vector3 playerPos, float radius)
+        public Vector3 GetSpawnableCircleFromPos(Vector3 playerPos, float radius, int attempt = 0)
         {
             Vector2 startCircle = this.horde.manager.Random.RandomOnUnitCircle;
 
@@ -165,7 +198,16 @@ namespace ImprovedHordes.Horde.Wandering
             if (!result)
             {
                 Log("[Wandering Horde] Failed to find spawnable circle from pos. X" + x + " Z " + z);
-                return GetSpawnableCircleFromPos(playerPos, radius);
+
+                if(attempt < 10)
+                    return GetSpawnableCircleFromPos(playerPos, radius, attempt++);
+                else
+                {
+                    if (this.horde.manager.World.GetRandomSpawnPositionMinMaxToPosition(playerPos, 20, (int)radius, 20, true, out Vector3 alt))
+                        return alt;
+
+                    throw new InvalidOperationException($"Failed to find a spawnable location near {playerPos.ToString()}");
+                }
             }
 
             return circleFromPlayer;
@@ -183,10 +225,10 @@ namespace ImprovedHordes.Horde.Wandering
                 var wanderingHorde = HordeManager.Instance.WanderingHorde;
                 var occurance = wanderingHorde.schedule.occurances[wanderingHorde.schedule.currentOccurance];
 
-                var groups = Hordes.hordes[this.type].Values;
+                var groups = HordesList.hordes[this.type].hordes;
                 List<HordeGroup> groupsToPick = new List<HordeGroup>();
 
-                foreach (var group in groups)
+                foreach (var group in groups.Values)
                 {
                     if (group.MaxWeeklyOccurances != null)
                     {
@@ -242,7 +284,7 @@ namespace ImprovedHordes.Horde.Wandering
                 }
 
                 if (groupsToPick.Count == 0)
-                    groupsToPick.AddRange(groups);
+                    groupsToPick.AddRange(groups.Values);
 
                 HordeGroup randomGroup = groupsToPick[wanderingHorde.manager.Random.RandomRange(0, groupsToPick.Count)];
                 Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
@@ -368,26 +410,26 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                     else
                     {
-                        if (!Hordes.hordes.ContainsKey(entity.horde))
+                        if (!HordesList.hordes.ContainsKey(entity.horde))
                         {
                             throw new NullReferenceException($"No such horde with type {entity.horde} exists.");
                         }
 
                         if (entity.group == null)
                         {
-                            var hordesDict = Hordes.hordes[entity.horde];
+                            var hordesDict = HordesList.hordes[entity.horde].hordes;
 
                             var randomHordeGroup = hordesDict.Values.ToList().ElementAt(wanderingHorde.manager.Random.RandomRange(0, hordesDict.Count));
                             EvaluateEntitiesInGroup(randomHordeGroup, entitiesToSpawn, wanderingHorde, gamestage);
                         }
                         else
                         {
-                            if(!Hordes.hordes[entity.horde].ContainsKey(entity.group))
+                            if(!HordesList.hordes[entity.horde].hordes.ContainsKey(entity.group))
                             {
                                 throw new NullReferenceException($"Horde type {entity.group} does not exist in horde type {entity.horde}.");
                             }
 
-                            var subGroup = Hordes.hordes[entity.horde][entity.group];
+                            var subGroup = HordesList.hordes[entity.horde].hordes[entity.group];
                             EvaluateEntitiesInGroup(subGroup, entitiesToSpawn, wanderingHorde, gamestage);
                         }
                     }
