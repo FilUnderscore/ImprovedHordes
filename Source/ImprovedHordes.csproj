@@ -65,10 +65,12 @@
     <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationPlayer.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationMoving.cs" />
+    <Compile Include="Horde\AI\Events\HordeAIEntitySpawnedEvent.cs" />
     <Compile Include="Horde\AI\Events\HordeKilledEvent.cs" />
     <Compile Include="Horde\AI\HordeAICommand.cs" />
     <Compile Include="Horde\AI\HordeAIEntity.cs" />
     <Compile Include="Horde\Horde.cs" />
+    <Compile Include="Horde\AI\HordeAIHorde.cs" />
     <Compile Include="Horde\HordeGroup.cs" />
     <Compile Include="Horde\HordeGroupList.cs" />
     <Compile Include="Horde\HordesList.cs" />

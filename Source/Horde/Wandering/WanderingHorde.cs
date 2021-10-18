@@ -80,7 +80,7 @@ namespace ImprovedHordes.Horde.Wandering
         {
             foreach(var horde in this.hordes)
             {
-                this.manager.AIManager.DisbandHorde(horde);
+                this.manager.AIManager.GetAIHorde(horde).Disband();
             }
         }
 
