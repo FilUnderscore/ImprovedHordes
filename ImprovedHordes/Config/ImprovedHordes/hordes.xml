@@ -137,7 +137,7 @@
 			</gs>
 		</hordegroup>
 		
-		<!-- Good old spider zombie trio -->
+		<!-- Classic spider zombie trio -->
 		<hordegroup name="SpiderScouts">
 			<gs min="25" max="150" countIncPerGS="0.03">
 				<entity name="zombieSpider" minCount="1" maxCount="3"/>
@@ -158,7 +158,7 @@
 		<hordegroup name="Zombies">
 			<gs min="25" max="200" countIncPerGS="0.075" countDecGS="151" countDecPerPostGS="0.075">
 				<gs min="50">
-					<entity horde="scouts" chance="0.5"/> <!-- Entity types allow you to integrate other hordes into different hordes -->
+					<entity horde="scouts" chance="0.25"/> <!-- Entity types allow you to integrate other hordes into different hordes -->
 				</gs>
 
 				<entity group="ZombiesAll" minCount="2" maxCount="15"/>
@@ -166,7 +166,7 @@
 			
 			<gs min="151" max="400" countIncPerGS="0.075" countDecGS="301" countDecPerPostGS="0.075">
 				<gs min="175">
-					<entity type="randomgroup" horde="scouts" chance="0.5"/>
+					<entity horde="scouts" chance="0.5"/>
 				</gs>
 			
 				<entity group="IHZombiesAllFeral" minCount="2" maxCount="15"/>
@@ -174,7 +174,7 @@
 			
 			<gs min="301" countIncPerGS="0.075">
 				<gs min="301">
-					<entity type="randomgroup" horde="scouts" chance="0.5"/>
+					<entity horde="scouts" chance="0.75"/>
 				</gs>
 			
 				<entity group="IHZombiesAllRadiated" minCount="1" maxCount="30"/>

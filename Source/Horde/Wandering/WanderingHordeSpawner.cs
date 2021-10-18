@@ -384,13 +384,11 @@ namespace ImprovedHordes.Horde.Wandering
                             if (maxCount >= 0 && toSpawn > maxCount)
                                 toSpawn = maxCount;
 
-                            Log("{0} {1} {2}", gs.countDecGS == null, gs.countDecPerPostGS == null, countDecGS);
                             if (countDecGS > 0 && gamestage > countDecGS && gs.countDecPerPostGS != null)
                             {
                                 float countDecPerPostGS = gs.countDecPerPostGS.Evaluate();
 
                                 int decGSSpawn = (int)Math.Floor(countDecPerPostGS * (gamestage - countDecGS));
-                                Log("Dec GS Spawn {0}", decGSSpawn);
 
                                 if (decGSSpawn > 0)
                                     toSpawn -= decGSSpawn;
