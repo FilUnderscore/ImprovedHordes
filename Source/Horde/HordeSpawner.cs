@@ -35,7 +35,7 @@ namespace ImprovedHordes.Horde
             hordesSpawning.Clear();
         }
 
-        public abstract void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde);
+        protected abstract void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde);
 
         public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral)
         {
@@ -95,38 +95,35 @@ namespace ImprovedHordes.Horde
                 toRemove.Clear();
         }
 
-        public virtual void PreSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }
+        protected virtual void PreSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }
         
-        public virtual void PostSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }
+        protected virtual void PostSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }
 
         public abstract bool GetSpawnPosition(PlayerHordeGroup playerHordeGroup, out Vector3 spawnPosition, out Vector3 targetPosition);
 
-        public bool GetSpawnableY(ref Vector3 pos)
+        protected Vector3 CalculateAverageGroupPosition(PlayerHordeGroup playerHordeGroup)
         {
-            //int y = Utils.Fastfloor(playerY - 1f);
-            int y = (int)byte.MaxValue;
-            int x = global::Utils.Fastfloor(pos.x);
-            int z = global::Utils.Fastfloor(pos.z);
+            List<EntityPlayer> players = playerHordeGroup.members;
 
-            if (HordeManager.Instance.World.GetWorldExtent(out Vector3i minSize, out Vector3i maxSize))
+            Vector3 avg = Vector3.zero;
+
+            foreach (var player in players)
             {
-                x = Mathf.Clamp(x, minSize.x, maxSize.x);
-                z = Mathf.Clamp(z, minSize.z, maxSize.z);
-            }
-            while (HordeManager.Instance.World.GetBlock(x, y, z).type == 0)
-            {
-                if (--y < 0)
-                    return false;
+                avg += player.position;
             }
 
-            pos.x = (float)x;
-            pos.y = (float)(y + 1);
-            pos.z = z;
-            return true;
+            avg /= players.Count;
+
+            if (!Utils.GetSpawnableY(ref avg))
+            {
+                // Testing this.
+                Error("Failed to get spawnable Y.");
+            }
+
+            return avg;
         }
 
-
-        public bool CanSpawn(SpawningHorde horde)
+        protected bool CanSpawn(SpawningHorde horde)
         {
             // TODO Optional Spawning Limit
             if (horde.entityIndex < horde.horde.entities.Count)
@@ -135,7 +132,7 @@ namespace ImprovedHordes.Horde
             return false;
         }
 
-        public bool Spawn(PlayerHordeGroup group, SpawningHorde horde)
+        protected bool Spawn(PlayerHordeGroup group, SpawningHorde horde)
         {
             int entityId = horde.horde.entities[horde.entityIndex++];
 
@@ -220,7 +217,7 @@ namespace ImprovedHordes.Horde
             return groups;
         }
 
-        public class SpawningHorde
+        protected class SpawningHorde
         {
             public Horde horde;
             public Vector3 spawnPosition;

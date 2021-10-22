@@ -12,19 +12,42 @@ namespace ImprovedHordes.Horde.Scout
         private const float WANDER_TIME = 100.0f;
 
         public HordeAIEntity aiEntity;
+
         public Vector3 targetPosition;
         public Vector3 endPosition;
+        public bool hasEndPosition = false;
 
-        public Scout(HordeAIEntity aiEntity, Vector3 targetPosition, Vector3 endPosition)
+        public Scout(HordeAIEntity aiEntity)
         {
             this.aiEntity = aiEntity;
-            this.targetPosition = targetPosition;
-            this.endPosition = endPosition;
         }
 
         public void Interrupt(Vector3 newPosition)
         {
+            this.targetPosition = newPosition;
+            
+            if(!this.hasEndPosition)
+                this.CalculateEndPosition();
+
             this.aiEntity.InterruptWithNewCommands(new HordeAICommandDestination(newPosition, 10), new HordeAICommandWander(WANDER_TIME), new HordeAICommandDestination(endPosition, DISTANCE_TOLERANCE));
+        }
+
+        public void CalculateEndPosition()
+        {
+            if (this.hasEndPosition)
+                return;
+
+            var random = HordeManager.Instance.Random;
+            var radius = random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
+            var randomOnCircle = random.RandomOnUnitCircle;
+
+            this.endPosition = this.targetPosition + new Vector3(randomOnCircle.x, 0, randomOnCircle.y) * radius;
+            var result = Utils.GetSpawnableY(ref this.endPosition);
+
+            if (!result)
+                CalculateEndPosition();
+
+            this.hasEndPosition = true;
         }
     }
 }

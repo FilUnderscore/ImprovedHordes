@@ -39,6 +39,30 @@ namespace ImprovedHordes
             return "null";
         }
 
+        public static bool GetSpawnableY(ref Vector3 pos)
+        {
+            //int y = Utils.Fastfloor(playerY - 1f);
+            int y = (int)byte.MaxValue;
+            int x = global::Utils.Fastfloor(pos.x);
+            int z = global::Utils.Fastfloor(pos.z);
+
+            if (HordeManager.Instance.World.GetWorldExtent(out Vector3i minSize, out Vector3i maxSize))
+            {
+                x = Mathf.Clamp(x, minSize.x, maxSize.x);
+                z = Mathf.Clamp(z, minSize.z, maxSize.z);
+            }
+            while (HordeManager.Instance.World.GetBlock(x, y, z).type == 0)
+            {
+                if (--y < 0)
+                    return false;
+            }
+
+            pos.x = (float)x;
+            pos.y = (float)(y + 1);
+            pos.z = z;
+            return true;
+        }
+
         public static void Randomize<T>(this List<T> list)
         {
             for(int i = 0; i < list.Count - 1; i++)

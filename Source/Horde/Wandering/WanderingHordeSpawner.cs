@@ -28,7 +28,7 @@ namespace ImprovedHordes.Horde.Wandering
             return GamePrefs.GetInt(EnumGamePrefs.PartySharedKillRange) * 4;
         }
 
-        public override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
+        protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
@@ -42,6 +42,7 @@ namespace ImprovedHordes.Horde.Wandering
             else
             {
                 // Random wander to try encounter players.
+                // TODO
                 //bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
 
                 if (true)
@@ -50,7 +51,7 @@ namespace ImprovedHordes.Horde.Wandering
 
                     Vector3 wanderPos = horde.spawnPosition + (horde.targetPosition - horde.spawnPosition) / (1 - halfwayToEnd);
 
-                    if (GetSpawnableY(ref wanderPos))
+                    if (Utils.GetSpawnableY(ref wanderPos))
                     {
                         commands.Add(new HordeAICommandDestination(wanderPos, DEST_RADIUS));
                         commands.Add(new HordeAICommandWander(wanderTime));
@@ -71,7 +72,7 @@ namespace ImprovedHordes.Horde.Wandering
             return CalculateWanderingHordePositions(averageGroupPosition, out spawnPosition, out targetPosition);
         }
 
-        public override void PreSpawn(PlayerHordeGroup group, SpawningHorde horde)
+        protected override void PreSpawn(PlayerHordeGroup group, SpawningHorde horde)
         {
             this.horde.hordes.Add(horde.horde);
 
@@ -125,27 +126,7 @@ namespace ImprovedHordes.Horde.Wandering
             this.StartSpawningFor(GetAllHordeGroups(), this.horde.GetCurrentOccurance().feral);
         }
 
-        private Vector3 CalculateAverageGroupPosition(PlayerHordeGroup playerHordeGroup)
-        {
-            List<EntityPlayer> players = playerHordeGroup.members;
-
-            Vector3 avg = Vector3.zero;
-
-            foreach (var player in players)
-            {
-                avg += player.position;
-            }
-
-            avg /= players.Count;
-
-            if (!GetSpawnableY(ref avg))
-            {
-                // Testing this.
-                Error("Failed to get spawnable Y.");
-            }
-
-            return avg;
-        }
+        
 
         private Vector3 GetRandomNearbyPosition(Vector3 target, float radius)
         {
@@ -169,7 +150,7 @@ namespace ImprovedHordes.Horde.Wandering
             var intersections = FindLineCircleIntersections(randomPos.x, randomPos.z, radius, startPos, commonPos, out _, out Vector2 intEndPos);
 
             endPos = new Vector3(intEndPos.x, 0, intEndPos.y);
-            var result = GetSpawnableY(ref endPos);
+            var result = Utils.GetSpawnableY(ref endPos);
 
             if (!result)
             {
@@ -194,7 +175,7 @@ namespace ImprovedHordes.Horde.Wandering
             float z = (startCircle.y * radius) + playerPos.z;
 
             Vector3 circleFromPlayer = new Vector3(x, 0, z);
-            bool result = GetSpawnableY(ref circleFromPlayer);
+            bool result = Utils.GetSpawnableY(ref circleFromPlayer);
 
             if (!result)
             {

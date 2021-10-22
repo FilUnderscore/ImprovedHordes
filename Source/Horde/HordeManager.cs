@@ -112,6 +112,7 @@ namespace ImprovedHordes.Horde
         {
             this.AIManager.Update();
             this.WanderingHorde.Update();
+            this.ScoutManager.Update();
         }
     }
 }

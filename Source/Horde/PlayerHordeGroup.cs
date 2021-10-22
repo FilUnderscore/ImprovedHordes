@@ -11,6 +11,11 @@ namespace ImprovedHordes.Horde
             this.members = members;
         }
 
+        public PlayerHordeGroup(params EntityPlayer[] players)
+        {
+            this.members = new List<EntityPlayer>(players);
+        }
+
         public int GetGroupGamestage()
         {
             List<int> gamestages = new List<int>();
