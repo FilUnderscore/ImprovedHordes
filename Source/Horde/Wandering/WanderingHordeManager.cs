@@ -16,9 +16,9 @@ namespace ImprovedHordes.Horde.Wandering
 
         public List<Horde> hordes = new List<Horde>();
 
-        public HordeManager manager;
-        public WanderingHordeSpawner spawner;
-        public WanderingHordeSchedule schedule;
+        public readonly HordeManager manager;
+        public readonly WanderingHordeSpawner spawner;
+        public readonly WanderingHordeSchedule schedule;
 
         public WanderingHordeManager(HordeManager manager)
         {

@@ -22,7 +22,7 @@ namespace ImprovedHordes.Horde.Wandering
         public readonly List<Occurance> occurances = new List<Occurance>();
         public readonly Dictionary<int, Dictionary<string, int>> previousHordeGroupsForPlayers = new Dictionary<int, Dictionary<string, int>>();
 
-        private WanderingHordeManager manager;
+        private readonly WanderingHordeManager manager;
 
         public WanderingHordeSchedule(WanderingHordeManager manager)
         {
