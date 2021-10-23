@@ -16,9 +16,9 @@ namespace ImprovedHordes.Horde.Wandering
     public class WanderingHordeSpawner : HordeSpawner
     {
         private static readonly WanderingHordeGenerator HORDE_GENERATOR = new WanderingHordeGenerator();
-        public readonly WanderingHorde horde;
+        public readonly WanderingHordeManager horde;
 
-        public WanderingHordeSpawner(WanderingHorde horde) : base(HORDE_GENERATOR)
+        public WanderingHordeSpawner(WanderingHordeManager horde) : base(HORDE_GENERATOR)
         {
             this.horde = horde;
         }
@@ -122,8 +122,8 @@ namespace ImprovedHordes.Horde.Wandering
         {
             Log("[Wandering Horde] Occurance {0} Spawning", this.horde.schedule.currentOccurance + 1);
 
-            this.horde.state = WanderingHorde.EHordeState.StillAlive;
-            this.StartSpawningFor(GetAllHordeGroups(), this.horde.GetCurrentOccurance().feral);
+            this.horde.state = WanderingHordeManager.EHordeState.StillAlive;
+            this.StartSpawningFor(GetAllHordeGroups(), this.horde.schedule.GetCurrentOccurance().feral);
         }
 
         
@@ -202,7 +202,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group)
             {
-                WanderingHorde wanderingHorde = HordeManager.Instance.WanderingHorde;
+                WanderingHordeManager wanderingHorde = HordeManager.Instance.WanderingHorde;
 
                 if (group.MaxWeeklyOccurances != null)
                 {
@@ -225,7 +225,7 @@ namespace ImprovedHordes.Horde.Wandering
                 if (group.PrefWeekDays != null)
                 {
                     var prefWeekDays = group.PrefWeekDays.Evaluate();
-                    var weekDay = wanderingHorde.GetCurrentWeekDay();
+                    var weekDay = wanderingHorde.schedule.GetCurrentWeekDay();
 
                     // RNG whether to still spawn this horde, adds variation.
                     bool randomChance = wanderingHorde.manager.Random.RandomFloat >= 0.5f;

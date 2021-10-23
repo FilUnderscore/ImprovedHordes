@@ -85,10 +85,11 @@
     <Compile Include="Horde\Scout\ScoutManager.cs" />
     <Compile Include="Horde\Scout\ScoutSpawner.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
+    <Compile Include="Horde\Wandering\WanderingHordeSchedule.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
     <Compile Include="Horde\Wandering\WanderingHordeSpawner.cs" />
-    <Compile Include="Horde\Wandering\WanderingHorde.cs" />
+    <Compile Include="Horde\Wandering\WanderingHordeManager.cs" />
     <Compile Include="ImprovedHordesCommand.cs" />
     <Compile Include="RuntimeEval.cs" />
   </ItemGroup>

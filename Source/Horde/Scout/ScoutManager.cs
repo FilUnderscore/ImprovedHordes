@@ -58,6 +58,9 @@ namespace ImprovedHordes.Horde.Scout
 
         public void Update()
         {
+            if (this.manager.Players.Count == 0)
+                return;
+
             this.spawner.Update();
         }
 

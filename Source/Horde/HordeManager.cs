@@ -33,7 +33,7 @@ namespace ImprovedHordes.Horde
         }
 
         public HordeAIManager AIManager;
-        public WanderingHorde WanderingHorde;
+        public WanderingHordeManager WanderingHorde;
         public ScoutManager ScoutManager;
         
         public HordeManager()
@@ -44,7 +44,7 @@ namespace ImprovedHordes.Horde
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
             AIManager = new HordeAIManager();
-            WanderingHorde = new WanderingHorde(this);
+            WanderingHorde = new WanderingHordeManager(this);
             ScoutManager = new ScoutManager(this);
 
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", ModManager.GetMod("ImprovedHordes").Path);
