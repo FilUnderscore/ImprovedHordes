@@ -41,9 +41,13 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Update()
         {
-            if (this.schedule.CheckIfNeedsReset())
+            if (this.schedule.CheckIfNeedsReset() || this.schedule.IsNextOccuranceDue())
             {
-                this.schedule.Reset();
+                if(this.schedule.CheckIfNeedsReset())
+                    this.schedule.Reset();
+
+                this.spawner.StopAllSpawning();
+                this.DisbandAllWanderingHordes();
             }
 
             if (this.manager.Players.Count == 0)
@@ -54,11 +58,6 @@ namespace ImprovedHordes.Horde.Wandering
             if (ShouldSpawnWanderingHorde())
             {
                 this.spawner.SpawnWanderingHordes();
-            }
-            else if (this.schedule.IsNextOccuranceDue())
-            {
-                this.spawner.StopAllSpawning();
-                this.DisbandAllWanderingHordes();
             }
         }
 
