@@ -21,13 +21,13 @@ namespace ImprovedHordes.Horde
             return hordesSpawning.ContainsKey(playerHordeGroup);
         }
 
-        public virtual void SetAttributes(EntityAlive entity) 
+        protected virtual void SetAttributes(EntityAlive entity) 
         {
             if (entity is EntityEnemy enemy)
                 enemy.IsHordeZombie = true;
 
             entity.bIsChunkObserver = true;
-            entity.IsBloodMoon = true;
+            entity.IsBloodMoon = false;
         }
 
         public void StopAllSpawning()

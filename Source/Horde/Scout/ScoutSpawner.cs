@@ -43,6 +43,13 @@ namespace ImprovedHordes.Horde.Scout
             return true;
         }
 
+        protected override void SetAttributes(EntityAlive entity)
+        {
+            base.SetAttributes(entity);
+
+            entity.IsScoutZombie = true;
+        }
+
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();

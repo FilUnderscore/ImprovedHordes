@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using static ImprovedHordes.Utils.Logger;
+
+using ImprovedHordes.Horde.AI.Events;
 
 namespace ImprovedHordes.Horde.AI
 {
@@ -12,6 +15,7 @@ namespace ImprovedHordes.Horde.AI
         public List<HordeAICommand> commands;
         public int currentCommandIndex = 0;
 
+        public event EventHandler<HordeEntityKilledEvent> OnHordeEntityKilled;
         public HordeAIEntity(EntityAlive alive, bool despawnOnCompletion, List<HordeAICommand> commands)
         {
             this.entity = alive;
@@ -22,6 +26,11 @@ namespace ImprovedHordes.Horde.AI
         public int GetEntityId()
         {
             return this.entity.entityId;
+        }
+
+        public HordeAICommand GetCurrentCommand()
+        {
+            return commands[this.currentCommandIndex];
         }
 
         public void InterruptWithNewCommands(params HordeAICommand[] commands)
@@ -36,7 +45,10 @@ namespace ImprovedHordes.Horde.AI
         public EHordeAIEntityUpdateState Update(float dt)
         {
             if (this.entity.IsDead())
+            {
+                this.OnHordeEntityKilledEvent();
                 return EHordeAIEntityUpdateState.DEAD;
+            }
 
             if (this.currentCommandIndex >= this.commands.Count)
                 return EHordeAIEntityUpdateState.FINISHED;
@@ -63,6 +75,11 @@ namespace ImprovedHordes.Horde.AI
             }
 
             return EHordeAIEntityUpdateState.CONTINUE_COMMAND;
+        }
+
+        private void OnHordeEntityKilledEvent()
+        {
+            this.OnHordeEntityKilled?.Invoke(this, new HordeEntityKilledEvent(this));
         }
     }
 

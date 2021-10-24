@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace ImprovedHordes.Horde.AI.Events
 {
-    public class HordeAIEntitySpawnedEvent
+    public class HordeEntityKilledEvent
     {
         public readonly HordeAIEntity entity;
-        public HordeAIHorde horde;
 
-        public HordeAIEntitySpawnedEvent(HordeAIEntity entity, HordeAIHorde horde)
+        public HordeEntityKilledEvent(HordeAIEntity entity)
         {
             this.entity = entity;
-            this.horde = horde;
         }
     }
 }

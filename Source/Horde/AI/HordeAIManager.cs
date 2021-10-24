@@ -13,7 +13,7 @@ namespace ImprovedHordes.Horde.AI
 {
     public sealed class HordeAIManager
     {
-        public event EventHandler<HordeAIEntitySpawnedEvent> OnHordeAIEntitySpawned;
+        public event EventHandler<HordeEntitySpawnedEvent> OnHordeAIEntitySpawned;
         public event EventHandler<HordeKilledEvent> OnHordeKilled;
         
         private readonly Dictionary<Horde, HordeAIHorde> trackedHordes = new Dictionary<Horde, HordeAIHorde>();
@@ -38,7 +38,7 @@ namespace ImprovedHordes.Horde.AI
                 trackedHordes.Add(horde, aiHorde = new HordeAIHorde(horde));
 
             HordeAIEntity hordeAIEntity = new HordeAIEntity(entity, despawnOnCompletion, commands);
-            HordeAIEntitySpawnedEvent spawnEvent = OnHordeAIEntitySpawnedEvent(hordeAIEntity, aiHorde);
+            HordeEntitySpawnedEvent spawnEvent = OnHordeAIEntitySpawnedEvent(hordeAIEntity, aiHorde);
             spawnEvent.horde.AddEntity(hordeAIEntity);
         }
 
@@ -74,9 +74,9 @@ namespace ImprovedHordes.Horde.AI
             this.OnHordeKilled?.Invoke(this, new HordeKilledEvent(horde));
         }
 
-        private HordeAIEntitySpawnedEvent OnHordeAIEntitySpawnedEvent(HordeAIEntity entity, HordeAIHorde horde)
+        private HordeEntitySpawnedEvent OnHordeAIEntitySpawnedEvent(HordeAIEntity entity, HordeAIHorde horde)
         {
-            HordeAIEntitySpawnedEvent spawnEvent = new HordeAIEntitySpawnedEvent(entity, horde);
+            HordeEntitySpawnedEvent spawnEvent = new HordeEntitySpawnedEvent(entity, horde);
             this.OnHordeAIEntitySpawned?.Invoke(this, spawnEvent);
 
             return spawnEvent;

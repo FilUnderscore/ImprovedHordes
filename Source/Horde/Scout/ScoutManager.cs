@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using HarmonyLib;
 using UnityEngine;
 
 using ImprovedHordes.Horde.AI.Events;
+using ImprovedHordes.Horde.Scout.AI.Commands;
+
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Scout
 {
@@ -11,12 +15,10 @@ namespace ImprovedHordes.Horde.Scout
     {
         public const int CHUNK_RADIUS = 3; // TODO: Make a xml value
 
-        private static readonly HordeGenerator SCOUT_HORDE_GENERATOR = new ScoutHordeGenerator(); // Horde spawned by Scouts.
-
         private readonly List<Scout> scouts = new List<Scout>();
 
-        public HordeManager manager;
-        private ScoutSpawner spawner;
+        public readonly HordeManager manager;
+        private readonly ScoutSpawner spawner;
 
         public ScoutManager(HordeManager manager)
         {
@@ -26,22 +28,51 @@ namespace ImprovedHordes.Horde.Scout
             this.manager.AIManager.OnHordeAIEntitySpawned += OnScoutEntitySpawned;
         }
 
-        public void OnScoutEntitySpawned(object sender, HordeAIEntitySpawnedEvent e)
+        public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
         {
-            if(e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts"))
-            {
+            if(!e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts") &&
+                e.entity.entity.entityClass != EntityClass.FromString("zombieScreamer") // Screamers are always scouts.
+                    && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerFeral")
+                    && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerRadiated"))
                 return;
-            }
 
-            // Screamers are always scouts.
-            if(e.entity.entity.entityClass == EntityClass.FromString("zombieScreamer")
-                || e.entity.entity.entityClass == EntityClass.FromString("zombieScreamerFeral")
-                || e.entity.entity.entityClass == EntityClass.FromString("zombieScreamerRadiated"))
+            Scout scout = new Scout(e.entity);
+            this.scouts.Add(scout);
+
+            // TODO test. 
+            // TODO Add scout command for non heatmap scout.
+
+            if (e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts"))
             {
-                Scout scout = new Scout(e.entity);
-
-                this.scouts.Add(scout);
+                Log("Heatmap scout spawned.");
             }
+            else
+            {
+                Log("Horde scout spawned.");
+            }
+
+            e.entity.commands.Add(new HordeAICommandScout(e.entity));
+
+            e.entity.OnHordeEntityKilled += OnScoutEntityKilled;
+        }
+
+        public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)
+        {
+            // No need for checking because it only applies to scouts.
+            Scout storedScout = null;
+
+            foreach(var scout in scouts)
+            {
+                if(scout.aiEntity == e.entity)
+                {
+                    storedScout = scout;
+                }
+            }
+
+            if (storedScout == null)
+                throw new NullReferenceException("Stored scout is null, perhaps the scout entity was not cleaned up properly?");
+
+            this.scouts.Remove(storedScout);
         }
 
         public void SpawnScouts(Vector3 targetPos)
@@ -53,7 +84,13 @@ namespace ImprovedHordes.Horde.Scout
 
         public void NotifyScoutsNear(Vector3i targetBlockPos)
         {
+            Vector3 targetPos = new Vector3(targetBlockPos.x, targetBlockPos.y, targetBlockPos.z);
             // TODO Notify scouts near chunk about new target.
+
+            foreach (var scout in GetScoutsNear(targetPos))
+            {
+                scout.Interrupt(targetPos);
+            }
         }
 
         public void Update()
@@ -64,11 +101,23 @@ namespace ImprovedHordes.Horde.Scout
             this.spawner.Update();
         }
 
-        public Scout GetScoutsNearChunk(Vector3 targetPos)
+        public List<Scout> GetScoutsNear(Vector3 targetPos)
         {
+            const int chunkDist = 16 * CHUNK_RADIUS;
 
+            List<Scout> nearby = new List<Scout>();
 
-            return null;
+            foreach(var scout in scouts)
+            {
+                Vector3 scoutPos = scout.aiEntity.entity.position;
+
+                if(Vector2.Distance(new Vector2(scoutPos.x, scoutPos.z), new Vector2(targetPos.x, targetPos.z)) <= chunkDist)
+                {
+                    nearby.Add(scout);
+                }
+            }
+
+            return nearby;
         }
 
         private sealed class ScoutHordeGenerator : HordeGenerator

@@ -65,7 +65,8 @@
     <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationPlayer.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationMoving.cs" />
-    <Compile Include="Horde\AI\Events\HordeAIEntitySpawnedEvent.cs" />
+    <Compile Include="Horde\AI\Events\HordeEntityKilledEvent.cs" />
+    <Compile Include="Horde\AI\Events\HordeEntitySpawnedEvent.cs" />
     <Compile Include="Horde\AI\Events\HordeKilledEvent.cs" />
     <Compile Include="Horde\AI\HordeAICommand.cs" />
     <Compile Include="Horde\AI\HordeAIEntity.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Horde\AI\HordeAIManager.cs" />
     <Compile Include="Horde\HordeSpawner.cs" />
     <Compile Include="Horde\PlayerHordeGroup.cs" />
+    <Compile Include="Horde\Scout\AI\Commands\HordeAICommandScout.cs" />
     <Compile Include="Horde\Scout\Scout.cs" />
     <Compile Include="Horde\Scout\ScoutManager.cs" />
     <Compile Include="Horde\Scout\ScoutSpawner.cs" />

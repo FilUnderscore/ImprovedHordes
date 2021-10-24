@@ -4,12 +4,14 @@ using System;
 
 using HarmonyLib;
 
+using ImprovedHordes.Horde.AI.Events;
+
 namespace ImprovedHordes.Horde.AI
 {
     public class HordeAIHorde
     {
         private static readonly MethodInfo DespawnMethod = AccessTools.Method(typeof(EntityAlive), "Despawn");
-
+        
         static HordeAIHorde()
         {
             if (DespawnMethod == null)
