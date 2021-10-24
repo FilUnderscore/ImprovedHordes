@@ -19,11 +19,13 @@ namespace ImprovedHordes.Horde.Scout
 
         public readonly HordeManager manager;
         private readonly ScoutSpawner spawner;
+        private readonly ScoutHordeSpawner hordeSpawner;
 
         public ScoutManager(HordeManager manager)
         {
             this.manager = manager;
             this.spawner = new ScoutSpawner(this);
+            this.hordeSpawner = new ScoutHordeSpawner(this);
 
             this.manager.AIManager.OnHordeAIEntitySpawned += OnScoutEntitySpawned;
         }
@@ -51,7 +53,7 @@ namespace ImprovedHordes.Horde.Scout
                 Log("Horde scout spawned.");
             }
 
-            e.entity.commands.Add(new HordeAICommandScout(e.entity));
+            e.entity.commands.Add(new HordeAICommandScout(this, e.entity));
 
             e.entity.OnHordeEntityKilled += OnScoutEntityKilled;
         }
@@ -79,7 +81,12 @@ namespace ImprovedHordes.Horde.Scout
         {
             // TODO Scout Spawner
             EntityPlayer closest = this.manager.World.GetClosestPlayer(targetPos, -1, false);
-            this.spawner.StartSpawningFor(new PlayerHordeGroup(closest), false); // TODO Feral?
+            this.spawner.StartSpawningFor(closest, false, targetPos); // TODO Feral?
+        }
+
+        public void SpawnScoutHorde(EntityPlayer target)
+        {
+            this.hordeSpawner.StartSpawningFor(target, false); // TODO Feral?
         }
 
         public void NotifyScoutsNear(Vector3i targetBlockPos)

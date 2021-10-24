@@ -84,6 +84,7 @@
     <Compile Include="Horde\PlayerHordeGroup.cs" />
     <Compile Include="Horde\Scout\AI\Commands\HordeAICommandScout.cs" />
     <Compile Include="Horde\Scout\Scout.cs" />
+    <Compile Include="Horde\Scout\ScoutHordeSpawner.cs" />
     <Compile Include="Horde\Scout\ScoutManager.cs" />
     <Compile Include="Horde\Scout\ScoutSpawner.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />

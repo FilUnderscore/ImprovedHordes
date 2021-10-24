@@ -37,7 +37,7 @@ namespace ImprovedHordes.Horde
 
         protected abstract void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde);
 
-        public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral)
+        public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral, Vector3? target = null)
         {
             foreach(var group in groups)
             {
@@ -45,7 +45,12 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        public void StartSpawningFor(PlayerHordeGroup group, bool feral)
+        public void StartSpawningFor(EntityPlayer player, bool feral, Vector3? target = null)
+        {
+            StartSpawningFor(GetHordeGroupNearLocation(player.position), feral);
+        }
+
+        public void StartSpawningFor(PlayerHordeGroup group, bool feral, Vector3? target = null)
         {
             if (hordesSpawning.ContainsKey(group))
                 return;
@@ -58,7 +63,7 @@ namespace ImprovedHordes.Horde
                 return;
             }
 
-            SpawningHorde spawningHorde = new SpawningHorde(horde, spawnPosition, targetPosition);
+            SpawningHorde spawningHorde = new SpawningHorde(horde, spawnPosition, target != null ? target.Value : targetPosition);
 
             hordesSpawning.Add(group, spawningHorde);
 

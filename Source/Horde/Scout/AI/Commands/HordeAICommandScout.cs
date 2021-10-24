@@ -15,15 +15,19 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         private const float ATTACK_DELAY = 18.0f;
 
         // TODO. Intercept horde entity commands.
-        private List<HordeAICommand> commands = new List<HordeAICommand>();
+        private readonly ScoutManager manager;
+
+        private List<HordeAICommand> commands;
         private int currentCommandIndex = 0;
 
         private float attackDelay = ATTACK_DELAY;
 
         private bool finished = false;
 
-        public HordeAICommandScout(HordeAIEntity entity)
+        public HordeAICommandScout(ScoutManager manager, HordeAIEntity entity)
         {
+            this.manager = manager;
+
             commands = entity.commands;
             currentCommandIndex = entity.currentCommandIndex;
         }
@@ -73,7 +77,8 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
                 if (attackDelay <= 0.0 && alive.bodyDamage.CurrentStun == EnumEntityStunType.None && !target.IsDead())
                 {
                     alive.PlayOneShot(alive.GetSoundAlert());
-                    // Spawn horde.
+
+                    this.manager.SpawnScoutHorde(target); // Spawn horde.
 
                     attackDelay = ATTACK_DELAY;
                 }
