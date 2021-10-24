@@ -17,7 +17,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         // TODO. Intercept horde entity commands.
         private readonly ScoutManager manager;
 
-        private List<HordeAICommand> commands;
+        private readonly List<HordeAICommand> commands;
         private int currentCommandIndex = 0;
 
         private float attackDelay = ATTACK_DELAY;
@@ -28,8 +28,8 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         {
             this.manager = manager;
 
-            commands = entity.commands;
-            currentCommandIndex = entity.currentCommandIndex;
+            this.commands = new List<HordeAICommand>(entity.commands);
+            this.currentCommandIndex = entity.currentCommandIndex;
         }
 
         public bool HasOtherCommands()

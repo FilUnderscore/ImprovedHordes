@@ -46,6 +46,7 @@ namespace ImprovedHordes.Horde.Scout
 
             if (e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts"))
             {
+                scout.CalculateEndPosition(); // TODO Rework maybe?
                 Log("Heatmap scout spawned.");
             }
             else
@@ -54,6 +55,7 @@ namespace ImprovedHordes.Horde.Scout
             }
 
             e.entity.commands.Add(new HordeAICommandScout(this, e.entity));
+            e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
 
             e.entity.OnHordeEntityKilled += OnScoutEntityKilled;
         }

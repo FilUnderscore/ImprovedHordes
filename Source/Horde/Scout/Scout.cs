@@ -48,6 +48,7 @@ namespace ImprovedHordes.Horde.Scout
                 CalculateEndPosition();
 
             this.hasEndPosition = true;
+            this.aiEntity.commands.Add(new HordeAICommandDestination(this.endPosition, 10));
         }
     }
 }
