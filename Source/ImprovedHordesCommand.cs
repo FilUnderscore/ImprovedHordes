@@ -21,8 +21,6 @@ namespace ImprovedHordes
 
                         if (_params[1].EqualsCaseInsensitive("spawn"))
                         {
-                            // TODO.
-                            //ImprovedHordesMod.manager.wanderingHorde.SpawnWanderingHordes();
                             wanderingHorde.ForceSpawnWanderingHorde();
 
                             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Hordes spawning for all groups.");
@@ -85,6 +83,17 @@ namespace ImprovedHordes
                         SingletonMonoBehaviour<SdtdConsole>.Instance.Output("No sub command given.");
                     }
                 }
+                else if(_params[0].EqualsCaseInsensitive("scouts"))
+                {
+                    var scoutManager = HordeManager.Instance.ScoutManager;
+
+                    if(_params[1].EqualsCaseInsensitive("spawn"))
+                    {
+                        scoutManager.SpawnScouts(GameManager.Instance.World.GetEntity(_senderInfo.RemoteClientInfo.entityId).position);
+
+                        SingletonMonoBehaviour<SdtdConsole>.Instance.Output("Scouts dispatched to player's location.");
+                    }
+                }
             }
             else
             {
@@ -106,7 +115,8 @@ namespace ImprovedHordes
         {
             return "Commands: \nimprovedhordes wandering spawn - Spawns a wandering horde for all groups on the server."
                 + "\nimprovedhordes wandering resetschedule - Resets the weekly schedule for the wandering hordes."
-                + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule.";
+                + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule."
+                + "\nimprovedhordes scouts spawn - Spawns scouts at the target's location.";
         }
     }
 }

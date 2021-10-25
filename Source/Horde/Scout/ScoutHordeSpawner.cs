@@ -14,7 +14,7 @@ namespace ImprovedHordes.Horde.Scout
 
         private readonly ScoutManager manager;
 
-        public ScoutHordeSpawner(ScoutManager manager) : base(SCOUT_HORDE_GENERATOR)
+        public ScoutHordeSpawner(ScoutManager manager) : base(manager.manager, SCOUT_HORDE_GENERATOR)
         {
             this.manager = manager;
         }
@@ -22,11 +22,6 @@ namespace ImprovedHordes.Horde.Scout
         public override int GetGroupDistance()
         {
             return ScoutManager.CHUNK_RADIUS * 16; 
-        }
-
-        public override bool GetSpawnPosition(PlayerHordeGroup playerHordeGroup, out Vector3 spawnPosition, out Vector3 targetPosition)
-        {
-            throw new NotImplementedException();
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)

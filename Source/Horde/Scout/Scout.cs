@@ -3,6 +3,9 @@
 using ImprovedHordes.Horde.AI;
 using ImprovedHordes.Horde.AI.Commands;
 using ImprovedHordes.Horde.Wandering.AI.Commands;
+using ImprovedHordes.Horde.Scout.AI.Commands;
+
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Scout
 {
@@ -13,8 +16,6 @@ namespace ImprovedHordes.Horde.Scout
 
         public HordeAIEntity aiEntity;
 
-        public Vector3 targetPosition;
-        public Vector3 endPosition;
         public bool hasEndPosition = false;
 
         public Scout(HordeAIEntity aiEntity)
@@ -24,31 +25,17 @@ namespace ImprovedHordes.Horde.Scout
 
         public void Interrupt(Vector3 newPosition)
         {
-            this.targetPosition = newPosition;
-            
-            if(!this.hasEndPosition)
-                this.CalculateEndPosition();
+            HordeAICommand currentCommand = this.aiEntity.GetCurrentCommand();
 
-            this.aiEntity.InterruptWithNewCommands(new HordeAICommandDestination(newPosition, 10), new HordeAICommandWander(WANDER_TIME), new HordeAICommandDestination(endPosition, DISTANCE_TOLERANCE));
-        }
+            if(currentCommand != null && !(currentCommand is HordeAICommandScout))
+            {
+                Warning("[Scout] Current AI command is not scout.");
 
-        public void CalculateEndPosition()
-        {
-            if (this.hasEndPosition)
                 return;
+            }
 
-            var random = HordeManager.Instance.Random;
-            var radius = random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
-            var randomOnCircle = random.RandomOnUnitCircle;
-
-            this.endPosition = this.targetPosition + new Vector3(randomOnCircle.x, 0, randomOnCircle.y) * radius;
-            var result = Utils.GetSpawnableY(ref this.endPosition);
-
-            if (!result)
-                CalculateEndPosition();
-
-            this.hasEndPosition = true;
-            this.aiEntity.commands.Add(new HordeAICommandDestination(this.endPosition, 10));
+            HordeAICommandScout scoutCommand = (HordeAICommandScout) currentCommand;
+            scoutCommand.UpdateTarget(newPosition);
         }
     }
 }

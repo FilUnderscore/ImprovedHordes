@@ -1,10 +1,10 @@
 ﻿namespace ImprovedHordes.Horde.AI.Events
 {
-    public class HordeEntityKilledEvent
+    public class HordeEntityDespawnedEvent
     {
         public readonly HordeAIEntity entity;
-        
-        public HordeEntityKilledEvent(HordeAIEntity entity)
+
+        public HordeEntityDespawnedEvent(HordeAIEntity entity)
         {
             this.entity = entity;
         }

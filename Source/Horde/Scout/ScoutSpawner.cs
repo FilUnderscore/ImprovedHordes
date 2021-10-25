@@ -12,10 +12,11 @@ namespace ImprovedHordes.Horde.Scout
     public class ScoutSpawner : HordeSpawner
     {
         private static readonly HordeGenerator SCOUTS_HORDE_GENERATOR = new ScoutsHordeGenerator(); // Scouts - e.g. Screamer
-        
+
+        private Vector3 latestTarget = Vector3.zero;
         private readonly ScoutManager manager;
 
-        public ScoutSpawner(ScoutManager manager) : base(SCOUTS_HORDE_GENERATOR)
+        public ScoutSpawner(ScoutManager manager) : base(manager.manager, SCOUTS_HORDE_GENERATOR)
         {
             this.manager = manager;
         }
@@ -25,29 +26,17 @@ namespace ImprovedHordes.Horde.Scout
             return ScoutManager.CHUNK_RADIUS * 16;
         }
 
-        public override bool GetSpawnPosition(PlayerHordeGroup playerHordeGroup, out Vector3 spawnPosition, out Vector3 targetPosition)
-        {
-            var radius = this.manager.manager.Random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
-            Vector2 spawnPosition2D = this.manager.manager.Random.RandomOnUnitCircle * radius;
-            spawnPosition = new Vector3(spawnPosition2D.x, 0, spawnPosition2D.y);
-
-            var result = Utils.GetSpawnableY(ref spawnPosition);
-
-            if(!result)
-            {
-                return GetSpawnPosition(playerHordeGroup, out spawnPosition, out targetPosition);
-            }
-
-            targetPosition = CalculateAverageGroupPosition(playerHordeGroup);
-
-            return true;
-        }
-
         protected override void SetAttributes(EntityAlive entity)
         {
             base.SetAttributes(entity);
 
             entity.IsScoutZombie = true;
+        }
+
+        public void StartSpawningFor(EntityPlayer nearestPlayer, bool feral, Vector3 target)
+        {
+            latestTarget = target;
+            this.StartSpawningFor(nearestPlayer, feral);
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
@@ -57,8 +46,9 @@ namespace ImprovedHordes.Horde.Scout
             float wanderTime = 90f + this.manager.manager.Random.RandomFloat * 4f; // TODO customize?
 
             // TODO Feral maybe?
+            commands.Add(new HordeAICommandDestination(latestTarget, DEST_RADIUS));
+            commands.Add(new HordeAICommandWander(90.0f));
             commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
-            commands.Add(new HordeAICommandWander(wanderTime));
 
             this.manager.manager.AIManager.Add(entity, horde.horde, true, commands);
         }

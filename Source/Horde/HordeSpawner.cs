@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 
 using static ImprovedHordes.Utils.Logger;
+using static ImprovedHordes.Utils.Math;
 
 namespace ImprovedHordes.Horde
 {
@@ -11,8 +13,11 @@ namespace ImprovedHordes.Horde
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
         private HordeGenerator hordeGenerator;
 
-        public HordeSpawner(HordeGenerator hordeGenerator)
+        private readonly HordeManager manager;
+
+        public HordeSpawner(HordeManager manager, HordeGenerator hordeGenerator)
         {
+            this.manager = manager;
             this.hordeGenerator = hordeGenerator;
         }
 
@@ -37,7 +42,7 @@ namespace ImprovedHordes.Horde
 
         protected abstract void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde);
 
-        public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral, Vector3? target = null)
+        public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral)
         {
             foreach(var group in groups)
             {
@@ -45,12 +50,12 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        public void StartSpawningFor(EntityPlayer player, bool feral, Vector3? target = null)
+        public void StartSpawningFor(EntityPlayer player, bool feral)
         {
             StartSpawningFor(GetHordeGroupNearLocation(player.position), feral);
         }
 
-        public void StartSpawningFor(PlayerHordeGroup group, bool feral, Vector3? target = null)
+        public void StartSpawningFor(PlayerHordeGroup group, bool feral)
         {
             if (hordesSpawning.ContainsKey(group))
                 return;
@@ -63,7 +68,7 @@ namespace ImprovedHordes.Horde
                 return;
             }
 
-            SpawningHorde spawningHorde = new SpawningHorde(horde, spawnPosition, target != null ? target.Value : targetPosition);
+            SpawningHorde spawningHorde = new SpawningHorde(horde, spawnPosition, targetPosition);
 
             hordesSpawning.Add(group, spawningHorde);
 
@@ -104,7 +109,78 @@ namespace ImprovedHordes.Horde
         
         protected virtual void PostSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }
 
-        public abstract bool GetSpawnPosition(PlayerHordeGroup playerHordeGroup, out Vector3 spawnPosition, out Vector3 targetPosition);
+        public virtual bool GetSpawnPosition(PlayerHordeGroup playerHordeGroup, out Vector3 spawnPosition, out Vector3 targetPosition)
+        {
+            var averageGroupPosition = CalculateAverageGroupPosition(playerHordeGroup);
+
+            return CalculateWanderingHordePositions(averageGroupPosition, out spawnPosition, out targetPosition);
+        }
+        protected Vector3 GetRandomNearbyPosition(Vector3 target, float radius)
+        {
+            Vector2 random = this.manager.Random.RandomOnUnitCircle;
+
+            float x = target.x + random.x * radius;
+            float z = target.z + random.y * radius;
+
+            return new Vector3(x, target.y, z);
+        }
+
+        public bool CalculateWanderingHordePositions(Vector3 commonPos, out Vector3 startPos, out Vector3 endPos)
+        {
+            var random = this.manager.Random;
+
+            var radius = random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance)); // TODO: Make XML setting.
+            startPos = GetSpawnableCircleFromPos(commonPos, radius);
+
+            this.manager.World.GetRandomSpawnPositionMinMaxToPosition(commonPos, 20, 40, 20, true, out Vector3 randomPos);
+
+            var intersections = FindLineCircleIntersections(randomPos.x, randomPos.z, radius, startPos, commonPos, out _, out Vector2 intEndPos);
+
+            endPos = new Vector3(intEndPos.x, 0, intEndPos.y);
+            var result = Utils.GetSpawnableY(ref endPos);
+
+            if (!result)
+            {
+                return CalculateWanderingHordePositions(commonPos, out startPos, out endPos);
+            }
+
+            if (intersections < 2)
+            {
+                Warning("[Wandering Horde] Only 1 intersection was found.");
+
+                return false;
+            }
+
+            return true;
+        }
+
+        public Vector3 GetSpawnableCircleFromPos(Vector3 playerPos, float radius, int attempt = 0)
+        {
+            Vector2 startCircle = this.manager.Random.RandomOnUnitCircle;
+
+            float x = (startCircle.x * radius) + playerPos.x;
+            float z = (startCircle.y * radius) + playerPos.z;
+
+            Vector3 circleFromPlayer = new Vector3(x, 0, z);
+            bool result = Utils.GetSpawnableY(ref circleFromPlayer);
+
+            if (!result)
+            {
+                Log("[Wandering Horde] Failed to find spawnable circle from pos. X" + x + " Z " + z);
+
+                if (attempt < 10)
+                    return GetSpawnableCircleFromPos(playerPos, radius, attempt++);
+                else
+                {
+                    if (this.manager.World.GetRandomSpawnPositionMinMaxToPosition(playerPos, 20, (int)radius, 20, true, out Vector3 alt))
+                        return alt;
+
+                    throw new InvalidOperationException($"Failed to find a spawnable location near {playerPos.ToString()}");
+                }
+            }
+
+            return circleFromPlayer;
+        }
 
         protected Vector3 CalculateAverageGroupPosition(PlayerHordeGroup playerHordeGroup)
         {
@@ -221,6 +297,8 @@ namespace ImprovedHordes.Horde
 
             return groups;
         }
+
+
 
         protected class SpawningHorde
         {

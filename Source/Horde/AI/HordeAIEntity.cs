@@ -16,6 +16,8 @@ namespace ImprovedHordes.Horde.AI
         public int currentCommandIndex = 0;
 
         public event EventHandler<HordeEntityKilledEvent> OnHordeEntityKilled;
+        public event EventHandler<HordeEntityDespawnedEvent> OnHordeEntityDespawned;
+
         public HordeAIEntity(EntityAlive alive, bool despawnOnCompletion, List<HordeAICommand> commands)
         {
             this.entity = alive;
@@ -30,6 +32,9 @@ namespace ImprovedHordes.Horde.AI
 
         public HordeAICommand GetCurrentCommand()
         {
+            if (this.currentCommandIndex >= this.commands.Count)
+                return null;
+
             return commands[this.currentCommandIndex];
         }
 
@@ -47,11 +52,17 @@ namespace ImprovedHordes.Horde.AI
             if (this.entity.IsDead())
             {
                 this.OnHordeEntityKilledEvent();
+
                 return EHordeAIEntityUpdateState.DEAD;
             }
 
             if (this.currentCommandIndex >= this.commands.Count)
+            {
+                if (this.despawnOnCompletion)
+                    this.OnHordeEntityDespawnedEvent();
+
                 return EHordeAIEntityUpdateState.FINISHED;
+            }
 
             HordeAICommand command = this.commands[this.currentCommandIndex];
 
@@ -80,6 +91,11 @@ namespace ImprovedHordes.Horde.AI
         private void OnHordeEntityKilledEvent()
         {
             this.OnHordeEntityKilled?.Invoke(this, new HordeEntityKilledEvent(this));
+        }
+
+        private void OnHordeEntityDespawnedEvent()
+        {
+            this.OnHordeEntityDespawned?.Invoke(this, new HordeEntityDespawnedEvent(this));
         }
     }
 

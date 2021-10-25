@@ -116,7 +116,7 @@ namespace ImprovedHordes.Horde.Wandering
             [HarmonyPatch("Tick")]
             class WanderingHordeSpawnHook
             {
-                static bool Prefix(double _dt)
+                static bool Prefix()
                 {
                     // Prevent default wandering hordes from spawning at all.
                     return false;

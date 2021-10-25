@@ -2,6 +2,7 @@
 
 using ImprovedHordes.Horde.AI;
 using ImprovedHordes.Horde.AI.Commands;
+using ImprovedHordes.Horde.Wandering.AI.Commands;
 
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
     {
         private const int DIST_RADIUS = 10;
         private const float ATTACK_DELAY = 18.0f;
+        private const float WANDER_TIME = 90.0f;
 
         // TODO. Intercept horde entity commands.
         private readonly ScoutManager manager;
@@ -45,7 +47,12 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         public void UpdateTarget(Vector3 target)
         {
             Log("[Scout] New target {0}.", target);
-            commands.Insert(currentCommandIndex, new HordeAICommandDestination(target, DIST_RADIUS));
+
+            List<HordeAICommand> newCommands = new List<HordeAICommand>();
+            newCommands.Add(new HordeAICommandDestination(target, DIST_RADIUS));
+            newCommands.Add(new HordeAICommandWander(WANDER_TIME));
+
+            commands.InsertRange(currentCommandIndex, newCommands);
         }
 
         public override bool CanExecute(EntityAlive alive)
@@ -79,6 +86,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
                     alive.PlayOneShot(alive.GetSoundAlert());
 
                     this.manager.SpawnScoutHorde(target); // Spawn horde.
+                    this.UpdateTarget(target.position); // TODO check.
 
                     attackDelay = ATTACK_DELAY;
                 }

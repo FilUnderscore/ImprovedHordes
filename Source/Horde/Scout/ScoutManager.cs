@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 
+using ImprovedHordes.Horde.AI;
 using ImprovedHordes.Horde.AI.Events;
 using ImprovedHordes.Horde.Scout.AI.Commands;
 
@@ -15,7 +16,7 @@ namespace ImprovedHordes.Horde.Scout
     {
         public const int CHUNK_RADIUS = 3; // TODO: Make a xml value
 
-        private readonly List<Scout> scouts = new List<Scout>();
+        private readonly Dictionary<HordeAIEntity, Scout> scouts = new Dictionary<HordeAIEntity, Scout>();
 
         public readonly HordeManager manager;
         private readonly ScoutSpawner spawner;
@@ -32,51 +33,46 @@ namespace ImprovedHordes.Horde.Scout
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
         {
+            Log("Spawned");
+
             if(!e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts") &&
                 e.entity.entity.entityClass != EntityClass.FromString("zombieScreamer") // Screamers are always scouts.
                     && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerFeral")
                     && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerRadiated"))
                 return;
 
+            Log("Set");
+
             Scout scout = new Scout(e.entity);
-            this.scouts.Add(scout);
-
-            // TODO test. 
-            // TODO Add scout command for non heatmap scout.
-
-            if (e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts"))
-            {
-                scout.CalculateEndPosition(); // TODO Rework maybe?
-                Log("Heatmap scout spawned.");
-            }
-            else
-            {
-                Log("Horde scout spawned.");
-            }
+            this.scouts.Add(e.entity, scout);
 
             e.entity.commands.Add(new HordeAICommandScout(this, e.entity));
             e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
 
             e.entity.OnHordeEntityKilled += OnScoutEntityKilled;
+            e.entity.OnHordeEntityDespawned += OnScoutEntityDespawned;
         }
 
         public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)
         {
-            // No need for checking because it only applies to scouts.
-            Scout storedScout = null;
+            this.RemoveScout(e.entity);
+        }
 
-            foreach(var scout in scouts)
+        public void OnScoutEntityDespawned(object sender, HordeEntityDespawnedEvent e)
+        {
+            this.RemoveScout(e.entity);
+        }
+
+        private void RemoveScout(HordeAIEntity entity)
+        {
+            // No need for checking because it only applies to scouts.
+            if (!this.scouts.ContainsKey(entity))
             {
-                if(scout.aiEntity == e.entity)
-                {
-                    storedScout = scout;
-                }
+                Warning("[Scout] Entity {0} was already removed from scouts.", entity.GetEntityId());
+                return;
             }
 
-            if (storedScout == null)
-                throw new NullReferenceException("Stored scout is null, perhaps the scout entity was not cleaned up properly?");
-
-            this.scouts.Remove(storedScout);
+            this.scouts.Remove(entity);
         }
 
         public void SpawnScouts(Vector3 targetPos)
@@ -108,6 +104,7 @@ namespace ImprovedHordes.Horde.Scout
                 return;
 
             this.spawner.Update();
+            this.hordeSpawner.Update();
         }
 
         public List<Scout> GetScoutsNear(Vector3 targetPos)
@@ -116,9 +113,12 @@ namespace ImprovedHordes.Horde.Scout
 
             List<Scout> nearby = new List<Scout>();
 
-            foreach(var scout in scouts)
+            foreach(var scoutEntry in scouts)
             {
-                Vector3 scoutPos = scout.aiEntity.entity.position;
+                var entity = scoutEntry.Key;
+                var scout = scoutEntry.Value;
+
+                Vector3 scoutPos = entity.entity.position;
 
                 if(Vector2.Distance(new Vector2(scoutPos.x, scoutPos.z), new Vector2(targetPos.x, targetPos.z)) <= chunkDist)
                 {
