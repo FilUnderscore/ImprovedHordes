@@ -34,7 +34,7 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Wolfs" prefWeekDay="1,2,3,6" maxWeeklyOccurances="1">
+		<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurances="1">
 			<gs countIncPerGS="0.2">
 				<entity name="animalCoyote" minCount="1" maxCount="6"/>
 			</gs>
@@ -48,7 +48,7 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Bears" prefWeekDay="1,2,3" maxWeeklyOccurances="1">
+		<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurances="1">
 			<gs min="50" countIncPerGS="0.02" countDecGS="350" countDecPerPostGS="0.01">
 				<entity name="animalBear" minCount="1" maxCount="6"/>
 			</gs>
@@ -58,7 +58,7 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Vultures" prefWeekDay="4,5" maxWeeklyOccurances="1">
+		<hordegroup name="Vultures" weight="0.5" prefWeekDay="4,5" maxWeeklyOccurances="1">
 			<gs min="20" countIncPerGS="0.03">
 				<entity name="animalZombieVulture" minCount="1" maxCount="6"/>
 			</gs>
@@ -101,16 +101,16 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Stags" parent="Farm" maxWeeklyOccurances="1">
+		<hordegroup name="Stags" weight="0.75" parent="Farm" maxWeeklyOccurances="1">
 			<entity name="animalStag" minCount="1" maxCount="2"/>
 			<entity name="animalDoe" minCount="1" maxCount="1"/>
 		</hordegroup>
 		
-		<hordegroup name="Boars" parent="Farm" maxWeeklyOccurances="1">
+		<hordegroup name="Boars" weight="0.75" parent="Farm" maxWeeklyOccurances="1">
 			<entity name="animalBoar" minCount="1" maxCount="2"/>
 		</hordegroup>
 		
-		<hordegroup name="Farm" maxWeeklyOccurances="1">
+		<hordegroup name="Farm" weight="0.5" maxWeeklyOccurances="1">
 			<entity horde="wandering" group="Stags" maxCount="2"/>
 			<entity horde="wandering" group="Boars" maxCount="2"/>
 			<entity name="animalChicken" minCount="2" maxCount="3"/>
@@ -120,7 +120,7 @@
 	
 	<!-- Scouts -->
 	<horde type="scouts">
-		<hordegroup name="ScreamerScout">
+		<hordegroup name="ScreamerScout" weight="0.75">
 			<!-- Standard Screamer -->
 			<gs min="25" max="150">
 				<entity name="zombieScreamer" minCount="1" maxCount="1"/>
@@ -138,7 +138,7 @@
 		</hordegroup>
 		
 		<!-- Classic spider zombie trio -->
-		<hordegroup name="SpiderScouts">
+		<hordegroup name="SpiderScouts" weight="0.25">
 			<gs min="25" max="150" countIncPerGS="0.03">
 				<entity name="zombieSpider" minCount="1" maxCount="3"/>
 			</gs>
@@ -158,7 +158,7 @@
 		<hordegroup name="Zombies">
 			<gs min="25" max="200" countIncPerGS="0.075" countDecGS="151" countDecPerPostGS="0.075">
 				<gs min="50">
-					<entity horde="scouts" chance="0.25"/> <!-- Entity types allow you to integrate other hordes into different hordes -->
+					<entity horde="scouts" chance="0.1"/> <!-- Entity types allow you to integrate other hordes into different hordes -->
 				</gs>
 
 				<entity group="ZombiesAll" minCount="2" maxCount="15"/>
@@ -166,7 +166,7 @@
 			
 			<gs min="151" max="400" countIncPerGS="0.075" countDecGS="301" countDecPerPostGS="0.075">
 				<gs min="175">
-					<entity horde="scouts" chance="0.5"/>
+					<entity horde="scouts" chance="0.25"/>
 				</gs>
 			
 				<entity group="IHZombiesAllFeral" minCount="2" maxCount="15"/>
@@ -174,7 +174,7 @@
 			
 			<gs min="301" countIncPerGS="0.075">
 				<gs min="301">
-					<entity horde="scouts" chance="0.75"/>
+					<entity horde="scouts" chance="0.5"/>
 				</gs>
 			
 				<entity group="IHZombiesAllRadiated" minCount="1" maxCount="30"/>

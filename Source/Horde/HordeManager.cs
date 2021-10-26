@@ -114,5 +114,10 @@ namespace ImprovedHordes.Horde
             this.WanderingHorde.Update();
             this.ScoutManager.Update();
         }
+
+        public void EntityKilled(Entity killed, Entity killer)
+        {
+            this.AIManager.EntityKilled(killed, killer);
+        }
     }
 }

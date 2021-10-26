@@ -15,15 +15,17 @@ namespace ImprovedHordes.Horde.Scout
         private const float WANDER_TIME = 100.0f;
 
         public HordeAIEntity aiEntity;
+        public HordeAIHorde aiHorde;
 
         public bool hasEndPosition = false;
 
-        public Scout(HordeAIEntity aiEntity)
+        public Scout(HordeAIEntity aiEntity, HordeAIHorde aiHorde)
         {
             this.aiEntity = aiEntity;
+            this.aiHorde = aiHorde;
         }
 
-        public void Interrupt(Vector3 newPosition)
+        public void Interrupt(Vector3 newPosition, float value)
         {
             HordeAICommand currentCommand = this.aiEntity.GetCurrentCommand();
 
@@ -35,7 +37,7 @@ namespace ImprovedHordes.Horde.Scout
             }
 
             HordeAICommandScout scoutCommand = (HordeAICommandScout) currentCommand;
-            scoutCommand.UpdateTarget(newPosition);
+            scoutCommand.UpdateTarget(newPosition, value);
         }
     }
 }

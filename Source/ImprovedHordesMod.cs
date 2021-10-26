@@ -16,6 +16,8 @@ namespace ImprovedHordes
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
             ModEvents.GameShutdown.RegisterHandler(GameShutdown);
 
+            ModEvents.EntityKilled.RegisterHandler(EntityKilled);
+
             ModEvents.PlayerSpawnedInWorld.RegisterHandler(PlayerSpawnedInWorld);
             ModEvents.PlayerDisconnected.RegisterHandler(PlayerDisconnected);
 
@@ -46,6 +48,11 @@ namespace ImprovedHordes
         {
             if (manager != null)
                 manager.Save();
+        }
+
+        static void EntityKilled(Entity killed, Entity killer)
+        {
+            manager.EntityKilled(killed, killer);
         }
 
         static void PlayerSpawnedInWorld(ClientInfo cInfo, RespawnType respawnType, Vector3i pos)

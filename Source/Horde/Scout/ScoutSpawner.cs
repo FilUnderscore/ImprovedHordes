@@ -36,6 +36,7 @@ namespace ImprovedHordes.Horde.Scout
         public void StartSpawningFor(EntityPlayer nearestPlayer, bool feral, Vector3 target)
         {
             latestTarget = target;
+
             this.StartSpawningFor(nearestPlayer, feral);
         }
 
@@ -45,12 +46,12 @@ namespace ImprovedHordes.Horde.Scout
             const int DEST_RADIUS = 10;
             float wanderTime = 90f + this.manager.manager.Random.RandomFloat * 4f; // TODO customize?
 
-            // TODO Feral maybe?
             commands.Add(new HordeAICommandDestination(latestTarget, DEST_RADIUS));
-            commands.Add(new HordeAICommandWander(90.0f));
+            commands.Add(new HordeAICommandWander(wanderTime));
             commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
 
             this.manager.manager.AIManager.Add(entity, horde.horde, true, commands);
+            AstarManager.Instance.AddLocation(entity.position, 64);
         }
 
         private sealed class ScoutsHordeGenerator : HordeGenerator

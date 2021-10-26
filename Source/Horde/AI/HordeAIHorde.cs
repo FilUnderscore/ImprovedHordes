@@ -20,6 +20,8 @@ namespace ImprovedHordes.Horde.AI
 
         private readonly Horde horde;
         private readonly Dictionary<int, HordeAIEntity> entities = new Dictionary<int, HordeAIEntity>();
+        private readonly Dictionary<EHordeAIStats, int> stats = new Dictionary<EHordeAIStats, int>();
+
 
         public HordeAIHorde(Horde horde)
         {
@@ -37,6 +39,23 @@ namespace ImprovedHordes.Horde.AI
                 return;
 
             entities.Add(entity.GetEntityId(), entity);
+            IncrementStat(EHordeAIStats.TOTAL_SPAWNED);
+        }
+
+        private void IncrementStat(EHordeAIStats stat)
+        {
+            if (!stats.ContainsKey(stat))
+                stats.Add(stat, 0);
+
+            stats[stat]++;
+        }
+
+        public int GetStat(EHordeAIStats stat)
+        {
+            if (!stats.ContainsKey(stat))
+                return 0;
+
+            return stats[stat];
         }
 
         public HordeAIEntity GetEntity(int entityId)
@@ -88,7 +107,13 @@ namespace ImprovedHordes.Horde.AI
                             else
                             {
                                 DespawnMethod.Invoke(entity.entity, new object[0]);
+
+                                IncrementStat(EHordeAIStats.TOTAL_DESPAWNED);
                             }
+                        }
+                        else
+                        {
+                            IncrementStat(EHordeAIStats.TOTAL_KILLED);
                         }
 
                         toRemove.Add(entity);
@@ -112,5 +137,12 @@ namespace ImprovedHordes.Horde.AI
     {
         DEAD,
         ALIVE
+    }
+
+    public enum EHordeAIStats
+    {
+        TOTAL_SPAWNED,
+        TOTAL_DESPAWNED,
+        TOTAL_KILLED
     }
 }

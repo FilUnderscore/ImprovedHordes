@@ -39,13 +39,23 @@ namespace ImprovedHordes.Horde
                             {
                                 XmlElement hordegroupElement = (XmlElement)childNode;
 
-                                string parent = hordegroupElement.HasAttribute("parent") ? hordegroupElement.GetAttribute("parent") : null;
+                                string horde = hordegroupElement.HasAttribute("horde") ? hordegroupElement.GetAttribute("horde") : null;
                                 string hordegroupName = hordegroupElement.HasAttribute("name") ? hordegroupElement.GetAttribute("name") : throw new Exception("[Improved Hordes] Attribute 'name' missing on hordegroup tag.");
-                                RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordegroupElement, "prefWeekDay", str => ParsePrefWeekDays(str));
 
+                                if (horde != null && HordesList.hordes.ContainsKey(horde) && HordesList.hordes[horde].hordes.ContainsKey(hordegroupName)) // To avoid repetition of hordes if needed.
+                                {
+                                    var referencedHorde = HordesList.hordes[horde].hordes[hordegroupName];
+                                    hordeGroupList.hordes.Add(hordegroupName, referencedHorde);
+
+                                    continue;
+                                }
+
+                                string parent = hordegroupElement.HasAttribute("parent") ? hordegroupElement.GetAttribute("parent") : null;
+                                RuntimeEval.Value<float> weight = ParseIfExists<float>(hordegroupElement, "weight");
+                                RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordegroupElement, "prefWeekDay", str => ParsePrefWeekDays(str));
                                 RuntimeEval.Value<int> maxWeeklyOccurances = ParseIfExists<int>(hordegroupElement, "maxWeeklyOccurances");
 
-                                HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, prefWeekDays, maxWeeklyOccurances);
+                                HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, weight, prefWeekDays, maxWeeklyOccurances);
 
                                 EvaluateChildNodes(hordegroupElement, group);
 

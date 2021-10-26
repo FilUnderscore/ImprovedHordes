@@ -31,7 +31,7 @@ namespace ImprovedHordes.Horde
                 groupsToPick.AddRange(groups.Values);
 
             GameRandom random = HordeManager.Instance.Random;
-            HordeGroup randomGroup = groupsToPick[random.RandomRange(0, groupsToPick.Count)];
+            HordeGroup randomGroup = RandomGroup(groupsToPick, random);
             Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
             int gamestage = playerGroup.GetGroupGamestage();
@@ -79,6 +79,64 @@ namespace ImprovedHordes.Horde
             return new Horde(playerGroup, randomGroup, totalCount, feral, entityIds);
         }
 
+        private HordeGroup RandomGroup(List<HordeGroup> groups, GameRandom random)
+        {
+            HordeGroup pickedGroup = null;
+
+            float totalWeight = 0.0f;
+            Dictionary<HordeGroup, WeightRange> weightedGroups = new Dictionary<HordeGroup, WeightRange>();
+
+            foreach(var group in groups)
+            {
+                float weight = group.Weight != null ? group.Weight.Evaluate() : 1.0f;
+                
+                if(group.PrefWeekDays != null)
+                {
+                    HashSet<int> prefDays = group.PrefWeekDays.Evaluate();
+
+                    if(prefDays.Contains(RuntimeEval.Registry.GetVariable<int>("weekDay")))
+                    {
+                        weight += (weight < 1.0 ? 1 / weight : weight) * prefDays.Count;
+                    }
+                }
+
+                weightedGroups.Add(group, new WeightRange
+                {
+                    Min = totalWeight,
+                    Max = totalWeight + weight
+                });
+
+                totalWeight += weight;
+            }
+
+            float pickedWeight = random.RandomRange(totalWeight);
+
+            foreach(var groupEntry in weightedGroups)
+            {
+                var group = groupEntry.Key;
+                var weights = groupEntry.Value;
+
+                if(weights.InRange(pickedWeight))
+                {
+                    pickedGroup = group;
+                    break;
+                }
+            }
+
+            return pickedGroup;
+        }
+
+        struct WeightRange
+        {
+            public float Min;
+            public float Max;
+
+            public bool InRange(float value)
+            {
+                return value >= Min && value < Max;
+            }
+        }
+
         public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group)
         {
             int gamestage = playerGroup.GetGroupGamestage();
@@ -114,8 +172,6 @@ namespace ImprovedHordes.Horde
             {
                 if (entity.chance != null && entity.chance.Evaluate() < random.RandomFloat)
                     continue;
-
-                entitiesToSpawn.Add(entity, 0);
 
                 int minCount = entity.minCount != null ? entity.minCount.Evaluate() : 0;
                 int maxCount = entity.maxCount != null ? entity.maxCount.Evaluate() : -1;
@@ -157,9 +213,19 @@ namespace ImprovedHordes.Horde
                         if (maxCount >= 0 && toSpawn > maxCount)
                             toSpawn = maxCount;
 
-                        if (countDecGS > 0 && gamestage > countDecGS && gs.countDecPerPostGS != null)
+                        if (countDecGS > 0 && gamestage > countDecGS)
                         {
-                            float countDecPerPostGS = gs.countDecPerPostGS.Evaluate();
+                            float countDecPerPostGS;
+
+                            if (gs.countDecPerPostGS != null)
+                                countDecPerPostGS = gs.countDecPerPostGS.Evaluate();
+                            else if (gs.countDecPerPostGS == null && gs.max != null)
+                                countDecPerPostGS = toSpawn / (maxGS - countDecGS);
+                            else
+                            {
+                                Error("[{0}] Unable to calculate entity decrease after GS {1} for entity {2} in group {3}.", this.GetType().FullName, countDecGS, entity.name ?? entity.group, randomGroup.name);
+                                countDecPerPostGS = 0.0f;
+                            }
 
                             int decGSSpawn = (int)Math.Floor(countDecPerPostGS * (gamestage - countDecGS));
 
@@ -172,6 +238,9 @@ namespace ImprovedHordes.Horde
 
                         count = toSpawn;
                     }
+
+                    if (!entitiesToSpawn.ContainsKey(entity))
+                        entitiesToSpawn.Add(entity, 0);
 
                     entitiesToSpawn[entity] += count;
 

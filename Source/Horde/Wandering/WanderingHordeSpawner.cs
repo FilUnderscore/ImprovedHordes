@@ -146,18 +146,6 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                 }
 
-                if (group.PrefWeekDays != null)
-                {
-                    var prefWeekDays = group.PrefWeekDays.Evaluate();
-                    var weekDay = wanderingHorde.schedule.GetCurrentWeekDay();
-
-                    // RNG whether to still spawn this horde, adds variation.
-                    bool randomChance = wanderingHorde.manager.Random.RandomFloat >= 0.5f;
-
-                    if (!randomChance && !prefWeekDays.Contains(weekDay))
-                        return false;
-                }
-
                 return base.CanHordeGroupBePicked(playerGroup, group);
             }
         }

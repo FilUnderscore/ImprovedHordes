@@ -27,9 +27,13 @@ namespace ImprovedHordes.Horde.AI.Commands
         public override bool IsFinished(EntityAlive alive)
         {
             Vector3 entityPosition = alive.position;
-            
+
             if (Vector2.Distance(ToXZ(entityPosition), ToXZ(targetPosition)) <= this.distanceTolerance)
+            {
+                alive.ClearInvestigatePosition(); // Clear investigate so they don't keep walking into each other.
+
                 return true;
+            }
 
             return false;
         }

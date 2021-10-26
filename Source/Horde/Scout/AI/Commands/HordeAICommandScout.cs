@@ -22,7 +22,10 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         private readonly List<HordeAICommand> commands;
         private int currentCommandIndex = 0;
 
-        private float attackDelay = ATTACK_DELAY;
+        private readonly List<HordeAICommand> scoutCommands = new List<HordeAICommand>();
+        private int currentScoutCommandIndex = 0;
+
+        private float attackDelay = 0.0f; // Initial delay of 0 to summon horde instantly when player is spotted. Adds to the difficulty. TODO: Maybe make an option?
 
         private bool finished = false;
 
@@ -34,9 +37,14 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
             this.currentCommandIndex = entity.currentCommandIndex;
         }
 
-        public bool HasOtherCommands()
+        public bool HasCommands()
         {
             return this.currentCommandIndex < this.commands.Count;
+        }
+
+        public bool HasOtherCommands()
+        {
+            return this.currentScoutCommandIndex < this.scoutCommands.Count;
         }
 
         public HordeAICommand GetCurrentCommand()
@@ -44,15 +52,20 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
             return this.commands[this.currentCommandIndex];
         }
 
-        public void UpdateTarget(Vector3 target)
+        public HordeAICommand GetCurrentScoutCommand()
+        {
+            return this.commands[this.currentScoutCommandIndex];
+        }
+
+        public void UpdateTarget(Vector3 target, float value)
         {
             Log("[Scout] New target {0}.", target);
 
-            List<HordeAICommand> newCommands = new List<HordeAICommand>();
-            newCommands.Add(new HordeAICommandDestination(target, DIST_RADIUS));
-            newCommands.Add(new HordeAICommandWander(WANDER_TIME));
+            this.scoutCommands.Clear();
+            this.scoutCommands.Add(new HordeAICommandDestination(target, DIST_RADIUS));
+            this.scoutCommands.Add(new HordeAICommandWander(value * 3));
 
-            commands.InsertRange(currentCommandIndex, newCommands);
+            this.currentScoutCommandIndex = 0;
         }
 
         public override bool CanExecute(EntityAlive alive)
@@ -64,7 +77,15 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         {
             if (alive.GetAttackTarget() == null || !(alive.GetAttackTarget() is EntityPlayer))
             {
-                if (HasOtherCommands())
+                if(HasOtherCommands())
+                {
+                    if (GetCurrentScoutCommand().CanExecute(alive))
+                        GetCurrentScoutCommand().Execute(dt, alive);
+
+                    if (GetCurrentScoutCommand().IsFinished(alive))
+                        currentScoutCommandIndex++;
+                }
+                else if (HasCommands())
                 {
                     if (GetCurrentCommand().CanExecute(alive))
                         GetCurrentCommand().Execute(dt, alive);
@@ -85,8 +106,10 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
                 {
                     alive.PlayOneShot(alive.GetSoundAlert());
 
-                    this.manager.SpawnScoutHorde(target); // Spawn horde.
-                    this.UpdateTarget(target.position); // TODO check.
+                    Log("[Scout] Scout trying to summon horde for {0}.", target.EntityName);
+                    this.manager.TrySpawnScoutHorde(target); // Spawn horde.
+
+                    this.UpdateTarget(target.position, WANDER_TIME);
 
                     attackDelay = ATTACK_DELAY;
                 }

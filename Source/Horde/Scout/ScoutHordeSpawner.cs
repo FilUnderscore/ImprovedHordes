@@ -32,6 +32,7 @@ namespace ImprovedHordes.Horde.Scout
             commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
 
             this.manager.manager.AIManager.Add(entity, horde.horde, false, commands);
+            AstarManager.Instance.AddLocation(entity.position, 64);
         }
 
         private sealed class ScoutHordeGenerator : HordeGenerator

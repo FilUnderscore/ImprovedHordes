@@ -11,7 +11,7 @@ namespace ImprovedHordes.Horde
     public abstract class HordeSpawner
     {
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
-        private HordeGenerator hordeGenerator;
+        private readonly HordeGenerator hordeGenerator;
 
         private readonly HordeManager manager;
 
@@ -129,8 +129,15 @@ namespace ImprovedHordes.Horde
         {
             var random = this.manager.Random;
 
-            var radius = random.RandomRange(80, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance)); // TODO: Make XML setting.
-            startPos = GetSpawnableCircleFromPos(commonPos, radius);
+            var maxViewDistance = GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance);
+            var maxViewDistanceRadius = maxViewDistance * 12; // prevent smaller maximum than minimum.
+            var radius = random.RandomRange(90, maxViewDistanceRadius <= 90 ? 120 : maxViewDistanceRadius); // TODO: Make XML setting.
+
+            if (!GetSpawnableCircleFromPos(commonPos, radius, out startPos))
+            {
+                endPos = Vector3.zero;
+                return false;
+            }
 
             this.manager.World.GetRandomSpawnPositionMinMaxToPosition(commonPos, 20, 40, 20, true, out Vector3 randomPos);
 
@@ -146,7 +153,7 @@ namespace ImprovedHordes.Horde
 
             if (intersections < 2)
             {
-                Warning("[Wandering Horde] Only 1 intersection was found.");
+                Warning("[Spawner] Only 1 intersection was found.");
 
                 return false;
             }
@@ -154,7 +161,7 @@ namespace ImprovedHordes.Horde
             return true;
         }
 
-        public Vector3 GetSpawnableCircleFromPos(Vector3 playerPos, float radius, int attempt = 0)
+        public bool GetSpawnableCircleFromPos(Vector3 playerPos, float radius, out Vector3 spawnablePos, int attempt = 0)
         {
             Vector2 startCircle = this.manager.Random.RandomOnUnitCircle;
 
@@ -166,20 +173,23 @@ namespace ImprovedHordes.Horde
 
             if (!result)
             {
-                Log("[Wandering Horde] Failed to find spawnable circle from pos. X" + x + " Z " + z);
-
-                if (attempt < 10)
-                    return GetSpawnableCircleFromPos(playerPos, radius, attempt++);
+                if (attempt++ < 10)
+                    return GetSpawnableCircleFromPos(playerPos, radius, out spawnablePos, attempt);
                 else
                 {
                     if (this.manager.World.GetRandomSpawnPositionMinMaxToPosition(playerPos, 20, (int)radius, 20, true, out Vector3 alt))
-                        return alt;
+                    {
+                        spawnablePos = alt;
+                        return true;
+                    }
 
-                    throw new InvalidOperationException($"Failed to find a spawnable location near {playerPos.ToString()}");
+                    spawnablePos = Vector3.zero;
+                    return false;
                 }
             }
 
-            return circleFromPlayer;
+            spawnablePos = circleFromPlayer;
+            return true;
         }
 
         protected Vector3 CalculateAverageGroupPosition(PlayerHordeGroup playerHordeGroup)
@@ -198,7 +208,7 @@ namespace ImprovedHordes.Horde
             if (!Utils.GetSpawnableY(ref avg))
             {
                 // Testing this.
-                Error("Failed to get spawnable Y.");
+                Error("[Spawner] Failed to get spawnable Y for group average position.");
             }
 
             return avg;

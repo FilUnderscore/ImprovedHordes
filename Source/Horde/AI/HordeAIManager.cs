@@ -19,6 +19,7 @@ namespace ImprovedHordes.Horde.AI
         private readonly Dictionary<Horde, HordeAIHorde> trackedHordes = new Dictionary<Horde, HordeAIHorde>();
         private readonly List<HordeAIHorde> hordesToRemove = new List<HordeAIHorde>();
 
+        public readonly Dictionary<Entity, Entity> entityKilledQueue = new Dictionary<Entity, Entity>();
 
         public int GetHordesAlive()
         {
@@ -78,6 +79,14 @@ namespace ImprovedHordes.Horde.AI
         private void OnHordeAIEntitySpawnedEvent(HordeAIEntity entity, HordeAIHorde horde)
         {
             this.OnHordeAIEntitySpawned?.Invoke(this, new HordeEntitySpawnedEvent(entity, horde));
+        }
+
+        public void EntityKilled(Entity killed, Entity killer)
+        {
+            if (entityKilledQueue.ContainsKey(killed))
+                return;
+
+            entityKilledQueue.Add(killed, killer);
         }
     }
 }

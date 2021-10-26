@@ -77,6 +77,16 @@ namespace ImprovedHordes
 
                 Variables.Add(variableName, variable);
             }
+
+            public static T GetVariable<T>(string variableName)
+            {
+                if (!Variables.ContainsKey(variableName))
+                    throw new Exception(String.Format("Variable {0} is not defined.", variableName));
+
+                Variable variable = Variables[variableName];
+
+                return ((VariableType<T>)variable.type).Parse(variable.fetcher.Invoke());
+            }
         }
 
         public abstract class ValueParserBase
