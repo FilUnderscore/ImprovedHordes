@@ -50,12 +50,10 @@ namespace ImprovedHordes.Horde.Wandering
                     float halfwayToEnd = this.horde.manager.Random.RandomRange(0f, 0.5f);
 
                     Vector3 wanderPos = horde.spawnPosition + (horde.targetPosition - horde.spawnPosition) / (1 - halfwayToEnd);
+                    Utils.GetSpawnableY(ref wanderPos);
 
-                    if (Utils.GetSpawnableY(ref wanderPos))
-                    {
-                        commands.Add(new HordeAICommandDestination(wanderPos, DEST_RADIUS));
-                        commands.Add(new HordeAICommandWander(wanderTime));
-                    }
+                    commands.Add(new HordeAICommandDestination(wanderPos, DEST_RADIUS));
+                    commands.Add(new HordeAICommandWander(wanderTime));
                 }
             }
 
