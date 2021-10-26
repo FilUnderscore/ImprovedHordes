@@ -62,10 +62,17 @@ namespace ImprovedHordes.Horde.Wandering
 
         private void DisbandAllWanderingHordes()
         {
+            Log("[Wandering] Disbanding all hordes.");
+
             foreach(var horde in this.hordes)
             {
-                this.manager.AIManager.GetAIHorde(horde).Disband();
+                var aiHorde = this.manager.AIManager.GetAIHorde(horde);
+                
+                if(aiHorde != null)
+                    aiHorde.Disband();
             }
+
+            this.hordes.Clear();
         }
 
         public void OnWanderingHordeKilled(object sender, HordeKilledEvent e)

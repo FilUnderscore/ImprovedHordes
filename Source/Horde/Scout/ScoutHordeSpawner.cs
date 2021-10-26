@@ -13,6 +13,7 @@ namespace ImprovedHordes.Horde.Scout
         private static readonly HordeGenerator SCOUT_HORDE_GENERATOR = new ScoutHordeGenerator();
 
         private readonly ScoutManager manager;
+        private Vector3 latestTarget = Vector3.zero;
 
         public ScoutHordeSpawner(ScoutManager manager) : base(manager.manager, SCOUT_HORDE_GENERATOR)
         {
@@ -24,12 +25,19 @@ namespace ImprovedHordes.Horde.Scout
             return ScoutManager.CHUNK_RADIUS * 16; 
         }
 
+        public void StartSpawningFor(EntityPlayer player, bool feral, Vector3 target)
+        {
+            this.latestTarget = target; // TODO better way to do this?
+            
+            this.StartSpawningFor(player, feral);
+        }
+
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
 
-            commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
+            commands.Add(new HordeAICommandDestination(this.latestTarget, DEST_RADIUS));
 
             this.manager.manager.AIManager.Add(entity, horde.horde, false, commands);
             AstarManager.Instance.AddLocation(entity.position, 64);
