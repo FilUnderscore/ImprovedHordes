@@ -114,9 +114,10 @@ namespace ImprovedHordes.Horde.Scout
 
         public void SpawnScouts(Vector3 targetPos)
         {
-            // TODO Scout Spawner
             EntityPlayer closest = this.manager.World.GetClosestPlayer(targetPos, -1, false);
-            this.spawner.StartSpawningFor(closest, false, targetPos); // TODO Feral?
+            bool feral = this.manager.Random.RandomFloat >= 0.75; // 25% feral scout chance
+
+            this.spawner.StartSpawningFor(closest, feral, targetPos);
         }
 
         public void TrySpawnScoutHorde(EntityPlayer target)
@@ -128,8 +129,7 @@ namespace ImprovedHordes.Horde.Scout
         public void NotifyScoutsNear(Vector3i targetBlockPos, float value)
         {
             Vector3 targetPos = new Vector3(targetBlockPos.x, targetBlockPos.y, targetBlockPos.z);
-            // TODO Notify scouts near chunk about new target.
-
+            
             foreach (var scout in GetScoutsNear(targetPos))
             {
                 if(scout == null)
