@@ -57,7 +57,7 @@ namespace ImprovedHordes.Horde.AI
                     case EHordeAIHordeUpdateState.ALIVE:
                         continue;
                     case EHordeAIHordeUpdateState.DEAD:
-                        OnHordeKilledEvent(horde.GetHordeInstance());
+                        OnHordeKilledEvent(horde);
                         break;
                 }
             }
@@ -71,7 +71,7 @@ namespace ImprovedHordes.Horde.AI
                 hordesToRemove.Clear();
         }
 
-        private void OnHordeKilledEvent(Horde horde)
+        private void OnHordeKilledEvent(HordeAIHorde horde)
         {
             this.OnHordeKilled?.Invoke(this, new HordeKilledEvent(horde));
         }

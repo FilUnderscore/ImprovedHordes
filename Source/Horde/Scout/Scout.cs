@@ -19,6 +19,9 @@ namespace ImprovedHordes.Horde.Scout
 
         public bool hasEndPosition = false;
 
+        public EntityPlayer killer = null;
+        public EScoutState state = EScoutState.ALIVE;
+
         public Scout(HordeAIEntity aiEntity, HordeAIHorde aiHorde)
         {
             this.aiEntity = aiEntity;
@@ -39,5 +42,12 @@ namespace ImprovedHordes.Horde.Scout
             HordeAICommandScout scoutCommand = (HordeAICommandScout) currentCommand;
             scoutCommand.UpdateTarget(newPosition, value);
         }
+    }
+
+    public enum EScoutState
+    {
+        ALIVE,
+        DEAD,
+        DESPAWNED
     }
 }

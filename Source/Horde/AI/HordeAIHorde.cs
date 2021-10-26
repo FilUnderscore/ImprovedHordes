@@ -22,6 +22,8 @@ namespace ImprovedHordes.Horde.AI
         private readonly Dictionary<int, HordeAIEntity> entities = new Dictionary<int, HordeAIEntity>();
         private readonly Dictionary<EHordeAIStats, int> stats = new Dictionary<EHordeAIStats, int>();
 
+        public event EventHandler<HordeEntityKilledEvent> OnHordeEntityKilled;
+        public event EventHandler<HordeEntityDespawnedEvent> OnHordeEntityDespawned;
 
         public HordeAIHorde(Horde horde)
         {
@@ -109,11 +111,13 @@ namespace ImprovedHordes.Horde.AI
                                 DespawnMethod.Invoke(entity.entity, new object[0]);
 
                                 IncrementStat(EHordeAIStats.TOTAL_DESPAWNED);
+                                OnHordeEntityDespawnedEvent(entity);
                             }
                         }
                         else
                         {
                             IncrementStat(EHordeAIStats.TOTAL_KILLED);
+                            OnHordeEntityKilledEvent(entity);
                         }
 
                         toRemove.Add(entity);
@@ -130,6 +134,16 @@ namespace ImprovedHordes.Horde.AI
                 toRemove.Clear();
 
             return this.entities.Count == 0 ? EHordeAIHordeUpdateState.DEAD : EHordeAIHordeUpdateState.ALIVE;
+        }
+
+        private void OnHordeEntityKilledEvent(HordeAIEntity entity)
+        {
+            this.OnHordeEntityKilled?.Invoke(this, new HordeEntityKilledEvent(entity, this));
+        }
+
+        private void OnHordeEntityDespawnedEvent(HordeAIEntity entity)
+        {
+            this.OnHordeEntityDespawned?.Invoke(this, new HordeEntityDespawnedEvent(entity, this));
         }
     }
 

@@ -16,9 +16,8 @@ namespace ImprovedHordes.Horde.Scout
     {
         public const int CHUNK_RADIUS = 3; // TODO: Make a xml value
 
-        private readonly Dictionary<HordeAIEntity, Scout> scouts = new Dictionary<HordeAIEntity, Scout>();
-        private readonly Dictionary<HordeAIHorde, EntityPlayer> lastScoutKiller = new Dictionary<HordeAIHorde, EntityPlayer>();
-
+        private readonly Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>> scouts = new Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>>();
+        
         public readonly HordeManager manager;
         private readonly ScoutSpawner spawner;
         private readonly ScoutHordeSpawner hordeSpawner;
@@ -30,86 +29,104 @@ namespace ImprovedHordes.Horde.Scout
             this.hordeSpawner = new ScoutHordeSpawner(this);
 
             this.manager.AIManager.OnHordeAIEntitySpawned += OnScoutEntitySpawned;
+            this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
         }
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
         {
-            if(!e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scouts") &&
+            if(!IsScoutHorde(e.horde.GetHordeInstance()) &&
                 e.entity.entity.entityClass != EntityClass.FromString("zombieScreamer") // Screamers are always scouts.
                     && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerFeral")
                     && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerRadiated"))
                 return;
 
             Scout scout = new Scout(e.entity, e.horde);
-            this.scouts.Add(e.entity, scout);
+
+            if(!this.scouts.ContainsKey(e.horde))
+                this.scouts.Add(e.horde, new Dictionary<HordeAIEntity, Scout>());
+
+            this.scouts[e.horde].Add(e.entity, scout);
 
             e.entity.commands.Add(new HordeAICommandScout(this, e.entity));
             e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
 
-            e.entity.OnHordeEntityKilled += OnScoutEntityKilled;
-            e.entity.OnHordeEntityDespawned += OnScoutEntityDespawned;
+            e.horde.OnHordeEntityKilled += OnScoutEntityKilled;
+            e.horde.OnHordeEntityDespawned += OnScoutEntityDespawned;
+            this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
+        }
+
+        private bool IsScoutHorde(Horde horde)
+        {
+            return horde.group.list.type.EqualsCaseInsensitive("Scouts");
         }
 
         public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)
         {
-            Log("[Scout] Scout entity {0} was killed.", e.entity.GetEntityId());
-
-            if (this.scouts.ContainsKey(e.entity) && e.killer != null && e.killer is EntityPlayer)
+            if (this.scouts.ContainsKey(e.horde) && this.scouts[e.horde].ContainsKey(e.entity))
             {
-                EntityPlayer killer = e.killer as EntityPlayer;
-                Scout scout = this.scouts[e.entity];
+                Log("[Scout] Scout entity {0} was killed.", e.entity.GetEntityId());
 
-                if (scout.aiHorde.GetHordeInstance().feral)
+                Scout scout = this.scouts[e.horde][e.entity];
+
+                if (this.IsScoutHorde(e.horde.GetHordeInstance()) &&
+                    e.killer != null && e.killer is EntityPlayer)
                 {
-                    if (scout.aiHorde.GetStat(EHordeAIStats.TOTAL_KILLED) == scout.aiHorde.GetStat(EHordeAIStats.TOTAL_SPAWNED))
+                    EntityPlayer killer = e.killer as EntityPlayer;
+                    
+                    if (scout.aiHorde.GetHordeInstance().feral)
                     {
-                        Log("[Scout] Player {0} killed feral scout. Attempting to spawn horde.");
-                        this.TrySpawnScoutHorde(killer);
-                    }
-                    else
-                    {
-                        if (!lastScoutKiller.ContainsKey(scout.aiHorde))
-                            lastScoutKiller.Add(scout.aiHorde, killer);
+                        if (scout.aiHorde.GetStat(EHordeAIStats.TOTAL_KILLED) == scout.aiHorde.GetStat(EHordeAIStats.TOTAL_SPAWNED))
+                        {
+                            Log("[Scout] Player {0} killed feral scout. Attempting to spawn horde.", killer.EntityName);
+                            this.TrySpawnScoutHorde(killer);
+                        }
                         else
-                            lastScoutKiller[scout.aiHorde] = killer;
+                        {
+                            scout.killer = killer;
+                        }
+                    }
+                }
+
+                scout.state = EScoutState.DEAD;
+            }
+        }
+
+        public void OnScoutHordeKilled(object sender, HordeKilledEvent e)
+        {
+            if (!scouts.ContainsKey(e.horde))
+                return;
+
+            Log("[Scout] Scout horde for group {0} has ended.", e.horde.GetHordeInstance().playerGroup);
+
+            int totalKilled;
+            // Surprise players with a horde called by the living scouts to avenge the killed scouts.
+            if (e.horde.GetHordeInstance().feral && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
+            {
+                Log("[Scout] {0} feral scouts were killed. Attempting to spawn horde.", totalKilled);
+
+                foreach(var scoutEntry in scouts[e.horde])
+                {
+                    var scout = scoutEntry.Value;
+
+                    if(scout.state == EScoutState.DEAD && scout.killer != null)
+                    {
+                        this.TrySpawnScoutHorde(scout.killer);
                     }
                 }
             }
-            
-            this.RemoveScout(e.entity);
+
+            scouts.Remove(e.horde);
         }
 
         public void OnScoutEntityDespawned(object sender, HordeEntityDespawnedEvent e)
         {
-            Log("[Scout] Scout entity {0} was despawned.", e.entity.GetEntityId());
-
-            if(this.scouts.ContainsKey(e.entity))
+            if(this.scouts.ContainsKey(e.horde) && this.scouts[e.horde].ContainsKey(e.entity))
             {
-                Scout scout = this.scouts[e.entity];
+                Log("[Scout] Scout entity {0} was despawned.", e.entity.GetEntityId());
 
-                // Surprise players with a horde called by the living scouts to avenge the killed scouts.
-                if(scout.aiHorde.GetHordeInstance().feral && scout.aiHorde.GetStat(EHordeAIStats.TOTAL_KILLED) > 0 && lastScoutKiller.ContainsKey(scout.aiHorde))
-                {
-                    Log("[Scout] {0} feral scouts were killed. Attempting to spawn horde.");
-                    this.TrySpawnScoutHorde(lastScoutKiller[scout.aiHorde]);
-
-                    lastScoutKiller.Remove(scout.aiHorde);
-                }
+                Scout scout = this.scouts[e.horde][e.entity];
+                scout.state = EScoutState.DESPAWNED;
             }
-
-            this.RemoveScout(e.entity);
-        }
-
-        private void RemoveScout(HordeAIEntity entity)
-        {
-            // No need for checking because it only applies to scouts.
-            if (!this.scouts.ContainsKey(entity))
-            {
-                Warning("[Scout] Entity {0} was already removed from scouts.", entity.GetEntityId());
-                return;
-            }
-
-            this.scouts.Remove(entity);
         }
 
         public void SpawnScouts(Vector3 targetPos)
@@ -138,6 +155,8 @@ namespace ImprovedHordes.Horde.Scout
 
                     continue;
                 }
+                else if (scout.state != EScoutState.ALIVE)
+                    continue;
 
                 scout.Interrupt(targetPos, value);
                 Log("[Scout] Scout {0} was drawn to {1}.", scout.aiEntity.GetEntityId(), targetPos);
@@ -159,16 +178,22 @@ namespace ImprovedHordes.Horde.Scout
 
             List<Scout> nearby = new List<Scout>();
 
-            foreach(var scoutEntry in scouts)
+            foreach(var hordeEntry in scouts)
             {
-                var entity = scoutEntry.Key;
-                var scout = scoutEntry.Value;
-
-                Vector3 scoutPos = entity.entity.position;
-
-                if(Vector2.Distance(new Vector2(scoutPos.x, scoutPos.z), new Vector2(targetPos.x, targetPos.z)) <= chunkDist)
+                foreach (var scoutEntry in hordeEntry.Value)
                 {
-                    nearby.Add(scout);
+                    var entity = scoutEntry.Key;
+                    var scout = scoutEntry.Value;
+
+                    if (scout != null && scout.state != EScoutState.ALIVE)
+                        continue;
+
+                    Vector3 scoutPos = entity.entity.position;
+
+                    if (Vector2.Distance(new Vector2(scoutPos.x, scoutPos.z), new Vector2(targetPos.x, targetPos.z)) <= chunkDist)
+                    {
+                        nearby.Add(scout);
+                    }
                 }
             }
 

@@ -1,22 +1,18 @@
-﻿namespace ImprovedHordes.Horde.AI.Events
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ImprovedHordes.Horde.AI.Events
 {
-    public class HordeEntityKilledEvent
+    public class HordeEntityKilledEvent : EntityKilledEvent
     {
-        public readonly HordeAIEntity entity;
-        public readonly EntityAlive killer;
+        public readonly HordeAIHorde horde;
 
-        public HordeEntityKilledEvent(HordeAIEntity entity)
+        public HordeEntityKilledEvent(HordeAIEntity entity, HordeAIHorde horde) : base(entity)
         {
-            this.entity = entity;
-
-            if(HordeManager.Instance.AIManager.entityKilledQueue.ContainsKey(this.entity.entity))
-            {
-                Entity killer = HordeManager.Instance.AIManager.entityKilledQueue[this.entity.entity];
-                HordeManager.Instance.AIManager.entityKilledQueue.Remove(this.entity.entity);
-
-                if (killer is EntityAlive)
-                    this.killer = killer as EntityAlive;
-            }
+            this.horde = horde;
         }
     }
 }

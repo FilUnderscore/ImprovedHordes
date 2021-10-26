@@ -1,12 +1,18 @@
-﻿namespace ImprovedHordes.Horde.AI.Events
-{
-    public class HordeEntityDespawnedEvent
-    {
-        public readonly HordeAIEntity entity;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-        public HordeEntityDespawnedEvent(HordeAIEntity entity)
+namespace ImprovedHordes.Horde.AI.Events
+{
+    public class HordeEntityDespawnedEvent : EntityDespawnedEvent
+    {
+        public readonly HordeAIHorde horde;
+
+        public HordeEntityDespawnedEvent(HordeAIEntity entity, HordeAIHorde horde) : base(entity)
         {
-            this.entity = entity;
+            this.horde = horde;
         }
     }
 }

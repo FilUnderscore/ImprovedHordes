@@ -4,9 +4,9 @@ namespace ImprovedHordes.Horde.AI.Events
 {
     public class HordeKilledEvent : EventArgs
     {
-        public readonly Horde horde;
+        public readonly HordeAIHorde horde;
 
-        public HordeKilledEvent(Horde horde)
+        public HordeKilledEvent(HordeAIHorde horde)
         {
             this.horde = horde;
         }
