@@ -11,9 +11,6 @@ namespace ImprovedHordes.Horde.Scout
 {
     public class Scout
     {
-        private const int DISTANCE_TOLERANCE = 10;
-        private const float WANDER_TIME = 100.0f;
-
         public HordeAIEntity aiEntity;
         public HordeAIHorde aiHorde;
 

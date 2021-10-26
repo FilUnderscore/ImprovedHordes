@@ -70,7 +70,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void OnWanderingHordeKilled(object sender, HordeKilledEvent e)
         {
-            Horde horde = e.horde;
+            Horde horde = e.horde.GetHordeInstance();
 
             if (this.state == WanderingHordeManager.EHordeState.StillAlive)
             {
