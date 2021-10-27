@@ -162,7 +162,7 @@ namespace ImprovedHordes.Horde
 
             float thetaRandomnessFactor = this.manager.Random.RandomRange(theta - thetaRange, theta + thetaRange);
 
-            var distance = this.manager.Random.RandomRange(60, 10 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
+            var distance = this.manager.Random.RandomRange(90, 15 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
             Vector3 newDirection = new Vector3(distance * Mathf.Cos(thetaRandomnessFactor), 0, distance * Mathf.Sin(thetaRandomnessFactor));
 
             Vector3 spawnPosition = farthestPlayerPosition + newDirection;
@@ -205,9 +205,10 @@ namespace ImprovedHordes.Horde
             return farthest;
         }
 
+        // TODO: Spawn limiter option?
+
         protected bool CanSpawn(SpawningHorde horde)
         {
-            // TODO Optional Spawning Limit
             if (horde.entityIndex < horde.horde.entities.Count)
                 return true;
 

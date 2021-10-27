@@ -28,7 +28,7 @@ namespace ImprovedHordes.Horde.Wandering
             manager.AIManager.OnHordeKilled += OnWanderingHordeKilled;
         }
 
-        public void ReadSettings(IHSettings settings)
+        public void ReadSettings(Settings settings)
         {
             this.schedule.ReadSettings(settings.GetSettings("schedule"));
         }
@@ -45,7 +45,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Update()
         {
-            if (this.schedule.CheckIfNeedsReset() || this.schedule.IsNextOccuranceDue())
+            if (this.schedule.CheckIfNeedsReset() || (this.state == EHordeState.StillAlive && this.schedule.IsNextOccuranceDue()))
             {
                 if(this.schedule.CheckIfNeedsReset())
                     this.schedule.Reset();
@@ -59,7 +59,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             this.spawner.Update();
 
-            if (ShouldSpawnWanderingHorde())
+            if (ShouldSpawnWanderingHorde() && this.state == EHordeState.Finished)
             {
                 this.spawner.SpawnWanderingHordes();
             }

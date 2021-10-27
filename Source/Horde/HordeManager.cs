@@ -35,7 +35,7 @@ namespace ImprovedHordes.Horde
         public HordeAIManager AIManager;
         public WanderingHordeManager WanderingHorde;
         public ScoutManager ScoutManager;
-        public IHSettings Settings;
+        public Settings Settings;
 
         public HordeManager()
         {
@@ -56,7 +56,7 @@ namespace ImprovedHordes.Horde
         {
             Log("Loading settings.");
 
-            this.Settings = new IHSettings(new XmlFile(XmlFilesDir, "settings.xml"));
+            this.Settings = new Settings(new XmlFile(XmlFilesDir, "settings.xml"));
             this.WanderingHorde.ReadSettings(this.Settings.GetSettings("wandering_horde"));
 
             Log("Loaded settings.");

@@ -80,7 +80,7 @@ namespace ImprovedHordes.Horde.Wandering
             RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
         }
 
-        public void ReadSettings(IHSettings settings)
+        public void ReadSettings(Settings settings)
         {
             this.s_days_per_wandering_week = settings.GetInt("days_per_wandering_week", 1, false, 7);
 

@@ -45,6 +45,8 @@ namespace ImprovedHordes.Horde.Wandering
                 // TODO
                 //bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
 
+                // Is this broken?
+
                 if (true)
                 {
                     float halfwayToEnd = this.horde.manager.Random.RandomRange(0f, 0.5f);

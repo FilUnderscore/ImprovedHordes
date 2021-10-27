@@ -6,16 +6,16 @@ using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes
 {
-    public class IHSettings
+    public class Settings
     {
         private readonly IHSettingsNode node;
 
-        public IHSettings(XmlFile file)
+        public Settings(XmlFile file)
         {
             this.node = new IHSettingsNode(file.XmlDoc.DocumentElement);
         }
 
-        private IHSettings(IHSettingsNode node)
+        private Settings(IHSettingsNode node)
         {
             this.node = node;
         }
@@ -57,9 +57,9 @@ namespace ImprovedHordes
             return this.node.GetSubnode(name);
         }
 
-        public IHSettings GetSettings(string name)
+        public Settings GetSettings(string name)
         {
-            return new IHSettings(this.node.GetSubnode(name));
+            return new Settings(this.node.GetSubnode(name));
         }
     }
 

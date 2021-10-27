@@ -40,7 +40,7 @@ namespace ImprovedHordes.Horde.Scout
             this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
         }
 
-        public void ReadSettings(IHSettings settings)
+        public void ReadSettings(Settings settings)
         {
             this.s_chunk_radius = settings.GetInt("chunk_radius", GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), true, GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
         }

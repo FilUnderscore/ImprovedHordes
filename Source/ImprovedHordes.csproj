@@ -7,7 +7,7 @@
     <ProjectGuid>{86109C52-7C00-47C3-957A-17770ACC0F73}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ImprovedHordes</RootNamespace>
-    <AssemblyName>ImprovedHorde</AssemblyName>
+    <AssemblyName>ImprovedHordes</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -91,7 +91,7 @@
     <Compile Include="Horde\Scout\ScoutSpawner.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
     <Compile Include="Horde\Wandering\WanderingHordeSchedule.cs" />
-    <Compile Include="IHSettings.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
     <Compile Include="Horde\Wandering\WanderingHordeSpawner.cs" />
