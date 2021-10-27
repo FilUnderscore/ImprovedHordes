@@ -140,15 +140,35 @@ namespace ImprovedHordes.Horde
             if (entityName != null && entityGroup != null)
                 throw new Exception(String.Format("[Improved Hordes] Horde group {0} has double defined entity with name {1} and group {2}, only one can be defined.", group.name, entityName, entityGroup));
 
+            RuntimeEval.Value<HashSet<string>> biomes = ParseIfExists<HashSet<string>>(entityElement, "biomes", str => ParseBiomes(str));
             RuntimeEval.Value<float> chance = ParseIfExists<float>(entityElement, "chance");
 
             //int minCount = entityElement.HasAttribute("minCount") ? StringParsers.Parseint32(entityElement.GetAttribute("minCount")) : 0;
             RuntimeEval.Value<int> minCount = ParseIfExists<int>(entityElement, "minCount");
             RuntimeEval.Value<int> maxCount = ParseIfExists<int>(entityElement, "maxCount");
 
-            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, chance, minCount, maxCount);
+            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, biomes, chance, minCount, maxCount);
 
             group.entities.Add(entity);
+        }
+
+        private static HashSet<string> ParseBiomes(string str)
+        {
+            HashSet<string> biomes = new HashSet<string>();
+
+            try
+            {
+                foreach (var substr in str.Split(','))
+                {
+                    biomes.Add(substr);
+                }
+            }
+            catch (Exception)
+            {
+                Error("[Improved Hordes] Failed to parse biome: {0} - hordegroup will not spawn.", str);
+            }
+
+            return biomes;
         }
 
         private static void EvaluateGSThenEntityNode(XmlElement gsElement, HordeGroup group)

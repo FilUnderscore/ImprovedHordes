@@ -44,17 +44,20 @@ namespace ImprovedHordes.Horde
         public readonly string group;
         public readonly string horde;
 
+        public readonly RuntimeEval.Value<HashSet<string>> biomes;
+
         public readonly RuntimeEval.Value<float> chance;
 
         public readonly RuntimeEval.Value<int> minCount;
         public readonly RuntimeEval.Value<int> maxCount;
 
-        public HordeGroupEntity(GS gs, string name, string group, string horde, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount)
+        public HordeGroupEntity(GS gs, string name, string group, string horde, RuntimeEval.Value<HashSet<string>> biomes, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount)
         {
             this.gs = gs;
             this.name = name;
             this.group = group;
             this.horde = horde;
+            this.biomes = biomes;
             this.chance = chance;
             this.minCount = minCount;
             this.maxCount = maxCount;

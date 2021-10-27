@@ -36,7 +36,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             if (horde.horde.feral)
             {
-                commands.Add(new HordeAICommandDestinationMoving(() => CalculateAverageGroupPosition(group), DEST_RADIUS * 2));
+                commands.Add(new HordeAICommandDestinationMoving(() => group.CalculateAverageGroupPosition(true), DEST_RADIUS * 2));
                 commands.Add(new HordeAICommandWander(wanderTime));
             }
             else
@@ -122,7 +122,7 @@ namespace ImprovedHordes.Horde.Wandering
             public WanderingHordeGenerator() : base("wandering")
             { }
 
-            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group)
+            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition)
             {
                 WanderingHordeManager wanderingHorde = HordeManager.Instance.WanderingHorde;
 
@@ -144,7 +144,7 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                 }
 
-                return base.CanHordeGroupBePicked(playerGroup, group);
+                return base.CanHordeGroupBePicked(playerGroup, group, biomeAtPosition);
             }
         }
     }

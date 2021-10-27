@@ -23,7 +23,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public override int GetGroupDistance()
         {
-            return ScoutManager.CHUNK_RADIUS * 16;
+            return this.manager.CHUNK_RADIUS * 16;
         }
 
         protected override void SetAttributes(EntityAlive entity)
@@ -33,11 +33,11 @@ namespace ImprovedHordes.Horde.Scout
             entity.IsScoutZombie = true;
         }
 
-        public void StartSpawningFor(EntityPlayer nearestPlayer, bool feral, Vector3 target)
+        public void StartSpawningFor(PlayerHordeGroup group, bool feral, Vector3 target)
         {
             latestTarget = target;
 
-            this.StartSpawningFor(nearestPlayer, feral);
+            this.StartSpawningFor(group, feral);
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)

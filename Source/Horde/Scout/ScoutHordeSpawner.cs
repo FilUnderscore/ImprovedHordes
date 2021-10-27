@@ -22,14 +22,14 @@ namespace ImprovedHordes.Horde.Scout
 
         public override int GetGroupDistance()
         {
-            return ScoutManager.CHUNK_RADIUS * 16; 
+            return this.manager.CHUNK_RADIUS * 16; 
         }
 
         public void StartSpawningFor(EntityPlayer player, bool feral, Vector3 target)
         {
             this.latestTarget = target; // TODO better way to do this?
             
-            this.StartSpawningFor(player, feral);
+            this.StartSpawningFor(this.GetHordeGroupNearPlayer(player), feral);
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)

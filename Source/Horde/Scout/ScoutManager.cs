@@ -14,7 +14,15 @@ namespace ImprovedHordes.Horde.Scout
 {
     public class ScoutManager
     {
-        public const int CHUNK_RADIUS = 3; // TODO: Make a xml value
+        private int s_chunk_radius;
+
+        public int CHUNK_RADIUS
+        {
+            get
+            {
+                return s_chunk_radius;
+            }
+        }
 
         private readonly Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>> scouts = new Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>>();
         
@@ -30,6 +38,11 @@ namespace ImprovedHordes.Horde.Scout
 
             this.manager.AIManager.OnHordeAIEntitySpawned += OnScoutEntitySpawned;
             this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
+        }
+
+        public void ReadSettings(IHSettings settings)
+        {
+            this.s_chunk_radius = settings.GetInt("chunk_radius", GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), true, GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
         }
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
@@ -131,10 +144,18 @@ namespace ImprovedHordes.Horde.Scout
 
         public void SpawnScouts(Vector3 targetPos)
         {
-            EntityPlayer closest = this.manager.World.GetClosestPlayer(targetPos, -1, false);
-            bool feral = this.manager.Random.RandomFloat >= 0.75; // 25% feral scout chance
+            const float DIFFICULTY_MODIFIER = 720; // Max gamestage.
 
-            this.spawner.StartSpawningFor(closest, feral, targetPos);
+            EntityPlayer closest = this.manager.World.GetClosestPlayer(targetPos, -1, false);
+            PlayerHordeGroup group = this.spawner.GetHordeGroupNearPlayer(closest);
+
+            int groupGamestage = group.GetGroupGamestage();
+            float chance = Mathf.Clamp(groupGamestage / DIFFICULTY_MODIFIER, 0.0f, 0.75f);
+
+            // Scale feral scouts based on GS.
+            bool feral = this.manager.Random.RandomFloat < chance; // From 0% chance to 75% depending on GS.
+
+            this.spawner.StartSpawningFor(group, feral, targetPos);
         }
 
         public void TrySpawnScoutHorde(EntityPlayer target)
@@ -174,7 +195,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public List<Scout> GetScoutsNear(Vector3 targetPos)
         {
-            const int chunkDist = 16 * CHUNK_RADIUS;
+            int chunkDist = 16 * this.CHUNK_RADIUS;
 
             List<Scout> nearby = new List<Scout>();
 
@@ -229,8 +250,6 @@ namespace ImprovedHordes.Horde.Scout
             {
                 static void Postfix(AIDirectorChunkEvent _chunkEvent)
                 {
-                    Log("Chunk Event {0}", _chunkEvent.Value);
-
                     // Notify scouts in chunk of the new event to investigate.
                     if(_chunkEvent.EventType != EnumAIDirectorChunkEvent.Torch)
                     {

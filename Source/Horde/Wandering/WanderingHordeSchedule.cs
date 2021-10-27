@@ -9,12 +9,60 @@ namespace ImprovedHordes.Horde.Wandering
     public class WanderingHordeSchedule
     {
         // TODO XML Setting.
-        public const int HOURS_TO_FIRST_OCCURANCE_MIN = 0; // 24 hr time
-        public const int HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX = 6 * 24 + 12; // 24 hr time
+        private int s_days_per_wandering_week,
+            s_hrs_in_week_to_first_occurance,
+            s_hrs_in_week_for_last_occurance_max,
+            s_min_hrs_between_occurances,
+            s_min_occurances,
+            s_max_occurances;
 
-        public const int MIN_OCCURANCES = 2;
-        public const int MAX_OCCURANCES = 5;
-        public const int HOURS_APART_MIN = 6;
+        public int DAYS_PER_RESET
+        {
+            get
+            {
+                return s_days_per_wandering_week;
+            }
+        }
+
+        public int HOURS_TO_FIRST_OCCURANCE_MIN
+        {
+            get
+            {
+                return s_hrs_in_week_to_first_occurance;
+            }
+        }
+
+        public int HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX
+        {
+            get
+            {
+                return s_hrs_in_week_for_last_occurance_max;
+            }
+        }
+
+        public int MIN_OCCURANCES
+        {
+            get
+            {
+                return s_min_occurances;
+            }
+        }
+
+        public int MAX_OCCURANCES
+        {
+            get
+            {
+                return s_max_occurances;
+            }
+        }
+        
+        public int HOURS_APART_MIN
+        {
+            get
+            {
+                return s_min_hrs_between_occurances;
+            }
+        }
 
         public ulong nextResetTime = 0UL;
         public int currentOccurance = 0;
@@ -30,6 +78,18 @@ namespace ImprovedHordes.Horde.Wandering
 
             RuntimeEval.Registry.RegisterVariable("week", this.GetCurrentWeek);
             RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
+        }
+
+        public void ReadSettings(IHSettings settings)
+        {
+            this.s_days_per_wandering_week = settings.GetInt("days_per_wandering_week", 1, false, 7);
+
+            this.s_hrs_in_week_to_first_occurance = settings.GetInt("hrs_in_week_to_first_occurance", 0, false, 0);
+            this.s_hrs_in_week_for_last_occurance_max = settings.GetInt("hrs_in_week_for_last_occurance_max", this.s_days_per_wandering_week * 24, true, 156); // TODO account for morning of first day of new week, otherwise a bug could occur.
+            this.s_min_hrs_between_occurances = settings.GetInt("min_hrs_between_occurances", 0, false, 6);
+
+            this.s_min_occurances = settings.GetInt("min_occurances", 0, false, 2);
+            this.s_max_occurances = settings.GetInt("max_occurances", this.s_min_occurances + 1, false, this.s_min_occurances + 3);
         }
 
         public void Load(BinaryReader reader)
@@ -166,7 +226,7 @@ namespace ImprovedHordes.Horde.Wandering
         public int GetTotalDayRelativeToNextWeek(int day)
         {
             int currentDays = GameUtils.WorldTimeToDays(this.GetWorldTime());
-            int dayInWeek = (int)Math.Ceiling(currentDays / (float)7) * 7 + day;
+            int dayInWeek = (int)Math.Ceiling(currentDays / (float)s_days_per_wandering_week) * s_days_per_wandering_week + day;
 
             return dayInWeek;
         }
@@ -174,7 +234,7 @@ namespace ImprovedHordes.Horde.Wandering
         public int GetTotalDayRelativeToThisWeek(int day)
         {
             int currentDays = GameUtils.WorldTimeToDays(this.GetWorldTime());
-            int dayInWeek = (int)Math.Floor((currentDays - 1) / (float)7) * 7 + day;
+            int dayInWeek = (int)Math.Floor((currentDays - 1) / (float)s_days_per_wandering_week) * s_days_per_wandering_week + day;
 
             return dayInWeek;
         }
@@ -197,6 +257,9 @@ namespace ImprovedHordes.Horde.Wandering
         {
             int dayLightLength = GamePrefs.GetInt(EnumGamePrefs.DayLightLength);
             int night = 22;
+
+            if (dayLightLength > night)
+                dayLightLength = 22; // Don't allow negative values.
 
             int nextDayAfterHordeReset = GetTotalDayRelativeToNextWeek(1);
 
@@ -263,7 +326,7 @@ namespace ImprovedHordes.Horde.Wandering
         public ulong GenerateNextOccurance(int occurance, int occurances, out bool possible, GameRandom random, ulong lastOccurance)
         {
             var worldTime = this.GetWorldTime();
-            var maxWorldTime = GameUtils.DaysToWorldTime(this.GetTotalDayRelativeToThisWeek(1)) + HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX * 1000;
+            var maxWorldTime = GameUtils.DaysToWorldTime(this.GetTotalDayRelativeToThisWeek(1)) + (ulong)(HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX * 1000);
 
             var deltaWorldTime = maxWorldTime - (lastOccurance > 0 ? lastOccurance : worldTime);
 
@@ -288,7 +351,7 @@ namespace ImprovedHordes.Horde.Wandering
             {
                 ulong nextOccurance = lastOccurance + (deltaWorldTime / (ulong)occurances);
                 ulong deltaOccuranceTime = nextOccurance - lastOccurance;
-                ulong hoursApartOccurancesMin = HOURS_APART_MIN * 1000UL;
+                ulong hoursApartOccurancesMin = (ulong)(HOURS_APART_MIN * 1000);
 
                 if (deltaOccuranceTime >= hoursApartOccurancesMin)
                 {

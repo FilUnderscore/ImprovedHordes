@@ -28,6 +28,11 @@ namespace ImprovedHordes.Horde.Wandering
             manager.AIManager.OnHordeKilled += OnWanderingHordeKilled;
         }
 
+        public void ReadSettings(IHSettings settings)
+        {
+            this.schedule.ReadSettings(settings.GetSettings("schedule"));
+        }
+
         public void Load(BinaryReader reader)
         {
             this.schedule.Load(reader);

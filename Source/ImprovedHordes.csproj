@@ -91,6 +91,7 @@
     <Compile Include="Horde\Scout\ScoutSpawner.cs" />
     <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
     <Compile Include="Horde\Wandering\WanderingHordeSchedule.cs" />
+    <Compile Include="IHSettings.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
     <Compile Include="Horde\Wandering\WanderingHordeSpawner.cs" />

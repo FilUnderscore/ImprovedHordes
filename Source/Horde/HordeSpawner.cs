@@ -50,11 +50,6 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        public void StartSpawningFor(EntityPlayer player, bool feral)
-        {
-            StartSpawningFor(GetHordeGroupNearLocation(player.position), feral);
-        }
-
         public void StartSpawningFor(PlayerHordeGroup group, bool feral)
         {
             if (hordesSpawning.ContainsKey(group))
@@ -127,7 +122,7 @@ namespace ImprovedHordes.Horde
         {
             // TODO: Make spawning seem distant so they are not easily detectable.
             // Perhaps spawn from farthest player in direction far away from group?
-            Vector3 commonPos = CalculateAverageGroupPosition(playerHordeGroup);
+            Vector3 commonPos = playerHordeGroup.CalculateAverageGroupPosition(true);
             if(!FindFarthestDirectionalSpawnFromGroup(playerHordeGroup, commonPos, out startPos))
             {
                 Warning("[Spawner] Failed to find Y for spawn pos {0}.", startPos);
@@ -191,23 +186,6 @@ namespace ImprovedHordes.Horde
             return true;
         }
 
-        protected Vector3 CalculateAverageGroupPosition(PlayerHordeGroup playerHordeGroup)
-        {
-            List<EntityPlayer> players = playerHordeGroup.members;
-
-            Vector3 avg = Vector3.zero;
-
-            foreach (var player in players)
-            {
-                avg += player.position;
-            }
-
-            avg /= players.Count;
-            Utils.GetSpawnableY(ref avg);
-
-            return avg;
-        }
-
         private Vector3 GetFarthestPlayerPosition(PlayerHordeGroup playerHordeGroup, Vector3 center)
         {
             float distance = 0.0f;
@@ -258,6 +236,11 @@ namespace ImprovedHordes.Horde
         public PlayerHordeGroup GetHordeGroupNearLocation(Vector3 position)
         {
             return new PlayerHordeGroup(GetNearbyPlayers(position));
+        }
+
+        public PlayerHordeGroup GetHordeGroupNearPlayer(EntityPlayer player)
+        {
+            return GetHordeGroupNearLocation(player.position);
         }
 
         private List<EntityPlayer> GetNearbyPlayers(EntityPlayer player)

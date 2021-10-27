@@ -1,0 +1,17 @@
+<improved_hordes>
+	<wandering_horde>
+		<schedule>
+			<days_per_wandering_week>7</days_per_wandering_week>
+		
+			<hrs_in_week_to_first_occurance>0</hrs_in_week_to_first_occurance>
+			<hrs_in_week_for_last_occurance_max>156</hrs_in_week_for_last_occurance_max> <!-- 6 * 24 + 12 or Day 7 12:00 pm -->
+			<min_hrs_between_occurances>6</min_hrs_between_occurances>
+
+			<min_occurances>2</min_occurances>
+			<max_occurances>5</max_occurances>	
+		</schedule>
+	</wandering_horde>
+	<scout_horde>
+		<chunk_radius>4</chunk_radius> <!-- Notify scouts near these certain chunks, and group players for difficulty by distance using chunk_radius * 16 (chunk size) -->
+	</scout_horde>
+</improved_hordes>

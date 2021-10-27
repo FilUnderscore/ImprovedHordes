@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using UnityEngine;
+
 using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde
@@ -19,9 +21,12 @@ namespace ImprovedHordes.Horde
             var groups = HordesList.hordes[this.type].hordes;
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
 
-            foreach(var group in groups.Values)
+            Vector3 groupPosition = playerGroup.CalculateAverageGroupPosition(false);
+            string biomeAtPosition = HordeManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z)).m_sBiomeName;
+
+            foreach (var group in groups.Values)
             {
-                if (!CanHordeGroupBePicked(playerGroup, group))
+                if (!CanHordeGroupBePicked(playerGroup, group, biomeAtPosition))
                     continue;
 
                 groupsToPick.Add(group);
@@ -35,7 +40,7 @@ namespace ImprovedHordes.Horde
             Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
             int gamestage = playerGroup.GetGroupGamestage();
-            EvaluateEntitiesInGroup(randomGroup, ref entitiesToSpawn, gamestage);
+            EvaluateEntitiesInGroup(randomGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
 
             List<int> entityIds = new List<int>();
             int totalCount = 0;
@@ -137,16 +142,27 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group)
+        public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition)
         {
             int gamestage = playerGroup.GetGroupGamestage();
 
             int groupsThatMatchGS = 0;
-            foreach (var entities in group.entities)
+            foreach (var entity in group.entities)
             {
-                if (entities.gs != null)
+                if(entity.biomes != null)
                 {
-                    GS gs = entities.gs;
+                    // Biome specific spawns.
+                    HashSet<string> biomes = entity.biomes.Evaluate();
+
+                    if(!biomes.Contains(biomeAtPosition))
+                    {
+                        continue;
+                    }
+                }
+
+                if (entity.gs != null)
+                {
+                    GS gs = entity.gs;
 
                     if (gs.min != null && gamestage < gs.min.Evaluate())
                         continue;
@@ -164,12 +180,23 @@ namespace ImprovedHordes.Horde
             return true;
         }
 
-        private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage)
+        private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage, string biomeAtPosition)
         {
             GameRandom random = HordeManager.Instance.Random;
 
             foreach (var entity in randomGroup.entities)
             {
+                if (entity.biomes != null)
+                {
+                    // Biome specific spawns.
+                    HashSet<string> biomes = entity.biomes.Evaluate();
+
+                    if (!biomes.Contains(biomeAtPosition))
+                    {
+                        continue;
+                    }
+                }
+
                 if (entity.chance != null && entity.chance.Evaluate() < random.RandomFloat)
                     continue;
 
@@ -260,7 +287,7 @@ namespace ImprovedHordes.Horde
                         var hordesDict = HordesList.hordes[entity.horde].hordes;
 
                         var randomHordeGroup = hordesDict.Values.ToList().ElementAt(random.RandomRange(0, hordesDict.Count));
-                        EvaluateEntitiesInGroup(randomHordeGroup, ref entitiesToSpawn, gamestage);
+                        EvaluateEntitiesInGroup(randomHordeGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
                     }
                     else
                     {
@@ -270,7 +297,7 @@ namespace ImprovedHordes.Horde
                         }
 
                         var subGroup = HordesList.hordes[entity.horde].hordes[entity.group];
-                        EvaluateEntitiesInGroup(subGroup, ref entitiesToSpawn, gamestage);
+                        EvaluateEntitiesInGroup(subGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
                     }
                 }
             }

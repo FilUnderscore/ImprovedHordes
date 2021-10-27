@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using UnityEngine;
+
 namespace ImprovedHordes.Horde
 {
     public class PlayerHordeGroup
@@ -26,6 +28,23 @@ namespace ImprovedHordes.Horde
             }
 
             return GameStageDefinition.CalcPartyLevel(gamestages);
+        }
+
+        public Vector3 CalculateAverageGroupPosition(bool calculateY)
+        {
+            Vector3 avg = Vector3.zero;
+
+            foreach (var player in this.members)
+            {
+                avg += player.position;
+            }
+
+            avg /= this.members.Count;
+
+            if(calculateY)
+                Utils.GetSpawnableY(ref avg);
+
+            return avg;
         }
 
         public override string ToString()

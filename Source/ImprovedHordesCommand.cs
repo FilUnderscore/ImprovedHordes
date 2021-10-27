@@ -37,11 +37,13 @@ namespace ImprovedHordes
                             var schedule = wanderingHorde.schedule;
 
                             StringBuilder builder = new StringBuilder();
-                            builder.AppendLine("Constants:");
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_TO_FIRST_OCCURANCE_MIN), WanderingHordeSchedule.HOURS_TO_FIRST_OCCURANCE_MIN));
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX), WanderingHordeSchedule.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX));
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MAX_OCCURANCES), WanderingHordeSchedule.MAX_OCCURANCES));
-                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_APART_MIN), WanderingHordeSchedule.HOURS_APART_MIN));
+                            builder.AppendLine("Settings:");
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.DAYS_PER_RESET), schedule.DAYS_PER_RESET));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_TO_FIRST_OCCURANCE_MIN), schedule.HOURS_TO_FIRST_OCCURANCE_MIN));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX), schedule.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_APART_MIN), schedule.HOURS_APART_MIN));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MIN_OCCURANCES), schedule.MIN_OCCURANCES));
+                            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MAX_OCCURANCES), schedule.MAX_OCCURANCES));
                             builder.AppendLine("");
                             builder.AppendLine("Schedule:");
                             for (int i = 0; i < schedule.occurances.Count; i++)
