@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using ImprovedHordes.Horde.AI;
+
 using UnityEngine;
 
 using static ImprovedHordes.Utils.Logger;
@@ -55,15 +57,19 @@ namespace ImprovedHordes.Horde
             if (hordesSpawning.ContainsKey(group))
                 return;
 
-            Horde horde = this.hordeGenerator.GenerateHorde(group, feral);
+            if(!this.hordeGenerator.GenerateHorde(group, feral, out Horde horde))
+            {
+                Log("No horde spawned for group {0}, as there were no matching horde groups.", group);
+                return;
+            }
 
-            if (!GetSpawnPosition(group, out Vector3 spawnPosition, out Vector3 targetPosition))
+            if (!GetSpawnPositions(group, horde.count, out Queue<Vector3> spawnPositions, out Vector3 targetPosition))
             {
                 Error("Invalid horde spawn position for group: {0}", group.ToString());
                 return;
             }
 
-            SpawningHorde spawningHorde = new SpawningHorde(horde, spawnPosition, targetPosition);
+            SpawningHorde spawningHorde = new SpawningHorde(horde, spawnPositions, targetPosition);
 
             hordesSpawning.Add(group, spawningHorde);
 
@@ -104,55 +110,38 @@ namespace ImprovedHordes.Horde
         
         protected virtual void PostSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }
 
-        public virtual bool GetSpawnPosition(PlayerHordeGroup playerHordeGroup, out Vector3 spawnPosition, out Vector3 targetPosition)
+        public virtual bool GetSpawnPositions(PlayerHordeGroup playerHordeGroup, int count, out Queue<Vector3> spawnPositions, out Vector3 targetPosition)
         {
-            return CalculateHordePositions(playerHordeGroup, out spawnPosition, out targetPosition);
+            return CalculateHordePositions(playerHordeGroup, count, out spawnPositions, out targetPosition);
         }
-        protected Vector3 GetRandomNearbyPosition(Vector3 target, float radius)
+        protected Vector3 GetRandomNearbyPosition(Vector3 target, int radius)
         {
-            Vector2 random = this.manager.Random.RandomOnUnitCircle;
+            Vector2 randomInCircle = this.manager.Random.RandomInsideUnitCircle * radius;
 
-            float x = target.x + random.x * radius;
-            float z = target.z + random.y * radius;
+            Vector3 pos = new Vector3(randomInCircle.x, 0, randomInCircle.y) + target;
+            Utils.GetSpawnableY(ref pos);
 
-            return new Vector3(x, target.y, z);
+            return pos;
         }
 
-        public bool CalculateHordePositions(PlayerHordeGroup playerHordeGroup, out Vector3 startPos, out Vector3 endPos)
+        public bool CalculateHordePositions(PlayerHordeGroup playerHordeGroup, int count, out Queue<Vector3> startPositions, out Vector3 endPos)
         {
-            // TODO: Make spawning seem distant so they are not easily detectable.
-            // Perhaps spawn from farthest player in direction far away from group?
             Vector3 commonPos = playerHordeGroup.CalculateAverageGroupPosition(true);
-            if(!FindFarthestDirectionalSpawnFromGroup(playerHordeGroup, commonPos, out startPos))
-            {
-                Warning("[Spawner] Failed to find Y for spawn pos {0}.", startPos);
-                endPos = Vector3.zero;
+            FindAllFarthestDirectionalSpawnsFromGroup(playerHordeGroup, count, commonPos, out Vector2 centerStart, out startPositions);
 
-                return false;
-            }
+            Vector2 opposite = new Vector2(commonPos.x, commonPos.z) - (centerStart - new Vector2(commonPos.x, commonPos.z));
 
-            var perp = Vector2.Perpendicular(startPos);
-            var perpVec = new Vector3(perp.x, 0, perp.y);
-            Utils.GetSpawnableY(ref perpVec);
-
-            // TODO Allow horde to intersect anywhere near center, not dead center.
-            var intersections = FindLineCircleIntersections(commonPos.x, commonPos.y, 12 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), startPos, perpVec, out _, out Vector2 intEndPos);
-
-            endPos = new Vector3(intEndPos.x, 0, intEndPos.y);
+            endPos = new Vector3(opposite.x, 0, opposite.y);
+            
             Utils.GetSpawnableY(ref endPos);
-
-            if (intersections < 2)
-            {
-                Warning("[Spawner] Only {0} intersections were found.", intersections);
-
-                return false;
-            }
 
             return true;
         }
 
-        private bool FindFarthestDirectionalSpawnFromGroup(PlayerHordeGroup group, Vector3 centerPos, out Vector3 startPos)
+        private void FindAllFarthestDirectionalSpawnsFromGroup(PlayerHordeGroup group, int count, Vector3 centerPos, out Vector2 centerStart, out Queue<Vector3> startPositions)
         {
+            startPositions = new Queue<Vector3>(count);
+
             Vector3 farthestPlayerPosition = GetFarthestPlayerPosition(group, centerPos);
             Vector3 direction = farthestPlayerPosition - centerPos;
             direction.y = 0.0f;
@@ -160,16 +149,25 @@ namespace ImprovedHordes.Horde
             float theta = Mathf.Atan2(direction.z, direction.x) + Mathf.PI;
             float thetaRange = Mathf.PI / 2;
 
-            float thetaRandomnessFactor = this.manager.Random.RandomRange(theta - thetaRange, theta + thetaRange);
+            float minThetaRange = theta - thetaRange;
+            float maxThetaRange = theta + thetaRange;
 
-            var distance = this.manager.Random.RandomRange(90, 15 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
-            Vector3 newDirection = new Vector3(distance * Mathf.Cos(thetaRandomnessFactor), 0, distance * Mathf.Sin(thetaRandomnessFactor));
+            var maxDistance = 16 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance);
 
-            Vector3 spawnPosition = farthestPlayerPosition + newDirection;
-            Utils.GetSpawnableY(ref spawnPosition);
-            startPos = spawnPosition;
+            for (int i = 0; i < count; i++)
+            {
+                float thetaRandomnessFactor = this.manager.Random.RandomRange(minThetaRange, maxThetaRange);
 
-            return true;
+                float distance = maxDistance - Mathf.Sqrt(Mathf.Abs(this.manager.Random.RandomFloat) * 16);
+                Vector3 newDirection = new Vector3(distance * Mathf.Cos(thetaRandomnessFactor), 0, distance * Mathf.Sin(thetaRandomnessFactor));
+
+                Vector3 spawnPosition = farthestPlayerPosition + newDirection;
+                Utils.GetSpawnableY(ref spawnPosition);
+
+                startPositions.Enqueue(spawnPosition);
+            }
+
+            centerStart = new Vector2(farthestPlayerPosition.x + maxDistance * Mathf.Cos(theta), farthestPlayerPosition.z + maxDistance * Mathf.Sin(theta));
         }
 
         public bool GetSpawnableCircleFromPos(Vector3 playerPos, float radius, out Vector3 spawnablePos)
@@ -206,13 +204,12 @@ namespace ImprovedHordes.Horde
         }
 
         // TODO: Spawn limiter option?
+        const int MAX_ALIVE_PER_HORDE = 12;
 
         protected bool CanSpawn(SpawningHorde horde)
         {
-            if (horde.entityIndex < horde.horde.entities.Count)
-                return true;
-
-            return false;
+            //return horde.entityIndex < horde.horde.entities.Count && horde.aiHorde.GetStat(EHordeAIStats.TOTAL_ALIVE) < MAX_ALIVE_PER_HORDE;
+            return horde.entityIndex < horde.horde.entities.Count;
         }
 
         protected bool Spawn(PlayerHordeGroup group, SpawningHorde horde)
@@ -310,23 +307,34 @@ namespace ImprovedHordes.Horde
         protected class SpawningHorde
         {
             public Horde horde;
-            public Vector3 spawnPosition;
+            public HordeAIHorde aiHorde;
+            public Queue<Vector3> spawnPositions;
             public Vector3 targetPosition;
             public int entityIndex = 0;
 
-            public SpawningHorde(Horde horde, Vector3 spawnPosition, Vector3 targetPosition)
+            public SpawningHorde(Horde horde, Queue<Vector3> spawnPositions, Vector3 targetPosition)
             {
                 this.horde = horde;
-                this.spawnPosition = spawnPosition;
+                this.aiHorde = HordeManager.Instance.AIManager.GetAsAIHorde(horde);
+                this.spawnPositions = spawnPositions;
                 this.targetPosition = targetPosition;
             }
 
             public Vector3 DetermineRandomSpawnPosition()
             {
-                if (!HordeManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.spawnPosition, 2, 20, 2, true, out Vector3 randomStartPos))
+                Vector3 spawnPosition = Vector3.zero;
+
+                if (spawnPositions.Count == 0)
+                {
+                    Warning("[Spawning Horde] More spawned enemies than calculated spawn positions. Did something go wrong?");
+                }
+                else
+                    spawnPosition = spawnPositions.Dequeue();
+
+                if (!HordeManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnPosition, 2, 20, 2, true, out Vector3 randomStartPos))
                 {
                     // Failed to find a random spawn near position, so just assign default spawn position for horde.
-                    randomStartPos = this.spawnPosition;
+                    randomStartPos = spawnPosition;
                 }
 
                 return randomStartPos;

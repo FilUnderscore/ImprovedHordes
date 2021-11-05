@@ -16,7 +16,7 @@ namespace ImprovedHordes.Horde
             this.type = type;
         }
 
-        public Horde GenerateHorde(PlayerHordeGroup playerGroup, bool feral)
+        public bool GenerateHorde(PlayerHordeGroup playerGroup, bool feral, out Horde horde)
         {
             var groups = HordesList.hordes[this.type].hordes;
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
@@ -33,7 +33,11 @@ namespace ImprovedHordes.Horde
             }
 
             if (groupsToPick.Count == 0)
-                groupsToPick.AddRange(groups.Values);
+            {
+                // No groups to select.
+                horde = null;
+                return false;
+            }
 
             GameRandom random = HordeManager.Instance.Random;
             HordeGroup randomGroup = RandomGroup(groupsToPick, random);
@@ -81,7 +85,8 @@ namespace ImprovedHordes.Horde
 
             entityIds.Randomize();
 
-            return new Horde(playerGroup, randomGroup, totalCount, feral, entityIds);
+            horde = new Horde(playerGroup, randomGroup, totalCount, feral, entityIds);
+            return true;
         }
 
         private HordeGroup RandomGroup(List<HordeGroup> groups, GameRandom random)
@@ -167,7 +172,7 @@ namespace ImprovedHordes.Horde
                     if (gs.min != null && gamestage < gs.min.Evaluate())
                         continue;
 
-                    if (gs.max != null && gamestage > gs.max.Evaluate())
+                    if (gs.max != null && gamestage >= gs.max.Evaluate())
                         continue;
                 }
 
@@ -212,7 +217,7 @@ namespace ImprovedHordes.Horde
                     if (gamestage < minGS)
                         continue;
 
-                    if (maxGS > 0 && gamestage > maxGS)
+                    if (maxGS > 0 && gamestage >= maxGS)
                         continue;
                 }
 

@@ -50,7 +50,7 @@ namespace ImprovedHordes.Horde.Scout
             commands.Add(new HordeAICommandWander(wanderTime));
             commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
 
-            this.manager.manager.AIManager.Add(entity, horde.horde, true, commands);
+            horde.aiHorde.AddEntity(entity, true, commands);
             AstarManager.Instance.AddLocation(entity.position, 64);
         }
 

@@ -17,6 +17,8 @@ namespace ImprovedHordes.Horde.AI
         public event EventHandler<HordeKilledEvent> OnHordeKilled;
         
         private readonly Dictionary<Horde, HordeAIHorde> trackedHordes = new Dictionary<Horde, HordeAIHorde>();
+
+        private readonly Dictionary<Horde, HordeAIHorde> hordesToAdd = new Dictionary<Horde, HordeAIHorde>();
         private readonly List<HordeAIHorde> hordesToRemove = new List<HordeAIHorde>();
 
         public readonly Dictionary<Entity, Entity> entityKilledQueue = new Dictionary<Entity, Entity>();
@@ -26,22 +28,21 @@ namespace ImprovedHordes.Horde.AI
             return trackedHordes.Count;
         }
 
-        public HordeAIHorde GetAIHorde(Horde horde)
-        {
-            return trackedHordes.ContainsKey(horde) ? trackedHordes[horde] : null;
-        }
-
-        public void Add(EntityAlive entity, Horde horde, bool despawnOnCompletion, List<HordeAICommand> commands)
+        public HordeAIHorde GetAsAIHorde(Horde horde)
         {
             HordeAIHorde aiHorde;
 
-            if ((aiHorde = GetAIHorde(horde)) == null)
-                trackedHordes.Add(horde, aiHorde = new HordeAIHorde(horde));
+            if (!trackedHordes.ContainsKey(horde))
+            {
+                if (!hordesToAdd.ContainsKey(horde))
+                    hordesToAdd.Add(horde, aiHorde = new HordeAIHorde(horde));
+                else
+                    aiHorde = hordesToAdd[horde];
 
-            HordeAIEntity hordeAIEntity = new HordeAIEntity(entity, despawnOnCompletion, commands);
-            aiHorde.AddEntity(hordeAIEntity);
+                return aiHorde;
+            }
 
-            OnHordeAIEntitySpawnedEvent(hordeAIEntity, aiHorde);
+            return trackedHordes[horde];
         }
 
         public void Update()
@@ -52,7 +53,7 @@ namespace ImprovedHordes.Horde.AI
             {
                 EHordeAIHordeUpdateState hordeUpdateState = horde.Update(dt);
 
-                switch(hordeUpdateState)
+                switch (hordeUpdateState)
                 {
                     case EHordeAIHordeUpdateState.ALIVE:
                         continue;
@@ -62,13 +63,21 @@ namespace ImprovedHordes.Horde.AI
                 }
             }
 
-            foreach(var horde in hordesToRemove)
+            foreach (var horde in hordesToRemove)
             {
                 trackedHordes.Remove(horde.GetHordeInstance());
             }
 
-            if(hordesToRemove.Count > 0)
+            if (hordesToRemove.Count > 0)
                 hordesToRemove.Clear();
+        
+            foreach (var horde in hordesToAdd)
+            {
+                trackedHordes.Add(horde.Key, horde.Value);
+            }
+
+            if (hordesToAdd.Count > 0)
+                hordesToAdd.Clear();
         }
 
         private void OnHordeKilledEvent(HordeAIHorde horde)
@@ -76,7 +85,7 @@ namespace ImprovedHordes.Horde.AI
             this.OnHordeKilled?.Invoke(this, new HordeKilledEvent(horde));
         }
 
-        private void OnHordeAIEntitySpawnedEvent(HordeAIEntity entity, HordeAIHorde horde)
+        public void OnHordeAIEntitySpawnedEvent(HordeAIEntity entity, HordeAIHorde horde)
         {
             this.OnHordeAIEntitySpawned?.Invoke(this, new HordeEntitySpawnedEvent(entity, horde));
         }

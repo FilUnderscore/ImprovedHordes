@@ -71,7 +71,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             foreach(var horde in this.hordes)
             {
-                var aiHorde = this.manager.AIManager.GetAIHorde(horde);
+                var aiHorde = this.manager.AIManager.GetAsAIHorde(horde);
                 
                 if(aiHorde != null)
                     aiHorde.Disband();
@@ -111,9 +111,9 @@ namespace ImprovedHordes.Horde.Wandering
             return this.state == WanderingHordeManager.EHordeState.Finished && this.schedule.IsOccuranceDue();
         }
 
-        public void ForceSpawnWanderingHorde()
+        public void ForceSpawnWanderingHorde(bool feral)
         {
-            this.schedule.occurances.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurance : this.schedule.currentOccurance + 1, new WanderingHordeSchedule.Occurance(this.schedule.GetWorldTime(), true));
+            this.schedule.occurances.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurance : this.schedule.currentOccurance + 1, new WanderingHordeSchedule.Occurance(this.schedule.GetWorldTime(), feral));
         }
 
         public enum EHordeState

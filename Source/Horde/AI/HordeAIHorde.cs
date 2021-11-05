@@ -35,13 +35,22 @@ namespace ImprovedHordes.Horde.AI
             return this.horde;
         }
 
-        public void AddEntity(HordeAIEntity entity)
+        public void AddEntity(EntityAlive entity, bool despawnOnCompletion, List<HordeAICommand> commands)
+        {
+            HordeAIEntity aiEntity = new HordeAIEntity(entity, despawnOnCompletion, commands);
+            this.AddEntity(aiEntity);
+
+            HordeManager.Instance.AIManager.OnHordeAIEntitySpawnedEvent(aiEntity, this);
+        }
+
+        private void AddEntity(HordeAIEntity entity)
         {
             if (entities.ContainsKey(entity.GetEntityId()))
                 return;
 
             entities.Add(entity.GetEntityId(), entity);
             IncrementStat(EHordeAIStats.TOTAL_SPAWNED);
+            IncrementStat(EHordeAIStats.TOTAL_ALIVE);
         }
 
         private void IncrementStat(EHordeAIStats stat)
@@ -50,6 +59,12 @@ namespace ImprovedHordes.Horde.AI
                 stats.Add(stat, 0);
 
             stats[stat]++;
+        }
+
+        private void DecrementStat(EHordeAIStats stat)
+        {
+            if (stats.ContainsKey(stat))
+                stats[stat]--;
         }
 
         public int GetStat(EHordeAIStats stat)
@@ -97,7 +112,7 @@ namespace ImprovedHordes.Horde.AI
                         break;
                     case EHordeAIEntityUpdateState.FINISHED:
                     case EHordeAIEntityUpdateState.DEAD:
-                        if(entityUpdateState == EHordeAIEntityUpdateState.FINISHED)
+                        if (entityUpdateState == EHordeAIEntityUpdateState.FINISHED)
                         {
                             if(!entity.despawnOnCompletion)
                             {
@@ -120,6 +135,8 @@ namespace ImprovedHordes.Horde.AI
                             OnHordeEntityKilledEvent(entity);
                         }
 
+                        DecrementStat(EHordeAIStats.TOTAL_ALIVE);
+
                         toRemove.Add(entity);
                         break;
                 }
@@ -133,7 +150,7 @@ namespace ImprovedHordes.Horde.AI
             if (toRemove.Count > 0)
                 toRemove.Clear();
 
-            return this.entities.Count == 0 ? EHordeAIHordeUpdateState.DEAD : EHordeAIHordeUpdateState.ALIVE;
+            return GetStat(EHordeAIStats.TOTAL_ALIVE) == 0 && GetStat(EHordeAIStats.TOTAL_SPAWNED) == GetHordeInstance().count ? EHordeAIHordeUpdateState.DEAD : EHordeAIHordeUpdateState.ALIVE;
         }
 
         private void OnHordeEntityKilledEvent(HordeAIEntity entity)
@@ -157,6 +174,7 @@ namespace ImprovedHordes.Horde.AI
     {
         TOTAL_SPAWNED,
         TOTAL_DESPAWNED,
-        TOTAL_KILLED
+        TOTAL_KILLED,
+        TOTAL_ALIVE
     }
 }

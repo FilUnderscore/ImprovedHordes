@@ -1,4 +1,7 @@
 <improved_hordes>
+	<max_alive_enabled>true</max_alive_enabled>
+	<max_alive_per_horde_player>8</max_alive_per_horde_player>
+	
 	<wandering_horde>
 		<schedule>
 			<days_per_wandering_week>7</days_per_wandering_week>

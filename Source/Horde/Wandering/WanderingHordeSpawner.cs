@@ -41,17 +41,14 @@ namespace ImprovedHordes.Horde.Wandering
             }
             else
             {
-                // Random wander to try encounter players.
-                // TODO
-                //bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
+                // Random wander, increase chance of encountering players randomly.
+                bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
 
-                // Is this broken?
-
-                if (true)
+                if (randomWander)
                 {
-                    float halfwayToEnd = this.horde.manager.Random.RandomRange(0f, 0.5f);
+                    float halfwayToEnd = this.horde.manager.Random.RandomRange(0.25f, 0.5f);
 
-                    Vector3 wanderPos = horde.spawnPosition + (horde.targetPosition - horde.spawnPosition) / (1 - halfwayToEnd);
+                    Vector3 wanderPos = entity.position + (horde.targetPosition - entity.position) * (1 - halfwayToEnd);
                     Utils.GetSpawnableY(ref wanderPos);
 
                     commands.Add(new HordeAICommandDestination(wanderPos, DEST_RADIUS));
@@ -62,14 +59,13 @@ namespace ImprovedHordes.Horde.Wandering
             commands.Add(new HordeAICommandDestination(GetRandomNearbyPosition(horde.targetPosition, DEST_RADIUS), DEST_RADIUS));
 
             AstarManager.Instance.AddLocation(entity.position, 64);
-            this.horde.manager.AIManager.Add(entity, horde.horde, true, commands);
+            horde.aiHorde.AddEntity(entity, true, commands);
         }
 
         protected override void PreSpawn(PlayerHordeGroup group, SpawningHorde horde)
         {
             this.horde.hordes.Add(horde.horde);
 
-            // TODO: Parents.
             if (horde.horde.group.parent == null && horde.horde.group.children == null)
             {
                 this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
@@ -106,7 +102,7 @@ namespace ImprovedHordes.Horde.Wandering
             Log("Horde for group: {0}", group.ToString());
             Log("Horde Group: {0}", horde.horde.group.name);
             Log("GS: {0}", group.GetGroupGamestage());
-            Log("Start Pos: " + horde.spawnPosition.ToString());
+            Log("Start Pos #1: " + horde.spawnPositions.Peek().ToString());
             Log("End Pos: " + horde.targetPosition.ToString());
             Log("Horde size: " + horde.horde.count);
         }

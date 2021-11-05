@@ -39,7 +39,7 @@ namespace ImprovedHordes.Horde.Scout
 
             commands.Add(new HordeAICommandDestination(this.latestTarget, DEST_RADIUS));
 
-            this.manager.manager.AIManager.Add(entity, horde.horde, false, commands);
+            horde.aiHorde.AddEntity(entity, false, commands);
             AstarManager.Instance.AddLocation(entity.position, 64);
         }
 

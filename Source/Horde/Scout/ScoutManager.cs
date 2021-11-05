@@ -88,15 +88,8 @@ namespace ImprovedHordes.Horde.Scout
                     
                     if (scout.aiHorde.GetHordeInstance().feral)
                     {
-                        if (scout.aiHorde.GetStat(EHordeAIStats.TOTAL_KILLED) == scout.aiHorde.GetStat(EHordeAIStats.TOTAL_SPAWNED))
-                        {
-                            Log("[Scout] Player {0} killed feral scout. Attempting to spawn horde.", killer.EntityName);
-                            this.TrySpawnScoutHorde(killer);
-                        }
-                        else
-                        {
-                            scout.killer = killer;
-                        }
+                        Log("[Scout] Player {0} killed feral scout.", killer.EntityName);
+                        scout.killer = killer;
                     }
                 }
 
@@ -112,7 +105,7 @@ namespace ImprovedHordes.Horde.Scout
             Log("[Scout] Scout horde for group {0} has ended.", e.horde.GetHordeInstance().playerGroup);
 
             int totalKilled;
-            // Surprise players with a horde called by the living scouts to avenge the killed scouts.
+            // Surprise players with a horde called by the living scouts to avenge the killed scouts. Only if the scout horde was not killed.
             if (IsScoutHorde(e.horde.GetHordeInstance()) && e.horde.GetHordeInstance().feral && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
             {
                 Log("[Scout] {0} feral scouts were killed. Attempting to spawn horde.", totalKilled);

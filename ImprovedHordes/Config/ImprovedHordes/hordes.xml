@@ -69,8 +69,8 @@
 		
 		<hordegroup name="Zombies">
 			<!-- Standard Zombies -->
-			<gs max="600" countIncPerGS="0.1" countDecGS="250" countDecPerPostGS="0.1">
-				<gs min="50" max="200">
+			<gs max="100" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.417">
+				<gs min="15" max="75">
 					<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
 				</gs>
 			
@@ -82,8 +82,8 @@
 			at GS400 start decreasing spawn count by 0.1 per GS after 400, 
 			then cease any remaining spawns at GS700.-->
 			<!-- Feral Zombies -->
-			<gs min="100" max="700" countIncPerGS="0.02" countDecGS="400" countDecPerPostGS="0.1">
-				<gs min="200" max="350">
+			<gs min="50" max="375" countIncPerGS="0.18" countDecGS="160" countDecPerPostGS="0.18">
+				<gs min="75" max="250">
 					<entity name="zombieScreamerFeral" chance="0.2" minCount="1" maxCount="1"/>
 				</gs>
 				
@@ -91,8 +91,8 @@
 			</gs>
 			
 			<!-- Radiated Zombies -->
-			<gs min="250" countIncPerGS="0.02">
-				<gs min="375">
+			<gs min="166" countIncPerGS="0.18">
+				<gs min="250">
 					<entity name="zombieScreamerRadiated" chance="0.25" minCount="1" maxCount="1"/>
 				</gs>
 			

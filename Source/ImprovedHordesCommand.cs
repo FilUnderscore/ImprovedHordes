@@ -21,7 +21,16 @@ namespace ImprovedHordes
 
                         if (_params[1].EqualsCaseInsensitive("spawn"))
                         {
-                            wanderingHorde.ForceSpawnWanderingHorde();
+                            bool feral = false;
+                            if(_params.Count >= 3)
+                            {
+                                if(_params[2].EqualsCaseInsensitive("feral"))
+                                {
+                                    feral = true;
+                                }
+                            }
+
+                            wanderingHorde.ForceSpawnWanderingHorde(feral);
 
                             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Hordes spawning for all groups.");
                         }
@@ -85,17 +94,6 @@ namespace ImprovedHordes
                         SingletonMonoBehaviour<SdtdConsole>.Instance.Output("No sub command given.");
                     }
                 }
-                else if(_params[0].EqualsCaseInsensitive("scouts"))
-                {
-                    var scoutManager = HordeManager.Instance.ScoutManager;
-
-                    if(_params[1].EqualsCaseInsensitive("spawn"))
-                    {
-                        scoutManager.SpawnScouts(GameManager.Instance.World.GetEntity(_senderInfo.RemoteClientInfo.entityId).position);
-
-                        SingletonMonoBehaviour<SdtdConsole>.Instance.Output("Scouts dispatched to player's location.");
-                    }
-                }
             }
             else
             {
@@ -115,10 +113,9 @@ namespace ImprovedHordes
 
         public override string GetHelp()
         {
-            return "Commands: \nimprovedhordes wandering spawn - Spawns a wandering horde for all groups on the server."
-                + "\nimprovedhordes wandering resetschedule - Resets the weekly schedule for the wandering hordes."
-                + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule."
-                + "\nimprovedhordes scouts spawn - Spawns scouts at the target's location.";
+            return "Commands: \nimprovedhordes wandering spawn (feral) - Spawns a wandering horde for all groups on the server. Non-Feral unless feral argument is specified (optional)."
+                + "\nimprovedhordes wandering reset - Resets the weekly schedule for the wandering hordes."
+                + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule.";
         }
     }
 }

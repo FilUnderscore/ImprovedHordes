@@ -6,7 +6,7 @@ namespace ImprovedHordes.Horde.AI.Commands
 {
     public class HordeAICommandDestination : HordeAICommand
     {
-        protected Vector3 targetPosition;
+        protected Vector3 targetPosition = Vector3.zero;
 
         protected int distanceTolerance;
 
