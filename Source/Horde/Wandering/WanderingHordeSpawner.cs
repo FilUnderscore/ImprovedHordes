@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 using ImprovedHordes.Horde.AI;
@@ -9,7 +8,6 @@ using ImprovedHordes.Horde.AI.Commands;
 using ImprovedHordes.Horde.Wandering.AI.Commands;
 
 using static ImprovedHordes.Utils.Logger;
-using static ImprovedHordes.Utils.Math;
 
 namespace ImprovedHordes.Horde.Wandering
 {

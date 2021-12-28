@@ -2,11 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using System.Reflection;
-using HarmonyLib;
-
-using static ImprovedHordes.Utils.Logger;
-
 using ImprovedHordes.Horde.AI.Events;
 
 namespace ImprovedHordes.Horde.AI
