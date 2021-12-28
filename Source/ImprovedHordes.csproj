@@ -40,7 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>.\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -83,6 +84,7 @@
     <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\AI\HordeAIManager.cs" />
     <Compile Include="Horde\HordeSpawner.cs" />
+    <Compile Include="Horde\IManager.cs" />
     <Compile Include="Horde\PlayerHordeGroup.cs" />
     <Compile Include="Horde\Scout\AI\Commands\HordeAICommandScout.cs" />
     <Compile Include="Horde\Scout\Scout.cs" />

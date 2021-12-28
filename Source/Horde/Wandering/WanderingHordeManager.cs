@@ -10,7 +10,7 @@ using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Wandering
 {
-    public class WanderingHordeManager
+    public class WanderingHordeManager : IManager
     {
         public readonly HordeManager manager;
         public readonly WanderingHordeSpawner spawner;
@@ -114,6 +114,11 @@ namespace ImprovedHordes.Horde.Wandering
         public void ForceSpawnWanderingHorde(bool feral)
         {
             this.schedule.occurances.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurance : this.schedule.currentOccurance + 1, new WanderingHordeSchedule.Occurance(this.schedule.GetWorldTime(), feral));
+        }
+
+        public void Shutdown()
+        {
+            this.hordes.Clear();
         }
 
         public enum EHordeState

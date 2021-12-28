@@ -11,7 +11,7 @@ using ImprovedHordes.Horde.AI.Events;
 
 namespace ImprovedHordes.Horde.AI
 {
-    public sealed class HordeAIManager
+    public sealed class HordeAIManager : IManager
     {
         public event EventHandler<HordeEntitySpawnedEvent> OnHordeAIEntitySpawned;
         public event EventHandler<HordeKilledEvent> OnHordeKilled;
@@ -96,6 +96,14 @@ namespace ImprovedHordes.Horde.AI
                 return;
 
             entityKilledQueue.Add(killed, killer);
+        }
+
+        public void Shutdown()
+        {
+            this.trackedHordes.Clear();
+            this.hordesToAdd.Clear();
+            this.hordesToRemove.Clear();
+            this.entityKilledQueue.Clear();
         }
     }
 }

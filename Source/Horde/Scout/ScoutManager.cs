@@ -12,7 +12,7 @@ using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Scout
 {
-    public class ScoutManager
+    public class ScoutManager : IManager
     {
         private int s_chunk_radius;
 
@@ -212,6 +212,11 @@ namespace ImprovedHordes.Horde.Scout
             }
 
             return nearby;
+        }
+
+        public void Shutdown()
+        {
+
         }
 
         private sealed class ScoutHordeGenerator : HordeGenerator

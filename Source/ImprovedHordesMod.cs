@@ -10,7 +10,7 @@ namespace ImprovedHordes
     {
         private static HordeManager manager;
 
-        public void InitMod()
+        public void InitMod(Mod mod)
         {
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
@@ -47,7 +47,7 @@ namespace ImprovedHordes
         static void GameShutdown()
         {
             if (manager != null)
-                manager.Save();
+                manager.Shutdown();
         }
 
         static void EntityKilled(Entity killed, Entity killer)
@@ -57,12 +57,18 @@ namespace ImprovedHordes
 
         static void PlayerSpawnedInWorld(ClientInfo cInfo, RespawnType respawnType, Vector3i pos)
         {
-            if (cInfo == null)
-                Error("Null client.");
-
             if (manager != null)
             {
-                int playerId = cInfo.entityId;
+                int playerId;
+
+                if (cInfo != null) // Multiplayer.
+                {
+                    playerId = cInfo.entityId;
+                }
+                else
+                {
+                    playerId = manager.World.GetPrimaryPlayerId(); // Singleplayer.
+                }
 
                 switch (respawnType)
                 {
@@ -78,12 +84,18 @@ namespace ImprovedHordes
 
         static void PlayerDisconnected(ClientInfo cInfo, bool shutdown)
         {
-            if (cInfo == null)
-                Error("Null client.");
+            int playerId;
 
-            int playerId = cInfo.entityId;
+            if (cInfo != null)
+            {
+                playerId = cInfo.entityId;
+            }
+            else
+            {
+                playerId = manager.World.GetPrimaryPlayerId();
+            }
 
-            if(manager != null)
+            if (manager != null)
                 manager.RemovePlayer(playerId);
         }
     }

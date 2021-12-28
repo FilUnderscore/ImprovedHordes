@@ -78,6 +78,14 @@ namespace ImprovedHordes
                 Variables.Add(variableName, variable);
             }
 
+            public static void DeregisterVariable(string variableName)
+            {
+                if (!Variables.ContainsKey(variableName))
+                    throw new Exception(String.Format("Variable {0} is not defined.", variableName));
+
+                Variables.Remove(variableName);
+            }
+
             public static T GetVariable<T>(string variableName)
             {
                 if (!Variables.ContainsKey(variableName))

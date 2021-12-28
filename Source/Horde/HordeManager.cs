@@ -11,9 +11,9 @@ using ImprovedHordes.Horde.Scout;
 
 namespace ImprovedHordes.Horde
 {
-    public class HordeManager
+    public class HordeManager : IManager
     {
-        public static readonly string DataFile = string.Format("{0}/ImprovedHordes.bin", GameUtils.GetSaveGameDir());
+        public static readonly string DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
         public static string XmlFilesDir;
 
         public World World;
@@ -131,6 +131,15 @@ namespace ImprovedHordes.Horde
         public void EntityKilled(Entity killed, Entity killer)
         {
             this.AIManager.EntityKilled(killed, killer);
+        }
+
+        public void Shutdown()
+        {
+            this.Save();
+
+            this.AIManager.Shutdown();
+            this.WanderingHorde.Shutdown();
+            this.ScoutManager.Shutdown();
         }
     }
 }
