@@ -31,7 +31,6 @@
 			<entity name="zombieMarleneRadiated"/>
 			<entity name="zombieSkateboarderRadiated"/>
 			<entity name="zombieFemaleFatRadiated"/>
-			<entity name="zombieOldTimerRadiated"/>
 			<entity name="zombieJanitorRadiated"/>
 			<entity name="zombieLabRadiated"/>
 		</entitygroup>
