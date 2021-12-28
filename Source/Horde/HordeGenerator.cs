@@ -22,7 +22,7 @@ namespace ImprovedHordes.Horde
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
 
             Vector3 groupPosition = playerGroup.CalculateAverageGroupPosition(false);
-            string biomeAtPosition = HordeManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z)).m_sBiomeName;
+            string biomeAtPosition = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z)).m_sBiomeName;
 
             foreach (var group in groups.Values)
             {
@@ -39,7 +39,7 @@ namespace ImprovedHordes.Horde
                 return false;
             }
 
-            GameRandom random = HordeManager.Instance.Random;
+            GameRandom random = ImprovedHordesManager.Instance.Random;
             HordeGroup randomGroup = RandomGroup(groupsToPick, random);
             Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
@@ -187,7 +187,7 @@ namespace ImprovedHordes.Horde
 
         private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage, string biomeAtPosition)
         {
-            GameRandom random = HordeManager.Instance.Random;
+            GameRandom random = ImprovedHordesManager.Instance.Random;
 
             foreach (var entity in randomGroup.entities)
             {

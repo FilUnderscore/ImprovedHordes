@@ -12,14 +12,14 @@ namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeManager : IManager
     {
-        public readonly HordeManager manager;
+        public readonly ImprovedHordesManager manager;
         public readonly WanderingHordeSpawner spawner;
         public readonly WanderingHordeSchedule schedule;
 
         public EHordeState state = EHordeState.Finished;
         public readonly List<Horde> hordes = new List<Horde>();
 
-        public WanderingHordeManager(HordeManager manager)
+        public WanderingHordeManager(ImprovedHordesManager manager)
         {
             this.manager = manager;
             this.schedule = new WanderingHordeSchedule(this);

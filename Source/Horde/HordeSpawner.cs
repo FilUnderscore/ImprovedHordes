@@ -15,9 +15,9 @@ namespace ImprovedHordes.Horde
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
         private readonly HordeGenerator hordeGenerator;
 
-        private readonly HordeManager manager;
+        private readonly ImprovedHordesManager manager;
 
-        public HordeSpawner(HordeManager manager, HordeGenerator hordeGenerator)
+        public HordeSpawner(ImprovedHordesManager manager, HordeGenerator hordeGenerator)
         {
             this.manager = manager;
             this.hordeGenerator = hordeGenerator;
@@ -217,7 +217,7 @@ namespace ImprovedHordes.Horde
             int entityId = horde.horde.entities[horde.entityIndex++];
 
             EntityAlive entity = EntityFactory.CreateEntity(entityId, horde.DetermineRandomSpawnPosition()) as EntityAlive;
-            HordeManager.Instance.World.SpawnEntityInWorld(entity);
+            ImprovedHordesManager.Instance.World.SpawnEntityInWorld(entity);
 
             entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
 
@@ -250,9 +250,9 @@ namespace ImprovedHordes.Horde
         {
             List<EntityPlayer> players = new List<EntityPlayer>();
 
-            foreach (var playerId in HordeManager.Instance.Players)
+            foreach (var playerId in ImprovedHordesManager.Instance.Players)
             {
-                EntityPlayer player = HordeManager.Instance.World.GetEntity(playerId) as EntityPlayer;
+                EntityPlayer player = ImprovedHordesManager.Instance.World.GetEntity(playerId) as EntityPlayer;
 
                 if (Vector3.Distance(position, player.position) > GetGroupDistance())
                     continue;
@@ -268,12 +268,12 @@ namespace ImprovedHordes.Horde
             List<int> grouped = new List<int>();
             List<PlayerHordeGroup> groups = new List<PlayerHordeGroup>();
 
-            foreach (var playerId in HordeManager.Instance.Players)
+            foreach (var playerId in ImprovedHordesManager.Instance.Players)
             {
                 if (grouped.Contains(playerId))
                     continue;
 
-                var player = HordeManager.Instance.World.GetEntity(playerId) as EntityPlayer;
+                var player = ImprovedHordesManager.Instance.World.GetEntity(playerId) as EntityPlayer;
 
                 var group = GetNearbyPlayers(player);
                 group.Add(player); // Group includes surrounding players and player.
@@ -315,7 +315,7 @@ namespace ImprovedHordes.Horde
             public SpawningHorde(Horde horde, Queue<Vector3> spawnPositions, Vector3 targetPosition)
             {
                 this.horde = horde;
-                this.aiHorde = HordeManager.Instance.AIManager.GetAsAIHorde(horde);
+                this.aiHorde = ImprovedHordesManager.Instance.AIManager.GetAsAIHorde(horde);
                 this.spawnPositions = spawnPositions;
                 this.targetPosition = targetPosition;
             }
@@ -331,7 +331,7 @@ namespace ImprovedHordes.Horde
                 else
                     spawnPosition = spawnPositions.Dequeue();
 
-                if (!HordeManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnPosition, 2, 20, 2, true, out Vector3 randomStartPos))
+                if (!ImprovedHordesManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnPosition, 2, 20, 2, true, out Vector3 randomStartPos))
                 {
                     // Failed to find a random spawn near position, so just assign default spawn position for horde.
                     randomStartPos = spawnPosition;

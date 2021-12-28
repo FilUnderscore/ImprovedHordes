@@ -17,7 +17,7 @@ namespace ImprovedHordes
                 {
                     if (_params.Count >= 2)
                     {
-                        var wanderingHorde = HordeManager.Instance.WanderingHorde;
+                        var wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
                         if (_params[1].EqualsCaseInsensitive("spawn"))
                         {

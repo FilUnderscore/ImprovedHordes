@@ -40,7 +40,7 @@ namespace ImprovedHordes.Horde.AI
             HordeAIEntity aiEntity = new HordeAIEntity(entity, despawnOnCompletion, commands);
             this.AddEntity(aiEntity);
 
-            HordeManager.Instance.AIManager.OnHordeAIEntitySpawnedEvent(aiEntity, this);
+            ImprovedHordesManager.Instance.AIManager.OnHordeAIEntitySpawnedEvent(aiEntity, this);
         }
 
         private void AddEntity(HordeAIEntity entity)

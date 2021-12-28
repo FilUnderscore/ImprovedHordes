@@ -78,10 +78,11 @@
     <Compile Include="Horde\AI\HordeAIHorde.cs" />
     <Compile Include="Horde\HordeGroup.cs" />
     <Compile Include="Horde\HordeGroupList.cs" />
+    <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\HordesList.cs" />
     <Compile Include="Horde\HordesFromXml.cs" />
     <Compile Include="Horde\HordeGenerator.cs" />
-    <Compile Include="Horde\HordeManager.cs" />
+    <Compile Include="ImprovedHordesManager.cs" />
     <Compile Include="Horde\AI\HordeAIManager.cs" />
     <Compile Include="Horde\HordeSpawner.cs" />
     <Compile Include="Horde\IManager.cs" />

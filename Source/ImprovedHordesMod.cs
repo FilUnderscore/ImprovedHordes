@@ -8,7 +8,7 @@ namespace ImprovedHordes
 {
     class ImprovedHordesMod : IModApi
     {
-        private static HordeManager manager;
+        private static ImprovedHordesManager manager;
 
         public void InitMod(Mod mod)
         {
@@ -34,7 +34,7 @@ namespace ImprovedHordes
         {
             Log("Initializing.");
 
-            manager = new HordeManager();
+            manager = new ImprovedHordesManager();
             manager.Load();
         }
 

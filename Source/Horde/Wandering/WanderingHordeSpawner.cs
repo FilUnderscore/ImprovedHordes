@@ -122,7 +122,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition)
             {
-                WanderingHordeManager wanderingHorde = HordeManager.Instance.WanderingHorde;
+                WanderingHordeManager wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
                 if (group.MaxWeeklyOccurances != null)
                 {

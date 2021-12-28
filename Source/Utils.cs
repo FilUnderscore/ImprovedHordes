@@ -41,7 +41,7 @@ namespace ImprovedHordes
 
         public static void GetSpawnableY(ref Vector3 pos)
         {
-            pos.y = HordeManager.Instance.World.GetHeightAt(pos.x, pos.z) + 1.0f;
+            pos.y = ImprovedHordesManager.Instance.World.GetHeightAt(pos.x, pos.z) + 1.0f;
         }
 
         public static void Randomize<T>(this List<T> list)

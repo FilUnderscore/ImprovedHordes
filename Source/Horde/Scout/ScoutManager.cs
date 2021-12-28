@@ -26,11 +26,11 @@ namespace ImprovedHordes.Horde.Scout
 
         private readonly Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>> scouts = new Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>>();
         
-        public readonly HordeManager manager;
+        public readonly ImprovedHordesManager manager;
         private readonly ScoutSpawner spawner;
         private readonly ScoutHordeSpawner hordeSpawner;
 
-        public ScoutManager(HordeManager manager)
+        public ScoutManager(ImprovedHordesManager manager)
         {
             this.manager = manager;
             this.spawner = new ScoutSpawner(this);
@@ -234,7 +234,7 @@ namespace ImprovedHordes.Horde.Scout
             {
                 static bool Prefix(Vector3 targetPos)
                 {
-                    var scoutManager = HordeManager.Instance.ScoutManager;
+                    var scoutManager = ImprovedHordesManager.Instance.ScoutManager;
                     scoutManager.SpawnScouts(targetPos);
 
                     // Prevent default scout horde from spawning.
@@ -251,7 +251,7 @@ namespace ImprovedHordes.Horde.Scout
                     // Notify scouts in chunk of the new event to investigate.
                     if(_chunkEvent.EventType != EnumAIDirectorChunkEvent.Torch)
                     {
-                        var scoutManager = HordeManager.Instance.ScoutManager;
+                        var scoutManager = ImprovedHordesManager.Instance.ScoutManager;
                         scoutManager.NotifyScoutsNear(_chunkEvent.Position, _chunkEvent.Value);
                     }
                 }
