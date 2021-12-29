@@ -59,6 +59,9 @@ namespace ImprovedHordes
 
             this.Settings = new Settings(new XmlFile(XmlFilesDir, "settings.xml"));
             this.WanderingHorde.ReadSettings(this.Settings.GetSettings("wandering_horde"));
+            this.ScoutManager.ReadSettings(this.Settings.GetSettings("scout_horde"));
+
+            HordeSpawner.ReadSettings(this.Settings);
 
             Log("Loaded settings.");
         }

@@ -1,6 +1,5 @@
 <improved_hordes>
-	<max_alive_enabled>true</max_alive_enabled>
-	<max_alive_per_horde_player>8</max_alive_per_horde_player>
+	<max_alive_per_horde_player>8</max_alive_per_horde_player> <!-- -1 to disable. -->
 	
 	<wandering_horde>
 		<schedule>

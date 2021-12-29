@@ -12,6 +12,17 @@ namespace ImprovedHordes.Horde
 {
     public abstract class HordeSpawner
     {
+        private static int s_max_alive_per_horde_player;
+
+        // TODO: Spawn limiter option?
+        private static int MAX_ALIVE_PER_HORDE_PLAYER
+        {
+            get
+            {
+                return s_max_alive_per_horde_player;
+            }
+        }
+
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
         private readonly HordeGenerator hordeGenerator;
 
@@ -21,6 +32,11 @@ namespace ImprovedHordes.Horde
         {
             this.manager = manager;
             this.hordeGenerator = hordeGenerator;
+        }
+
+        public static void ReadSettings(Settings settings)
+        {
+            s_max_alive_per_horde_player = settings.GetInt("max_alive_per_horde_player");
         }
 
         public bool IsStillSpawningFor(PlayerHordeGroup playerHordeGroup)
@@ -203,12 +219,13 @@ namespace ImprovedHordes.Horde
             return farthest;
         }
 
-        // TODO: Spawn limiter option?
-        const int MAX_ALIVE_PER_HORDE = 12;
-
         protected bool CanSpawn(SpawningHorde horde)
         {
-            //return horde.entityIndex < horde.horde.entities.Count && horde.aiHorde.GetStat(EHordeAIStats.TOTAL_ALIVE) < MAX_ALIVE_PER_HORDE;
+            int playerCount = horde.horde.playerGroup.members.Count;
+
+            if (MAX_ALIVE_PER_HORDE_PLAYER > -1 && horde.aiHorde.GetStat(EHordeAIStats.TOTAL_ALIVE) >= MAX_ALIVE_PER_HORDE_PLAYER * playerCount)
+                return false;
+
             return horde.entityIndex < horde.horde.entities.Count;
         }
 
