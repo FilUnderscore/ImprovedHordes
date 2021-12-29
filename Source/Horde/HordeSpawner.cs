@@ -14,7 +14,6 @@ namespace ImprovedHordes.Horde
     {
         private static int s_max_alive_per_horde_player;
 
-        // TODO: Spawn limiter option?
         private static int MAX_ALIVE_PER_HORDE_PLAYER
         {
             get
