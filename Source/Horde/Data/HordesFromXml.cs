@@ -5,7 +5,7 @@ using System.Xml;
 
 using static ImprovedHordes.Utils.Logger;
 
-namespace ImprovedHordes.Horde
+namespace ImprovedHordes.Horde.Data
 {
     public class HordesFromXml
     {

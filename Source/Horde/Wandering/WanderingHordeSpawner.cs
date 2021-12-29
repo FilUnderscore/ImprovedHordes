@@ -5,6 +5,8 @@ using UnityEngine;
 using ImprovedHordes.Horde.AI;
 using ImprovedHordes.Horde.AI.Commands;
 
+using ImprovedHordes.Horde.Data;
+
 using ImprovedHordes.Horde.Wandering.AI.Commands;
 
 using static ImprovedHordes.Utils.Logger;

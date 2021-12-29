@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ImprovedHordes.Horde
+namespace ImprovedHordes.Horde.Data
 {
     public class HordesList
     {

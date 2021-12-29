@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using ImprovedHordes.Horde.AI;
 
 using UnityEngine;
 
 using static ImprovedHordes.Utils.Logger;
-using static ImprovedHordes.Utils.Math;
 
 namespace ImprovedHordes.Horde
 {

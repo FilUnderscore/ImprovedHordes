@@ -4,6 +4,8 @@ using System.Linq;
 
 using UnityEngine;
 
+using ImprovedHordes.Horde.Data;
+
 using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde

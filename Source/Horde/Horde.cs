@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using ImprovedHordes.Horde.Data;
+
 namespace ImprovedHordes.Horde
 {
     public class Horde

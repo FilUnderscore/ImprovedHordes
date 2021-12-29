@@ -7,6 +7,8 @@ using static ImprovedHordes.Utils.Logger;
 using ImprovedHordes.Horde;
 using ImprovedHordes.Horde.AI;
 
+using ImprovedHordes.Horde.Data;
+
 using ImprovedHordes.Horde.Wandering;
 using ImprovedHordes.Horde.Scout;
 

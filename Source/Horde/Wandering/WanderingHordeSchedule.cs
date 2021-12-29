@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using ImprovedHordes.Horde.Data;
+
 using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Wandering

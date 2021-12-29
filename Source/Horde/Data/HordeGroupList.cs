@@ -2,7 +2,7 @@
 
 using static ImprovedHordes.Utils.Logger;
 
-namespace ImprovedHordes.Horde
+namespace ImprovedHordes.Horde.Data
 {
     public sealed class HordeGroupList
     {
