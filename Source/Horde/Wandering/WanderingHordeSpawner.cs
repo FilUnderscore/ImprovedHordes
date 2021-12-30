@@ -99,12 +99,12 @@ namespace ImprovedHordes.Horde.Wandering
                 }
             }
 
-            Log("Horde for group: {0}", group.ToString());
-            Log("Horde Group: {0}", horde.horde.group.name);
-            Log("GS: {0}", group.GetGroupGamestage());
-            Log("Start Pos #1: " + horde.spawnPositions.Peek().ToString());
-            Log("End Pos: " + horde.targetPosition.ToString());
-            Log("Horde size: " + horde.horde.count);
+            Log("[Wandering Horde] Horde for group: {0}", group.ToString());
+            Log("[Wandering Horde] Horde Group: {0}", horde.horde.group.name);
+            Log("[Wandering Horde] GS: {0}", group.GetGroupGamestage());
+            Log("[Wandering Horde] Start Pos #1 (offset from farthest player): " + horde.spawnPositions.Peek().ToString());
+            Log("[Wandering Horde] End Pos: " + horde.targetPosition.ToString());
+            Log("[Wandering Horde] Horde size: " + horde.horde.count);
         }
 
         public void SpawnWanderingHordes()

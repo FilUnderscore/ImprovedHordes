@@ -22,9 +22,6 @@ namespace ImprovedHordes
 
         public int GetInt(string name)
         {
-            Log(this.node.GetSubnode(name).GetElement().Name);
-            Log(this.node.GetSubnode(name).GetElement().InnerText);
-
             if (int.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out int value))
                 return value;
 

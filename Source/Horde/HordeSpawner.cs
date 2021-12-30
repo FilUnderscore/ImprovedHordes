@@ -226,12 +226,12 @@ namespace ImprovedHordes.Horde
             if (MAX_ALIVE_PER_HORDE_PLAYER > -1 && horde.aiHorde.GetStat(EHordeAIStats.TOTAL_ALIVE) >= MAX_ALIVE_PER_HORDE_PLAYER * playerCount)
                 return false;
 
-            return horde.entityIndex < horde.horde.entities.Count;
+            return horde.entityIndex < horde.horde.entityIds.Count;
         }
 
         protected bool Spawn(PlayerHordeGroup group, SpawningHorde horde)
         {
-            int entityId = horde.horde.entities[horde.entityIndex++];
+            int entityId = horde.horde.entityIds[horde.entityIndex++];
 
             if (!horde.DetermineRandomSpawnPosition(out Vector3 spawnPosition, GetFarthestPlayerPosition(group, group.CalculateAverageGroupPosition(true))))
                 return true; // End spawning since we don't have any more spawns left and will loop until crash occurs. This scenario should never realistically occur.
@@ -249,7 +249,7 @@ namespace ImprovedHordes.Horde
 #endif
             // returns true if spawned all entities to signal that spawning is complete
             // returns false if more will be spawned.
-            return horde.entityIndex >= horde.horde.entities.Count;
+            return horde.entityIndex >= horde.horde.entityIds.Count;
         }
 
         public abstract int GetGroupDistance();
