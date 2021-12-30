@@ -12,6 +12,16 @@ namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeManager : IManager
     {
+        private int s_horde_player_group_dist;
+
+        public int HORDE_PLAYER_GROUP_DISTANCE
+        {
+            get
+            {
+                return s_horde_player_group_dist;
+            }
+        }
+
         public readonly ImprovedHordesManager manager;
         public readonly WanderingHordeSpawner spawner;
         public readonly WanderingHordeSchedule schedule;
@@ -30,6 +40,8 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void ReadSettings(Settings settings)
         {
+            this.s_horde_player_group_dist = settings.GetInt("horde_player_group_dist", 0, false, 400);
+
             this.schedule.ReadSettings(settings.GetSettings("schedule"));
         }
 

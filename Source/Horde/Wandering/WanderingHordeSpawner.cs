@@ -16,23 +16,23 @@ namespace ImprovedHordes.Horde.Wandering
     public class WanderingHordeSpawner : HordeSpawner
     {
         private static readonly WanderingHordeGenerator HORDE_GENERATOR = new WanderingHordeGenerator();
-        public readonly WanderingHordeManager horde;
+        public readonly WanderingHordeManager manager;
 
-        public WanderingHordeSpawner(WanderingHordeManager horde) : base(horde.manager, HORDE_GENERATOR)
+        public WanderingHordeSpawner(WanderingHordeManager manager) : base(manager.manager, HORDE_GENERATOR)
         {
-            this.horde = horde;
+            this.manager = manager;
         }
 
         public override int GetGroupDistance()
         {
-            return GamePrefs.GetInt(EnumGamePrefs.PartySharedKillRange) * 4;
+            return this.manager.HORDE_PLAYER_GROUP_DISTANCE;
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
-            float wanderTime = 90f + this.horde.manager.Random.RandomFloat * 4f;
+            float wanderTime = 90f + this.manager.manager.Random.RandomFloat * 4f;
 
             if (horde.horde.feral)
             {
@@ -42,11 +42,11 @@ namespace ImprovedHordes.Horde.Wandering
             else
             {
                 // Random wander, increase chance of encountering players randomly.
-                bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
+                bool randomWander = this.manager.manager.Random.RandomFloat >= 0.5f;
                 
                 if (randomWander)
                 {
-                    float halfwayToEnd = this.horde.manager.Random.RandomRange(0.25f, 0.5f);
+                    float halfwayToEnd = this.manager.manager.Random.RandomRange(0.25f, 0.5f);
 
                     Vector3 wanderPos = entity.position + (horde.targetPosition - entity.position) * (1 - halfwayToEnd);
                     Utils.GetSpawnableY(ref wanderPos);
@@ -64,11 +64,11 @@ namespace ImprovedHordes.Horde.Wandering
 
         protected override void PreSpawn(PlayerHordeGroup group, SpawningHorde horde)
         {
-            this.horde.hordes.Add(horde.horde);
+            this.manager.hordes.Add(horde.horde);
 
             if (horde.horde.group.parent == null && horde.horde.group.children == null)
             {
-                this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+                this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
             }
             else
             {
@@ -78,23 +78,23 @@ namespace ImprovedHordes.Horde.Wandering
                 {
                     HordeGroup parentGroup = horde.horde.group.GetParent();
 
-                    this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, parentGroup);
+                    this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, parentGroup);
                     
                     foreach(var child in parentGroup.children)
                     {
-                        this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, child);
+                        this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, child);
                     }
                 }
                 else
                 {
-                    this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+                    this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
                 }
 
                 if (children != null)
                 {
                     foreach (var child in children)
                     {
-                        this.horde.schedule.AddWeeklyOccurancesForGroup(group.members, child);
+                        this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, child);
                     }
                 }
             }
@@ -109,10 +109,10 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void SpawnWanderingHordes()
         {
-            Log("[Wandering Horde] Occurance {0} Spawning", this.horde.schedule.currentOccurance + 1);
+            Log("[Wandering Horde] Occurance {0} Spawning", this.manager.schedule.currentOccurance + 1);
 
-            this.horde.state = WanderingHordeManager.EHordeState.StillAlive;
-            this.StartSpawningFor(GetAllHordeGroups(), this.horde.schedule.GetCurrentOccurance().feral);
+            this.manager.state = WanderingHordeManager.EHordeState.StillAlive;
+            this.StartSpawningFor(GetAllHordeGroups(), this.manager.schedule.GetCurrentOccurance().feral);
         }
 
         private sealed class WanderingHordeGenerator : HordeGenerator

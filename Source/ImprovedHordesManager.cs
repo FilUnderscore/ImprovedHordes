@@ -49,6 +49,8 @@ namespace ImprovedHordes
             ScoutManager = new ScoutManager(this);
 
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
+
+            this.LoadXml();
         }
 
         public void Init()
@@ -56,7 +58,6 @@ namespace ImprovedHordes
             World = GameManager.Instance.World;
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
-            this.LoadXml();
             this.Load();
         }
 
