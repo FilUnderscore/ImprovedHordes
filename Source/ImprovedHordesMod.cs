@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
 
-using ImprovedHordes.Horde;
-
 using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes
@@ -12,6 +10,8 @@ namespace ImprovedHordes
 
         public void InitMod(Mod mod)
         {
+            manager = new ImprovedHordesManager(mod);
+
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
             ModEvents.GameShutdown.RegisterHandler(GameShutdown);
@@ -34,8 +34,8 @@ namespace ImprovedHordes
         {
             Log("Initializing.");
 
-            manager = new ImprovedHordesManager();
-            manager.Load();
+            if(manager != null)
+                manager.Init();
         }
 
         static void GameUpdate()

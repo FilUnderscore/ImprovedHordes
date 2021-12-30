@@ -1,0 +1,24 @@
+<ih_nav_object_classes>
+	<append xpath="/nav_object_classes">
+		<nav_object_class name="ih_horde_zombie_debug">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_map_player_arrow"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="255,0,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="use_rotation" value="true" />
+			</map_settings>
+
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_map_player_arrow"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="255,0,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="icon_clamped" value="false" />
+			</compass_settings>
+		</nav_object_class>
+	</append>
+</ih_nav_object_classes>

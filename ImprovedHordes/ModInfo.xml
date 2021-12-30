@@ -2,9 +2,9 @@
 <xml>
   <ModInfo>
     <Name value="ImprovedHordes" />
-    <Description value="Improved Hordes" />
+    <Description value="Improves existing hordes by reworking their core behaviours." />
     <Author value="Fil" />
-    <Version value="0.0.0.1" />
-    <Website value="" />
+    <Version value="1.0.0-PRE" />
+    <Website value="https://github.com/FilUnderscore/ImprovedHordes" />
   </ModInfo>
 </xml>

@@ -165,22 +165,25 @@ namespace ImprovedHordes.Horde
             float minThetaRange = theta - thetaRange;
             float maxThetaRange = theta + thetaRange;
 
-            var maxDistance = 16 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance);
+            float thetaRandomnessFactor = this.manager.Random.RandomRange(minThetaRange, maxThetaRange); // Center of horde.
 
             for (int i = 0; i < count; i++)
             {
-                float thetaRandomnessFactor = this.manager.Random.RandomRange(minThetaRange, maxThetaRange);
-
-                float distance = maxDistance - Mathf.Sqrt(Mathf.Abs(this.manager.Random.RandomFloat) * 16);
+                float distance = GetMaxSpawnDistance() - Mathf.Sqrt(Mathf.Abs(this.manager.Random.RandomFloat) * 16f);
                 Vector3 newDirection = new Vector3(distance * Mathf.Cos(thetaRandomnessFactor), 0, distance * Mathf.Sin(thetaRandomnessFactor));
-
-                Vector3 spawnPosition = farthestPlayerPosition + newDirection;
-                Utils.GetSpawnableY(ref spawnPosition);
+                
+                Vector2 relativeToCenter = this.manager.Random.RandomOnUnitCircle;
+                Vector3 spawnPosition = newDirection + new Vector3(relativeToCenter.x, 0, relativeToCenter.y);
 
                 startPositions.Enqueue(spawnPosition);
             }
 
-            centerStart = new Vector2(farthestPlayerPosition.x + maxDistance * Mathf.Cos(theta), farthestPlayerPosition.z + maxDistance * Mathf.Sin(theta));
+            centerStart = new Vector2(farthestPlayerPosition.x + GetMaxSpawnDistance() * Mathf.Cos(theta), farthestPlayerPosition.z + GetMaxSpawnDistance() * Mathf.Sin(theta));
+        }
+
+        private float GetMaxSpawnDistance()
+        {
+            return 6 * GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance); // Too far of a spawn distance results in Horde AI not working in unloaded chunks.
         }
 
         public bool GetSpawnableCircleFromPos(Vector3 playerPos, float radius, out Vector3 spawnablePos)
@@ -230,7 +233,10 @@ namespace ImprovedHordes.Horde
         {
             int entityId = horde.horde.entities[horde.entityIndex++];
 
-            EntityAlive entity = EntityFactory.CreateEntity(entityId, horde.DetermineRandomSpawnPosition()) as EntityAlive;
+            if (!horde.DetermineRandomSpawnPosition(out Vector3 spawnPosition, GetFarthestPlayerPosition(group, group.CalculateAverageGroupPosition(true))))
+                return true; // End spawning since we don't have any more spawns left and will loop until crash occurs. This scenario should never realistically occur.
+
+            EntityAlive entity = EntityFactory.CreateEntity(entityId, spawnPosition) as EntityAlive;
             ImprovedHordesManager.Instance.World.SpawnEntityInWorld(entity);
 
             entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
@@ -238,6 +244,9 @@ namespace ImprovedHordes.Horde
             this.SetAttributes(entity);
             this.OnSpawn(entity, group, horde);
 
+#if DEBUG
+            entity.AddNavObject("ih_horde_zombie_debug", "");
+#endif
             // returns true if spawned all entities to signal that spawning is complete
             // returns false if more will be spawned.
             return horde.entityIndex >= horde.horde.entities.Count;
@@ -334,24 +343,27 @@ namespace ImprovedHordes.Horde
                 this.targetPosition = targetPosition;
             }
 
-            public Vector3 DetermineRandomSpawnPosition()
+            public bool DetermineRandomSpawnPosition(out Vector3 spawnPosition, Vector3 farthestPlayerLocation)
             {
-                Vector3 spawnPosition = Vector3.zero;
-
                 if (spawnPositions.Count == 0)
                 {
                     Warning("[Spawning Horde] More spawned enemies than calculated spawn positions. Did something go wrong?");
+
+                    spawnPosition = Vector3.zero;
+                    return false;
                 }
                 else
                     spawnPosition = spawnPositions.Dequeue();
 
-                if (!ImprovedHordesManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnPosition, 2, 20, 2, true, out Vector3 randomStartPos))
+                spawnPosition += farthestPlayerLocation;
+                Utils.GetSpawnableY(ref spawnPosition);
+
+                if (ImprovedHordesManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnPosition, 2, 20, 2, true, out Vector3 randomStartPos))
                 {
-                    // Failed to find a random spawn near position, so just assign default spawn position for horde.
-                    randomStartPos = spawnPosition;
+                    spawnPosition = randomStartPos;
                 }
 
-                return randomStartPos;
+                return true;
             }
         }
     }

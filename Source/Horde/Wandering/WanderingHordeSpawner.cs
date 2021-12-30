@@ -43,7 +43,7 @@ namespace ImprovedHordes.Horde.Wandering
             {
                 // Random wander, increase chance of encountering players randomly.
                 bool randomWander = this.horde.manager.Random.RandomFloat >= 0.5f;
-
+                
                 if (randomWander)
                 {
                     float halfwayToEnd = this.horde.manager.Random.RandomRange(0.25f, 0.5f);

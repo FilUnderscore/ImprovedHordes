@@ -40,19 +40,24 @@ namespace ImprovedHordes
         public ScoutManager ScoutManager;
         public Settings Settings;
 
-        public ImprovedHordesManager()
+        public ImprovedHordesManager(Mod mod)
         {
             instance = this;
-
-            World = GameManager.Instance.World;
-            Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
             AIManager = new HordeAIManager();
             WanderingHorde = new WanderingHordeManager(this);
             ScoutManager = new ScoutManager(this);
 
-            XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", ModManager.GetMod("ImprovedHordes").Path);
+            XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
+        }
+
+        public void Init()
+        {
+            World = GameManager.Instance.World;
+            Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
+
             this.LoadXml();
+            this.Load();
         }
 
         public void LoadSettings()
@@ -129,6 +134,9 @@ namespace ImprovedHordes
 
         public void Update()
         {
+            if (World == null) // If world is null, the manager has not been initialized yet.
+                return;
+
             this.AIManager.Update();
             this.WanderingHorde.Update();
             this.ScoutManager.Update();
