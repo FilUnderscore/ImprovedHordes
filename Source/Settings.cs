@@ -71,8 +71,7 @@ namespace ImprovedHordes
         public IHSettingsNode(XmlElement element)
         {
             this.element = element;
-            Log("{0}", this.element.Name);
-
+            
             this.ParseChildren();
         }
 
@@ -82,7 +81,6 @@ namespace ImprovedHordes
             {
                 if(node.NodeType == XmlNodeType.Element)
                 {
-                    Log("Child {0}", node.Name);
                     children.Add(node.Name, new IHSettingsNode((XmlElement)node));
                 }
             }
