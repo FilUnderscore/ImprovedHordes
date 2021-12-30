@@ -392,6 +392,8 @@ FodyWeavers.xsd
 *.pdb
 *.dll.config
 /Test/
+/Tools/
+*.bat
 */bin/
 */obj/
 */.vs/
