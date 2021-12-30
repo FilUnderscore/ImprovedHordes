@@ -20,18 +20,27 @@ namespace ImprovedHordes
             this.node = node;
         }
 
-        public int GetInt(string name)
+        public int GetInt(string name, int defaultValue)
         {
             if (int.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out int value))
                 return value;
 
             Warning("[Settings] Failed to parse {0}. Returning default value.", name);
-            return 0;
+            return defaultValue;
+        }
+
+        public float GetFloat(string name, float defaultValue)
+        {
+            if (float.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out float value))
+                return value;
+
+            Warning("[Settings] Failed to parse {0]. Returning default value.", name);
+            return defaultValue;
         }
 
         public int GetInt(string name, int compareTo, bool larger, int defaultValue)
         {
-            int fetchedValue = GetInt(name);
+            int fetchedValue = GetInt(name, defaultValue);
             int value = fetchedValue;
             
             if(!larger && value < compareTo)
@@ -44,6 +53,26 @@ namespace ImprovedHordes
             }
 
             if(value != fetchedValue)
+                Warning("[Settings] Setting {0} cannot be {1} than {2}. Current value: {3}, setting value to default value {4}.", name, larger ? "greater" : "less", compareTo, fetchedValue, defaultValue);
+
+            return value;
+        }
+
+        public float GetFloat(string name, float compareTo, bool larger, float defaultValue)
+        {
+            float fetchedValue = GetFloat(name, defaultValue);
+            float value = fetchedValue;
+
+            if (!larger && value < compareTo)
+            {
+                value = defaultValue;
+            }
+            else if (larger && value > compareTo)
+            {
+                value = defaultValue;
+            }
+
+            if (value != fetchedValue)
                 Warning("[Settings] Setting {0} cannot be {1} than {2}. Current value: {3}, setting value to default value {4}.", name, larger ? "greater" : "less", compareTo, fetchedValue, defaultValue);
 
             return value;

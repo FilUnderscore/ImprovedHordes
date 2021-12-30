@@ -33,7 +33,7 @@ namespace ImprovedHordes.Horde
 
         public static void ReadSettings(Settings settings)
         {
-            s_max_alive_per_horde_player = settings.GetInt("max_alive_per_horde_player");
+            s_max_alive_per_horde_player = settings.GetInt("max_alive_per_horde_player", 8);
         }
 
         public bool IsStillSpawningFor(PlayerHordeGroup playerHordeGroup)

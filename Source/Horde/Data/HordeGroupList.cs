@@ -40,7 +40,9 @@ namespace ImprovedHordes.Horde.Data
                 var parentGroup = hordes[parentEntry.Key];
                 parentGroup.children = parentEntry.Value;
 
+#if DEBUG
                 Log("Parent Group {0} Children {1}", parentGroup.name, parentGroup.children.ToString(child => child.name));
+#endif
             }
         }
     }

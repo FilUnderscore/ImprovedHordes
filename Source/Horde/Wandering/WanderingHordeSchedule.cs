@@ -10,13 +10,14 @@ namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeSchedule
     {
-        // TODO XML Setting.
         private int s_days_per_wandering_week,
             s_hrs_in_week_to_first_occurance,
             s_hrs_in_week_for_last_occurance_max,
             s_min_hrs_between_occurances,
             s_min_occurances,
             s_max_occurances;
+
+        private float s_feral_horde_chance;
 
         public int DAYS_PER_RESET
         {
@@ -66,6 +67,14 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
+        public float FERAL_HORDE_CHANCE
+        {
+            get
+            {
+                return s_feral_horde_chance;
+            }
+        }
+
         public ulong nextResetTime = 0UL;
         public int currentOccurance = 0;
 
@@ -98,6 +107,14 @@ namespace ImprovedHordes.Horde.Wandering
 
             this.s_min_occurances = settings.GetInt("min_occurances", 0, false, 2);
             this.s_max_occurances = settings.GetInt("max_occurances", this.s_min_occurances + 1, false, this.s_min_occurances + 3);
+
+            this.s_feral_horde_chance = settings.GetFloat("feral_horde_chance", 0.0f, false, 0.5f);
+
+            if(this.s_feral_horde_chance > 1.0f)
+            {
+                Warning("[Wandering Horde] Feral horde chance greater than 1. Setting to 1.");
+                this.s_feral_horde_chance = 1.0f;
+            }    
         }
 
         public void Load(BinaryReader reader)
@@ -314,7 +331,7 @@ namespace ImprovedHordes.Horde.Wandering
                     break;
                 }
 
-                bool feral = random.RandomRange(0, 10) >= 5;
+                bool feral = FERAL_HORDE_CHANCE < 1.0f ? random.RandomRange(0.0f, 1.0f) <= FERAL_HORDE_CHANCE : true;
                 occurances.Add(new Occurance(nextOccurance, feral));
                 possibleOccurances++;
 

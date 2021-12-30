@@ -11,6 +11,8 @@
 
 			<min_occurances>2</min_occurances>
 			<max_occurances>5</max_occurances>	
+			
+			<feral_horde_chance>0.5</feral_horde_chance> <!-- 0.5 means 50% chance, range from 0.0 to 1.0 -->
 		</schedule>
 	</wandering_horde>
 	<scout_horde>
