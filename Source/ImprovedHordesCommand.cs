@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-using ImprovedHordes.Horde;
 using ImprovedHordes.Horde.Wandering;
 
 namespace ImprovedHordes
@@ -77,7 +76,7 @@ namespace ImprovedHordes
                             else
                             {
                                 builder.AppendLine(String.Format("Current Occurance: {0}", schedule.currentOccurance + 1));
-                                builder.AppendLine(String.Format("State: {0}", schedule.currentOccurance + 1, nameof(wanderingHorde.state)));
+                                builder.AppendLine(String.Format("State: {0}", Enum.GetName(typeof(WanderingHordeManager.EHordeState), wanderingHorde.state)));
                             }
 
                             builder.AppendLine("");
