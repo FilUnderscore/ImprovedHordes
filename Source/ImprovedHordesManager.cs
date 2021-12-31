@@ -16,8 +16,8 @@ namespace ImprovedHordes
 {
     public class ImprovedHordesManager : IManager
     {
-        public static readonly string DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
-        public static string XmlFilesDir;
+        private string DataFile;
+        private readonly string XmlFilesDir;
 
         public World World;
         public List<int> Players = new List<int>();
@@ -42,6 +42,9 @@ namespace ImprovedHordes
 
         public ImprovedHordesManager(Mod mod)
         {
+            if (instance != null)
+                throw new InvalidOperationException("ImprovedHordesManager instance has already been created on mod initialization.");
+
             instance = this;
 
             AIManager = new HordeAIManager();
@@ -57,6 +60,9 @@ namespace ImprovedHordes
         {
             World = GameManager.Instance.World;
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
+
+            // Reload data file location.
+            DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
 
             this.Load();
         }
