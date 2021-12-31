@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Conditionals example -- NOTE: Still WIP and all features may not work properly.
+<!-- Conditionals example - NOTE: Still WIP and all features may not work properly.
 	{} - To evaluate and return result within.
 	&lt; - Less than
 	&gt; - Greater than
