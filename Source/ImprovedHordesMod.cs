@@ -4,6 +4,9 @@ using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes
 {
+    /* Licensed under CC-BY-SA 4.0 - (C) FilUnderscore 2021.
+     * More information can be found in LICENSE file in the root of the repository. 
+     */
     class ImprovedHordesMod : IModApi
     {
         private static ImprovedHordesManager manager;
