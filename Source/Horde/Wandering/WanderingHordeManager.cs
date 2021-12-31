@@ -57,7 +57,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Update()
         {
-            if (this.schedule.CheckIfNeedsReset() || (this.state == EHordeState.StillAlive && this.schedule.IsNextOccuranceDue()))
+            if (this.schedule.CheckIfNeedsReset() || (this.state == EHordeState.StillAlive && this.schedule.IsNextOccurrenceDue()))
             {
                 if(this.schedule.CheckIfNeedsReset())
                     this.schedule.Reset();
@@ -110,7 +110,7 @@ namespace ImprovedHordes.Horde.Wandering
                 {
                     Log("[Wandering Horde] Hordes for all groups have ended.");
 
-                    this.schedule.currentOccurance++;
+                    this.schedule.currentOccurrence++;
                     this.state = WanderingHordeManager.EHordeState.Finished;
                 }
             }
@@ -120,12 +120,12 @@ namespace ImprovedHordes.Horde.Wandering
         // Spaced apart a set number of days.
         public bool ShouldSpawnWanderingHorde()
         {
-            return this.state == WanderingHordeManager.EHordeState.Finished && this.schedule.IsOccuranceDue();
+            return this.state == WanderingHordeManager.EHordeState.Finished && this.schedule.IsOccurrenceDue();
         }
 
         public void ForceSpawnWanderingHorde(bool feral)
         {
-            this.schedule.occurances.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurance : this.schedule.currentOccurance + 1, new WanderingHordeSchedule.Occurance(this.schedule.GetWorldTime(), feral));
+            this.schedule.occurrences.Insert(this.state == EHordeState.Finished ? this.schedule.currentOccurrence : this.schedule.currentOccurrence + 1, new WanderingHordeSchedule.Occurrence(this.schedule.GetWorldTime(), feral));
         }
 
         public void Shutdown()

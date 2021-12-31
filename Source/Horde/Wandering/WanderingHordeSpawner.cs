@@ -68,7 +68,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             if (horde.horde.group.parent == null && horde.horde.group.children == null)
             {
-                this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+                this.manager.schedule.AddWeeklyOccurrencesForGroup(group.members, horde.horde.group);
             }
             else
             {
@@ -78,23 +78,23 @@ namespace ImprovedHordes.Horde.Wandering
                 {
                     HordeGroup parentGroup = horde.horde.group.GetParent();
 
-                    this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, parentGroup);
+                    this.manager.schedule.AddWeeklyOccurrencesForGroup(group.members, parentGroup);
                     
                     foreach(var child in parentGroup.children)
                     {
-                        this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, child);
+                        this.manager.schedule.AddWeeklyOccurrencesForGroup(group.members, child);
                     }
                 }
                 else
                 {
-                    this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, horde.horde.group);
+                    this.manager.schedule.AddWeeklyOccurrencesForGroup(group.members, horde.horde.group);
                 }
 
                 if (children != null)
                 {
                     foreach (var child in children)
                     {
-                        this.manager.schedule.AddWeeklyOccurancesForGroup(group.members, child);
+                        this.manager.schedule.AddWeeklyOccurrencesForGroup(group.members, child);
                     }
                 }
             }
@@ -109,10 +109,10 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void SpawnWanderingHordes()
         {
-            Log("[Wandering Horde] Occurance {0} Spawning", this.manager.schedule.currentOccurance + 1);
+            Log("[Wandering Horde] Occurrence {0} Spawning", this.manager.schedule.currentOccurrence + 1);
 
             this.manager.state = WanderingHordeManager.EHordeState.StillAlive;
-            this.StartSpawningFor(GetAllHordeGroups(), this.manager.schedule.GetCurrentOccurance().feral);
+            this.StartSpawningFor(GetAllHordeGroups(), this.manager.schedule.GetCurrentOccurrence().feral);
         }
 
         private sealed class WanderingHordeGenerator : HordeGenerator
@@ -124,18 +124,18 @@ namespace ImprovedHordes.Horde.Wandering
             {
                 WanderingHordeManager wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
-                if (group.MaxWeeklyOccurances != null)
+                if (group.MaxWeeklyOccurrences != null)
                 {
-                    var maxWeeklyOccurances = group.MaxWeeklyOccurances.Evaluate();
+                    var maxWeeklyOccurrences = group.MaxWeeklyOccurrences.Evaluate();
 
-                    var weeklyOccurancesForPlayer = wanderingHorde.schedule.GetAverageWeeklyOccurancesForGroup(playerGroup, group);
+                    var weeklyOccurrencesForPlayer = wanderingHorde.schedule.GetAverageWeeklyOccurrencesForGroup(playerGroup, group);
 
-                    if (weeklyOccurancesForPlayer >= maxWeeklyOccurances)
+                    if (weeklyOccurrencesForPlayer >= maxWeeklyOccurrences)
                         return false;
 
-                    if (maxWeeklyOccurances > 0)
+                    if (maxWeeklyOccurrences > 0)
                     {
-                        float diminishedChance = (float)Math.Pow(1 / maxWeeklyOccurances, weeklyOccurancesForPlayer);
+                        float diminishedChance = (float)Math.Pow(1 / maxWeeklyOccurrences, weeklyOccurrencesForPlayer);
 
                         if (wanderingHorde.manager.Random.RandomFloat > diminishedChance)
                             return false;

@@ -7,12 +7,12 @@
 		<schedule>
 			<days_per_wandering_week>7</days_per_wandering_week>
 		
-			<hrs_in_week_to_first_occurance>0</hrs_in_week_to_first_occurance>
-			<hrs_in_week_for_last_occurance_max>156</hrs_in_week_for_last_occurance_max> <!-- 6 * 24 + 12 or Day 7 12:00 pm -->
-			<min_hrs_between_occurances>6</min_hrs_between_occurances>
+			<hrs_in_week_to_first_occurrence>0</hrs_in_week_to_first_occurrence>
+			<hrs_in_week_for_last_occurrence_max>156</hrs_in_week_for_last_occurrence_max> <!-- 6 * 24 + 12 or Day 7 12:00 pm -->
+			<min_hrs_between_occurrences>6</min_hrs_between_occurrences>
 
-			<min_occurances>2</min_occurances>
-			<max_occurances>5</max_occurances>	
+			<min_occurrences>2</min_occurrences>
+			<max_occurrences>5</max_occurrences>	
 			
 			<feral_horde_chance>0.5</feral_horde_chance> <!-- 0.5 means 50% chance, range from 0.0 to 1.0 -->
 		</schedule>

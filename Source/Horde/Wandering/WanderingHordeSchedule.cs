@@ -11,11 +11,11 @@ namespace ImprovedHordes.Horde.Wandering
     public class WanderingHordeSchedule
     {
         private int s_days_per_wandering_week,
-            s_hrs_in_week_to_first_occurance,
-            s_hrs_in_week_for_last_occurance_max,
-            s_min_hrs_between_occurances,
-            s_min_occurances,
-            s_max_occurances;
+            s_hrs_in_week_to_first_occurrence,
+            s_hrs_in_week_for_last_occurrence_max,
+            s_min_hrs_between_occurrences,
+            s_min_occurrences,
+            s_max_occurrences;
 
         private float s_feral_horde_chance;
 
@@ -27,43 +27,43 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
-        public int HOURS_TO_FIRST_OCCURANCE_MIN
+        public int HOURS_TO_FIRST_OCCURRENCE_MIN
         {
             get
             {
-                return s_hrs_in_week_to_first_occurance;
+                return s_hrs_in_week_to_first_occurrence;
             }
         }
 
-        public int HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX
+        public int HOURS_IN_WEEK_FOR_LAST_OCCURRENCE_MAX
         {
             get
             {
-                return s_hrs_in_week_for_last_occurance_max;
+                return s_hrs_in_week_for_last_occurrence_max;
             }
         }
 
-        public int MIN_OCCURANCES
+        public int MIN_OCCURRENCES
         {
             get
             {
-                return s_min_occurances;
+                return s_min_occurrences;
             }
         }
 
-        public int MAX_OCCURANCES
+        public int MAX_OCCURRENCES
         {
             get
             {
-                return s_max_occurances;
+                return s_max_occurrences;
             }
         }
         
-        public int HOURS_APART_MIN
+        public int MIN_HRS_BETWEEN_OCCURRENCES
         {
             get
             {
-                return s_min_hrs_between_occurances;
+                return s_min_hrs_between_occurrences;
             }
         }
 
@@ -76,9 +76,9 @@ namespace ImprovedHordes.Horde.Wandering
         }
 
         public ulong nextResetTime = 0UL;
-        public int currentOccurance = 0;
+        public int currentOccurrence = 0;
 
-        public readonly List<Occurance> occurances = new List<Occurance>();
+        public readonly List<Occurrence> occurrences = new List<Occurrence>();
         public readonly Dictionary<int, Dictionary<string, int>> previousHordeGroupsForPlayers = new Dictionary<int, Dictionary<string, int>>();
 
         private readonly WanderingHordeManager manager;
@@ -101,12 +101,12 @@ namespace ImprovedHordes.Horde.Wandering
         {
             this.s_days_per_wandering_week = settings.GetInt("days_per_wandering_week", 1, false, 7);
 
-            this.s_hrs_in_week_to_first_occurance = settings.GetInt("hrs_in_week_to_first_occurance", 0, false, 0);
-            this.s_hrs_in_week_for_last_occurance_max = settings.GetInt("hrs_in_week_for_last_occurance_max", this.s_days_per_wandering_week * 24, true, 156); // TODO account for morning of first day of new week, otherwise a bug could occur.
-            this.s_min_hrs_between_occurances = settings.GetInt("min_hrs_between_occurances", 0, false, 6);
+            this.s_hrs_in_week_to_first_occurrence = settings.GetInt("hrs_in_week_to_first_occurrence", 0, false, 0);
+            this.s_hrs_in_week_for_last_occurrence_max = settings.GetInt("hrs_in_week_for_last_occurrence_max", this.s_days_per_wandering_week * 24, true, 156); // TODO account for morning of first day of new week, otherwise a bug could occur.
+            this.s_min_hrs_between_occurrences = settings.GetInt("min_hrs_between_occurrences", 0, false, 6);
 
-            this.s_min_occurances = settings.GetInt("min_occurances", 0, false, 2);
-            this.s_max_occurances = settings.GetInt("max_occurances", this.s_min_occurances + 1, false, this.s_min_occurances + 3);
+            this.s_min_occurrences = settings.GetInt("min_occurrences", 0, false, 2);
+            this.s_max_occurrences = settings.GetInt("max_occurrences", this.s_min_occurrences + 1, false, this.s_min_occurrences + 3);
 
             this.s_feral_horde_chance = settings.GetFloat("feral_horde_chance", 0.0f, false, 0.5f);
 
@@ -120,16 +120,16 @@ namespace ImprovedHordes.Horde.Wandering
         public void Load(BinaryReader reader)
         {
             this.nextResetTime = reader.ReadUInt64();
-            this.currentOccurance = reader.ReadInt32();
+            this.currentOccurrence = reader.ReadInt32();
 
-            occurances.Clear(); // Clear if not empty.
-            int occurancesSize = reader.ReadInt32();
-            for (int i = 0; i < occurancesSize; i++)
+            occurrences.Clear(); // Clear if not empty.
+            int occurrencesSize = reader.ReadInt32();
+            for (int i = 0; i < occurrencesSize; i++)
             {
-                ulong occuranceWorldTime = reader.ReadUInt64();
+                ulong occurrenceWorldTime = reader.ReadUInt64();
                 bool feral = reader.ReadBoolean();
 
-                occurances.Add(new Occurance(occuranceWorldTime, feral));
+                occurrences.Add(new Occurrence(occurrenceWorldTime, feral));
             }
 
             previousHordeGroupsForPlayers.Clear();
@@ -150,12 +150,12 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
-        public int GetAverageWeeklyOccurancesForGroup(PlayerHordeGroup group, HordeGroup hordeGroup)
+        public int GetAverageWeeklyOccurrencesForGroup(PlayerHordeGroup group, HordeGroup hordeGroup)
         {
             float total = 0.0f;
             foreach (var player in group.members)
             {
-                total += GetWeeklyOccurancesForPlayer(player, hordeGroup);
+                total += GetWeeklyOccurrencesForPlayer(player, hordeGroup);
             }
 
             total /= group.members.Count;
@@ -163,7 +163,7 @@ namespace ImprovedHordes.Horde.Wandering
             return (int)Math.Ceiling(total);
         }
 
-        public int GetWeeklyOccurancesForPlayer(EntityPlayer player, HordeGroup group)
+        public int GetWeeklyOccurrencesForPlayer(EntityPlayer player, HordeGroup group)
         {
             if (!previousHordeGroupsForPlayers.ContainsKey(player.entityId))
                 return 0;
@@ -174,15 +174,15 @@ namespace ImprovedHordes.Horde.Wandering
             return previousHordeGroupsForPlayers[player.entityId][group.name];
         }
 
-        public void AddWeeklyOccurancesForGroup(List<EntityPlayer> players, HordeGroup group)
+        public void AddWeeklyOccurrencesForGroup(List<EntityPlayer> players, HordeGroup group)
         {
             foreach (var player in players)
             {
-                AddWeeklyOccurancesForPlayer(player, group);
+                AddWeeklyOccurrencesForPlayer(player, group);
             }
         }
 
-        public void AddWeeklyOccurancesForPlayer(EntityPlayer player, HordeGroup group)
+        public void AddWeeklyOccurrencesForPlayer(EntityPlayer player, HordeGroup group)
         {
             if (!previousHordeGroupsForPlayers.ContainsKey(player.entityId))
                 previousHordeGroupsForPlayers.Add(player.entityId, new Dictionary<string, int>());
@@ -198,13 +198,13 @@ namespace ImprovedHordes.Horde.Wandering
         public void Save(BinaryWriter writer)
         {
             writer.Write(this.nextResetTime);
-            writer.Write(this.currentOccurance);
+            writer.Write(this.currentOccurrence);
 
-            writer.Write(this.occurances.Count);
-            foreach (var occurance in this.occurances)
+            writer.Write(this.occurrences.Count);
+            foreach (var occurrence in this.occurrences)
             {
-                writer.Write(occurance.worldTime);
-                writer.Write(occurance.feral);
+                writer.Write(occurrence.worldTime);
+                writer.Write(occurrence.feral);
             }
 
             writer.Write(this.previousHordeGroupsForPlayers.Count);
@@ -219,18 +219,18 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
-        public Occurance GetCurrentOccurance()
+        public Occurrence GetCurrentOccurrence()
         {
-            return this.occurances[this.currentOccurance];
+            return this.occurrences[this.currentOccurrence];
         }
 
-        public bool IsOccuranceDue() // Current occurance
+        public bool IsOccurrenceDue() // Current occurrence
         {
-            return this.currentOccurance < this.occurances.Count && this.GetWorldTime() >= this.occurances[this.currentOccurance].worldTime; 
+            return this.currentOccurrence < this.occurrences.Count && this.GetWorldTime() >= this.occurrences[this.currentOccurrence].worldTime; 
         }
-        public bool IsNextOccuranceDue() // Current occurance + 1
+        public bool IsNextOccurrenceDue() // Current occurrence + 1
         {
-            return this.currentOccurance + 1 < this.occurances.Count && this.GetWorldTime() >= this.occurances[this.currentOccurance + 1].worldTime;
+            return this.currentOccurrence + 1 < this.occurrences.Count && this.GetWorldTime() >= this.occurrences[this.currentOccurrence + 1].worldTime;
         }
 
         public bool CheckIfNeedsReset()
@@ -293,10 +293,10 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Reset()
         {
-            this.currentOccurance = 0;
+            this.currentOccurrence = 0;
             this.nextResetTime = 0UL;
             this.previousHordeGroupsForPlayers.Clear();
-            this.occurances.Clear();
+            this.occurrences.Clear();
 
             ulong nextResetTime = this.GenerateNewResetTime();
 #if DEBUG
@@ -311,53 +311,53 @@ namespace ImprovedHordes.Horde.Wandering
         {
             var random = this.manager.manager.Random;
 
-            int maxOccurances = random.RandomRange(MIN_OCCURANCES, MAX_OCCURANCES);
+            int maxOccurrences = random.RandomRange(MIN_OCCURRENCES, MAX_OCCURRENCES);
 
-            int possibleOccurances = 0;
+            int possibleOccurrences = 0;
             bool possible = false;
-            ulong lastOccurance = 0UL;
-            for (int i = 0; i < maxOccurances; i++)
+            ulong lastOccurrence = 0UL;
+            for (int i = 0; i < maxOccurrences; i++)
             {
-                ulong nextOccurance = GenerateNextOccurance(i, maxOccurances, out possible, random, lastOccurance);
-                lastOccurance = nextOccurance;
+                ulong nextOccurrence = GenerateNextOccurrence(i, maxOccurrences, out possible, random, lastOccurrence);
+                lastOccurrence = nextOccurrence;
 
                 if (!possible)
                 {
-                    if (possibleOccurances == 0)
-                        Log("[Wandering Horde] No occurances will be scheduled for the remainder of the week.");
+                    if (possibleOccurrences == 0)
+                        Log("[Wandering Horde] No occurrences will be scheduled for the remainder of the week.");
                     else
-                        Log("[Wandering Horde] {0} occurances out of {1} were scheduled for the week.", possibleOccurances, maxOccurances);
+                        Log("[Wandering Horde] {0} occurrences out of {1} were scheduled for the week.", possibleOccurrences, maxOccurrences);
 
                     break;
                 }
 
                 bool feral = FERAL_HORDE_CHANCE < 1.0f ? random.RandomRange(0.0f, 1.0f) <= FERAL_HORDE_CHANCE : true;
-                occurances.Add(new Occurance(nextOccurance, feral));
-                possibleOccurances++;
+                occurrences.Add(new Occurrence(nextOccurrence, feral));
+                possibleOccurrences++;
 
 #if DEBUG
-                var (Days, Hours, Minutes) = GameUtils.WorldTimeToElements(nextOccurance);
-                Log("[Wandering Horde] Occurance {0} at Day {1} {2}:{3}", i, Days, Hours, Minutes);
+                var (Days, Hours, Minutes) = GameUtils.WorldTimeToElements(nextOccurrence);
+                Log("[Wandering Horde] Occurrence {0} at Day {1} {2}:{3}", i, Days, Hours, Minutes);
 #endif
             }
 
 #if DEBUG
-            Log("[Wandering Horde] Possible occurances this week: {0}", possibleOccurances);
+            Log("[Wandering Horde] Possible occurrences this week: {0}", possibleOccurrences);
 #endif
 
             this.nextResetTime = nextResetTime;
         }
 
-        public ulong GenerateNextOccurance(int occurance, int occurances, out bool possible, GameRandom random, ulong lastOccurance)
+        public ulong GenerateNextOccurrence(int occurrence, int occurrences, out bool possible, GameRandom random, ulong lastOccurrence)
         {
             var worldTime = this.GetWorldTime();
-            var maxWorldTime = GameUtils.DaysToWorldTime(this.GetTotalDayRelativeToThisWeek(1)) + (ulong)(HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX * 1000);
+            var maxWorldTime = GameUtils.DaysToWorldTime(this.GetTotalDayRelativeToThisWeek(1)) + (ulong)(HOURS_IN_WEEK_FOR_LAST_OCCURRENCE_MAX * 1000);
 
-            var deltaWorldTime = maxWorldTime - (lastOccurance > 0 ? lastOccurance : worldTime);
+            var deltaWorldTime = maxWorldTime - (lastOccurrence > 0 ? lastOccurrence : worldTime);
 
-            if (occurance == 0)
+            if (occurrence == 0)
             {
-                int randomHr = random.RandomRange(HOURS_TO_FIRST_OCCURANCE_MIN, (int)(Math.Floor((float)(HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX - 12) / 24) / (float)occurances) * 24 + 12);
+                int randomHr = random.RandomRange(HOURS_TO_FIRST_OCCURRENCE_MIN, (int)(Math.Floor((float)(HOURS_IN_WEEK_FOR_LAST_OCCURRENCE_MAX - 12) / 24) / (float)occurrences) * 24 + 12);
 
                 ulong randomHrToWorldTime = (ulong)randomHr * 1000UL + worldTime;
 
@@ -374,14 +374,14 @@ namespace ImprovedHordes.Horde.Wandering
             }
             else
             {
-                ulong nextOccurance = lastOccurance + (deltaWorldTime / (ulong)occurances);
-                ulong deltaOccuranceTime = nextOccurance - lastOccurance;
-                ulong hoursApartOccurancesMin = (ulong)(HOURS_APART_MIN * 1000);
+                ulong nextOccurrence = lastOccurrence + (deltaWorldTime / (ulong)occurrences);
+                ulong deltaOccurrenceTime = nextOccurrence - lastOccurrence;
+                ulong hoursApartOccurrencesMin = (ulong)(MIN_HRS_BETWEEN_OCCURRENCES * 1000);
 
-                if (deltaOccuranceTime >= hoursApartOccurancesMin)
+                if (deltaOccurrenceTime >= hoursApartOccurrencesMin)
                 {
                     possible = true;
-                    return lastOccurance + (deltaWorldTime / (ulong)occurances);
+                    return lastOccurrence + (deltaWorldTime / (ulong)occurrences);
                 }
                 else
                 {
@@ -391,12 +391,12 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
-        public readonly struct Occurance
+        public readonly struct Occurrence
         {
             public readonly ulong worldTime;
             public readonly bool feral;
 
-            public Occurance(ulong worldTime, bool feral)
+            public Occurrence(ulong worldTime, bool feral)
             {
                 this.worldTime = worldTime;
                 this.feral = feral;

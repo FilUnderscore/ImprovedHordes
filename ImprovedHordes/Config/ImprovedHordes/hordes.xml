@@ -28,13 +28,13 @@
 <!-- Define horde enemies for Improved Hordes. -->
 <hordes>
 	<horde type="wandering">
-		<hordegroup name="ZombieDogs" prefWeekDay="3,6,7" maxWeeklyOccurances="2">
+		<hordegroup name="ZombieDogs" prefWeekDay="3,6,7" maxWeeklyOccurrences="2">
 			<gs min="5" countIncPerGS="0.025">
 				<entity name="animalZombieDog" minCount="1" maxCount="20"/>
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurances="1">			
+		<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurrences="1">			
 			<gs min="10" countIncPerGS="0.05">
 				<entity biomes="desert,snow" name="animalCoyote" minCount="1" maxCount="6"/>
 				<entity biomes="pine_forest,burnt_forest" name="animalWolf" minCount="2" maxCount="6"/>
@@ -46,7 +46,7 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurances="1">
+		<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurrences="1">
 			<gs min="50" countIncPerGS="0.01" countDecGS="350" countDecPerPostGS="0.01">
 				<entity biomes="pine_forest,snow" name="animalBear" minCount="1" maxCount="6"/>
 			</gs>
@@ -56,7 +56,7 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Deserted" weight="0.1" prefWeekDay="4,5" maxWeeklyOccurances="1">
+		<hordegroup name="Deserted" weight="0.1" prefWeekDay="4,5" maxWeeklyOccurrences="1">
 			<gs min="20" countIncPerGS="0.03">
 				<entity biomes="desert,burnt_forest,wasteland" name="animalZombieVulture" minCount="1" maxCount="4"/>
 				<entity biomes="desert,pine_forest" name="animalSnake" minCount="1" maxCount="3"/>
@@ -100,16 +100,16 @@
 			</gs>
 		</hordegroup>
 		
-		<hordegroup name="Stags" weight="0.75" parent="Farm" maxWeeklyOccurances="1">
+		<hordegroup name="Stags" weight="0.75" parent="Farm" maxWeeklyOccurrences="1">
 			<entity biomes="pine_forest,snow" name="animalStag" minCount="1" maxCount="2"/>
 			<entity biomes="pine_forest,snow" name="animalDoe" minCount="1" maxCount="1"/>
 		</hordegroup>
 		
-		<hordegroup name="Boars" weight="0.75" parent="Farm" maxWeeklyOccurances="1">
+		<hordegroup name="Boars" weight="0.75" parent="Farm" maxWeeklyOccurrences="1">
 			<entity biomes="pine_forest" name="animalBoar" minCount="1" maxCount="2"/>
 		</hordegroup>
 		
-		<hordegroup name="Farm" weight="0.5" maxWeeklyOccurances="1">
+		<hordegroup name="Farm" weight="0.5" maxWeeklyOccurrences="1">
 			<entity horde="wandering" group="Stags" maxCount="2"/>
 			<entity horde="wandering" group="Boars" maxCount="2"/>
 			<entity name="animalChicken" minCount="2" maxCount="3"/>

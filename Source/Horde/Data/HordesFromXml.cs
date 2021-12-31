@@ -53,9 +53,9 @@ namespace ImprovedHordes.Horde.Data
                                 string parent = hordegroupElement.HasAttribute("parent") ? hordegroupElement.GetAttribute("parent") : null;
                                 RuntimeEval.Value<float> weight = ParseIfExists<float>(hordegroupElement, "weight");
                                 RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordegroupElement, "prefWeekDay", str => ParsePrefWeekDays(str));
-                                RuntimeEval.Value<int> maxWeeklyOccurances = ParseIfExists<int>(hordegroupElement, "maxWeeklyOccurances");
+                                RuntimeEval.Value<int> maxWeeklyOccurrences = ParseIfExists<int>(hordegroupElement, "maxWeeklyOccurrences");
 
-                                HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, weight, prefWeekDays, maxWeeklyOccurances);
+                                HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, weight, prefWeekDays, maxWeeklyOccurrences);
 
                                 EvaluateChildNodes(hordegroupElement, group);
 

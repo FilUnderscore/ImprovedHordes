@@ -80,18 +80,18 @@ namespace ImprovedHordes
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("Settings:");
             builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.DAYS_PER_RESET), schedule.DAYS_PER_RESET));
-            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_TO_FIRST_OCCURANCE_MIN), schedule.HOURS_TO_FIRST_OCCURANCE_MIN));
-            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX), schedule.HOURS_IN_WEEK_FOR_LAST_OCCURANCE_MAX));
-            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_APART_MIN), schedule.HOURS_APART_MIN));
-            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MIN_OCCURANCES), schedule.MIN_OCCURANCES));
-            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MAX_OCCURANCES), schedule.MAX_OCCURANCES));
+            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_TO_FIRST_OCCURRENCE_MIN), schedule.HOURS_TO_FIRST_OCCURRENCE_MIN));
+            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.HOURS_IN_WEEK_FOR_LAST_OCCURRENCE_MAX), schedule.HOURS_IN_WEEK_FOR_LAST_OCCURRENCE_MAX));
+            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MIN_HRS_BETWEEN_OCCURRENCES), schedule.MIN_HRS_BETWEEN_OCCURRENCES));
+            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MIN_OCCURRENCES), schedule.MIN_OCCURRENCES));
+            builder.AppendLine(String.Format("{0}: {1}", nameof(WanderingHordeSchedule.MAX_OCCURRENCES), schedule.MAX_OCCURRENCES));
             builder.AppendLine("");
             builder.AppendLine("Schedule:");
-            for (int i = 0; i < schedule.occurances.Count; i++)
+            for (int i = 0; i < schedule.occurrences.Count; i++)
             {
-                var occurance = schedule.occurances[i];
-                var worldTime = occurance.worldTime;
-                var feral = occurance.feral;
+                var occurrence = schedule.occurrences[i];
+                var worldTime = occurrence.worldTime;
+                var feral = occurrence.feral;
 
                 var (Days, Hours, Minutes) = GameUtils.WorldTimeToElements(worldTime);
                 builder.AppendLine(String.Format("- {0} at Day {1} {2:D2} {3:D2} ({4})", i + 1, Days, Hours, Minutes, feral ? "Feral" : "Not Feral"));
@@ -101,14 +101,14 @@ namespace ImprovedHordes
 
             if (wanderingHorde.state == WanderingHordeManager.EHordeState.Finished)
             {
-                if (schedule.currentOccurance < schedule.occurances.Count)
-                    builder.AppendLine(String.Format("Next Occurance {0} ", schedule.currentOccurance + 1));
+                if (schedule.currentOccurrence < schedule.occurrences.Count)
+                    builder.AppendLine(String.Format("Next Occurrence {0} ", schedule.currentOccurrence + 1));
                 else
-                    builder.AppendLine("No more occurances this week.");
+                    builder.AppendLine("No more occurrences this week.");
             }
             else
             {
-                builder.AppendLine(String.Format("Current Occurance: {0}", schedule.currentOccurance + 1));
+                builder.AppendLine(String.Format("Current Occurrence: {0}", schedule.currentOccurrence + 1));
                 builder.AppendLine(String.Format("State: {0}", Enum.GetName(typeof(WanderingHordeManager.EHordeState), wanderingHorde.state)));
             }
 
