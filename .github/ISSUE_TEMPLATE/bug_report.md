@@ -24,6 +24,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Link to game output log (can be found in 7DaysToDie_Data folder)**
+https://pastebin.com/
 
 **Additional context**
 Add any other context about the problem here.
