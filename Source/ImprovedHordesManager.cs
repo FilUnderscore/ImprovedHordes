@@ -29,7 +29,7 @@ namespace ImprovedHordes
             get
             {
                 if (instance == null)
-                    throw new NullReferenceException("Tried to access HordeManager while still uninitialized.");
+                    throw new NullReferenceException("Tried to access ImprovedHordesManager while still uninitialized.");
 
                 return instance;
             }
