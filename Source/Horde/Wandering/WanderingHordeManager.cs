@@ -79,7 +79,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         private void DisbandAllWanderingHordes()
         {
-            Log("[Wandering] Disbanding all hordes.");
+            Log("[Wandering Horde] Disbanding all hordes.");
 
             foreach(var horde in this.hordes)
             {
