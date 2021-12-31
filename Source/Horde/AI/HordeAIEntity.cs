@@ -80,7 +80,9 @@ namespace ImprovedHordes.Horde.AI
 
             if(command.IsFinished(this.entity))
             {
+#if DEBUG
                 Log("Finished command {0}", command.GetType().FullName);
+#endif
 
                 return EHordeAIEntityUpdateState.NEXT_COMMAND;
             }
