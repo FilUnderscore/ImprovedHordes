@@ -59,7 +59,9 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
 
         public void UpdateTarget(Vector3 target, float value)
         {
+#if DEBUG
             Log("[Scout] New target {0}.", target);
+#endif
 
             this.scoutCommands.Clear();
             this.scoutCommands.Add(new HordeAICommandDestination(target, DIST_RADIUS));
