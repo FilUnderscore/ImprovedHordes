@@ -15,12 +15,21 @@ namespace ImprovedHordes.Horde.Scout
     public class ScoutManager : IManager
     {
         private int s_chunk_radius;
+        private float s_feral_horde_chance_multiplier;
 
         public int CHUNK_RADIUS
         {
             get
             {
                 return s_chunk_radius;
+            }
+        }
+
+        public float FERAL_HORDE_CHANCE_MULTIPLIER
+        {
+            get
+            {
+                return s_feral_horde_chance_multiplier;
             }
         }
 
@@ -43,6 +52,7 @@ namespace ImprovedHordes.Horde.Scout
         public void ReadSettings(Settings settings)
         {
             this.s_chunk_radius = settings.GetInt("chunk_radius", GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), true, GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
+            this.s_feral_horde_chance_multiplier = settings.GetFloat("feral_horde_chance_multiplier", 0.0f, false, 1.0f);
         }
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
@@ -143,7 +153,7 @@ namespace ImprovedHordes.Horde.Scout
             PlayerHordeGroup group = this.spawner.GetHordeGroupNearPlayer(closest);
 
             int groupGamestage = group.GetGroupGamestage();
-            float chance = Mathf.Clamp(groupGamestage / DIFFICULTY_MODIFIER, 0.0f, 0.75f);
+            float chance = Mathf.Clamp((groupGamestage / DIFFICULTY_MODIFIER) * FERAL_HORDE_CHANCE_MULTIPLIER, 0.0f, 0.75f);
 
             // Scale feral scouts based on GS.
             bool feral = this.manager.Random.RandomFloat < chance; // From 0% chance to 75% depending on GS.
