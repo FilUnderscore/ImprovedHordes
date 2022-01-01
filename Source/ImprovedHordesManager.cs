@@ -141,7 +141,7 @@ namespace ImprovedHordes
 
         public void Update()
         {
-            if (World == null) // If world is null, the manager has not been initialized yet.
+            if (!this.Initialized()) // If world is null, the manager has not been initialized yet.
                 return;
 
             this.AIManager.Update();
@@ -156,11 +156,16 @@ namespace ImprovedHordes
 
         public void Shutdown()
         {
-            this.Save();
+            Log("Cleaning up.");
 
             this.AIManager.Shutdown();
             this.WanderingHorde.Shutdown();
             this.ScoutManager.Shutdown();
+        }
+
+        public bool Initialized()
+        {
+            return this.World != null;
         }
     }
 }

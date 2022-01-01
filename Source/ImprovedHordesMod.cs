@@ -14,8 +14,7 @@ namespace ImprovedHordes
 
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
-            ModEvents.GameShutdown.RegisterHandler(GameShutdown);
-
+            
             ModEvents.EntityKilled.RegisterHandler(EntityKilled);
 
             ModEvents.PlayerSpawnedInWorld.RegisterHandler(PlayerSpawnedInWorld);
@@ -42,12 +41,6 @@ namespace ImprovedHordes
         {
             if (manager != null)
                 manager.Update();
-        }
-
-        static void GameShutdown()
-        {
-            if (manager != null)
-                manager.Shutdown();
         }
 
         static void EntityKilled(Entity killed, Entity killer)
@@ -97,6 +90,31 @@ namespace ImprovedHordes
 
             if (manager != null)
                 manager.RemovePlayer(playerId);
+        }
+
+        class HarmonyPatches
+        {
+            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch("Save")]
+            class WorldSaveHook
+            {
+                static void Postfix() // Save on world save
+                {
+                    if (manager != null && manager.Initialized())
+                        manager.Save();
+                }
+            }
+
+            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch("Cleanup")]
+            class WorldCleanupHook
+            {
+                static void Prefix() // Clean up on client disconnect
+                {
+                    if (manager != null && manager.Initialized())
+                        manager.Shutdown();
+                }
+            }
         }
     }
 }

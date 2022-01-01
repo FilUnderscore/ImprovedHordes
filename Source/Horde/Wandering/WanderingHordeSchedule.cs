@@ -86,9 +86,6 @@ namespace ImprovedHordes.Horde.Wandering
         public WanderingHordeSchedule(WanderingHordeManager manager)
         {
             this.manager = manager;
-
-            RuntimeEval.Registry.RegisterVariable("week", this.GetCurrentWeek);
-            RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
         }
 
         public void Shutdown()
@@ -119,6 +116,9 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Load(BinaryReader reader)
         {
+            RuntimeEval.Registry.RegisterVariable("week", this.GetCurrentWeek);
+            RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
+
             this.nextResetTime = reader.ReadUInt64();
             this.currentOccurrence = reader.ReadInt32();
 
