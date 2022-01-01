@@ -324,14 +324,9 @@ namespace ImprovedHordes.Horde.Wandering
                 ulong nextOccurrence = GenerateNextOccurrence(i, maxOccurrences, out possible, random, lastOccurrence);
                 lastOccurrence = nextOccurrence;
 
-                if (!possible)
+                if (!possible) // Skip to next occurance.
                 {
-                    if (possibleOccurrences == 0)
-                        Log("[Wandering Horde] No occurrences will be scheduled for the remainder of the week.");
-                    else
-                        Log("[Wandering Horde] {0} occurrences out of {1} were scheduled for the week.", possibleOccurrences, maxOccurrences);
-
-                    break;
+                    continue;
                 }
 
                 bool feral = FERAL_HORDE_CHANCE < 1.0f ? random.RandomRange(0.0f, 1.0f) <= FERAL_HORDE_CHANCE : true;
@@ -343,6 +338,11 @@ namespace ImprovedHordes.Horde.Wandering
                 Log("[Wandering Horde] Occurrence {0} at Day {1} {2}:{3}", i, Days, Hours, Minutes);
 #endif
             }
+
+            if (possibleOccurrences == 0)
+                Log("[Wandering Horde] No occurrences will be scheduled for the remainder of the week.");
+            else if(possibleOccurrences < maxOccurrences)
+                Log("[Wandering Horde] {0} occurrences out of {1} were scheduled for the week.", possibleOccurrences, maxOccurrences);
 
 #if DEBUG
             Log("[Wandering Horde] Possible occurrences this week: {0}", possibleOccurrences);
@@ -384,7 +384,7 @@ namespace ImprovedHordes.Horde.Wandering
                 if (deltaOccurrenceTime >= hoursApartOccurrencesMin)
                 {
                     possible = true;
-                    return lastOccurrence + (deltaWorldTime / (ulong)occurrences);
+                    return nextOccurrence;
                 }
                 else
                 {

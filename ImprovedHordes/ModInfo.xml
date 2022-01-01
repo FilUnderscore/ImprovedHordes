@@ -4,7 +4,7 @@
     <Name value="ImprovedHordes" />
     <Description value="Improves existing hordes by reworking their core behaviours." />
     <Author value="Fil" />
-    <Version value="1.0.0-PRE2" />
+    <Version value="1.0.0-PRE3" />
     <Website value="https://github.com/FilUnderscore/ImprovedHordes" />
   </ModInfo>
 </xml>
