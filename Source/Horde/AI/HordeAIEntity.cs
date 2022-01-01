@@ -1,14 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using static ImprovedHordes.Utils.Logger;
 
 using ImprovedHordes.Horde.AI.Events;
 
+using HarmonyLib;
+
 namespace ImprovedHordes.Horde.AI
 {
     public class HordeAIEntity
     {
+        private static readonly FieldInfo IsUnloadedField = AccessTools.Field(typeof(Entity), "isUnloaded");
+
+        static HordeAIEntity()
+        {
+            if (IsUnloadedField == null)
+                throw new NullReferenceException($"{nameof(IsUnloadedField)} is null.");
+        }
+
         public EntityAlive entity;
         public bool despawnOnCompletion;
         
@@ -49,7 +60,7 @@ namespace ImprovedHordes.Horde.AI
 
         public EHordeAIEntityUpdateState Update(float dt)
         {
-            if (this.entity.IsDead())
+            if ((bool)IsUnloadedField.GetValue(this.entity) || this.entity.IsDead())
             {
                 this.OnEntityKilledEvent();
 
