@@ -324,9 +324,14 @@ namespace ImprovedHordes.Horde.Wandering
                 ulong nextOccurrence = GenerateNextOccurrence(i, maxOccurrences, out possible, random, lastOccurrence);
                 lastOccurrence = nextOccurrence;
 
-                if (!possible) // Skip to next occurance.
+                if (!possible)
                 {
-                    continue;
+                    if (possibleOccurrences == 0)
+                        Log("[Wandering Horde] No occurrences will be scheduled for the remainder of the week.");
+                    else
+                        Log("[Wandering Horde] {0} occurrences out of {1} were scheduled for the week.", possibleOccurrences, maxOccurrences);
+
+                    break;
                 }
 
                 bool feral = FERAL_HORDE_CHANCE < 1.0f ? random.RandomRange(0.0f, 1.0f) <= FERAL_HORDE_CHANCE : true;
@@ -338,11 +343,6 @@ namespace ImprovedHordes.Horde.Wandering
                 Log("[Wandering Horde] Occurrence {0} at Day {1} {2}:{3}", i, Days, Hours, Minutes);
 #endif
             }
-
-            if (possibleOccurrences == 0)
-                Log("[Wandering Horde] No occurrences will be scheduled for the remainder of the week.");
-            else if(possibleOccurrences < maxOccurrences)
-                Log("[Wandering Horde] {0} occurrences out of {1} were scheduled for the week.", possibleOccurrences, maxOccurrences);
 
 #if DEBUG
             Log("[Wandering Horde] Possible occurrences this week: {0}", possibleOccurrences);
@@ -377,20 +377,15 @@ namespace ImprovedHordes.Horde.Wandering
             }
             else
             {
-                ulong nextOccurrence = lastOccurrence + (deltaWorldTime / (ulong)occurrences);
-                ulong deltaOccurrenceTime = nextOccurrence - lastOccurrence;
-                ulong hoursApartOccurrencesMin = (ulong)(MIN_HRS_BETWEEN_OCCURRENCES * 1000);
+                int hoursApartOccurrencesMin = MIN_HRS_BETWEEN_OCCURRENCES * 1000;
 
-                if (deltaOccurrenceTime >= hoursApartOccurrencesMin)
-                {
-                    possible = true;
-                    return nextOccurrence;
-                }
-                else
-                {
-                    possible = false;
-                    return 0UL;
-                }
+                int minNextOccurance = hoursApartOccurrencesMin;
+                int maxNextOccurance = minNextOccurance + (int)((float)deltaWorldTime * ((float)occurrence / (float)occurrences));
+
+                ulong nextOccurance = lastOccurrence + (ulong)random.RandomRange(minNextOccurance, maxNextOccurance);
+
+                possible = nextOccurance <= maxWorldTime;
+                return nextOccurance;
             }
         }
 
