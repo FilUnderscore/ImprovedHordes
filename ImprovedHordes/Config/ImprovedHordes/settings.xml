@@ -11,7 +11,7 @@
 			<hrs_in_week_for_last_occurrence_max>156</hrs_in_week_for_last_occurrence_max> <!-- 6 * 24 + 12 or Day 7 12:00 pm -->
 			<min_hrs_between_occurrences>6</min_hrs_between_occurrences>
 
-			<min_occurrences>5</min_occurrences>
+			<min_occurrences>6</min_occurrences>
 			<max_occurrences>8</max_occurrences>	
 			
 			<feral_horde_chance>0.5</feral_horde_chance> <!-- 0.5 means 50% chance, range from 0.0 to 1.0 -->
