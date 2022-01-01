@@ -61,6 +61,8 @@ namespace ImprovedHordes
             World = GameManager.Instance.World;
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
+            this.WanderingHorde.schedule.SetGameVariables();
+
             // Reload data file location.
             DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
 

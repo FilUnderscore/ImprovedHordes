@@ -114,11 +114,14 @@ namespace ImprovedHordes.Horde.Wandering
             }    
         }
 
-        public void Load(BinaryReader reader)
+        public void SetGameVariables()
         {
             RuntimeEval.Registry.RegisterVariable("week", this.GetCurrentWeek);
             RuntimeEval.Registry.RegisterVariable("weekDay", this.GetCurrentWeekDay);
+        }
 
+        public void Load(BinaryReader reader)
+        {
             this.nextResetTime = reader.ReadUInt64();
             this.currentOccurrence = reader.ReadInt32();
 
@@ -251,7 +254,7 @@ namespace ImprovedHordes.Horde.Wandering
         public int GetTotalDayRelativeToNextWeek(int day)
         {
             int currentDays = GameUtils.WorldTimeToDays(this.GetWorldTime());
-            int dayInWeek = (int)Math.Ceiling(currentDays / (float)s_days_per_wandering_week) * s_days_per_wandering_week + day;
+            int dayInWeek = (int)Math.Ceiling(currentDays / (float)DAYS_PER_RESET) * DAYS_PER_RESET + day;
 
             return dayInWeek;
         }
@@ -259,7 +262,7 @@ namespace ImprovedHordes.Horde.Wandering
         public int GetTotalDayRelativeToThisWeek(int day)
         {
             int currentDays = GameUtils.WorldTimeToDays(this.GetWorldTime());
-            int dayInWeek = (int)Math.Floor((currentDays - 1) / (float)s_days_per_wandering_week) * s_days_per_wandering_week + day;
+            int dayInWeek = (int)Math.Floor((currentDays - 1) / (float)DAYS_PER_RESET) * DAYS_PER_RESET + day;
 
             return dayInWeek;
         }
@@ -267,15 +270,15 @@ namespace ImprovedHordes.Horde.Wandering
         public int GetCurrentWeekDay()
         {
             int totalDay = GameUtils.WorldTimeToDays(this.GetWorldTime());
-            int modulo = totalDay % 7;
-            return modulo == 0 ? 7 : modulo;
+            int modulo = totalDay % DAYS_PER_RESET;
+            return modulo == 0 ? DAYS_PER_RESET : modulo;
         }
 
         public int GetCurrentWeek()
         {
             int totalDay = GameUtils.WorldTimeToDays(this.GetWorldTime());
 
-            return (int)Math.Floor(totalDay / (float)7) + 1;
+            return (int)Math.Floor(totalDay / (float)DAYS_PER_RESET) + 1;
         }
 
         public ulong GenerateNewResetTime()
