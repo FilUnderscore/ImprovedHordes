@@ -140,11 +140,11 @@ namespace ImprovedHordes
                     var playerGroup = entry.Key;
                     var hordes = entry.Value;
 
-                    builder.AppendLine(playerGroup.ToString());
+                    builder.AppendLine("  " + playerGroup.ToString());
 
                     foreach (var horde in hordes)
                     {
-                        builder.AppendLine("  " + horde.ToString());
+                        builder.AppendLine("    " + horde.ToString());
                     }
                 }
             }

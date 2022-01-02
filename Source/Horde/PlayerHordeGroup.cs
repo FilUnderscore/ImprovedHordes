@@ -64,7 +64,9 @@ namespace ImprovedHordes.Horde
 
         public override int GetHashCode()
         {
-            return this.members.GetHashCode();
+            var comparer = HashSet<EntityPlayer>.CreateSetComparer();
+            
+            return comparer.GetHashCode(this.members);
         }
     }
 }

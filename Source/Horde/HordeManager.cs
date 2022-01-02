@@ -39,9 +39,9 @@ namespace ImprovedHordes.Horde
 
             foreach(var horde in hordes)
             {
-                if(horde.group.Equals(group))
+                if(horde.playerGroup.Equals(group))
                 {
-
+                    hordes.Add(horde);
                 }
             }
 
@@ -57,7 +57,10 @@ namespace ImprovedHordes.Horde
                 var playerGroup = horde.playerGroup;
                 var hordes = GetAllHordesForPlayerGroup(playerGroup);
 
-                allHordes.Add(playerGroup, hordes);
+                if(!allHordes.ContainsKey(playerGroup))
+                    allHordes.Add(playerGroup, new List<Horde>());
+
+                allHordes[playerGroup].AddRange(hordes);
             }
 
             return allHordes;
