@@ -177,7 +177,7 @@ namespace ImprovedHordes.Horde.Wandering
             return previousHordeGroupsForPlayers[player.entityId][group.name];
         }
 
-        public void AddWeeklyOccurrencesForGroup(List<EntityPlayer> players, HordeGroup group)
+        public void AddWeeklyOccurrencesForGroup(HashSet<EntityPlayer> players, HordeGroup group)
         {
             foreach (var player in players)
             {

@@ -39,6 +39,36 @@ namespace ImprovedHordes
             return "null";
         }
 
+        public static string ToString<T>(this HashSet<T> set, Func<T, string> stringFunction)
+        {
+            if (set != null)
+            {
+                StringBuilder builder = new StringBuilder();
+
+                builder.Append("{");
+                int i = 0;
+                foreach (var element in set)
+                {
+                    string result = "null";
+
+                    if (element != null)
+                        result = stringFunction.Invoke(element);
+
+                    builder.Append(result);
+
+                    if (i != set.Count - 1)
+                        builder.Append(", ");
+
+                    i++;
+                }
+                builder.Append("}");
+
+                return builder.ToString();
+            }
+
+            return "null";
+        }
+
         public static void GetSpawnableY(ref Vector3 pos)
         {
             pos.y = ImprovedHordesManager.Instance.World.GetHeightAt(pos.x, pos.z) + 1.0f;

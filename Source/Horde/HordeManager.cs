@@ -37,23 +37,11 @@ namespace ImprovedHordes.Horde
         {
             List<Horde> hordes = new List<Horde>();
 
-            foreach(var member in group.members)
+            foreach(var horde in hordes)
             {
-                hordes.AddRange(GetAllHordesForPlayer(member));
-            }
-
-            return hordes;
-        }
-
-        public List<Horde> GetAllHordesForPlayer(EntityPlayer player)
-        {
-            List<Horde> hordes = new List<Horde>();
-
-            foreach(var horde in this.hordes)
-            {
-                if(horde.playerGroup.members.Contains(player))
+                if(horde.group.Equals(group))
                 {
-                    hordes.Add(horde);
+
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using ImprovedHordes.Horde.AI;
 
@@ -204,7 +205,7 @@ namespace ImprovedHordes.Horde
         private Vector3 GetFarthestPlayerPosition(PlayerHordeGroup playerHordeGroup, Vector3 center)
         {
             float distance = 0.0f;
-            Vector3 farthest = playerHordeGroup.members[0].position;
+            Vector3 farthest = playerHordeGroup.members.First().position;
 
             foreach(var player in playerHordeGroup.members)
             {
@@ -298,14 +299,14 @@ namespace ImprovedHordes.Horde
             return GetHordeGroupNearLocation(player.position);
         }
 
-        private List<EntityPlayer> GetNearbyPlayers(EntityPlayer player)
+        private HashSet<EntityPlayer> GetNearbyPlayers(EntityPlayer player)
         {
             return GetNearbyPlayers(player.position);
         }
 
-        private List<EntityPlayer> GetNearbyPlayers(Vector3 position)
+        private HashSet<EntityPlayer> GetNearbyPlayers(Vector3 position)
         {
-            List<EntityPlayer> players = new List<EntityPlayer>();
+            HashSet<EntityPlayer> players = new HashSet<EntityPlayer>();
 
             foreach (var playerId in ImprovedHordesManager.Instance.Players)
             {
@@ -335,13 +336,13 @@ namespace ImprovedHordes.Horde
                 var group = GetNearbyPlayers(player);
                 group.Add(player); // Group includes surrounding players and player.
 
-                for (int i = 0; i < group.Count; i++)
-                {
-                    var groupedPlayer = group[i];
+                HashSet<EntityPlayer> groupCopy = new HashSet<EntityPlayer>(group);
 
+                foreach(var groupedPlayer in groupCopy)
+                {
                     if (grouped.Contains(groupedPlayer.entityId))
                     {
-                        group.RemoveAt(i);
+                        group.Remove(groupedPlayer);
                     }
                     else
                     {

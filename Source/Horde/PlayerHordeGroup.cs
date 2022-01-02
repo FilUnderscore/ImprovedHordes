@@ -6,16 +6,16 @@ namespace ImprovedHordes.Horde
 {
     public class PlayerHordeGroup
     {
-        public List<EntityPlayer> members;
+        public HashSet<EntityPlayer> members;
 
-        public PlayerHordeGroup(List<EntityPlayer> members)
+        public PlayerHordeGroup(HashSet<EntityPlayer> members)
         {
             this.members = members;
         }
 
         public PlayerHordeGroup(params EntityPlayer[] players)
         {
-            this.members = new List<EntityPlayer>(players);
+            this.members = new HashSet<EntityPlayer>(players);
         }
 
         public int GetGroupGamestage()
@@ -50,6 +50,21 @@ namespace ImprovedHordes.Horde
         public override string ToString()
         {
             return $"PlayerHordeGroup [members={members.ToString(player => player.EntityName)}]";
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is PlayerHordeGroup))
+                return false;
+
+            var other = obj as PlayerHordeGroup;
+
+            return this.members.SetEquals(other.members);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.members.GetHashCode();
         }
     }
 }
