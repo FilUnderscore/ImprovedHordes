@@ -130,6 +130,8 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Shutdown()
         {
+            this.state = EHordeState.Finished;
+
             this.schedule.Shutdown();
             this.hordes.Clear();
         }
