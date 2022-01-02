@@ -35,6 +35,7 @@ namespace ImprovedHordes
             }
         }
 
+        public HordeManager HordeManager;
         public HordeAIManager AIManager;
         public WanderingHordeManager WanderingHorde;
         public ScoutManager ScoutManager;
@@ -47,6 +48,7 @@ namespace ImprovedHordes
 
             instance = this;
 
+            HordeManager = new HordeManager(this);
             AIManager = new HordeAIManager();
             WanderingHorde = new WanderingHordeManager(this);
             ScoutManager = new ScoutManager(this);
@@ -160,6 +162,7 @@ namespace ImprovedHordes
         {
             Log("Cleaning up.");
 
+            this.HordeManager.Shutdown();
             this.AIManager.Shutdown();
             this.WanderingHorde.Shutdown();
             this.ScoutManager.Shutdown();

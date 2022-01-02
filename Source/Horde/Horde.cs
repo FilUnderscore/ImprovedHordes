@@ -23,5 +23,10 @@ namespace ImprovedHordes.Horde
         }
 
         public Horde(Horde horde) : this(horde.playerGroup, horde.group, horde.count, horde.feral, horde.entityIds) { }
+
+        public override string ToString()
+        {
+            return $"Horde [playerGroup={playerGroup}, hordeGroup={group.name}, count={count}, feral={feral}, entityIds={entityIds.ToString(entityId => entityId.ToString())}]";
+        }
     }
 }

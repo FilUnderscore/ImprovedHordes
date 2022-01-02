@@ -6,7 +6,7 @@ using ImprovedHordes.Horde.Wandering;
 
 namespace ImprovedHordes
 {
-    class ImprovedHordeCommand : ConsoleCmdAbstract
+    class ImprovedHordesCommand : ConsoleCmdAbstract
     {
         public override void Execute(List<string> _params, CommandSenderInfo _senderInfo)
         {
@@ -15,6 +15,10 @@ namespace ImprovedHordes
                 if (_params[0].EqualsCaseInsensitive("wandering"))
                 {
                     this.ExecuteWandering(_params);
+                }
+                else if(_params[0].EqualsCaseInsensitive("list"))
+                {
+                    this.ExecuteList(_params);
                 }
             }
             else
@@ -121,6 +125,37 @@ namespace ImprovedHordes
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());
         }
 
+        private void ExecuteList(List<String> _params)
+        {
+            var allHordes = ImprovedHordesManager.Instance.HordeManager.GetAllHordes();
+
+            StringBuilder builder = new StringBuilder();
+
+            if (allHordes.Count > 0)
+            {
+                builder.AppendLine("Current Hordes:");
+
+                foreach (var entry in allHordes)
+                {
+                    var playerGroup = entry.Key;
+                    var hordes = entry.Value;
+
+                    builder.AppendLine(playerGroup.ToString());
+
+                    foreach (var horde in hordes)
+                    {
+                        builder.AppendLine("  " + horde.ToString());
+                    }
+                }
+            }
+            else
+            {
+                builder.AppendLine("No hordes are currently occurring.");
+            }
+
+            SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());
+        }
+
         public override string[] GetCommands()
         {
             return new string[] { "improvedhordes", "ih" };        
@@ -133,7 +168,8 @@ namespace ImprovedHordes
 
         public override string GetHelp()
         {
-            return "Commands: \nimprovedhordes wandering spawn (feral) - Spawns a wandering horde for all groups on the server. Non-Feral unless feral argument is specified (optional)."
+            return "Commands: \nimprovedhordes list - Shows all player groups and their associated hordes."
+                + "\nimprovedhordes wandering spawn (feral) - Spawns a wandering horde for all groups on the server. Non-Feral unless feral argument is specified (optional)."
                 + "\nimprovedhordes wandering reset - Resets the weekly schedule for the wandering hordes."
                 + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule.";
         }
