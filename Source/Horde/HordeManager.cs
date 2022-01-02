@@ -33,6 +33,7 @@ namespace ImprovedHordes.Horde
             hordes.Remove(horde);
         }
 
+        // TODO:
         public List<Horde> GetAllHordesForPlayerGroup(PlayerHordeGroup group) // Includes all players and their own hordes.
         {
             List<Horde> hordes = new List<Horde>();
@@ -54,13 +55,10 @@ namespace ImprovedHordes.Horde
         
             foreach(var horde in this.hordes)
             {
-                var playerGroup = horde.playerGroup;
-                var hordes = GetAllHordesForPlayerGroup(playerGroup);
+                if(!allHordes.ContainsKey(horde.playerGroup))
+                    allHordes.Add(horde.playerGroup, new List<Horde>());
 
-                if(!allHordes.ContainsKey(playerGroup))
-                    allHordes.Add(playerGroup, new List<Horde>());
-
-                allHordes[playerGroup].AddRange(hordes);
+                allHordes[horde.playerGroup].Add(horde);
             }
 
             return allHordes;
