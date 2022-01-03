@@ -27,7 +27,17 @@ namespace ImprovedHordes.Horde.Scout
 
         public void Interrupt(Vector3 newPosition, float value)
         {
+            if (this.state != EScoutState.ALIVE)
+                return;
+
             HordeAICommand currentCommand = this.aiEntity.GetCurrentCommand();
+
+            if(currentCommand == null)
+            {
+                Warning("[Scout] Current AI command is null.");
+
+                return;
+            }
 
             if(currentCommand != null && !(currentCommand is HordeAICommandScout))
             {
