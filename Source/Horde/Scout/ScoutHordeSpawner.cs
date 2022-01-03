@@ -8,6 +8,8 @@ using ImprovedHordes.Horde.AI.Commands;
 
 using ImprovedHordes.Horde.Wandering.AI.Commands;
 
+using static ImprovedHordes.Utils.Logger;
+
 namespace ImprovedHordes.Horde.Scout
 {
     public class ScoutHordeSpawner : HordeSpawner
@@ -15,7 +17,8 @@ namespace ImprovedHordes.Horde.Scout
         private static readonly HordeGenerator SCOUT_HORDE_GENERATOR = new ScoutHordeGenerator();
 
         private readonly ScoutManager manager;
-        private Vector3 latestTarget = Vector3.zero;
+        
+        private readonly Dictionary<PlayerHordeGroup, Vector3> latestTargets = new Dictionary<PlayerHordeGroup, Vector3>();
 
         public ScoutHordeSpawner(ScoutManager manager) : base(manager.manager, SCOUT_HORDE_GENERATOR)
         {
@@ -29,9 +32,14 @@ namespace ImprovedHordes.Horde.Scout
 
         public void StartSpawningFor(EntityPlayer player, bool feral, Vector3 target)
         {
-            this.latestTarget = target; // TODO better way to do this?
+            PlayerHordeGroup playerHordeGroup = this.GetHordeGroupNearPlayer(player);
 
-            this.StartSpawningFor(this.GetHordeGroupNearPlayer(player), feral);
+            if(!latestTargets.ContainsKey(playerHordeGroup))
+                latestTargets.Add(playerHordeGroup, Vector3.zero);
+
+            latestTargets[playerHordeGroup] = target;
+
+            this.StartSpawningFor(playerHordeGroup, feral);
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
@@ -40,12 +48,32 @@ namespace ImprovedHordes.Horde.Scout
             const int DEST_RADIUS = 10;
             float wanderTime = (90f + this.manager.manager.Random.RandomFloat * 4f) * 10f; // Stick around for a long time.
 
-            commands.Add(new HordeAICommandDestination(this.latestTarget, DEST_RADIUS));
+            if (this.latestTargets.ContainsKey(group))
+            {
+                commands.Add(new HordeAICommandDestination(this.latestTargets[group], DEST_RADIUS));
+            }
+            else
+            {
+                Warning($"[Scout] Could not find latest heatmap target for {group}. Using average group position instead.");
+                commands.Add(new HordeAICommandDestination(group.CalculateAverageGroupPosition(true), DEST_RADIUS));
+            }
+
             commands.Add(new HordeAICommandWander(wanderTime));
             commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
 
             horde.aiHorde.AddEntity(entity, true, commands);
             AstarManager.Instance.AddLocation(entity.position, 64);
+        }
+
+        protected override void PostSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde)
+        {
+            if(latestTargets.ContainsKey(playerHordeGroup))
+                latestTargets.Remove(playerHordeGroup);
+        }
+
+        public void Shutdown()
+        {
+            this.latestTargets.Clear();
         }
 
         private sealed class ScoutHordeGenerator : HordeGenerator
