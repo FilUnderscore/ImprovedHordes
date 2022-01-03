@@ -63,7 +63,7 @@ namespace ImprovedHordes.Horde.Scout
             if(!IsScoutHorde(e.horde.GetHordeInstance()) && !IsScoutSpawnedZombieHorde(e.horde.GetHordeInstance()))
                 return;
 
-            Scout scout = new Scout(this, e.entity, e.horde);
+            Scout scout = new Scout(e.entity, e.horde);
 
             if(!this.scouts.ContainsKey(e.horde))
                 this.scouts.Add(e.horde, new Dictionary<HordeAIEntity, Scout>());

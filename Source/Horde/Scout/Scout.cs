@@ -11,7 +11,6 @@ namespace ImprovedHordes.Horde.Scout
 {
     public class Scout
     {
-        private readonly ScoutManager manager;
         public HordeAIEntity aiEntity;
         public HordeAIHorde aiHorde;
 
@@ -20,15 +19,11 @@ namespace ImprovedHordes.Horde.Scout
         public EntityPlayer killer = null;
         public EScoutState state = EScoutState.ALIVE;
 
-        public Scout(ScoutManager manager, HordeAIEntity aiEntity, HordeAIHorde aiHorde)
+        public Scout(HordeAIEntity aiEntity, HordeAIHorde aiHorde)
         {
-            this.manager = manager;
             this.aiEntity = aiEntity;
             this.aiHorde = aiHorde;
         }
-
-        private int calledScoutWanderAttempts = 0;
-        private const int maxCalledScoutWanderAttempts = 3;
 
         public void Interrupt(Vector3 newPosition, float value)
         {
@@ -37,7 +32,7 @@ namespace ImprovedHordes.Horde.Scout
 
             HordeAICommand currentCommand = this.aiEntity.GetCurrentCommand();
 
-            if(currentCommand == null) // Only called when scout zombie horde spawns a screamer that runs out of instructions. Give it new instructions.
+            if(currentCommand == null)
             {
                 Warning("[Scout] Current AI command is null.");
 
