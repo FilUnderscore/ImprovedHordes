@@ -208,8 +208,14 @@ namespace ImprovedHordes.Horde.Scout
                 else if (scout.state != EScoutState.ALIVE)
                     continue;
 
+                if (scout.aiEntity.entity.GetAttackTarget() != null) // Don't interrupt a scout that is already attacking something.
+                    continue;
+
                 scout.Interrupt(targetPos, value);
+
+#if DEBUG
                 Log("[Scout] Scout {0} was drawn to {1}.", scout.aiEntity.GetEntityId(), targetPos);
+#endif
             }
         }
 
