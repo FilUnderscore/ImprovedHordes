@@ -64,18 +64,22 @@ namespace ImprovedHordes.Horde.Scout
                 return;
 
             Scout scout = new Scout(e.entity, e.horde);
+            bool registerHorde = !this.scouts.ContainsKey(e.horde);
 
-            if(!this.scouts.ContainsKey(e.horde))
+            if (registerHorde)
                 this.scouts.Add(e.horde, new Dictionary<HordeAIEntity, Scout>());
-
+            
             this.scouts[e.horde].Add(e.entity, scout);
 
             e.entity.commands.Add(new HordeAICommandScout(this, e.entity, IsScreamerZombie(e.entity.entity) || IsScoutHorde(e.horde.GetHordeInstance())));
             e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
-
-            e.horde.OnHordeEntityKilled += OnScoutEntityKilled;
-            e.horde.OnHordeEntityDespawned += OnScoutEntityDespawned;
-            this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
+        
+            if(registerHorde)
+            {
+                e.horde.OnHordeEntityKilled += OnScoutEntityKilled;
+                e.horde.OnHordeEntityDespawned += OnScoutEntityDespawned;
+                this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
+            }
         }
 
         private bool IsScoutHorde(Horde horde)
