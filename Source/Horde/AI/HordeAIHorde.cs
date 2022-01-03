@@ -83,12 +83,12 @@ namespace ImprovedHordes.Horde.AI
             return entities[entityId];
         }
 
+        private bool disbanded = false;
+
         public void Disband()
         {
-            foreach(var entity in this.entities.Values)
-            {
-                entity.currentCommandIndex = entity.commands.Count;
-            }
+            disbanded = true;
+            this.entities.Clear();
         }
 
         public int GetAlive()
@@ -150,7 +150,7 @@ namespace ImprovedHordes.Horde.AI
             if (toRemove.Count > 0)
                 toRemove.Clear();
 
-            return GetStat(EHordeAIStats.TOTAL_ALIVE) == 0 && GetStat(EHordeAIStats.TOTAL_SPAWNED) == GetHordeInstance().count ? EHordeAIHordeUpdateState.DEAD : EHordeAIHordeUpdateState.ALIVE;
+            return disbanded || (GetStat(EHordeAIStats.TOTAL_ALIVE) == 0 && GetStat(EHordeAIStats.TOTAL_SPAWNED) == GetHordeInstance().count) ? EHordeAIHordeUpdateState.DEAD : EHordeAIHordeUpdateState.ALIVE;
         }
 
         private void OnHordeEntityKilledEvent(HordeAIEntity entity)
