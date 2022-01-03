@@ -47,7 +47,7 @@
 		</hordegroup>
 		
 		<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurrences="1">
-			<gs min="50" countIncPerGS="0.02" countDecGS="350" countDecPerPostGS="0.01">
+			<gs min="50" countIncPerGS="0.02">
 				<entity biomes="pine_forest,snow" name="animalBear" minCount="1" maxCount="6"/>
 			</gs>
 			
@@ -121,32 +121,32 @@
 	<horde type="scouts">
 		<hordegroup name="ScreamerScout" weight="0.75">
 			<!-- Standard Screamer -->
-			<gs min="25" max="150">
+			<gs min="25" max="75">
 				<entity name="zombieScreamer" minCount="1" maxCount="1"/>
 			</gs>
 			
 			<!-- Feral Screamer Scout -->
-			<gs min="151" max="300">
+			<gs min="76" max="250">
 				<entity name="zombieScreamerFeral" minCount="1" maxCount="1"/>
 			</gs>
 			
 			<!-- Radiated Screamer Scout -->
-			<gs min="301">
+			<gs min="251">
 				<entity name="zombieScreamerRadiated" minCount="1" maxCount="1"/>
 			</gs>
 		</hordegroup>
 		
 		<!-- Classic spider zombie trio -->
 		<hordegroup name="SpiderScouts" weight="0.25">
-			<gs min="25" max="150" countIncPerGS="0.03">
+			<gs min="25" max="100" countIncPerGS="0.042">
 				<entity name="zombieSpider" minCount="1" maxCount="3"/>
 			</gs>
 			
-			<gs min="151" max="300" countIncPerGS="0.02">
+			<gs min="76" max="250" countIncPerGS="0.035">
 				<entity name="zombieSpiderFeral" minCount="1" maxCount="3"/>
 			</gs>
 			
-			<gs min="301" countIncPerGS="0.02">
+			<gs min="251" countIncPerGS="0.03">
 				<entity name="zombieSpiderRadiated" minCount="1" maxCount="3"/>
 			</gs>
 		</hordegroup>
