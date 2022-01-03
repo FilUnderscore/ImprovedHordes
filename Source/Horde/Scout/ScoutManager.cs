@@ -243,7 +243,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public void Shutdown()
         {
-
+            this.currentScoutZombieHordesSpawned.Clear();
         }
 
         private sealed class ScoutHordeGenerator : HordeGenerator
