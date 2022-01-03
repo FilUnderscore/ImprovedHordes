@@ -142,7 +142,7 @@
 				<entity name="zombieSpider" minCount="1" maxCount="3"/>
 			</gs>
 			
-			<gs min="76" max="250" countIncPerGS="0.035">
+			<gs min="101" max="250" countIncPerGS="0.035">
 				<entity name="zombieSpiderFeral" minCount="1" maxCount="3"/>
 			</gs>
 			
