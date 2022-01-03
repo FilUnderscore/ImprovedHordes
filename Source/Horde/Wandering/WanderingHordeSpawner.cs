@@ -107,12 +107,19 @@ namespace ImprovedHordes.Horde.Wandering
             Log("[Wandering Horde] Horde size: " + horde.horde.count);
         }
 
-        public void SpawnWanderingHordes()
+        public bool SpawnWanderingHordes()
         {
+            var playerGroups = GetAllHordeGroups();
+
+            if (playerGroups.Count == 0)
+                return false;
+
             Log("[Wandering Horde] Occurrence {0} Spawning", this.manager.schedule.currentOccurrence + 1);
 
             this.manager.state = WanderingHordeManager.EHordeState.StillAlive;
-            this.StartSpawningFor(GetAllHordeGroups(), this.manager.schedule.GetCurrentOccurrence().feral);
+            this.StartSpawningFor(playerGroups, this.manager.schedule.GetCurrentOccurrence().feral);
+
+            return true;
         }
 
         private sealed class WanderingHordeGenerator : HordeGenerator

@@ -72,6 +72,8 @@ namespace ImprovedHordes
 
             wanderingHorde.state = WanderingHordeManager.EHordeState.Finished;
             wanderingHorde.schedule.Reset();
+            wanderingHorde.spawner.StopAllSpawning();
+            wanderingHorde.DisbandAllWanderingHordes();
 
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Horde weekly schedule reset.");
         }

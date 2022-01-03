@@ -55,6 +55,9 @@ namespace ImprovedHordes.Horde.Wandering
             this.schedule.Save(writer);
         }
 
+        private const ulong SPAWN_ATTEMPT_COOLDOWN = 100UL;
+        private ulong lastSpawnAttempt = 0UL;
+
         public void Update()
         {
             if (this.schedule.CheckIfNeedsReset() || (this.state == EHordeState.StillAlive && this.schedule.IsNextOccurrenceDue()))
@@ -73,23 +76,37 @@ namespace ImprovedHordes.Horde.Wandering
 
             if (ShouldSpawnWanderingHorde() && this.state == EHordeState.Finished)
             {
-                this.spawner.SpawnWanderingHordes();
+                if (this.manager.World.GetWorldTime() > lastSpawnAttempt + SPAWN_ATTEMPT_COOLDOWN) // Retry spawning if it fails.
+                {
+                    if (!this.spawner.SpawnWanderingHordes())
+                    {
+                        lastSpawnAttempt = this.manager.World.GetWorldTime();
+                    }
+                }
             }
         }
 
-        private void DisbandAllWanderingHordes()
+        public void DisbandAllWanderingHordes()
         {
             Log("[Wandering Horde] Disbanding all hordes.");
 
-            foreach(var horde in this.hordes)
+            if (this.hordes.Count > 0)
             {
-                var aiHorde = this.manager.AIManager.GetAsAIHorde(horde);
-                
-                if(aiHorde != null)
-                    aiHorde.Disband();
-            }
+                foreach (var horde in this.hordes)
+                {
+                    var aiHorde = this.manager.AIManager.GetAsAIHorde(horde);
 
-            this.hordes.Clear();
+                    if (aiHorde != null)
+                        aiHorde.Disband();
+                }
+
+                this.hordes.Clear();
+            }
+            else
+            {
+                this.schedule.currentOccurrence++;
+                this.state = WanderingHordeManager.EHordeState.Finished;
+            }
         }
 
         public void OnWanderingHordeKilled(object sender, HordeKilledEvent e)

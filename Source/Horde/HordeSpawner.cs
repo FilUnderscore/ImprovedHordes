@@ -303,6 +303,9 @@ namespace ImprovedHordes.Horde
 
                 var player = ImprovedHordesManager.Instance.World.GetEntity(playerId) as EntityPlayer;
 
+                if (player == null)
+                    continue;
+
                 var group = GetNearbyPlayers(player);
                 group.Add(player); // Group includes surrounding players and player.
 
