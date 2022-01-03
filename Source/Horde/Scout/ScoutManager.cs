@@ -60,10 +60,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
         {
-            if(!IsScoutHorde(e.horde.GetHordeInstance()) &&
-                e.entity.entity.entityClass != EntityClass.FromString("zombieScreamer") // Screamers are always scouts.
-                    && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerFeral")
-                    && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerRadiated"))
+            if(!IsScoutHorde(e.horde.GetHordeInstance()) && !IsScoutSpawnedZombieHorde(e.horde.GetHordeInstance()))
                 return;
 
             Scout scout = new Scout(this, e.entity, e.horde);
@@ -73,7 +70,8 @@ namespace ImprovedHordes.Horde.Scout
 
             this.scouts[e.horde].Add(e.entity, scout);
 
-            e.entity.commands.Add(new HordeAICommandScout(this, e.entity));
+            e.entity.commands.Add(new HordeAICommandScout(this, e.entity, IsScreamerZombie(e.entity.entity) || IsScoutHorde(e.horde.GetHordeInstance())));
+            e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
 
             e.horde.OnHordeEntityKilled += OnScoutEntityKilled;
             e.horde.OnHordeEntityDespawned += OnScoutEntityDespawned;
@@ -83,6 +81,18 @@ namespace ImprovedHordes.Horde.Scout
         private bool IsScoutHorde(Horde horde)
         {
             return horde.group.list.type.EqualsCaseInsensitive("Scouts");
+        }
+
+        private bool IsScoutSpawnedZombieHorde(Horde horde)
+        {
+            return horde.group.list.type.EqualsCaseInsensitive("Scout");
+        }
+
+        private bool IsScreamerZombie(EntityAlive entity)
+        {
+            return entity.entityClass == EntityClass.FromString("zombieScreamer") // Screamers are always scouts.
+                    || entity.entityClass == EntityClass.FromString("zombieScreamerFeral")
+                    || entity.entityClass == EntityClass.FromString("zombieScreamerRadiated");
         }
 
         public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)

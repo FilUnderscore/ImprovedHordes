@@ -39,30 +39,7 @@ namespace ImprovedHordes.Horde.Scout
 
             if(currentCommand == null) // Only called when scout zombie horde spawns a screamer that runs out of instructions. Give it new instructions.
             {
-                if (calledScoutWanderAttempts < maxCalledScoutWanderAttempts)
-                {
-                    float wanderTime = 90f + this.manager.manager.Random.RandomFloat * 4f;
-                    this.aiEntity.InterruptWithNewCommands(new HordeAICommandWander(wanderTime));
-
-                    calledScoutWanderAttempts++;
-                }
-                else
-                {
-                    const int DEST_RADIUS = 10;
-
-                    Vector2 randomPositionOnCircle = this.manager.manager.Random.RandomOnUnitCircle;
-                    float magnitude = this.manager.CHUNK_RADIUS * 16;
-
-                    Vector3 despawnLocation = new Vector3(magnitude * randomPositionOnCircle.x + newPosition.x, 0, magnitude * randomPositionOnCircle.y + newPosition.z);
-                    Utils.GetSpawnableY(ref despawnLocation);
-
-                    this.aiEntity.InterruptWithNewCommands(new HordeAICommandDestination(despawnLocation, DEST_RADIUS));
-                    this.aiEntity.despawnOnCompletion = true;
-                }
-
-                HordeAICommandScout newScoutCommand = new HordeAICommandScout(this.manager, this.aiEntity);
-
-                this.aiEntity.InterruptWithNewCommands(newScoutCommand);
+                Warning("[Scout] Current AI command is null.");
 
                 return;
             }

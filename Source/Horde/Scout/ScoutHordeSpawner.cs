@@ -6,6 +6,8 @@ using UnityEngine;
 using ImprovedHordes.Horde.AI;
 using ImprovedHordes.Horde.AI.Commands;
 
+using ImprovedHordes.Horde.Wandering.AI.Commands;
+
 namespace ImprovedHordes.Horde.Scout
 {
     public class ScoutHordeSpawner : HordeSpawner
@@ -36,10 +38,13 @@ namespace ImprovedHordes.Horde.Scout
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
+            float wanderTime = (90f + this.manager.manager.Random.RandomFloat * 4f) * 10f; // Stick around for a long time.
 
             commands.Add(new HordeAICommandDestination(this.latestTarget, DEST_RADIUS));
+            commands.Add(new HordeAICommandWander(wanderTime));
+            commands.Add(new HordeAICommandDestination(horde.targetPosition, DEST_RADIUS));
 
-            horde.aiHorde.AddEntity(entity, false, commands);
+            horde.aiHorde.AddEntity(entity, true, commands);
             AstarManager.Instance.AddLocation(entity.position, 64);
         }
 
