@@ -54,7 +54,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
 
         public HordeAICommand GetCurrentScoutCommand()
         {
-            return this.commands[this.currentScoutCommandIndex];
+            return this.scoutCommands[this.currentScoutCommandIndex];
         }
 
         public void UpdateTarget(Vector3 target, float value)
