@@ -29,7 +29,7 @@
 <hordes>
 	<horde type="wandering">
 		<hordegroup name="ZombieDogs" prefWeekDay="3,6,7" maxWeeklyOccurrences="2">
-			<gs min="5" countIncPerGS="0.025">
+			<gs min="5" countIncPerGS="0.1">
 				<entity name="animalZombieDog" minCount="1" maxCount="20"/>
 			</gs>
 		</hordegroup>
@@ -47,11 +47,11 @@
 		</hordegroup>
 		
 		<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurrences="1">
-			<gs min="50" countIncPerGS="0.01" countDecGS="350" countDecPerPostGS="0.01">
+			<gs min="50" countIncPerGS="0.02" countDecGS="350" countDecPerPostGS="0.01">
 				<entity biomes="pine_forest,snow" name="animalBear" minCount="1" maxCount="6"/>
 			</gs>
 			
-			<gs min="100" countIncPerGS="0.0075">
+			<gs min="100" countIncPerGS="0.02">
 				<entity biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="7"/>
 			</gs>
 		</hordegroup>
