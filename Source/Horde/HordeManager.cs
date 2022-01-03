@@ -33,22 +33,6 @@ namespace ImprovedHordes.Horde
             hordes.Remove(horde);
         }
 
-        // TODO:
-        public List<Horde> GetAllHordesForPlayerGroup(PlayerHordeGroup group) // Includes all players and their own hordes.
-        {
-            List<Horde> hordes = new List<Horde>();
-
-            foreach(var horde in hordes)
-            {
-                if(horde.playerGroup.Equals(group))
-                {
-                    hordes.Add(horde);
-                }
-            }
-
-            return hordes;
-        }
-
         public Dictionary<PlayerHordeGroup, List<Horde>> GetAllHordes()
         {
             Dictionary<PlayerHordeGroup, List<Horde>> allHordes = new Dictionary<PlayerHordeGroup, List<Horde>>();

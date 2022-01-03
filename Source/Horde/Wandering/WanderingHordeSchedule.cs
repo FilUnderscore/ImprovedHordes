@@ -10,6 +10,9 @@ namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeSchedule
     {
+        private const ushort SCHEDULE_MAGIC = 0x5748;
+        private const uint SCHEDULE_VERSION = 1;
+
         private int s_days_per_wandering_week,
             s_hrs_in_week_to_first_occurrence,
             s_hrs_in_week_for_last_occurrence_max,
@@ -122,6 +125,14 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Load(BinaryReader reader)
         {
+            if(reader.ReadUInt16() != SCHEDULE_MAGIC || reader.ReadUInt32() < SCHEDULE_VERSION) // Schedule update error-checking
+            {
+                Log("[Wandering Horde] Schedule version has changed, generating new schedule.");
+
+                this.Reset();
+                return;
+            }
+
             this.nextResetTime = reader.ReadUInt64();
             this.currentOccurrence = reader.ReadInt32();
 
@@ -200,6 +211,9 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void Save(BinaryWriter writer)
         {
+            writer.Write(SCHEDULE_MAGIC);
+            writer.Write(SCHEDULE_VERSION);
+
             writer.Write(this.nextResetTime);
             writer.Write(this.currentOccurrence);
 

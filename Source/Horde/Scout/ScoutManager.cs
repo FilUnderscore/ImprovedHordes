@@ -39,6 +39,8 @@ namespace ImprovedHordes.Horde.Scout
         private readonly ScoutSpawner spawner;
         private readonly ScoutHordeSpawner hordeSpawner;
 
+        private readonly HashSet<PlayerHordeGroup> currentScoutZombieHordesSpawned = new HashSet<PlayerHordeGroup>();
+
         public ScoutManager(ImprovedHordesManager manager)
         {
             this.manager = manager;
@@ -47,6 +49,7 @@ namespace ImprovedHordes.Horde.Scout
 
             this.manager.AIManager.OnHordeAIEntitySpawned += OnScoutEntitySpawned;
             this.manager.AIManager.OnHordeKilled += OnScoutHordeKilled;
+            this.manager.AIManager.OnHordeKilled += OnScoutZombieHordeKilled;
         }
 
         public void ReadSettings(Settings settings)
@@ -134,6 +137,15 @@ namespace ImprovedHordes.Horde.Scout
             scouts.Remove(e.horde);
         }
 
+        public void OnScoutZombieHordeKilled(object sender, HordeKilledEvent e) // Fix for scout zombie hordes spawning infinitely.
+        {
+            if(e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scout"))
+            {
+                if (currentScoutZombieHordesSpawned.Contains(e.horde.GetHordeInstance().playerGroup))
+                    currentScoutZombieHordesSpawned.Remove(e.horde.GetHordeInstance().playerGroup);
+            }
+        }
+
         public void OnScoutEntityDespawned(object sender, HordeEntityDespawnedEvent e)
         {
             if(this.scouts.ContainsKey(e.horde) && this.scouts[e.horde].ContainsKey(e.entity))
@@ -163,8 +175,13 @@ namespace ImprovedHordes.Horde.Scout
 
         public void TrySpawnScoutHorde(EntityPlayer target)
         {
-            // TODO: Check if there is already enough enemies spawned, and if so, cancel the spawns.
-            this.hordeSpawner.StartSpawningFor(target, false, target.position);
+            var playerHordeGroup = this.hordeSpawner.GetHordeGroupNearPlayer(target);
+
+            if (!currentScoutZombieHordesSpawned.Contains(playerHordeGroup))
+            {
+                currentScoutZombieHordesSpawned.Add(playerHordeGroup);
+                this.hordeSpawner.StartSpawningFor(target, false, target.position);
+            }
         }
 
         public void NotifyScoutsNear(Vector3i targetBlockPos, float value)

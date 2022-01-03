@@ -228,40 +228,10 @@ namespace ImprovedHordes.Horde
             if (MAX_ALIVE_PER_HORDE_PLAYER > -1 && horde.aiHorde.GetStat(EHordeAIStats.TOTAL_ALIVE) >= MAX_ALIVE_PER_HORDE_PLAYER * playerCount)
                 return false;
 
-            // Main patch for scout horde spawning.
-            if (MAX_ALIVE_PER_HORDE_PLAYER > -1 && GetTotalAliveAcrossHordesForPlayerGroupOfType(horde.horde.playerGroup, horde.horde.group.list.type) >= MAX_ALIVE_PER_HORDE_PLAYER * playerCount)
+            if (GameStats.GetInt(EnumGameStats.EnemyCount) >= GamePrefs.GetInt(EnumGamePrefs.MaxSpawnedZombies))
                 return false;
 
             return horde.entityIndex < horde.horde.entityIds.Count;
-        }
-
-        private List<Horde> GetAllHordesForPlayerGroupOfType(PlayerHordeGroup playerGroup, string type)
-        {
-            List<Horde> hordes = new List<Horde>();
-
-            foreach(var horde in ImprovedHordesManager.Instance.HordeManager.GetAllHordesForPlayerGroup(playerGroup))
-            {
-                if(horde.group.list.type == type)
-                {
-                    hordes.Add(horde);
-                }
-            }
-
-            return hordes;
-        }
-
-        private int GetTotalAliveAcrossHordesForPlayerGroupOfType(PlayerHordeGroup playerGroup, string type)
-        {
-            List<Horde> hordes = GetAllHordesForPlayerGroupOfType(playerGroup, type);
-
-            int totalAlive = 0;
-
-            foreach(var horde in hordes)
-            {
-                totalAlive += ImprovedHordesManager.Instance.AIManager.GetAsAIHorde(horde).GetAlive();
-            }
-
-            return totalAlive;
         }
 
         protected bool Spawn(PlayerHordeGroup group, SpawningHorde horde)

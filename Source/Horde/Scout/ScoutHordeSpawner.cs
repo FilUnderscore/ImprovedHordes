@@ -28,7 +28,7 @@ namespace ImprovedHordes.Horde.Scout
         public void StartSpawningFor(EntityPlayer player, bool feral, Vector3 target)
         {
             this.latestTarget = target; // TODO better way to do this?
-            
+
             this.StartSpawningFor(this.GetHordeGroupNearPlayer(player), feral);
         }
 
