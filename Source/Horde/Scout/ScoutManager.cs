@@ -66,7 +66,7 @@ namespace ImprovedHordes.Horde.Scout
                     && e.entity.entity.entityClass != EntityClass.FromString("zombieScreamerRadiated"))
                 return;
 
-            Scout scout = new Scout(e.entity, e.horde);
+            Scout scout = new Scout(this, e.entity, e.horde);
 
             if(!this.scouts.ContainsKey(e.horde))
                 this.scouts.Add(e.horde, new Dictionary<HordeAIEntity, Scout>());
@@ -74,7 +74,6 @@ namespace ImprovedHordes.Horde.Scout
             this.scouts[e.horde].Add(e.entity, scout);
 
             e.entity.commands.Add(new HordeAICommandScout(this, e.entity));
-            e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
 
             e.horde.OnHordeEntityKilled += OnScoutEntityKilled;
             e.horde.OnHordeEntityDespawned += OnScoutEntityDespawned;

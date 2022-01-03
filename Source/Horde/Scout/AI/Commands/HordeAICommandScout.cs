@@ -35,6 +35,11 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
 
             this.commands = new List<HordeAICommand>(entity.commands);
             this.currentCommandIndex = entity.currentCommandIndex;
+
+            if (entity.commands.Count > 0)
+                entity.commands.RemoveRange(0, entity.commands.Count - 1); // Make Scout command the only command.
+            else
+                Warning("[Scout] Scout command was added to a scout with no active commands.");
         }
 
         public bool HasCommands()
