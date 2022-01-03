@@ -26,7 +26,7 @@ namespace ImprovedHordes.Horde
 
         public override string ToString()
         {
-            return $"Horde [playerGroup={playerGroup}, group={group.name}, count={count}]";
+            return $"Horde [group={group.name}, count={count}, feral={feral}, entityIds={entityIds.ToString(entityId => entityId.ToString())}]";
         }
     }
 }

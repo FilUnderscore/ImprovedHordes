@@ -133,18 +133,16 @@ namespace ImprovedHordes
 
             if (allHordes.Count > 0)
             {
-                builder.AppendLine("Current Hordes:");
-
                 foreach (var entry in allHordes)
                 {
                     var playerGroup = entry.Key;
                     var hordes = entry.Value;
 
-                    builder.AppendLine("  " + playerGroup.ToString());
+                    builder.AppendLine(playerGroup.ToString());
 
                     foreach (var horde in hordes)
                     {
-                        builder.AppendLine("    " + horde.ToString());
+                        builder.AppendLine(" - " + horde.ToString());
                     }
                 }
             }
