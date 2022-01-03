@@ -35,12 +35,12 @@
 		</hordegroup>
 		
 		<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurrences="1">			
-			<gs min="10" countIncPerGS="0.05">
+			<gs min="10" countIncPerGS="0.033">
 				<entity biomes="desert,snow" name="animalCoyote" minCount="1" maxCount="6"/>
 				<entity biomes="pine_forest,burnt_forest" name="animalWolf" minCount="2" maxCount="6"/>
 			</gs>
 			
-			<gs min="30" countIncPerGS="0.025">
+			<gs min="50" countIncPerGS="0.025">
 				<entity biomes="pine_forest,desert,wasteland,burnt_forest" name="animalDireWolf" minCount="1" maxCount="3"/>
 				<entity biomes="snow" name="animalMountainLion" minCount="1" maxCount="3"/>
 			</gs>
