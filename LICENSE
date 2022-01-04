@@ -1,21 +1,36 @@
-MIT License
+Terms of Use:
 
-Copyright (c) 2021 FilUnderscore
+Definitions:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+- Private Use = using the mod for personal use or hosting/running a server with the mod installed.
+- Binaries = the DLL file (ImprovedHordes.dll) distributed alongside the Improved Hordes mod.
+- Source Code = the files that fall under the “Source” directory in the Improved Hordes GitHub repository.
+- XML Files = the files that fall under the “Config” directory in the Improved Hordes mod folder.
+- Mod Author = FilUnderscore, the original author of the Improved Hordes mod.
+- Original Sources = https://community.7daystodie.com/topic/26781-improved-hordes-a20/, https://github.com/FilUnderscore/ImprovedHordes/
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Use:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+- You are allowed to use Improved Hordes for private use only with or without any kind of modifications made to its source material.
+
+Distribution:
+
+- You are not allowed to distribute the Binaries and/or Source Code and/or XML Files of Improved Hordes in exchange for payment.
+- You are allowed to distribute modifications made to the XML Files of the Improved Hordes mod provided you give appropriate credit to the Mod Author and provide a link to the original sources of Improved Hordes and these Terms of Use.
+- You are not allowed to distribute the original nor modified Binaries and/or Source Code of the Improved Hordes mod without prior written consent from the Mod Author.
+- You are allowed to distribute links to the original sources of Improved Hordes.
+
+Modification:
+
+- Any modifications made to the Improved Hordes Source Code and Binaries are limited to private use only if not stated otherwise with written consent from the Mod Author.
+
+Liability:
+
+- Mod Author is not responsible for any damage that may be caused during an incorrect or correct installation of Improved Hordes.
+
+Written Consent:
+
+- If you have been given written consent from the Mod Author to do one or more of the following: use, reuse, distribute, duplicate, copy or modify Improved Hordes outside of private use only, you are obligated to give appropriate credit to the Mod Author, provide a link to the original sources of Improved Hordes and these Terms of Use, and indicate if changes were made. You may do so in any reasonable matter, but not in any way that suggests the Mod Author endorses you or your use.
+
+
+All rights to the Improved Hordes Binaries, Source Code, and XML Files are shared with The Fun Pimps.
