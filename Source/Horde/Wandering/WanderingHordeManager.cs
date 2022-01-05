@@ -168,7 +168,7 @@ namespace ImprovedHordes.Horde.Wandering
                 static bool Prefix()
                 {
                     // Prevent default wandering hordes from spawning at all.
-                    return false;
+                    return !ImprovedHordesMod.IsHost();
                 }
             }
         }

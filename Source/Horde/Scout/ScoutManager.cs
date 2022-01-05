@@ -281,6 +281,9 @@ namespace ImprovedHordes.Horde.Scout
             {
                 static bool Prefix(Vector3 targetPos)
                 {
+                    if (!ImprovedHordesMod.IsHost())
+                        return true;
+
                     var scoutManager = ImprovedHordesManager.Instance.ScoutManager;
                     scoutManager.SpawnScouts(targetPos);
 
@@ -295,6 +298,9 @@ namespace ImprovedHordes.Horde.Scout
             {
                 static void Postfix(AIDirectorChunkEvent _chunkEvent)
                 {
+                    if (!ImprovedHordesMod.IsHost())
+                        return;
+
                     // Notify scouts in chunk of the new event to investigate.
                     if(_chunkEvent.EventType != EnumAIDirectorChunkEvent.Torch)
                     {

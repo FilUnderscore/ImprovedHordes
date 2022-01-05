@@ -7,6 +7,7 @@ namespace ImprovedHordes
     class ImprovedHordesMod : IModApi
     {
         private static ImprovedHordesManager manager;
+        private static bool host;
 
         public void InitMod(Mod mod)
         {
@@ -14,7 +15,7 @@ namespace ImprovedHordes
 
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
-            
+
             ModEvents.EntityKilled.RegisterHandler(EntityKilled);
 
             ModEvents.PlayerSpawnedInWorld.RegisterHandler(PlayerSpawnedInWorld);
@@ -29,27 +30,46 @@ namespace ImprovedHordes
             harmony.PatchAll();
         }
 
+        public static bool IsHost()
+        {
+            return host;
+        }
+
         static void GameStartDone()
         {
+            host = SingletonMonoBehaviour<ConnectionManager>.Instance.IsServer;
+
+            if (!IsHost())
+                return;
+
             Log("Initializing.");
 
-            if(manager != null)
+            if (manager != null)
                 manager.Init();
         }
 
         static void GameUpdate()
         {
+            if (!IsHost())
+                return;
+
             if (manager != null)
                 manager.Update();
         }
 
         static void EntityKilled(Entity killed, Entity killer)
         {
+            if (!IsHost())
+                return;
+
             manager.EntityKilled(killed, killer);
         }
 
         static void PlayerSpawnedInWorld(ClientInfo cInfo, RespawnType respawnType, Vector3i pos)
         {
+            if (!IsHost())
+                return;
+
             if (manager != null)
             {
                 int playerId;
@@ -77,6 +97,9 @@ namespace ImprovedHordes
 
         static void PlayerDisconnected(ClientInfo cInfo, bool shutdown)
         {
+            if (!IsHost())
+                return;
+
             int playerId;
 
             if (cInfo != null)
@@ -100,6 +123,9 @@ namespace ImprovedHordes
             {
                 static void Postfix() // Save on world save
                 {
+                    if (!IsHost())
+                        return;
+
                     if (manager != null && manager.Initialized())
                         manager.Save();
                 }
@@ -111,6 +137,9 @@ namespace ImprovedHordes
             {
                 static void Prefix() // Clean up on client disconnect
                 {
+                    if (!IsHost())
+                        return;
+
                     if (manager != null && manager.Initialized())
                         manager.Shutdown();
                 }
