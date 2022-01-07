@@ -18,6 +18,7 @@ namespace ImprovedHordes
     {
         private string DataFile;
         private readonly string XmlFilesDir;
+        private readonly string ModPath;
 
         public World World;
         public List<int> Players = new List<int>();
@@ -53,6 +54,7 @@ namespace ImprovedHordes
             WanderingHorde = new WanderingHordeManager(this);
             ScoutManager = new ScoutManager(this);
 
+            ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
 
             this.LoadXml();
@@ -90,7 +92,7 @@ namespace ImprovedHordes
 
             this.LoadSettings();
 
-            HordesFromXml.LoadHordes(new XmlFile(XmlFilesDir, "hordes.xml"));
+            XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
 
             Log("Loaded all Xml configs.");
         }

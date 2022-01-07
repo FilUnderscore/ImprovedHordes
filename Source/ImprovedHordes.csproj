@@ -98,6 +98,7 @@
     <Compile Include="Horde\Wandering\WanderingHordeManager.cs" />
     <Compile Include="ImprovedHordesCommand.cs" />
     <Compile Include="RuntimeEval.cs" />
+    <Compile Include="XPath\XPathPatcher.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
