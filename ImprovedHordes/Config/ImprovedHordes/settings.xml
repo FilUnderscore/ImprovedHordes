@@ -1,5 +1,5 @@
 <improved_hordes>
-	<max_alive_per_horde_player>8</max_alive_per_horde_player> <!-- -1 to disable. -->
+	<max_alive_per_horde_player>12</max_alive_per_horde_player> <!-- -1 to disable. -->
 	
 	<wandering_horde>
 		<horde_player_group_dist>400</horde_player_group_dist> <!-- All players within 400m will be grouped together to calculate spawned horde gamestages. -->
