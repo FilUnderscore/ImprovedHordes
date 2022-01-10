@@ -56,12 +56,12 @@ namespace ImprovedHordes
 
             ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
+
+            this.LoadXml();
         }
 
         public void Init()
         {
-            this.LoadXml();
-
             World = GameManager.Instance.World;
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
@@ -168,8 +168,6 @@ namespace ImprovedHordes
             this.AIManager.Shutdown();
             this.WanderingHorde.Shutdown();
             this.ScoutManager.Shutdown();
-
-            HordesList.hordes.Clear();
         }
 
         public bool Initialized()
