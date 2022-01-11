@@ -70,7 +70,7 @@
 		<hordegroup name="Zombies">
 			<!-- Standard Zombies -->
 			<gs max="100" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.417">
-				<gs min="15" max="75">
+				<gs min="35">
 					<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
 				</gs>
 			
@@ -82,8 +82,8 @@
 			at GS400 start decreasing spawn count by 0.1 per GS after 400, 
 			then cease any remaining spawns at GS700.-->
 			<!-- Feral Zombies -->
-			<gs min="50" max="375" countIncPerGS="0.18" countDecGS="160" countDecPerPostGS="0.18">
-				<gs min="75" max="250">
+			<gs min="50" max="285" countIncPerGS="0.417" countDecGS="165" countDecPerPostGS="0.18">
+				<gs min="105">
 					<entity name="zombieScreamerFeral" chance="0.2" minCount="1" maxCount="1"/>
 				</gs>
 				
@@ -91,8 +91,8 @@
 			</gs>
 			
 			<!-- Radiated Zombies -->
-			<gs min="166" countIncPerGS="0.18">
-				<gs min="250">
+			<gs min="165" countIncPerGS="0.18">
+				<gs min="195">
 					<entity name="zombieScreamerRadiated" chance="0.25" minCount="1" maxCount="1"/>
 				</gs>
 			
@@ -121,32 +121,32 @@
 	<horde type="scouts">
 		<hordegroup name="ScreamerScout" weight="0.75">
 			<!-- Standard Screamer -->
-			<gs min="25" max="75">
+			<gs min="15" max="75">
 				<entity name="zombieScreamer" minCount="1" maxCount="1"/>
 			</gs>
 			
 			<!-- Feral Screamer Scout -->
-			<gs min="76" max="250">
+			<gs min="75" max="165">
 				<entity name="zombieScreamerFeral" minCount="1" maxCount="1"/>
 			</gs>
 			
 			<!-- Radiated Screamer Scout -->
-			<gs min="251">
+			<gs min="165">
 				<entity name="zombieScreamerRadiated" minCount="1" maxCount="1"/>
 			</gs>
 		</hordegroup>
 		
 		<!-- Classic spider zombie trio -->
 		<hordegroup name="SpiderScouts" weight="0.25">
-			<gs min="25" max="100" countIncPerGS="0.042">
+			<gs min="15" max="100" countIncPerGS="0.042">
 				<entity name="zombieSpider" minCount="1" maxCount="3"/>
 			</gs>
 			
-			<gs min="101" max="250" countIncPerGS="0.035">
+			<gs min="100" max="185" countIncPerGS="0.0375">
 				<entity name="zombieSpiderFeral" minCount="1" maxCount="3"/>
 			</gs>
 			
-			<gs min="251" countIncPerGS="0.03">
+			<gs min="185" countIncPerGS="0.03">
 				<entity name="zombieSpiderRadiated" minCount="1" maxCount="3"/>
 			</gs>
 		</hordegroup>
@@ -155,27 +155,31 @@
 	<!-- Scout horde spawned by scouts -->
 	<horde type="scout">
 		<hordegroup name="Zombies">
-			<gs min="25" max="200" countIncPerGS="0.075" countDecGS="151" countDecPerPostGS="0.075">
-				<gs min="50">
-					<entity horde="scouts" chance="0.1"/> <!-- Entity types allow you to integrate other hordes into different hordes -->
-				</gs>
-
+			<gs min="35" max="50">
+				<entity horde="scouts" chance="0.1"/>
+			</gs>
+			<gs min="50" max="100">
+				<entity horde="scouts" chance="0.2"/>
+			</gs>
+			<gs min="100" max="150">
+				<entity horde="scouts" chance="0.3"/>
+			</gs>
+			<gs min="150" max="200">
+				<entity horde="scouts" chance="0.4"/>
+			</gs>
+			<gs min="200">
+				<entity horde="scouts" chance="0.5"/>
+			</gs>
+		
+			<gs min="25" max="180" countIncPerGS="0.2" countDecGS="75" countDecPerPostGS="0.075">
 				<entity group="ZombiesAll" minCount="2" maxCount="8"/>
 			</gs>
 			
-			<gs min="151" max="400" countIncPerGS="0.075" countDecGS="301" countDecPerPostGS="0.075">
-				<gs min="175">
-					<entity horde="scouts" chance="0.25"/>
-				</gs>
-			
+			<gs min="75" max="285" countIncPerGS="0.075" countDecGS="180" countDecPerPostGS="0.075">
 				<entity group="IHZombiesAllFeral" minCount="2" maxCount="8"/>
 			</gs>
 			
-			<gs min="301" countIncPerGS="0.075">
-				<gs min="301">
-					<entity horde="scouts" chance="0.5"/>
-				</gs>
-			
+			<gs min="180" countIncPerGS="0.075">
 				<entity group="IHZombiesAllRadiated" minCount="1" maxCount="10"/>
 			</gs>
 		</hordegroup>
