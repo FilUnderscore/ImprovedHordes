@@ -18,7 +18,7 @@ namespace ImprovedHordes.Horde.Scout
 
         private readonly ScoutManager manager;
         
-        private readonly Dictionary<PlayerHordeGroup, Vector3> latestTargets = new Dictionary<PlayerHordeGroup, Vector3>();
+        private readonly Dictionary<PlayerHordeGroup, HordeTarget> latestTargets = new Dictionary<PlayerHordeGroup, HordeTarget>();
 
         public ScoutHordeSpawner(ScoutManager manager) : base(manager.manager, SCOUT_HORDE_GENERATOR)
         {
@@ -30,16 +30,21 @@ namespace ImprovedHordes.Horde.Scout
             return this.manager.CHUNK_RADIUS * 16; 
         }
 
-        public void StartSpawningFor(EntityPlayer player, bool feral, Vector3 target)
+        public void StartSpawningFor(EntityPlayer player, Scout scout, bool feral, Vector3 target)
         {
             PlayerHordeGroup playerHordeGroup = this.GetHordeGroupNearPlayer(player);
 
             if(!latestTargets.ContainsKey(playerHordeGroup))
-                latestTargets.Add(playerHordeGroup, Vector3.zero);
+                latestTargets.Add(playerHordeGroup, null);
 
-            latestTargets[playerHordeGroup] = target;
+            latestTargets[playerHordeGroup] = new HordeTarget(target, scout);
 
             this.StartSpawningFor(playerHordeGroup, feral);
+        }
+
+        protected override void PreSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde)
+        {
+            this.manager.NotifyScoutSpawnedHorde(latestTargets[playerHordeGroup].scout, horde.aiHorde);
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)
@@ -48,9 +53,9 @@ namespace ImprovedHordes.Horde.Scout
             const int DEST_RADIUS = 10;
             float wanderTime = (90f + this.manager.manager.Random.RandomFloat * 4f) * 10f; // Stick around for a long time.
 
-            if (this.latestTargets.ContainsKey(group))
+            if (this.latestTargets.ContainsKey(group) && this.latestTargets[group] != null)
             {
-                commands.Add(new HordeAICommandDestination(this.latestTargets[group], DEST_RADIUS));
+                commands.Add(new HordeAICommandDestination(this.latestTargets[group].target, DEST_RADIUS));
             }
             else
             {
@@ -80,6 +85,18 @@ namespace ImprovedHordes.Horde.Scout
         {
             public ScoutHordeGenerator() : base("scout")
             {
+            }
+        }
+
+        private class HordeTarget
+        {
+            public Vector3 target;
+            public Scout scout;
+
+            public HordeTarget(Vector3 target, Scout scout)
+            {
+                this.target = target;
+                this.scout = scout;
             }
         }
     }

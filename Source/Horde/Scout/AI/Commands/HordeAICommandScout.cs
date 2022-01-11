@@ -16,8 +16,8 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         private const float ATTACK_DELAY = 18.0f;
         private const float WANDER_TIME = 90.0f;
 
-        // TODO. Intercept horde entity commands.
         private readonly ScoutManager manager;
+        private readonly Scout scout;
 
         private readonly List<HordeAICommand> commands;
         private int currentCommandIndex = 0;
@@ -31,12 +31,13 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
 
         private bool isScreamer = false;
 
-        public HordeAICommandScout(ScoutManager manager, HordeAIEntity entity, bool isScreamer)
+        public HordeAICommandScout(ScoutManager manager, Scout scout, bool isScreamer)
         {
             this.manager = manager;
+            this.scout = scout;
 
-            this.commands = new List<HordeAICommand>(entity.commands);
-            this.currentCommandIndex = entity.currentCommandIndex;
+            this.commands = new List<HordeAICommand>(scout.aiEntity.commands);
+            this.currentCommandIndex = scout.aiEntity.currentCommandIndex;
         
             this.isScreamer = isScreamer;
         }
@@ -113,7 +114,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
                     alive.PlayOneShot(alive.GetSoundAlert());
 
                     Log("[Scout] Scout trying to summon horde for {0}.", target.EntityName);
-                    this.manager.TrySpawnScoutHorde(target); // Spawn horde.
+                    this.manager.TrySpawnScoutHorde(target, scout); // Spawn horde.
 
                     this.UpdateTarget(target.position, WANDER_TIME);
 

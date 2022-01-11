@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 using HarmonyLib;
 using UnityEngine;
@@ -14,7 +14,7 @@ namespace ImprovedHordes.Horde.Scout
 {
     public class ScoutManager : IManager
     {
-        private int s_chunk_radius;
+        private int s_chunk_radius, s_max_scout_hordes_active_per_player_group;
         private float s_feral_horde_chance_multiplier;
 
         public int CHUNK_RADIUS
@@ -33,13 +33,21 @@ namespace ImprovedHordes.Horde.Scout
             }
         }
 
+        public int MAX_SCOUT_HORDES_ACTIVE_PER_PLAYER_GROUP
+        {
+            get
+            {
+                return s_max_scout_hordes_active_per_player_group;
+            }
+        }
+
         private readonly Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>> scouts = new Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>>();
         
         public readonly ImprovedHordesManager manager;
         private readonly ScoutSpawner spawner;
         private readonly ScoutHordeSpawner hordeSpawner;
 
-        private readonly HashSet<PlayerHordeGroup> currentScoutZombieHordesSpawned = new HashSet<PlayerHordeGroup>();
+        private readonly Dictionary<HordeAIHorde, Scout> currentScoutZombieHordesSpawned = new Dictionary<HordeAIHorde, Scout>();
 
         public ScoutManager(ImprovedHordesManager manager)
         {
@@ -56,6 +64,7 @@ namespace ImprovedHordes.Horde.Scout
         {
             this.s_chunk_radius = settings.GetInt("chunk_radius", GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), true, GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
             this.s_feral_horde_chance_multiplier = settings.GetFloat("feral_horde_chance_multiplier", 0.0f, false, 1.0f);
+            this.s_max_scout_hordes_active_per_player_group = settings.GetInt("max_scout_hordes_active_per_player_group", 0, false, 3);
         }
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
@@ -71,7 +80,7 @@ namespace ImprovedHordes.Horde.Scout
             
             this.scouts[e.horde].Add(e.entity, scout);
 
-            e.entity.commands.Add(new HordeAICommandScout(this, e.entity, IsScreamerZombie(e.entity.entity) || IsScoutHorde(e.horde.GetHordeInstance())));
+            e.entity.commands.Add(new HordeAICommandScout(this, scout, IsScreamerZombie(e.entity.entity) || IsScoutHorde(e.horde.GetHordeInstance())));
             e.entity.commands.RemoveRange(0, e.entity.commands.Count - 1); // Make Scout command the only command.
         
             if(registerHorde)
@@ -142,7 +151,7 @@ namespace ImprovedHordes.Horde.Scout
 
                     if(scout.state == EScoutState.DEAD && scout.killer != null)
                     {
-                        this.TrySpawnScoutHorde(scout.killer);
+                        this.TrySpawnScoutHorde(scout.killer, scout);
                     }
                 }
             }
@@ -154,8 +163,8 @@ namespace ImprovedHordes.Horde.Scout
         {
             if(e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scout"))
             {
-                if (currentScoutZombieHordesSpawned.Contains(e.horde.GetHordeInstance().playerGroup))
-                    currentScoutZombieHordesSpawned.Remove(e.horde.GetHordeInstance().playerGroup);
+                if (currentScoutZombieHordesSpawned.ContainsKey(e.horde))
+                    currentScoutZombieHordesSpawned.Remove(e.horde);
             }
         }
 
@@ -186,15 +195,29 @@ namespace ImprovedHordes.Horde.Scout
             this.spawner.StartSpawningFor(group, feral, targetPos);
         }
 
-        public void TrySpawnScoutHorde(EntityPlayer target)
+        public void NotifyScoutSpawnedHorde(Scout scout, HordeAIHorde horde)
         {
-            var playerHordeGroup = this.hordeSpawner.GetHordeGroupNearPlayer(target);
+            this.currentScoutZombieHordesSpawned.Add(horde, scout);
+        }
 
-            if (!currentScoutZombieHordesSpawned.Contains(playerHordeGroup))
+        public void TrySpawnScoutHorde(EntityPlayer target, Scout scout)
+        {
+            if (GetCurrentSpawnedScoutHordesCount(target.position) < MAX_SCOUT_HORDES_ACTIVE_PER_PLAYER_GROUP)
             {
-                currentScoutZombieHordesSpawned.Add(playerHordeGroup);
-                this.hordeSpawner.StartSpawningFor(target, false, target.position);
+                this.hordeSpawner.StartSpawningFor(target, scout, false, target.position);
             }
+        }
+
+        private int GetCurrentSpawnedScoutHordesCount(Vector3 position)
+        {
+            int count = 0;
+
+            foreach(var scout in GetScoutsNear(position))
+            {
+                count += currentScoutZombieHordesSpawned.Count(entry => entry.Value == scout);
+            }
+
+            return count;
         }
 
         public void NotifyScoutsNear(Vector3i targetBlockPos, float value)
