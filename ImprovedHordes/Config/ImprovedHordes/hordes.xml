@@ -69,7 +69,7 @@
 		
 		<hordegroup name="Zombies">
 			<!-- Standard Zombies -->
-			<gs max="100" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">
+			<gs max="165" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">
 				<gs min="35">
 					<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
 				</gs>
