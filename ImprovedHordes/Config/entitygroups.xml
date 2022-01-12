@@ -1,10 +1,56 @@
 <ihhordes>
 	<append xpath="/entitygroups">
 		<entitygroup name="IHZombiesAllFeral">
+			<entity name="zombieBoeFeral"/>
+			<entity name="zombieJoeFeral"/>
+			<entity name="zombieSteveFeral"/>
+			<entity name="zombieTomClarkFeral"/>
+			<entity name="zombieMoeFeral"/>
+			<entity name="zombieYoFeral"/>
+			<entity name="zombieBusinessManFeral"/>
+			<entity name="zombieArleneFeral"/>
+			<entity name="zombieDarleneFeral"/>
+			<entity name="zombieMarleneFeral"/>
+			<entity name="zombieSkateboarderFeral"/>
+			<entity name="zombieBikerFeral" prob="0.3"/>
+			<entity name="zombiePartyGirlFeral" prob="0.3"/>
+			<entity name="zombieUtilityWorkerFeral" prob="0.3"/>
+			<entity name="zombieJanitorFeral" prob="0.2"/>
+			<entity name="zombieNurseFeral" prob="0.3"/>
+			<entity name="zombieLabFeral" prob="0.3"/>
+			<entity name="zombieSteveCrawlerFeral"/>
+			<entity name="zombieFatHawaiianFeral" prob="0.3"/>
+			<entity name="zombieFemaleFatFeral" prob="0.3"/>
+		</entitygroup>
+		
+		<entitygroup name="IHZombiesAllRadiated">
+			<entity name="zombieBoeRadiated"/>
+			<entity name="zombieJoeRadiated"/>
+			<entity name="zombieSteveRadiated"/>
+			<entity name="zombieTomClarkRadiated"/>
+			<entity name="zombieMoeRadiated"/>
+			<entity name="zombieYoRadiated"/>
+			<entity name="zombieBusinessManRadiated"/>
+			<entity name="zombieArleneRadiated"/>
+			<entity name="zombieDarleneRadiated"/>
+			<entity name="zombieMarleneRadiated"/>
+			<entity name="zombieSkateboarderRadiated"/>
+			<entity name="zombieBikerRadiated" prob="0.3"/>
+			<entity name="zombiePartyGirlRadiated" prob="0.3"/>
+			<entity name="zombieUtilityWorkerRadiated" prob="0.3"/>
+			<entity name="zombieJanitorRadiated" prob="0.2"/>
+			<entity name="zombieNurseRadiated" prob="0.3"/>
+			<entity name="zombieLabRadiated" prob="0.3"/>
+			<entity name="zombieFatHawaiianRadiated" prob="0.3"/>
+			<entity name="zombieFemaleFatRadiated" prob="0.3"/>
+		</entitygroup>
+		
+		<entitygroup name="IHZombiesAllFeralNight">
 			<entity name="zombieSpiderFeral"/>
 			<entity name="zombieBoeFeral"/>
 			<entity name="zombieJoeFeral"/>
 			<entity name="zombieSteveFeral"/>
+			<entity name="zombieTomClarkFeral"/>
 			<entity name="zombieMoeFeral"/>
 			<entity name="zombieYoFeral"/>
 			<entity name="zombieBusinessManFeral"/>
@@ -12,27 +58,92 @@
 			<entity name="zombieDarleneFeral"/>
 			<entity name="zombieMarleneFeral"/>
 			<entity name="zombieNurseFeral"/>
-			<entity name="zombieFatHawaiianFeral"/>
 			<entity name="zombieSteveCrawlerFeral"/>
-			<entity name="zombieFemaleFatFeral"/>
-			<entity name="zombieJanitorFeral"/>
-			<entity name="zombieLabFeral"/>
+			<entity name="zombieFatHawaiianFeral"/>
 		</entitygroup>
 		
-		<entitygroup name="IHZombiesAllRadiated">
+		<entitygroup name="IHZombiesAllFeralWasteland">
+			<entity name="zombieMutatedFeral" prob="2"/>
+			<entity name="zombieSpiderFeral" prob="2"/>
+			<entity name="zombieBoeFeral"/>
+			<entity name="zombieJoeFeral"/>
+			<entity name="zombieSteveFeral"/>
+			<entity name="zombieTomClarkFeral"/>
+			<entity name="zombieMoeFeral"/>
+			<entity name="zombieYoFeral"/>
+			<entity name="zombieBusinessManFeral"/>
+			<entity name="zombieArleneFeral"/>
+			<entity name="zombieDarleneFeral"/>
+			<entity name="zombieMarleneFeral"/>
+			<entity name="zombieNurseFeral"/>
+			<entity name="zombieSteveCrawlerFeral"/>
+			<entity name="zombieFemaleFatFeral" prob="2"/>
+			<entity name="zombieFatCopFeral" prob="2"/>
+			<entity name="zombieBurntFeral" prob="2"/>
+			<entity name="zombieMaleHazmatFeral" prob="2"/>
+			<entity name="zombieFatHawaiianFeral" prob="2"/>
+			<entity name="zombieSoldierFeral" prob="2"/>
+		</entitygroup>
+		
+		<entitygroup name="IHZombiesAllRadiatedWasteland">
+			<entity name="zombieMutatedRadiated" prob="2"/>
+			<entity name="zombieSpiderRadiated" prob="2"/>
+			<entity name="zombieBoeRadiated"/>
+			<entity name="zombieJoeRadiated"/>
+			<entity name="zombieSteveRadiated"/>
+			<entity name="zombieTomClarkRadiated"/>
+			<entity name="zombieMoeRadiated"/>
+			<entity name="zombieYoRadiated"/>
+			<entity name="zombieBusinessManRadiated"/>
+			<entity name="zombieArleneRadiated"/>
+			<entity name="zombieDarleneRadiated"/>
+			<entity name="zombieMarleneRadiated"/>
+			<entity name="zombieNurseRadiated"/>
+			<entity name="zombieFemaleFatRadiated" prob="2"/>
+			<entity name="zombieFatCopRadiated" prob="2"/>
+			<entity name="zombieBurntRadiated" prob="2"/>
+			<entity name="zombieMaleHazmatRadiated" prob="2"/>
+			<entity name="zombieFatHawaiianRadiated" prob="2"/>
+			<entity name="zombieSoldierRadiated" prob="2"/>
+		</entitygroup>
+		
+		<entitygroup name="IHZombiesAllRadiatedWastelandNight">
+			<entity name="zombieMutatedRadiated" prob="2"/>
+			<entity name="zombieSpiderRadiated" prob="2"/>
+			<entity name="zombieBoeRadiated"/>
+			<entity name="zombieJoeRadiated"/>
+			<entity name="zombieSteveRadiated"/>
+			<entity name="zombieTomClarkRadiated"/>
+			<entity name="zombieMoeRadiated"/>
+			<entity name="zombieYoRadiated"/>
+			<entity name="zombieBusinessManRadiated"/>
+			<entity name="zombieArleneRadiated"/>
+			<entity name="zombieDarleneRadiated"/>
+			<entity name="zombieMarleneRadiated"/>
+			<entity name="zombieNurseRadiated"/>
+			<entity name="zombieFemaleFatRadiated" prob="2"/>
+			<entity name="zombieFatCopRadiated" prob="2"/>
+			<entity name="zombieBurntRadiated" prob="2"/>
+			<entity name="zombieWightRadiated" prob="2"/>
+			<entity name="zombieMaleHazmatRadiated" prob="2"/>
+			<entity name="zombieFatHawaiianRadiated" prob="2"/>
+			<entity name="zombieSoldierRadiated" prob="2"/>
+		</entitygroup>
+		
+		<entitygroup name="IHZombiesAllRadiatedNight">
 			<entity name="zombieSpiderRadiated"/>
 			<entity name="zombieBoeRadiated"/>
 			<entity name="zombieJoeRadiated"/>
 			<entity name="zombieSteveRadiated"/>
+			<entity name="zombieTomClarkRadiated"/>
 			<entity name="zombieMoeRadiated"/>
 			<entity name="zombieYoRadiated"/>
+			<entity name="zombieBusinessManRadiated"/>
 			<entity name="zombieArleneRadiated"/>
 			<entity name="zombieDarleneRadiated"/>
 			<entity name="zombieMarleneRadiated"/>
-			<entity name="zombieSkateboarderRadiated"/>
-			<entity name="zombieFemaleFatRadiated"/>
-			<entity name="zombieJanitorRadiated"/>
-			<entity name="zombieLabRadiated"/>
+			<entity name="zombieNurseRadiated"/>
+			<entity name="zombieFatHawaiianRadiated"/>
 		</entitygroup>
 	</append>
 </ihhordes>

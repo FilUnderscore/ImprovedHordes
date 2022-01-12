@@ -28,7 +28,7 @@ namespace ImprovedHordes.Horde.AI.Commands
         {
             Vector3 entityPosition = alive.position;
 
-            if (Vector2.Distance(ToXZ(entityPosition), ToXZ(targetPosition)) <= this.distanceTolerance)
+            if (CanExecute(alive) && Vector2.Distance(ToXZ(entityPosition), ToXZ(targetPosition)) <= this.distanceTolerance)
             {
                 alive.ClearInvestigatePosition(); // Clear investigate so they don't keep walking into each other.
 

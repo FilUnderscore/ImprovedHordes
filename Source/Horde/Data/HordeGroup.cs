@@ -45,13 +45,15 @@ namespace ImprovedHordes.Horde.Data
         public readonly string horde;
 
         public readonly RuntimeEval.Value<HashSet<string>> biomes;
-
+        
         public readonly RuntimeEval.Value<float> chance;
 
         public readonly RuntimeEval.Value<int> minCount;
         public readonly RuntimeEval.Value<int> maxCount;
+        
+        public readonly RuntimeEval.Value<ETimeOfDay> timeOfDay;
 
-        public HordeGroupEntity(GS gs, string name, string group, string horde, RuntimeEval.Value<HashSet<string>> biomes, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount)
+        public HordeGroupEntity(GS gs, string name, string group, string horde, RuntimeEval.Value<HashSet<string>> biomes, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount, RuntimeEval.Value<ETimeOfDay> timeOfDay)
         {
             this.gs = gs;
             this.name = name;
@@ -61,6 +63,7 @@ namespace ImprovedHordes.Horde.Data
             this.chance = chance;
             this.minCount = minCount;
             this.maxCount = maxCount;
+            this.timeOfDay = timeOfDay;
         }
     }
 
@@ -83,5 +86,12 @@ namespace ImprovedHordes.Horde.Data
             this.countIncPerGS = countIncPerGS;
             this.countDecPerPostGS = countDecPerPostGS;
         }
+    }
+
+    public enum ETimeOfDay
+    {
+        Anytime,
+        Day,
+        Night
     }
 }

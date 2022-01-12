@@ -143,13 +143,28 @@ namespace ImprovedHordes.Horde.Data
             RuntimeEval.Value<HashSet<string>> biomes = ParseIfExists<HashSet<string>>(entityElement, "biomes", str => ParseBiomes(str));
             RuntimeEval.Value<float> chance = ParseIfExists<float>(entityElement, "chance");
 
-            //int minCount = entityElement.HasAttribute("minCount") ? StringParsers.Parseint32(entityElement.GetAttribute("minCount")) : 0;
             RuntimeEval.Value<int> minCount = ParseIfExists<int>(entityElement, "minCount");
             RuntimeEval.Value<int> maxCount = ParseIfExists<int>(entityElement, "maxCount");
 
-            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, biomes, chance, minCount, maxCount);
+            RuntimeEval.Value<ETimeOfDay> timeOfDay = ParseIfExists<ETimeOfDay>(entityElement, "time", str => ParseTimeOfDay(str));
+
+            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, biomes, chance, minCount, maxCount, timeOfDay);
 
             group.entities.Add(entity);
+        }
+
+        private static ETimeOfDay ParseTimeOfDay(string str)
+        {
+            if(str.EqualsCaseInsensitive("day"))
+            {
+                return ETimeOfDay.Day;
+            }
+            else if(str.EqualsCaseInsensitive("night"))
+            {
+                return ETimeOfDay.Night;
+            }
+
+            return ETimeOfDay.Anytime;
         }
 
         private static HashSet<string> ParseBiomes(string str)

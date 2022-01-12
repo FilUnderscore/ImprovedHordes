@@ -152,6 +152,7 @@ namespace ImprovedHordes.Horde
         public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition)
         {
             int gamestage = playerGroup.GetGroupGamestage();
+            bool isDay = ImprovedHordesManager.Instance.World.IsDaytime();
 
             int groupsThatMatchGS = 0;
             foreach (var entity in group.entities)
@@ -165,6 +166,15 @@ namespace ImprovedHordes.Horde
                     {
                         continue;
                     }
+                }
+
+                if(entity.timeOfDay != null)
+                {
+                    // Time of day specific spawns.
+                    ETimeOfDay timeOfDay = entity.timeOfDay.Evaluate();
+
+                    if ((timeOfDay == ETimeOfDay.Night && isDay) || (timeOfDay == ETimeOfDay.Day && !isDay))
+                        continue;
                 }
 
                 if (entity.gs != null)

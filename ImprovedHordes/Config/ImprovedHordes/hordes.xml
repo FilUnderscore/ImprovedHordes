@@ -52,7 +52,7 @@
 			</gs>
 			
 			<gs min="100" countIncPerGS="0.02">
-				<entity biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="7"/>
+				<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="7"/>
 			</gs>
 		</hordegroup>
 		
@@ -74,7 +74,11 @@
 					<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
 				</gs>
 			
-				<entity group="ZombiesAll" minCount="3" maxCount="20"/>
+				<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="3" maxCount="20"/>
+				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="3" maxCount="20"/>
+			
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="3" maxCount="20"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="3" maxCount="20"/>
 			</gs>
 			
 			<!-- Example of GS
@@ -87,7 +91,11 @@
 					<entity name="zombieScreamerFeral" chance="0.2" minCount="1" maxCount="1"/>
 				</gs>
 				
-				<entity group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
+				<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="1" maxCount="20"/>
+				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="20"/>
+				
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="20"/>
 			</gs>
 			
 			<!-- Radiated Zombies -->
@@ -96,24 +104,28 @@
 					<entity name="zombieScreamerRadiated" chance="0.25" minCount="1" maxCount="1"/>
 				</gs>
 			
-				<entity group="IHZombiesAllRadiated" minCount="1" maxCount="40"/>
+				<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="40"/>
+				<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="40"/>
+			
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="40"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="40"/>
 			</gs>
 		</hordegroup>
 		
 		<hordegroup name="Stags" weight="0.75" parent="Farm" maxWeeklyOccurrences="1">
-			<entity biomes="pine_forest,snow" name="animalStag" minCount="1" maxCount="2"/>
-			<entity biomes="pine_forest,snow" name="animalDoe" minCount="1" maxCount="1"/>
+			<entity time="day" biomes="pine_forest,snow" name="animalStag" minCount="1" maxCount="2"/>
+			<entity time="day" biomes="pine_forest,snow" name="animalDoe" minCount="1" maxCount="1"/>
 		</hordegroup>
 		
 		<hordegroup name="Boars" weight="0.75" parent="Farm" maxWeeklyOccurrences="1">
-			<entity biomes="pine_forest" name="animalBoar" minCount="1" maxCount="2"/>
+			<entity time="day" biomes="pine_forest" name="animalBoar" minCount="1" maxCount="2"/>
 		</hordegroup>
 		
 		<hordegroup name="Farm" weight="0.5" maxWeeklyOccurrences="1">
-			<entity horde="wandering" group="Stags" maxCount="2"/>
-			<entity horde="wandering" group="Boars" maxCount="2"/>
-			<entity name="animalChicken" minCount="2" maxCount="3"/>
-			<entity name="animalRabbit" minCount="1" maxCount="2"/>
+			<entity time="day" horde="wandering" group="Stags" maxCount="2"/>
+			<entity time="day" horde="wandering" group="Boars" maxCount="2"/>
+			<entity time="day" name="animalChicken" minCount="2" maxCount="3"/>
+			<entity time="day" name="animalRabbit" minCount="1" maxCount="2"/>
 		</hordegroup>
 	</horde>
 	
@@ -171,16 +183,28 @@
 				<entity horde="scouts" chance="0.5"/>
 			</gs>
 		
-			<gs min="25" max="180" countIncPerGS="0.2" countDecGS="75" countDecPerPostGS="0.075">
-				<entity group="ZombiesAll" minCount="2" maxCount="8"/>
+			<gs min="15" max="180" countIncPerGS="0.2" countDecGS="75" countDecPerPostGS="0.075">
+				<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="2" maxCount="8"/>
+				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="2" maxCount="8"/>
+			
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="2" maxCount="8"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="2" maxCount="8"/>
 			</gs>
 			
 			<gs min="75" max="285" countIncPerGS="0.075" countDecGS="180" countDecPerPostGS="0.075">
-				<entity group="IHZombiesAllFeral" minCount="2" maxCount="8"/>
+				<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="2" maxCount="8"/>
+				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="2" maxCount="8"/>
+			
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="2" maxCount="8"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="2" maxCount="8"/>
 			</gs>
 			
 			<gs min="180" countIncPerGS="0.075">
-				<entity group="IHZombiesAllRadiated" minCount="1" maxCount="10"/>
+				<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="10"/>
+				<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="10"/>
+			
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="10"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="10"/>
 			</gs>
 		</hordegroup>
 	</horde>
