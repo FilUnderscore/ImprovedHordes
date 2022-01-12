@@ -122,10 +122,10 @@
 		</hordegroup>
 		
 		<hordegroup name="Farm" weight="0.5" maxWeeklyOccurrences="1">
-			<entity time="day" horde="wandering" group="Stags" maxCount="2"/>
-			<entity time="day" horde="wandering" group="Boars" maxCount="2"/>
-			<entity time="day" name="animalChicken" minCount="2" maxCount="3"/>
-			<entity time="day" name="animalRabbit" minCount="1" maxCount="2"/>
+			<entity time="day" biomes="pine_forest,snow" horde="wandering" group="Stags" maxCount="2"/>
+			<entity time="day" biomes="pine_forest" horde="wandering" group="Boars" maxCount="2"/>
+			<entity time="day" biomes="pine_forest,snow,desert" name="animalChicken" minCount="2" maxCount="3"/>
+			<entity time="day" biomes="pine_forest,snow,desert" name="animalRabbit" minCount="1" maxCount="2"/>
 		</hordegroup>
 	</horde>
 	
