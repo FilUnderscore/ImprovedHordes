@@ -118,7 +118,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
 
                     this.UpdateTarget(target.position, WANDER_TIME);
 
-                    attackDelay = ATTACK_DELAY;
+                    attackDelay = ATTACK_DELAY * (this.manager.GetCurrentSpawnedScoutHordesCount(target.position) + 1); // Delay screamers longer while more zombies are present.
                 }
                 else if (attackDelay > 0.0)
                 {

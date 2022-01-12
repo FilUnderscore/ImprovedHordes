@@ -208,7 +208,7 @@ namespace ImprovedHordes.Horde.Scout
             }
         }
 
-        private int GetCurrentSpawnedScoutHordesCount(Vector3 position)
+        public int GetCurrentSpawnedScoutHordesCount(Vector3 position)
         {
             int count = 0;
 
