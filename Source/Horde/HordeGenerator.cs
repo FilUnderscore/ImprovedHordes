@@ -200,6 +200,7 @@ namespace ImprovedHordes.Horde
         private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage, string biomeAtPosition)
         {
             GameRandom random = ImprovedHordesManager.Instance.Random;
+            bool isDay = ImprovedHordesManager.Instance.World.IsDaytime();
 
             foreach (var entity in randomGroup.entities)
             {
@@ -212,6 +213,15 @@ namespace ImprovedHordes.Horde
                     {
                         continue;
                     }
+                }
+
+                if (entity.timeOfDay != null)
+                {
+                    // Time of day specific spawns.
+                    ETimeOfDay timeOfDay = entity.timeOfDay.Evaluate();
+
+                    if ((timeOfDay == ETimeOfDay.Night && isDay) || (timeOfDay == ETimeOfDay.Day && !isDay))
+                        continue;
                 }
 
                 if (entity.chance != null && entity.chance.Evaluate() < random.RandomFloat)
