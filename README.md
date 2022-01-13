@@ -5,7 +5,7 @@ Note: This mod can be added to existing saves to start working, no new save is r
 
 # Installation
 ## For Clients
-Download and extract the latest release, then just drag and drop into the `Mods` folder in your 7 Days to Die install folder. Settings can be modified in the `Config/ImprovedHordes/settings.xml` file in the mod's folder.
+Download and extract the latest release from the [Releases](https://github.com/FilUnderscore/ImprovedHordes/releases) page, then just drag and drop the ImprovedHordes folder into the `Mods` folder in your 7 Days to Die install folder. Settings can be modified in the `Config/ImprovedHordes/settings.xml` file in the mod's folder.
 
 ## For dedicated servers
 The mod only needs to be installed on the server, as it is a server-side mod, so any client that joins your server without the mod installed will be able to experience it. The installation instructions are the same as for clients, however it is installed in the `Mods` folder of the dedicated server.
