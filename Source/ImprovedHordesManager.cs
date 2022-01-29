@@ -82,6 +82,7 @@ namespace ImprovedHordes
             this.ScoutManager.ReadSettings(this.Settings.GetSettings("scout_horde"));
 
             HordeSpawner.ReadSettings(this.Settings);
+            HordeGenerator.ReadSettings(this.Settings.GetSettings("horde_generator"));
 
             Log("Loaded settings.");
         }

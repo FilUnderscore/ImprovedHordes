@@ -78,7 +78,16 @@ namespace ImprovedHordes
             return value;
         }
 
-        public IHSettingsNode GetNode(string name)
+        public bool GetBool(string name, bool defaultValue)
+        {
+            if (bool.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out bool value))
+                return value;
+ 
+            Warning("[Settings] Failed to parse {0}. Returning default value.", name);
+            return defaultValue;
+        }
+
+    public IHSettingsNode GetNode(string name)
         {
             return this.node.GetSubnode(name);
         }

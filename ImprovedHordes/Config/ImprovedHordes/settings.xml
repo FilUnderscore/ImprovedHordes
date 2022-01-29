@@ -22,4 +22,7 @@
 		<feral_horde_chance_multiplier>1.0</feral_horde_chance_multiplier> <!-- 1.0 for default difficulty scaling from 0 to 75% chance at gamestage 540 -->
 		<max_scout_hordes_active_per_player_group>3</max_scout_hordes_active_per_player_group> <!-- Scouts can call up to 3 hordes maximum at a location at a time. -->
 	</scout_horde>
+	<horde_generator>
+		<horde_per_player>false</horde_per_player> <!-- Set to true to enable. Multiplies the total horde entity count by the number of players in your group. -->
+	</horde_generator>
 </improved_hordes>

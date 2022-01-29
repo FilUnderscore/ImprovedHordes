@@ -12,10 +12,25 @@ namespace ImprovedHordes.Horde
 {
     public abstract class HordeGenerator
     {
+        private static bool s_horde_per_player = false;
+
+        private static bool HORDE_PER_PLAYER
+        {
+            get
+            {
+                return s_horde_per_player;
+            }
+        }
+
         protected string type;
         public HordeGenerator(string type)
         {
             this.type = type;
+        }
+
+        public static void ReadSettings(Settings settings)
+        {
+            s_horde_per_player = settings.GetBool("horde_per_player", false);
         }
 
         public bool GenerateHorde(PlayerHordeGroup playerGroup, bool feral, out Horde horde)
@@ -55,6 +70,9 @@ namespace ImprovedHordes.Horde
             {
                 HordeGroupEntity ent = entitySet.Key;
                 int count = entitySet.Value;
+
+                if (HORDE_PER_PLAYER)
+                    count *= playerGroup.members.Count;
 
                 if (ent.name != null)
                 {
