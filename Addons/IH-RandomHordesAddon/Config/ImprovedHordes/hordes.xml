@@ -1,0 +1,13 @@
+<ih_randomhordes>
+	<!-- Disable Gamestage spawn control. -->
+	<removeattribute xpath="/hordes//gs/@countIncPerGS"/>
+	<removeattribute xpath="/hordes//gs/@countDecGS"/>
+	<removeattribute xpath="/hordes//gs/@countDecPerPostGS"/>
+	
+	<!-- Balance hordes so two don't spawn at the same time by adjusting min/max gamestages. -->
+	<setattribute xpath="/hordes/horde[@type='wandering']/hordegroup[@name='Zombies']/gs[@max='165']" name="max">50</setattribute>
+	<setattribute xpath="/hordes/horde[@type='wandering']/hordegroup[@name='Zombies']/gs[@min='50']" name="max">165</setattribute>
+	
+	<setattribute xpath="/hordes/horde[@type='scout']/hordegroup[@name='Zombies']/gs[@min='15']" name="max">75</setattribute>
+	<setattribute xpath="/hordes/horde[@type='scout']/hordegroup[@name='Zombies']/gs[@min='75']" name="max">180</setattribute>
+</ih_randomhordes>
