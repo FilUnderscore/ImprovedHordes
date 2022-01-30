@@ -108,9 +108,9 @@ namespace ImprovedHordes.Horde.Scout
                     || entity.entityClass == EntityClass.FromString("zombieScreamerRadiated");
         }
 
-        private bool IsFeralHorde(Horde horde)
+        private bool IsFeralScoutHorde(Horde horde)
         {
-            return horde.feral && (IsScoutHorde(horde) || IsScoutSpawnedZombieHorde(horde));
+            return horde.feral && IsScoutHorde(horde);
         }
 
         public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)
@@ -121,16 +121,13 @@ namespace ImprovedHordes.Horde.Scout
 
                 Scout scout = this.scouts[e.horde][e.entity];
 
-                if (this.IsScoutHorde(e.horde.GetHordeInstance()) &&
+                if (this.IsFeralScoutHorde(e.horde.GetHordeInstance()) &&
                     e.killer != null && e.killer is EntityPlayer)
                 {
                     EntityPlayer killer = e.killer as EntityPlayer;
-                    
-                    if (IsFeralHorde(scout.aiHorde.GetHordeInstance()))
-                    {
-                        Log("[Scout] Player {0} killed feral scout.", killer.EntityName);
-                        scout.killer = killer;
-                    }
+
+                    Log("[Scout] Player {0} killed feral scout.", killer.EntityName);
+                    scout.killer = killer;
                 }
 
                 scout.state = EScoutState.DEAD;
@@ -146,7 +143,7 @@ namespace ImprovedHordes.Horde.Scout
 
             int totalKilled;
             // Surprise players with a horde called by the living scouts to avenge the killed scouts.
-            if (IsScoutHorde(e.horde.GetHordeInstance()) && IsFeralHorde(e.horde.GetHordeInstance()) && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
+            if (IsFeralScoutHorde(e.horde.GetHordeInstance()) && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
             {
                 Log("[Scout] {0} feral scouts were killed. Attempting to spawn horde.", totalKilled);
 

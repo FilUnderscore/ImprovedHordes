@@ -112,6 +112,8 @@ namespace ImprovedHordes.Horde.AI
                         break;
                     case EHordeAIEntityUpdateState.FINISHED:
                     case EHordeAIEntityUpdateState.DEAD:
+                        DecrementStat(EHordeAIStats.TOTAL_ALIVE);
+
                         if (entityUpdateState == EHordeAIEntityUpdateState.FINISHED)
                         {
                             if(!entity.despawnOnCompletion)
@@ -134,8 +136,6 @@ namespace ImprovedHordes.Horde.AI
                             IncrementStat(EHordeAIStats.TOTAL_KILLED);
                             OnHordeEntityKilledEvent(entity);
                         }
-
-                        DecrementStat(EHordeAIStats.TOTAL_ALIVE);
 
                         toRemove.Add(entity);
                         break;
