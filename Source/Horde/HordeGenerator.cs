@@ -63,6 +63,13 @@ namespace ImprovedHordes.Horde
             int gamestage = playerGroup.GetGroupGamestage();
             EvaluateEntitiesInGroup(randomGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
 
+            if(entitiesToSpawn.Count == 0)
+            {
+                // No entities to spawn.
+                horde = null;
+                return false;
+            }
+
             List<int> entityIds = new List<int>();
             int totalCount = 0;
 

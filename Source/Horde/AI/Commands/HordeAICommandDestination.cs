@@ -12,8 +12,18 @@ namespace ImprovedHordes.Horde.AI.Commands
 
         public HordeAICommandDestination(Vector3 target, int distanceTolerance)
         {
-            this.targetPosition = target;
+            this.RandomizeTargetPosition(target, distanceTolerance);
             this.distanceTolerance = distanceTolerance;
+        }
+
+        private void RandomizeTargetPosition(Vector3 target, int distanceTolerance)
+        {
+            GameRandom random = ImprovedHordesManager.Instance.Random;
+
+            Vector2 pos = random.RandomInsideUnitCircle * distanceTolerance;
+
+            this.targetPosition = new Vector3(pos.x, 0, pos.y) + target;
+            Utils.GetSpawnableY(ref this.targetPosition);
         }
 
         public override bool CanExecute(EntityAlive alive)
