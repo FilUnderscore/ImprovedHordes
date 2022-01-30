@@ -1,4 +1,0 @@
-<ih_reducedscreamerscoutspawns>
-	<!-- Add chance attribute to all entities under scouts horde type and set to 0.5 (50%) -->
-	<setattribute xpath="/hordes/horde[@type='scouts']/hordegroup//entity" name="chance">0.5</setattribute>
-</ih_reducedscreamerscoutspawns>

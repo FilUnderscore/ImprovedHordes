@@ -1,4 +1,0 @@
-<ih_noscreamerscouts>
-	<!-- Remove all scout hordegroup entries from the scouts horde. -->
-	<remove xpath="/hordes/horde[@type='scouts']/hordegroup//entity"/>
-</ih_noscreamerscouts>
