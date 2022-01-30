@@ -69,7 +69,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)
         {
-            if(!IsScoutHorde(e.horde.GetHordeInstance()) && !IsScoutSpawnedZombieHorde(e.horde.GetHordeInstance()))
+            if(!IsScoutHorde(e.horde.GetHordeInstance()) && !IsScoutSpawnedZombieHorde(e.horde.GetHordeInstance()) && !IsScreamerZombie(e.entity.entity))
                 return;
 
             Scout scout = new Scout(e.entity, e.horde);
@@ -108,6 +108,11 @@ namespace ImprovedHordes.Horde.Scout
                     || entity.entityClass == EntityClass.FromString("zombieScreamerRadiated");
         }
 
+        private bool IsFeralHorde(Horde horde)
+        {
+            return horde.feral && (IsScoutHorde(horde) || IsScoutSpawnedZombieHorde(horde));
+        }
+
         public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)
         {
             if (this.scouts.ContainsKey(e.horde) && this.scouts[e.horde].ContainsKey(e.entity))
@@ -121,7 +126,7 @@ namespace ImprovedHordes.Horde.Scout
                 {
                     EntityPlayer killer = e.killer as EntityPlayer;
                     
-                    if (scout.aiHorde.GetHordeInstance().feral)
+                    if (IsFeralHorde(scout.aiHorde.GetHordeInstance()))
                     {
                         Log("[Scout] Player {0} killed feral scout.", killer.EntityName);
                         scout.killer = killer;
@@ -141,7 +146,7 @@ namespace ImprovedHordes.Horde.Scout
 
             int totalKilled;
             // Surprise players with a horde called by the living scouts to avenge the killed scouts.
-            if (IsScoutHorde(e.horde.GetHordeInstance()) && e.horde.GetHordeInstance().feral && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
+            if (IsScoutHorde(e.horde.GetHordeInstance()) && IsFeralHorde(e.horde.GetHordeInstance()) && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
             {
                 Log("[Scout] {0} feral scouts were killed. Attempting to spawn horde.", totalKilled);
 

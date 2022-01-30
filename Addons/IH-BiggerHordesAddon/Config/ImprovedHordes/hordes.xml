@@ -1,0 +1,6 @@
+<ih_biggerhordes>
+	<!-- Increase wandering horde zombie count -->
+	<setattribute xpath="/hordes/horde[@type='wandering']/hordegroup[@name='Zombies']//gs/entity[not (@name='zombieScreamer' or @name='zombieScreamerFeral' or @name='zombieScreamerRadiated')]" name="maxCount">40</setattribute>
+	
+	<setattribute xpath="/hordes/horde[@type='wandering']/hordegroup[@name='Zombies']/gs[2]" name="countIncPerGS">0.36</setattribute>
+</ih_biggerhordes>

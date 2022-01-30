@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xml>
+  <ModInfo>
+    <Name value="Improved Hordes Random Hordes Add-on" />
+    <Description value="Add-on for Improved Hordes. Removes default gamestage spawn increase values." />
+    <Author value="Fil" />
+    <Version value="1.0.0-STABLE" />
+    <Website value="https://github.com/FilUnderscore/ImprovedHordes" />
+  </ModInfo>
+</xml>
