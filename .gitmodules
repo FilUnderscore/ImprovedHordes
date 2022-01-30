@@ -1,3 +1,4 @@
 [submodule "Addons"]
 	path = Addons
 	url = https://github.com/FilUnderscore/ImprovedHordes-Addons.git
+	branch = dev
