@@ -187,6 +187,8 @@ namespace ImprovedHordes
             this.AIManager.Shutdown();
             this.WanderingHorde.Shutdown();
             this.ScoutManager.Shutdown();
+
+            this.Players.Clear();
         }
 
         public bool Initialized()
