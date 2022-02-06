@@ -282,7 +282,7 @@ namespace ImprovedHordes.Horde
             {
                 EntityPlayer player = ImprovedHordesManager.Instance.World.GetEntity(playerId) as EntityPlayer;
 
-                if (Vector3.Distance(position, player.position) > GetGroupDistance())
+                if (player == null || Vector3.Distance(position, player.position) > GetGroupDistance())
                     continue;
 
                 players.Add(player);
