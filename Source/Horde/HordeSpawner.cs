@@ -7,11 +7,13 @@ using UnityEngine;
 
 using static ImprovedHordes.Utils.Logger;
 
+using CustomModManager.API;
+
 namespace ImprovedHordes.Horde
 {
     public abstract class HordeSpawner
     {
-        private static int s_max_alive_per_horde_player;
+        private static int s_max_alive_per_horde_player = 10;
 
         private static int MAX_ALIVE_PER_HORDE_PLAYER
         {
@@ -35,6 +37,15 @@ namespace ImprovedHordes.Horde
         public static void ReadSettings(Settings settings)
         {
             s_max_alive_per_horde_player = settings.GetInt("max_alive_per_horde_player", 8);
+        }
+
+        public static void HookSettings(ModManagerAPI.ModSettings modSettings)
+        {
+            modSettings.Hook<int>("max_alive_per_horde_player", "IHxuiMaxAlivePerHordePlayerModSetting", value => s_max_alive_per_horde_player = value, () => s_max_alive_per_horde_player, toStr => (toStr.ToString(), toStr.ToString() + " Zombie" + (toStr != 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("generalHordeSettingsTab");
         }
 
         public bool IsStillSpawningFor(PlayerHordeGroup playerHordeGroup)

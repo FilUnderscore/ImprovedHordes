@@ -1,0 +1,30 @@
+Key,File,Type,UsedInMainMenu,NoTranslate,english
+IHxuiHordePlayerGroupDistModSetting,UI,XUI,x,,Horde Player Group Distance
+IHxuiHordePlayerGroupDistModSettingDesc,UI,XUI,x,,"Determines how close players have to be to be automatically sorted into a group."
+IHxuiDaysPerWanderingWeekModSetting,UI,XUI,x,,Days Per Wandering Week
+IHxuiDaysPerWanderingWeekModSettingDesc,UI,XUI,x,,"Determines how long a week is in the wandering horde schedule."
+IHxuiHrsInWeekToFirstOccurrenceModSetting,UI,XUI,x,,Hours Before First Occurrence
+IHxuiHrsInWeekToFirstOccurrenceModSettingDesc,UI,XUI,x,,"Determines the length of time required to pass after schedule reset before wandering hordes can start spawning."
+IHxuiHrsInWeekForLastOccurrenceMaxModSetting,UI,XUI,x,,Hours In Week For Occurrences
+IHxuiHrsInWeekForLastOccurrenceMaxModSettingDesc,UI,XUI,x,,"Determines the maximum length of time that the wandering horde schedule is allowed to schedule hordes in. This period of time is between both the Hours Before First Occurrence and Hours In Week For Occurrences settings."
+IHxuiMinHrsBetweenOccurrencesModSetting,UI,XUI,x,,Hours Between Occurrences
+IHxuiMinHrsBetweenOccurrencesModSettingDesc,UI,XUI,x,,"Determines the minimum amount of time required to pass between occurrences."
+IHxuiMinOccurrencesModSetting,UI,XUI,x,,Min. Occurrences
+IHxuiMinOccurrencesModSettingDesc,UI,XUI,x,,"Determines the minimum number of occurrences allowed to be scheduled in the wandering horde schedule."
+IHxuiMaxOccurrencesModSetting,UI,XUI,x,,Max. Occurrences
+IHxuiMaxOccurrencesModSettingDesc,UI,XUI,x,,"Determines the maximum number of occurrences allowed to be scheduled in the wandering horde schedule."
+IHxuiFeralHordeChanceModSetting,UI,XUI,x,,Feral Horde Chance
+IHxuiFeralHordeChanceModSettingDesc,UI,XUI,x,,"Determines the random chance that a wandering horde is scheduled as a feral horde. A feral wandering horde approaches the center of your group's location and roams around for some time."
+IHxuiChunkRadiusModSetting,UI,XUI,x,,Chunk Radius
+IHxuiChunkRadiusModSettingDesc,UI,XUI,x,,"Determines the radial area in chunks that scouts can detect heat map events and are notified to their location. Additionally, this setting also groups players near heatmap sources for a more balanced difficulty spawn scout zombie horde."
+IHxuiFeralHordeChanceMultiplierModSetting,UI,XUI,x,,Feral Horde Chance Multiplier
+IHxuiFeralHordeChanceMultiplierModSettingDesc,UI,XUI,x,,"Determines the random chance multiplier of a scout horde being spawned as feral. Feral scout hordes require the scouts to be left alone until they wander off and despawn, or else zombie hordes will come knocking on your front door."
+IHxuiMaxScoutHordesActivePerPlayerGroupModSetting,UI,XUI,x,,Max. Called Scout Hordes Per Group
+IHxuiMaxScoutHordesActivePerPlayerGroupModSettingDesc,UI,XUI,x,,"Determines the number of scout zombie hordes that can be active in any given area (defined by the Chunk Radius setting). Scout zombie hordes are the zombie hordes summoned when a scout screams."
+IHxuiMaxAlivePerHordePlayerModSetting,UI,XUI,x,,Max Alive Per Player
+IHxuiMaxAlivePerHordePlayerModSettingDesc,UI,XUI,x,,"Determines how many horde zombies are alive at any given time per player per player group. A player group is defined by both the Wandering Horde Setting Horde Player Group Distance and the Scout Horde Chunk Radius settings."
+IHxuiHordePerPlayerModSetting,UI,XUI,x,,Horde Per Player
+IHxuiHordePerPlayerModSettingDesc,UI,XUI,x,,"Determines whether the generated horde is bigger and longer by multiplying the initial count of zombies by the number of players in the group. This only works in groups of 2 players or more."
+IHxuiGeneralHordeSettingsTab,UI,XUI,x,,General
+IHxuiWanderingHordeSettingsTab,UI,XUI,x,,Wandering
+IHxuiScoutHordeSettingsTab,UI,XUI,x,,Scout

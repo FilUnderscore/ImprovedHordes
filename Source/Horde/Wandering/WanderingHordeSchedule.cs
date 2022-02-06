@@ -6,6 +6,8 @@ using ImprovedHordes.Horde.Data;
 
 using static ImprovedHordes.Utils.Logger;
 
+using CustomModManager.API;
+
 namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeSchedule
@@ -13,14 +15,14 @@ namespace ImprovedHordes.Horde.Wandering
         private const ushort SCHEDULE_MAGIC = 0x5748;
         private const uint SCHEDULE_VERSION = 1;
 
-        private int s_days_per_wandering_week,
-            s_hrs_in_week_to_first_occurrence,
-            s_hrs_in_week_for_last_occurrence_max,
-            s_min_hrs_between_occurrences,
-            s_min_occurrences,
-            s_max_occurrences;
+        private int s_days_per_wandering_week = 7,
+            s_hrs_in_week_to_first_occurrence = 0,
+            s_hrs_in_week_for_last_occurrence_max = 156,
+            s_min_hrs_between_occurrences = 6,
+            s_min_occurrences = 6,
+            s_max_occurrences = 8;
 
-        private float s_feral_horde_chance;
+        private float s_feral_horde_chance = 0.5f;
 
         public int DAYS_PER_RESET
         {
@@ -115,6 +117,51 @@ namespace ImprovedHordes.Horde.Wandering
                 Warning("[Wandering Horde] Feral horde chance greater than 1. Setting to 1.");
                 this.s_feral_horde_chance = 1.0f;
             }    
+        }
+
+        public void HookSettings(ModManagerAPI.ModSettings modSettings)
+        {
+            modSettings.Hook<int>("days_per_wandering_week", "IHxuiDaysPerWanderingWeekModSetting", value => this.s_days_per_wandering_week = value, () => this.s_days_per_wandering_week, toStr => (toStr.ToString(), toStr.ToString() + " Day" + (toStr > 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            modSettings.Hook<int>("hrs_in_week_to_first_occurrence", "IHxuiHrsInWeekToFirstOccurrenceModSetting", value => this.s_hrs_in_week_to_first_occurrence = value, () => this.s_hrs_in_week_to_first_occurrence, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            modSettings.Hook<int>("hrs_in_week_for_last_occurrence_max", "IHxuiHrsInWeekForLastOccurrenceMaxModSetting", value => this.s_hrs_in_week_for_last_occurrence_max = value, () => this.s_hrs_in_week_for_last_occurrence_max, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            modSettings.Hook<int>("min_hrs_between_occurrences", "IHxuiMinHrsBetweenOccurrencesModSetting", value => this.s_min_hrs_between_occurrences = value, () => this.s_min_hrs_between_occurrences, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            modSettings.Hook<int>("min_occurrences", "IHxuiMinOccurrencesModSetting", value => this.s_min_occurrences = value, () => this.s_min_occurrences, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            modSettings.Hook<int>("max_occurrences", "IHxuiMaxOccurrencesModSetting", value => this.s_max_occurrences = value, () => this.s_max_occurrences, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            modSettings.Hook<float>("feral_horde_chance", "IHxuiFeralHordeChanceModSetting", value => this.s_feral_horde_chance = value, () => this.s_feral_horde_chance, toStr => (toStr.ToString(), toStr * 100f + "%"), str =>
+            {
+                bool success = float.TryParse(str, out float val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
         }
 
         public void SetGameVariables()

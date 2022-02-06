@@ -8,11 +8,13 @@ using ImprovedHordes.Horde.AI.Events;
 
 using static ImprovedHordes.Utils.Logger;
 
+using CustomModManager.API;
+
 namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeManager : IManager
     {
-        private int s_horde_player_group_dist;
+        private int s_horde_player_group_dist = 400;
 
         public int HORDE_PLAYER_GROUP_DISTANCE
         {
@@ -43,6 +45,17 @@ namespace ImprovedHordes.Horde.Wandering
             this.s_horde_player_group_dist = settings.GetInt("horde_player_group_dist", 0, false, 400);
 
             this.schedule.ReadSettings(settings.GetSettings("schedule"));
+        }
+
+        public void HookSettings(ModManagerAPI.ModSettings modSettings)
+        {
+            modSettings.Hook<int>("horde_player_group_dist", "IHxuiHordePlayerGroupDistModSetting", value => this.s_horde_player_group_dist = value, () => this.s_horde_player_group_dist, toStr => (toStr.ToString(), toStr.ToString() + "m"), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab");
+
+            this.schedule.HookSettings(modSettings);
         }
 
         public void Load(BinaryReader reader)

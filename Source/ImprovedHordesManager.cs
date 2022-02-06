@@ -12,6 +12,8 @@ using ImprovedHordes.Horde.Data;
 using ImprovedHordes.Horde.Wandering;
 using ImprovedHordes.Horde.Scout;
 
+using CustomModManager.API;
+
 namespace ImprovedHordes
 {
     public class ImprovedHordesManager : IManager
@@ -58,6 +60,7 @@ namespace ImprovedHordes
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
 
             this.LoadXml();
+            this.LoadSettings(mod);
         }
 
         public void Init()
@@ -73,16 +76,33 @@ namespace ImprovedHordes
             this.Load();
         }
 
-        public void LoadSettings()
+        public void LoadSettings(Mod modInstance)
         {
             Log("Loading settings.");
 
-            this.Settings = new Settings(new XmlFile(XmlFilesDir, "settings.xml"));
-            this.WanderingHorde.ReadSettings(this.Settings.GetSettings("wandering_horde"));
-            this.ScoutManager.ReadSettings(this.Settings.GetSettings("scout_horde"));
+            if (!ModManagerAPI.IsModManagerLoaded())
+            {
+                this.Settings = new Settings(new XmlFile(XmlFilesDir, "settings.xml"));
+                this.WanderingHorde.ReadSettings(this.Settings.GetSettings("wandering_horde"));
+                this.ScoutManager.ReadSettings(this.Settings.GetSettings("scout_horde"));
 
-            HordeSpawner.ReadSettings(this.Settings);
-            HordeGenerator.ReadSettings(this.Settings.GetSettings("horde_generator"));
+                HordeSpawner.ReadSettings(this.Settings);
+                HordeGenerator.ReadSettings(this.Settings.GetSettings("horde_generator"));
+            }
+            else
+            {
+                ModManagerAPI.ModSettings modSettings = ModManagerAPI.GetModSettings(modInstance);
+
+                modSettings.CreateTab("generalHordeSettingsTab", "IHxuiGeneralHordeSettingsTab");
+                modSettings.CreateTab("wanderingHordeSettingsTab", "IHxuiWanderingHordeSettingsTab");
+                modSettings.CreateTab("scoutHordeSettingsTab", "IHxuiScoutHordeSettingsTab");
+
+                this.WanderingHorde.HookSettings(modSettings);
+                this.ScoutManager.HookSettings(modSettings);
+
+                HordeSpawner.HookSettings(modSettings);
+                HordeGenerator.HookSettings(modSettings);
+            }
 
             Log("Loaded settings.");
         }
@@ -90,8 +110,6 @@ namespace ImprovedHordes
         public void LoadXml()
         {
             Log("Loading Xml Configs in {0}", XmlFilesDir);
-
-            this.LoadSettings();
 
             XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
 

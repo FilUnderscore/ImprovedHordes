@@ -8,6 +8,8 @@ using ImprovedHordes.Horde.Data;
 
 using static ImprovedHordes.Utils.Logger;
 
+using CustomModManager.API;
+
 namespace ImprovedHordes.Horde
 {
     public abstract class HordeGenerator
@@ -31,6 +33,15 @@ namespace ImprovedHordes.Horde
         public static void ReadSettings(Settings settings)
         {
             s_horde_per_player = settings.GetBool("horde_per_player", false);
+        }
+
+        public static void HookSettings(ModManagerAPI.ModSettings modSettings)
+        {
+            modSettings.Hook<bool>("horde_per_player", "IHxuiHordePerPlayerModSetting", value => s_horde_per_player = value, () => s_horde_per_player, toStr => (toStr.ToString(), toStr ? "Yes" : "No"), str =>
+            {
+                bool success = bool.TryParse(str, out bool val);
+                return (val, success);
+            }).SetAllowedValues(new bool[] { true, false }).SetTab("generalHordeSettingsTab");
         }
 
         public bool GenerateHorde(PlayerHordeGroup playerGroup, bool feral, out Horde horde)
