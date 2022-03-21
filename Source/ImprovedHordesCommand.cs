@@ -70,10 +70,9 @@ namespace ImprovedHordes
         {
             var wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
-            wanderingHorde.state = WanderingHordeManager.EHordeState.Finished;
-            wanderingHorde.schedule.Reset();
             wanderingHorde.spawner.StopAllSpawning();
             wanderingHorde.DisbandAllWanderingHordes();
+            wanderingHorde.schedule.Reset();
 
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Horde weekly schedule reset.");
         }
