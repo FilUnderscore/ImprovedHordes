@@ -16,6 +16,7 @@ namespace ImprovedHordes.Horde.Scout
     {
         private int s_chunk_radius, s_max_scout_hordes_active_per_player_group;
         private float s_feral_horde_chance_multiplier;
+        private bool s_enabled;
 
         public int CHUNK_RADIUS
         {
@@ -41,6 +42,14 @@ namespace ImprovedHordes.Horde.Scout
             }
         }
 
+        public bool ENABLED
+        {
+            get
+            {
+                return s_enabled;
+            }
+        }
+
         private readonly Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>> scouts = new Dictionary<HordeAIHorde, Dictionary<HordeAIEntity, Scout>>();
         
         public readonly ImprovedHordesManager manager;
@@ -62,6 +71,7 @@ namespace ImprovedHordes.Horde.Scout
 
         public void ReadSettings(Settings settings)
         {
+            this.s_enabled = settings.GetBool("enabled", true);
             this.s_chunk_radius = settings.GetInt("chunk_radius", GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), true, GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
             this.s_feral_horde_chance_multiplier = settings.GetFloat("feral_horde_chance_multiplier", 0.0f, false, 1.0f);
             this.s_max_scout_hordes_active_per_player_group = settings.GetInt("max_scout_hordes_active_per_player_group", 0, false, 3);
@@ -306,7 +316,7 @@ namespace ImprovedHordes.Horde.Scout
             {
                 static bool Prefix(Vector3 targetPos)
                 {
-                    if (!ImprovedHordesMod.IsHost())
+                    if (!ImprovedHordesMod.IsHost() || !ImprovedHordesManager.Instance.ScoutManager.ENABLED)
                         return true;
 
                     var scoutManager = ImprovedHordesManager.Instance.ScoutManager;
@@ -323,7 +333,7 @@ namespace ImprovedHordes.Horde.Scout
             {
                 static void Postfix(AIDirectorChunkEvent _chunkEvent)
                 {
-                    if (!ImprovedHordesMod.IsHost())
+                    if (!ImprovedHordesMod.IsHost() || !ImprovedHordesManager.Instance.ScoutManager.ENABLED)
                         return;
 
                     // Notify scouts in chunk of the new event to investigate.
