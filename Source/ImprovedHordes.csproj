@@ -63,6 +63,7 @@
     <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationPlayer.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestinationMoving.cs" />
+    <Compile Include="Horde\AI\Commands\HordeAICommandInvestigate.cs" />
     <Compile Include="Horde\AI\Events\EntityDespawnedEvent.cs" />
     <Compile Include="Horde\AI\Events\EntityKilledEvent.cs" />
     <Compile Include="Horde\AI\Events\HordeEntityDespawnedEvent.cs" />
