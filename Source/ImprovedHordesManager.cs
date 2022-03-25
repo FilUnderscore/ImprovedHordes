@@ -12,6 +12,8 @@ using ImprovedHordes.Horde.Data;
 using ImprovedHordes.Horde.Wandering;
 using ImprovedHordes.Horde.Scout;
 
+using HarmonyLib;
+
 namespace ImprovedHordes
 {
     public class ImprovedHordesManager : IManager
@@ -42,6 +44,9 @@ namespace ImprovedHordes
         public ScoutManager ScoutManager;
         public Settings Settings;
 
+        public HordePlayerManager PlayerManager;
+        public HordeAreaHeatTracker HeatTracker;
+
         public ImprovedHordesManager(Mod mod)
         {
             if (instance != null)
@@ -53,6 +58,8 @@ namespace ImprovedHordes
             AIManager = new HordeAIManager();
             WanderingHorde = new WanderingHordeManager(this);
             ScoutManager = new ScoutManager(this);
+            PlayerManager = new HordePlayerManager(this);
+            HeatTracker = new HordeAreaHeatTracker(this);
 
             ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
@@ -66,6 +73,7 @@ namespace ImprovedHordes
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
             this.WanderingHorde.schedule.SetGameVariables();
+            this.HeatTracker.Init();
 
             // Reload data file location.
             DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
@@ -169,6 +177,8 @@ namespace ImprovedHordes
             this.AIManager.Shutdown();
             this.WanderingHorde.Shutdown();
             this.ScoutManager.Shutdown();
+            this.PlayerManager.Shutdown();
+            this.HeatTracker.Shutdown();
 
             this.Players.Clear();
         }
@@ -176,6 +186,23 @@ namespace ImprovedHordes
         public bool Initialized()
         {
             return this.World != null;
+        }
+
+        class HarmonyPatches
+        {
+            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch("SetTime")]
+            class WorldSetTimeHook
+            {
+                static void Postfix(ulong _time)
+                {
+                    if (!ImprovedHordesMod.IsHost())
+                        return;
+
+                    ImprovedHordesManager.Instance.PlayerManager.Tick(_time);
+                    ImprovedHordesManager.Instance.HeatTracker.Tick(_time);
+                }
+            }
         }
     }
 }

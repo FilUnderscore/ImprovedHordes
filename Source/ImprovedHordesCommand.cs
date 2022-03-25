@@ -20,6 +20,10 @@ namespace ImprovedHordes
                 {
                     this.ExecuteList(_params);
                 }
+                else if(_params[0].EqualsCaseInsensitive("stats"))
+                {
+                    this.ExecuteStats(_params);
+                }
             }
             else
             {
@@ -150,6 +154,29 @@ namespace ImprovedHordes
             else
             {
                 builder.AppendLine("No hordes are currently occurring.");
+            }
+
+            SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());
+        }
+
+        private void ExecuteStats(List<String> _params)
+        {
+            var playerManager = ImprovedHordesManager.Instance.PlayerManager;
+
+            StringBuilder builder = new StringBuilder();
+
+            foreach(var player in playerManager.players)
+            {
+                builder.AppendLine("Player " + player.Value.playerEntityInstance.EntityName);
+                builder.AppendLine("Avg GS: " + player.Value.GetAverageGamestage());
+
+                lock (ImprovedHordesManager.Instance.HeatTracker.chunkHeat)
+                {
+                    foreach (var chunk in ImprovedHordesManager.Instance.HeatTracker.chunkHeat)
+                    {
+                        builder.AppendLine("Chunk " + chunk.Key + " Heat: " + chunk.Value);
+                    }
+                }
             }
 
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());

@@ -76,10 +76,13 @@
     <Compile Include="Horde\AI\HordeAIHorde.cs" />
     <Compile Include="Horde\Data\HordeGroup.cs" />
     <Compile Include="Horde\Data\HordeGroupList.cs" />
+    <Compile Include="Horde\HordeAreaHeatTracker.cs" />
     <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\Data\HordesList.cs" />
     <Compile Include="Horde\Data\HordesFromXml.cs" />
     <Compile Include="Horde\HordeGenerator.cs" />
+    <Compile Include="Horde\HordePlayer.cs" />
+    <Compile Include="Horde\HordePlayerManager.cs" />
     <Compile Include="ImprovedHordesManager.cs" />
     <Compile Include="Horde\AI\HordeAIManager.cs" />
     <Compile Include="Horde\HordeSpawner.cs" />
