@@ -123,19 +123,28 @@ namespace ImprovedHordes.Horde
 
             Vector2i currentChunk = new Vector2i(global::Utils.Fastfloor(position.x / 16f), global::Utils.Fastfloor(position.z / 16f));
 
-            for (int x = 0; x <= radiusSquared; x++)
-            {
-                for (int y = 0; y <= radiusSquared; y++)
-                {
-                    int xDivRad = x / radius;
-                    int yDivRad = y / radius;
-                    float strength = (float)((xDivRad + yDivRad) / 2f * (float)radius) + 1f;
+            nearbyChunks.Add(new Vector2i(currentChunk.x, currentChunk.y), 1f);
 
-                    nearbyChunks.Add(new Vector2i(x + currentChunk.x, y + currentChunk.y), strength);
-                    nearbyChunks.Add(new Vector2i(x - currentChunk.x, y - currentChunk.y), strength);
-                    nearbyChunks.Add(new Vector2i(x - currentChunk.x, y + currentChunk.y), strength);
-                    nearbyChunks.Add(new Vector2i(x + currentChunk.x, y - currentChunk.y), strength);
+            for (int x = 1; x <= radiusSquared; x++)
+            {
+                float xDivRad = (float)x / (float)radiusSquared;
+                float strengthX = 1f - xDivRad;
+
+                for (int y = 1; y <= radiusSquared; y++)
+                {
+                    float yDivRad = (float)y / (float)radiusSquared;
+                    float strengthY = 1f - yDivRad;
+
+                    float strength = (strengthX + strengthY) / 2f;
+
+                    nearbyChunks.Add(new Vector2i(currentChunk.x + x, currentChunk.y + y), strength);
+                    nearbyChunks.Add(new Vector2i(currentChunk.x - x, currentChunk.y - y), strength);
+                    nearbyChunks.Add(new Vector2i(currentChunk.x + x, currentChunk.y - y), strength);
+                    nearbyChunks.Add(new Vector2i(currentChunk.x - x, currentChunk.y + y), strength);
                 }
+
+                nearbyChunks.Add(new Vector2i(currentChunk.x + x, currentChunk.y), strengthX);
+                nearbyChunks.Add(new Vector2i(currentChunk.x - x, currentChunk.y), strengthX);
             }
 
             return nearbyChunks;

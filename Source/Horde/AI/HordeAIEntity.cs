@@ -162,7 +162,7 @@ namespace ImprovedHordes.Horde.AI
                     entry = sensations[player.entityId];
                     entry.Update();
 
-                    Log.Out($"Player {entry.player.EntityName} {entry.position} S {entry.GetSound()} L {entry.GetLight()} C {entry.GetValue()} D {(entry.player.position - entity.position).magnitude}");
+                    //Log.Out($"Player {entry.player.EntityName} {entry.position} S {entry.GetSound()} L {entry.GetLight()} C {entry.GetValue()} D {(entry.player.position - entity.position).magnitude}");
 
                     if (entry.GetValue() > THRESHOLD)
                         return true;

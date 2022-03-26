@@ -26,11 +26,13 @@ namespace ImprovedHordes.Horde
             {
                 HordePlayer hordePlayer = ImprovedHordesManager.Instance.PlayerManager.GetPlayer(player.entityId);
 
-                if(hordePlayer != null)
+                if (hordePlayer != null)
                     gamestages.Add(hordePlayer.GetAverageGamestage());
+                else
+                    gamestages.Add(player.gameStage);
             }
 
-            return GameStageDefinition.CalcPartyLevel(gamestages) + global::Utils.Fastfloor(1.5f * ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this));
+            return GameStageDefinition.CalcPartyLevel(gamestages) * global::Utils.Fastfloor(1.5f * (ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this) / 100f));
         }
 
         public Vector3 CalculateAverageGroupPosition(bool calculateY)

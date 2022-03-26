@@ -161,7 +161,7 @@ namespace ImprovedHordes.Horde
             Vector3 direction = farthestPlayerPosition - centerPos;
             direction.y = 0.0f;
 
-            float theta = Mathf.Atan2(direction.z, direction.x) + Mathf.PI;
+            float theta = Mathf.Atan2(direction.z, direction.x);
             float thetaRange = Mathf.PI / 2;
 
             float minThetaRange = theta - thetaRange;
