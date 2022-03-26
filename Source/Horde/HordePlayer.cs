@@ -9,7 +9,7 @@ namespace ImprovedHordes.Horde
         const int STORED_HISTORY = 7;
         
         public readonly EntityPlayer playerEntityInstance;
-        private readonly Dictionary<int, GameStage> gamestageTrend = new Dictionary<int, GameStage>();
+        public readonly Dictionary<int, GameStage> gamestageTrend = new Dictionary<int, GameStage>();
 
         public HordePlayer(EntityPlayer playerEntityInstance)
         {
@@ -28,7 +28,7 @@ namespace ImprovedHordes.Horde
 
             int gamestage = playerEntityInstance.gameStage + gamestageDifference;
 
-            return gamestage; // TODO: Add chunk timer.
+            return gamestage;
         }
 
         public void Tick(ulong worldTime)
@@ -44,8 +44,6 @@ namespace ImprovedHordes.Horde
                 if (gamestageTrend.ContainsKey(day - 1))
                 {
                     gamestageTrend[day - 1].SetEndGamestage(gamestage);
-
-                    Log.Out("Yesterday's GS Diff: " + gamestageTrend[day - 1].GetDifference());
                 }
 
                 for(int i = day - STORED_HISTORY * 2; i < day - STORED_HISTORY; i++)
@@ -56,10 +54,10 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        private struct GameStage
+        public class GameStage
         {
-            int startGamestage;
-            int endGamestage;
+            public int startGamestage;
+            public int endGamestage;
 
             public GameStage(int startGamestage)
             {

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using ImprovedHordes.Horde;
 using ImprovedHordes.Horde.Wandering;
+
+using UnityEngine;
 
 namespace ImprovedHordes
 {
@@ -165,18 +167,20 @@ namespace ImprovedHordes
 
             StringBuilder builder = new StringBuilder();
 
-            foreach(var player in playerManager.players)
+            foreach(var player in playerManager.GetPlayers())
             {
-                builder.AppendLine("Player " + player.Value.playerEntityInstance.EntityName);
-                builder.AppendLine("Avg GS: " + player.Value.GetAverageGamestage());
+                HordePlayer hordePlayer = playerManager.GetPlayer(player);
+                builder.AppendLine("Player " + hordePlayer.playerEntityInstance.EntityName);
+                builder.AppendLine("Avg GS: " + hordePlayer.GetAverageGamestage());
 
-                lock (ImprovedHordesManager.Instance.HeatTracker.chunkHeat)
+                foreach(var gsEntry in hordePlayer.gamestageTrend)
                 {
-                    foreach (var chunk in ImprovedHordesManager.Instance.HeatTracker.chunkHeat)
-                    {
-                        builder.AppendLine("Chunk " + chunk.Key + " Heat: " + chunk.Value);
-                    }
+                    builder.AppendLine("Day " + gsEntry.Key + " Start " + gsEntry.Value.startGamestage + " End " + gsEntry.Value.endGamestage);
                 }
+
+                Vector3 pos = hordePlayer.playerEntityInstance.position;
+                Vector2i chunk = new Vector2i(global::Utils.Fastfloor(pos.x / 16), global::Utils.Fastfloor(pos.z / 16));
+                builder.AppendLine("Chunk " + chunk + " Heat: " + ImprovedHordesManager.Instance.HeatTracker.GetHeatInChunk(chunk));
             }
 
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());

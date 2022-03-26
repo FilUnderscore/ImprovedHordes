@@ -69,7 +69,7 @@ namespace ImprovedHordes.Horde.Wandering
                     this.schedule.Reset();
             }
 
-            if (this.manager.Players.Count == 0)
+            if (!this.manager.PlayerManager.AnyPlayers())
                 return;
 
             this.spawner.Update();

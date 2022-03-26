@@ -24,10 +24,13 @@ namespace ImprovedHordes.Horde
             
             foreach (var player in this.members)
             {
-                gamestages.Add(player.gameStage);
+                HordePlayer hordePlayer = ImprovedHordesManager.Instance.PlayerManager.GetPlayer(player.entityId);
+
+                if(hordePlayer != null)
+                    gamestages.Add(hordePlayer.GetAverageGamestage());
             }
 
-            return GameStageDefinition.CalcPartyLevel(gamestages);
+            return GameStageDefinition.CalcPartyLevel(gamestages) + global::Utils.Fastfloor(1.5f * ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this));
         }
 
         public Vector3 CalculateAverageGroupPosition(bool calculateY)

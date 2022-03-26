@@ -9,22 +9,21 @@ namespace ImprovedHordes.Horde
 {
     public sealed class HordeAreaHeatTracker : IManager
     {
-        const ulong GameTicksBeforeFull = 168000;
-        const ulong GameTicksToFullyDecay = 24000;
-        const int EventThreshold = 200;
+        const ulong GameTicksBeforeFull = 24000;
+        const ulong GameTicksToFullyDecay = 48000;
+        const ulong GameTicksBeforeDecay = 24000;
+        const int EventThreshold = 100;
 
         private readonly ImprovedHordesManager manager;
-        public readonly Dictionary<Vector2i, AreaHeat> chunkHeat = new Dictionary<Vector2i, AreaHeat>();
-        public readonly ConcurrentQueue<AreaHeatRequest> queue = new ConcurrentQueue<AreaHeatRequest>();
+        private readonly Dictionary<Vector2i, AreaHeat> chunkHeat = new Dictionary<Vector2i, AreaHeat>();
+        private readonly ConcurrentQueue<AreaHeatRequest> queue = new ConcurrentQueue<AreaHeatRequest>();
 
         private ThreadManager.ThreadInfo threadInfo;
-        private ThreadManager.ThreadInfo updateThreadInfo;
         private AutoResetEvent writerThreadWaitHandle = new AutoResetEvent(false);
 
         public void StartThreads()
         {
             threadInfo = ThreadManager.StartThread("ImprovedHordes-HordeAreaHeatTracker", null, new ThreadManager.ThreadFunctionLoopDelegate(UpdateHeat), null, System.Threading.ThreadPriority.Lowest, _useRealThread: true);
-            updateThreadInfo = ThreadManager.StartThread("ImprovedHordes-HordeAreaHeatTrackerDecay", null, new ThreadManager.ThreadFunctionLoopDelegate(UpdateHeatDecay), null, System.Threading.ThreadPriority.Lowest, _useRealThread: true);
         }
 
         public HordeAreaHeatTracker(ImprovedHordesManager manager)
@@ -37,7 +36,7 @@ namespace ImprovedHordes.Horde
             StartThreads();
         }
 
-        public int UpdateHeat(ThreadManager.ThreadInfo threadInfo)
+        private int UpdateHeat(ThreadManager.ThreadInfo threadInfo)
         {
             while (!threadInfo.TerminationRequested())
             {
@@ -46,12 +45,13 @@ namespace ImprovedHordes.Horde
 
                 if(!queue.TryDequeue(out AreaHeatRequest item))
                 {
-                    Log.Error("Failed to dequeue in Heat Thread.");
                     continue;
                 }
 
                 Vector3 position = item.position;
                 float value = item.strength;
+
+                ulong worldTime = manager.World.worldTime;
 
                 foreach (var chunkEntry in GetNearbyChunks(position, 3)) // radius todo
                 {
@@ -65,10 +65,7 @@ namespace ImprovedHordes.Horde
 
                         AreaHeat heat = chunkHeat[chunk];
 
-                        if (heat.IsFull())
-                            continue;
-
-                        heat.strength += value * offset;
+                        heat.strength += (!heat.IsFull() ? value * offset : 0.0f) - (heat.WasUnloaded(worldTime) ? (heat.strength * Mathf.Clamp01((float)(worldTime - heat.lastUpdate) / (float)GameTicksToFullyDecay)) : 0);
                         heat.lastUpdate = manager.World.worldTime;
                     }
                 }
@@ -77,40 +74,31 @@ namespace ImprovedHordes.Horde
             return -1;
         }
 
-        public int UpdateHeatDecay(ThreadManager.ThreadInfo threadInfo)
+        public float GetHeatInChunk(Vector2i chunkPos)
         {
-            while(!threadInfo.TerminationRequested())
+            lock (chunkHeat)
             {
-                lock (chunkHeat)
-                {
-                    foreach (var chunkEntry in chunkHeat)
-                    {
-                        var chunk = chunkEntry.Key;
-                        var heat = chunkEntry.Value;
+                if (!chunkHeat.ContainsKey(chunkPos))
+                    return 0.0f;
 
-                        if (heat.strength <= 0.0f)
-                            continue;
-
-                        foreach (var player in manager.World.Players.list)
-                        {
-                            Vector3 playerPosition = player.position;
-                            Vector2i playerPosToChunkPos = new Vector2i(global::Utils.Fastfloor(playerPosition.x / 16f), global::Utils.Fastfloor(playerPosition.z / 16f));
-
-                            Vector2i offset = (playerPosToChunkPos - chunk);
-                            int sqrMagnitude = offset.x * offset.x + offset.y * offset.y;
-
-                            if (sqrMagnitude <= 3 * 3 * 16) // radius setting todo
-                            {
-                                break;
-                            }
-
-                            heat.strength -= (heat.strength * Mathf.Clamp01((float)(manager.World.worldTime - heat.lastUpdate) / (float)GameTicksToFullyDecay));
-                        }
-                    }
-                }
+                return chunkHeat[chunkPos].strength;
             }
+        }
 
-            return -1;
+        public float GetHeatAt(Vector3 position)
+        {
+            return GetHeatInChunk(new Vector2i(global::Utils.Fastfloor(position.x / 16), global::Utils.Fastfloor(position.z / 16)));
+        }
+
+        public float GetHeatForGroup(PlayerHordeGroup group)
+        {
+            return GetHeatAt(group.CalculateAverageGroupPosition(false));
+        }
+
+        public void Request(Vector3 position, float value)
+        {
+            queue.Enqueue(new AreaHeatRequest(position, value));
+            this.writerThreadWaitHandle.Set();
         }
 
         public void Tick(ulong worldTime)
@@ -125,8 +113,7 @@ namespace ImprovedHordes.Horde
 
         private void NotifyEvent(AIDirectorChunkEvent chunkEvent)
         {
-            queue.Enqueue(new AreaHeatRequest(chunkEvent.Position, chunkEvent.Value / EventThreshold));
-            this.writerThreadWaitHandle.Set();
+            Request(chunkEvent.Position, chunkEvent.Value / EventThreshold);
         }
 
         private Dictionary<Vector2i, float> GetNearbyChunks(Vector3 position, int radius)
@@ -136,15 +123,18 @@ namespace ImprovedHordes.Horde
 
             Vector2i currentChunk = new Vector2i(global::Utils.Fastfloor(position.x / 16f), global::Utils.Fastfloor(position.z / 16f));
 
-            for (int x = -radiusSquared; x <= radiusSquared; x++)
+            for (int x = 0; x <= radiusSquared; x++)
             {
-                for (int y = -radiusSquared; y <= radiusSquared; y++)
+                for (int y = 0; y <= radiusSquared; y++)
                 {
-                    int xDivRad = Math.Abs(x) / radius;
-                    int yDivRad = Math.Abs(y) / radius;
-                    float strength = (float)(radius - (xDivRad + yDivRad) / 2) / (float)radius;
+                    int xDivRad = x / radius;
+                    int yDivRad = y / radius;
+                    float strength = (float)((xDivRad + yDivRad) / 2f * (float)radius) + 1f;
 
                     nearbyChunks.Add(new Vector2i(x + currentChunk.x, y + currentChunk.y), strength);
+                    nearbyChunks.Add(new Vector2i(x - currentChunk.x, y - currentChunk.y), strength);
+                    nearbyChunks.Add(new Vector2i(x - currentChunk.x, y + currentChunk.y), strength);
+                    nearbyChunks.Add(new Vector2i(x + currentChunk.x, y - currentChunk.y), strength);
                 }
             }
 
@@ -159,14 +149,10 @@ namespace ImprovedHordes.Horde
             threadInfo = null;
             writerThreadWaitHandle = null;
 
-            updateThreadInfo.RequestTermination();
-            updateThreadInfo.WaitForEnd();
-            updateThreadInfo = null;
-
             chunkHeat.Clear();
         }
 
-        public class AreaHeat
+        private class AreaHeat
         {
             public float strength;
             public ulong lastUpdate;
@@ -182,13 +168,18 @@ namespace ImprovedHordes.Horde
                 return strength >= 100.0f;
             }
 
+            public bool WasUnloaded(ulong worldTime)
+            {
+                return worldTime - lastUpdate >= GameTicksBeforeDecay;
+            }
+
             public override string ToString()
             {
                 return $"AreaHeat [strength={strength}, lastUpdate={lastUpdate}]";
             }
         }
 
-        public struct AreaHeatRequest
+        private struct AreaHeatRequest
         {
             public Vector3 position;
             public float strength;

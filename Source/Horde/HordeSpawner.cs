@@ -278,7 +278,7 @@ namespace ImprovedHordes.Horde
         {
             HashSet<EntityPlayer> players = new HashSet<EntityPlayer>();
 
-            foreach (var playerId in ImprovedHordesManager.Instance.Players)
+            foreach (var playerId in ImprovedHordesManager.Instance.PlayerManager.GetPlayers())
             {
                 EntityPlayer player = ImprovedHordesManager.Instance.World.GetEntity(playerId) as EntityPlayer;
 
@@ -296,7 +296,7 @@ namespace ImprovedHordes.Horde
             List<int> grouped = new List<int>();
             List<PlayerHordeGroup> groups = new List<PlayerHordeGroup>();
 
-            foreach (var playerId in ImprovedHordesManager.Instance.Players)
+            foreach (var playerId in ImprovedHordesManager.Instance.PlayerManager.GetPlayers())
             {
                 if (grouped.Contains(playerId))
                     continue;

@@ -23,7 +23,6 @@ namespace ImprovedHordes
         private readonly string ModPath;
 
         public World World;
-        public List<int> Players = new List<int>();
         public GameRandom Random;
 
         private static ImprovedHordesManager instance;
@@ -144,14 +143,9 @@ namespace ImprovedHordes
             }
         }
 
-        public void AddPlayer(int playerId)
-        {
-            this.Players.Add(playerId);
-        }
-
         public void RemovePlayer(int playerId)
         {
-            this.Players.Remove(playerId);
+            PlayerManager.RemovePlayer(playerId);
         }
 
         public void Update()
@@ -179,8 +173,6 @@ namespace ImprovedHordes
             this.ScoutManager.Shutdown();
             this.PlayerManager.Shutdown();
             this.HeatTracker.Shutdown();
-
-            this.Players.Clear();
         }
 
         public bool Initialized()

@@ -18,7 +18,6 @@ namespace ImprovedHordes
 
             ModEvents.EntityKilled.RegisterHandler(EntityKilled);
 
-            ModEvents.PlayerSpawnedInWorld.RegisterHandler(PlayerSpawnedInWorld);
             ModEvents.PlayerDisconnected.RegisterHandler(PlayerDisconnected);
 
             this.HarmonyPatch();
@@ -63,36 +62,6 @@ namespace ImprovedHordes
                 return;
 
             manager.EntityKilled(killed, killer);
-        }
-
-        static void PlayerSpawnedInWorld(ClientInfo cInfo, RespawnType respawnType, Vector3i pos)
-        {
-            if (!IsHost())
-                return;
-
-            if (manager != null)
-            {
-                int playerId;
-
-                if (cInfo != null) // Multiplayer.
-                {
-                    playerId = cInfo.entityId;
-                }
-                else
-                {
-                    playerId = manager.World.GetPrimaryPlayerId(); // Singleplayer.
-                }
-
-                switch (respawnType)
-                {
-                    case RespawnType.EnterMultiplayer:
-                    case RespawnType.JoinMultiplayer:
-                    case RespawnType.NewGame:
-                    case RespawnType.LoadedGame:
-                        manager.AddPlayer(playerId);
-                        break;
-                }
-            }
         }
 
         static void PlayerDisconnected(ClientInfo cInfo, bool shutdown)
