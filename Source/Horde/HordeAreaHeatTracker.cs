@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -9,7 +8,7 @@ namespace ImprovedHordes.Horde
 {
     public sealed class HordeAreaHeatTracker : IManager
     {
-        const ulong GameTicksBeforeFull = 24000;
+        const ulong GameTicksBeforeFull = 96000;
         const ulong GameTicksToFullyDecay = 48000;
         const ulong GameTicksBeforeDecay = 24000;
         const int EventThreshold = 100;
@@ -105,7 +104,7 @@ namespace ImprovedHordes.Horde
         {
             foreach (var player in manager.World.Players.list)
             {
-                queue.Enqueue(new AreaHeatRequest(player.position, (float)(1f / GameTicksBeforeFull)));
+                queue.Enqueue(new AreaHeatRequest(player.position, (float)(100f / GameTicksBeforeFull)));
             }
 
             this.writerThreadWaitHandle.Set();
@@ -127,12 +126,12 @@ namespace ImprovedHordes.Horde
 
             for (int x = 1; x <= radiusSquared; x++)
             {
-                float xDivRad = (float)x / (float)radiusSquared;
+                float xDivRad = (float)(x / radius) / (float)radius;
                 float strengthX = 1f - xDivRad;
 
                 for (int y = 1; y <= radiusSquared; y++)
                 {
-                    float yDivRad = (float)y / (float)radiusSquared;
+                    float yDivRad = (float)(y / radius) / (float)radius;
                     float strengthY = 1f - yDivRad;
 
                     float strength = (strengthX + strengthY) / 2f;

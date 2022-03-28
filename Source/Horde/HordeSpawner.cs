@@ -162,7 +162,7 @@ namespace ImprovedHordes.Horde
             direction.y = 0.0f;
 
             float theta = Mathf.Atan2(direction.z, direction.x);
-            float thetaRange = Mathf.PI / 2;
+            float thetaRange = group.members.Count > 1 ? Mathf.PI / 2 : Mathf.PI;
 
             float minThetaRange = theta - thetaRange;
             float maxThetaRange = theta + thetaRange;

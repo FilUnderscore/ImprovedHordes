@@ -32,7 +32,7 @@ namespace ImprovedHordes.Horde
                     gamestages.Add(player.gameStage);
             }
 
-            return GameStageDefinition.CalcPartyLevel(gamestages) * global::Utils.Fastfloor(1.5f * (ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this) / 100f));
+            return global::Utils.Fastfloor((float)GameStageDefinition.CalcPartyLevel(gamestages) * (1f + (0.5f * (ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this) / 100f))));
         }
 
         public Vector3 CalculateAverageGroupPosition(bool calculateY)
