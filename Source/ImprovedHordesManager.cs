@@ -19,6 +19,9 @@ namespace ImprovedHordes
 {
     public class ImprovedHordesManager : IManager
     {
+        private const ushort DATA_FILE_MAGIC = 0x4948;
+        private const uint DATA_FILE_VERSION = 1;
+
         private string DataFile;
         private readonly string XmlFilesDir;
         private readonly string ModPath;
@@ -75,12 +78,12 @@ namespace ImprovedHordes
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
             this.WanderingHorde.schedule.SetGameVariables();
-            this.HeatTracker.Init();
-
+            
             // Reload data file location.
             DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
 
             this.Load();
+            this.HeatTracker.Init();
         }
 
         public void LoadSettings()
@@ -116,7 +119,12 @@ namespace ImprovedHordes
                 {
                     BinaryWriter writer = new BinaryWriter(stream);
 
+                    writer.Write(DATA_FILE_MAGIC);
+                    writer.Write(DATA_FILE_VERSION);
+
                     this.WanderingHorde.Save(writer);
+                    this.HeatTracker.Save(writer);
+                    this.HeatPatrolManager.Save(writer);
 
                     Log("Saved horde data.");
                 }
@@ -129,20 +137,32 @@ namespace ImprovedHordes
 
         public void Load()
         {
+            if (!File.Exists(DataFile))
+                return;
+
             try
             {
                 using(Stream stream = File.Open(DataFile, FileMode.Open))
                 {
                     BinaryReader reader = new BinaryReader(stream);
 
+                    if(reader.ReadUInt16() != DATA_FILE_MAGIC || reader.ReadUInt32() < DATA_FILE_VERSION)
+                    {
+                        Log("Data file version has changed.");
+
+                        return;
+                    }
+
                     this.WanderingHorde.Load(reader);
+                    this.HeatTracker.Load(reader);
+                    this.HeatPatrolManager.Load(reader);
 
                     Log("Loaded horde data.");
                 }
             }
-            catch(Exception )
+            catch(Exception e)
             {
-
+                Error("Failed to load: " + e.Message + " S: " + e.Source + " E: " + e.StackTrace);
             }
         }
 

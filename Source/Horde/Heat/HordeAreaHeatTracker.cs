@@ -5,11 +5,17 @@ using UnityEngine;
 using HarmonyLib;
 using System;
 using ImprovedHordes.Horde.Heat.Events;
+using System.IO;
+
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Heat
 {
     public sealed class HordeAreaHeatTracker : IManager
     {
+        private const ushort HEAT_TRACKER_MAGIC = 0x4854;
+        private const uint HEAT_TRACKER_VERSION = 1;
+
         public const int Radius = 3;
         const ulong GameTicksBeforeFull = 96000;
         const ulong GameTicksToFullyDecay = 48000;
@@ -171,13 +177,58 @@ namespace ImprovedHordes.Horde.Heat
             return nearbyChunks;
         }
 
+        public void Load(BinaryReader reader)
+        {
+            if(reader.ReadUInt16() != HEAT_TRACKER_MAGIC || reader.ReadUInt32() < HEAT_TRACKER_VERSION)
+            {
+                Log("[Heat Tracker] Heat tracker version has changed.");
+
+                return;
+            }
+
+            chunkHeat.Clear();
+            int chunkHeatSize = reader.ReadInt32();
+
+            for(int i = 0; i < chunkHeatSize; i++)
+            {
+                Vector2i chunkPosition = new Vector2i(reader.ReadInt32(), reader.ReadInt32());
+
+                float strength = reader.ReadSingle();
+                ulong lastUpdateTime = reader.ReadUInt64();
+
+                chunkHeat.Add(chunkPosition, new AreaHeat(strength, lastUpdateTime));
+            }
+        }
+
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(HEAT_TRACKER_MAGIC);
+            writer.Write(HEAT_TRACKER_VERSION);
+
+            lock (this.chunkHeat)
+            {
+                writer.Write(this.chunkHeat.Count);
+
+                foreach (var chunkEntry in this.chunkHeat)
+                {
+                    var key = chunkEntry.Key;
+                    var value = chunkEntry.Value;
+
+                    writer.Write(key.x);
+                    writer.Write(key.y);
+
+                    writer.Write(value.strength);
+                    writer.Write(value.lastUpdate);
+                }
+            }
+        }
+
         public void Shutdown()
         {
             threadInfo.RequestTermination();
             writerThreadWaitHandle.Set();
             threadInfo.WaitForEnd();
             threadInfo = null;
-            writerThreadWaitHandle = null;
 
             chunkHeat.Clear();
         }
@@ -191,6 +242,12 @@ namespace ImprovedHordes.Horde.Heat
             {
                 this.strength = 0.0f;
                 this.lastUpdate = ImprovedHordesManager.Instance.World.worldTime;
+            }
+
+            public AreaHeat(float strength, ulong lastUpdate)
+            {
+                this.strength = strength;
+                this.lastUpdate = lastUpdate;
             }
 
             public bool IsFull()

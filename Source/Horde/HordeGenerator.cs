@@ -39,7 +39,33 @@ namespace ImprovedHordes.Horde
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
 
             Vector3 groupPosition = playerGroup.CalculateAverageGroupPosition(false);
-            string biomeAtPosition = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z)).m_sBiomeName;
+            BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z));
+
+            // TODO: Reschedule horde if biome is null for any reason.
+            if (biomeDef == null)
+            {
+                for(int i = 0; i < 16; i++)
+                {
+                    for(int j = 0; j < 16; j++)
+                    {
+                        biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x) + i, global::Utils.Fastfloor(groupPosition.z) + j);
+
+                        if (biomeDef != null)
+                            break;
+                    }
+
+                    if (biomeDef != null)
+                        break;
+                }
+
+                if (biomeDef == null)
+                {
+                    horde = null;
+                    return false;
+                }
+            }
+
+            string biomeAtPosition = biomeDef.m_sBiomeName;
 
             foreach (var group in groups.Values)
             {

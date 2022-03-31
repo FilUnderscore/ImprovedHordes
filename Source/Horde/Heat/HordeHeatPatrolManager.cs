@@ -1,11 +1,16 @@
 ﻿using ImprovedHordes.Horde.Heat.Events;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Heat
 {
     public class HordeHeatPatrolManager : IManager
     {
+        private const ushort HEAT_PATROL_MAGIC = 0x4850;
+        private const uint HEAT_PATROL_VERSION = 1;
+
         private Dictionary<Vector2i, ulong> patrolTime = new Dictionary<Vector2i, ulong>();
         private readonly ImprovedHordesManager manager;
         private readonly PatrolHordeSpawner spawner;
@@ -26,10 +31,16 @@ namespace ImprovedHordes.Horde.Heat
             {
                 if (manager.World.worldTime >= patrolTime[area])
                 {
-                    Vector3 pos = new Vector3(e.chunk.x * 16f, 0, e.chunk.y * 16f);
+                    Vector2 center = GetCenterOfArea(area);
+                    Vector3 pos = new Vector3(center.x, 0, center.y);
                     Utils.GetSpawnableY(ref pos);
 
-                    this.spawner.StartSpawningFor(this.spawner.GetHordeGroupNearLocation(pos), false);
+                    PlayerHordeGroup group = this.spawner.GetHordeGroupNearLocation(pos);
+
+                    if (group == null || group.members.Count == 0)
+                        return;
+
+                    this.spawner.StartSpawningFor(group, false);
                     patrolTime.Remove(area);
                 }
 
@@ -41,7 +52,14 @@ namespace ImprovedHordes.Horde.Heat
 
         public Vector2i GetAreaFromChunk(Vector2i chunk)
         {
-            return new Vector2i(chunk.x / (HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius), chunk.y / (HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius));
+            return new Vector2i(chunk.x / (2 * HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius), chunk.y / (2 * HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius));
+        }
+
+        public Vector2 GetCenterOfArea(Vector2i area)
+        {
+            int radiusSquared = HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius;
+            
+            return new Vector2(16f * (area.x * 2 * radiusSquared + radiusSquared), 16f * (area.y * 2 * radiusSquared + radiusSquared));
         }
 
         public void Update()
@@ -52,10 +70,61 @@ namespace ImprovedHordes.Horde.Heat
             this.spawner.Update();
         }
 
+        public void Load(BinaryReader reader)
+        {
+            if(reader.ReadUInt16() != HEAT_PATROL_MAGIC || reader.ReadUInt32() < HEAT_PATROL_VERSION)
+            {
+                Log("[Heat Patrol] Heat patrol version has changed.");
+
+                return;
+            }
+
+            patrolTime.Clear();
+            int patrolTimeSize = reader.ReadInt32();
+
+            for(int i = 0; i < patrolTimeSize; i++)
+            {
+                Vector2i areaPosition = new Vector2i(reader.ReadInt32(), reader.ReadInt32());
+
+                ulong time = reader.ReadUInt64();
+
+                patrolTime.Add(areaPosition, time);
+            }
+        }
+
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(HEAT_PATROL_MAGIC);
+            writer.Write(HEAT_PATROL_VERSION);
+
+            writer.Write(this.patrolTime.Count);
+
+            foreach(var patrolEntry in this.patrolTime)
+            {
+                var key = patrolEntry.Key;
+                var value = patrolEntry.Value;
+
+                writer.Write(key.x);
+                writer.Write(key.y);
+
+                writer.Write(value);
+            }
+        }
+
         private void CalculatePatrolTime(Vector2i chunk, float heat)
         {
-            Vector3i position = new Vector3i(chunk.x * 16, 0, chunk.y * 16);
-            BiomeDefinition def = manager.World.GetBiome(position.x, position.z);
+            Vector2i area = GetAreaFromChunk(chunk);
+            Vector2 center = GetCenterOfArea(area);
+            Vector2i position = new Vector2i(center);
+            BiomeDefinition def = manager.World.GetBiome(position.x, position.y);
+
+            if (def == null)
+            {
+                def = manager.World.GetBiome(global::Utils.Fastfloor(chunk.x * 16f), global::Utils.Fastfloor(chunk.y * 16f));
+
+                if (def == null)
+                    return;
+            }
 
             float mod = def != null ? def.LootStageMod : 0f;
             float difficulty = mod + 1f + (heat / 100f);
@@ -66,8 +135,8 @@ namespace ImprovedHordes.Horde.Heat
             Log.Out("Time: " + GameUtils.WorldTimeToString(worldTime + time) + " Def NULL: " + (def == null));
 
             Log.Out("Chunk: " + chunk);
-            Log.Out("Area: " + GetAreaFromChunk(chunk));
-            patrolTime.Add(GetAreaFromChunk(chunk), worldTime + time);
+            Log.Out("Area: " + area + " Center: " + center);
+            patrolTime.Add(area, worldTime + time);
         }
 
         public void Shutdown()
