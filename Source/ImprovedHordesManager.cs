@@ -11,6 +11,7 @@ using ImprovedHordes.Horde.Data;
 
 using ImprovedHordes.Horde.Wandering;
 using ImprovedHordes.Horde.Scout;
+using ImprovedHordes.Horde.Heat;
 
 using HarmonyLib;
 
@@ -45,6 +46,7 @@ namespace ImprovedHordes
 
         public HordePlayerManager PlayerManager;
         public HordeAreaHeatTracker HeatTracker;
+        public HordeHeatPatrolManager HeatPatrolManager;
 
         public ImprovedHordesManager(Mod mod)
         {
@@ -59,6 +61,7 @@ namespace ImprovedHordes
             ScoutManager = new ScoutManager(this);
             PlayerManager = new HordePlayerManager(this);
             HeatTracker = new HordeAreaHeatTracker(this);
+            HeatPatrolManager = new HordeHeatPatrolManager(this);
 
             ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
@@ -156,6 +159,13 @@ namespace ImprovedHordes
             this.AIManager.Update();
             this.WanderingHorde.Update();
             this.ScoutManager.Update();
+            this.HeatPatrolManager.Update();
+        }
+
+        public void Tick(ulong time)
+        {
+            this.PlayerManager.Tick(time);
+            this.HeatTracker.Tick(time);
         }
 
         public void EntityKilled(Entity killed, Entity killer)
@@ -173,6 +183,7 @@ namespace ImprovedHordes
             this.ScoutManager.Shutdown();
             this.PlayerManager.Shutdown();
             this.HeatTracker.Shutdown();
+            this.HeatPatrolManager.Shutdown();
         }
 
         public bool Initialized()
@@ -191,8 +202,7 @@ namespace ImprovedHordes
                     if (!ImprovedHordesMod.IsHost())
                         return;
 
-                    ImprovedHordesManager.Instance.PlayerManager.Tick(_time);
-                    ImprovedHordesManager.Instance.HeatTracker.Tick(_time);
+                    Instance.Tick(_time);
                 }
             }
         }

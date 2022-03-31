@@ -16,7 +16,7 @@ namespace ImprovedHordes.Horde.Scout
     {
         private static readonly HordeGenerator SCOUT_HORDE_GENERATOR = new ScoutHordeGenerator();
 
-        private readonly ScoutManager manager;
+        private new readonly ScoutManager manager;
         
         private readonly Dictionary<PlayerHordeGroup, HordeTarget> latestTargets = new Dictionary<PlayerHordeGroup, HordeTarget>();
 

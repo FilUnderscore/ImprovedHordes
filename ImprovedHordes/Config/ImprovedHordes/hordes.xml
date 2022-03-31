@@ -208,4 +208,16 @@
 			</gs>
 		</hordegroup>
 	</horde>
+	
+	<horde type="patrol">
+		<hordegroup name="Zombies">
+			<gs min="15">
+				<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="1" maxCount="20"/>
+				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="20"/>
+				
+				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="1" maxCount="20"/>
+				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="1" maxCount="20"/>
+			</gs>
+		</hordegroup>
+	</horde>
 </hordes>

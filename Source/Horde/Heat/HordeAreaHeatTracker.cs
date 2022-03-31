@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using HarmonyLib;
+using System;
+using ImprovedHordes.Horde.Heat.Events;
 
-namespace ImprovedHordes.Horde
+namespace ImprovedHordes.Horde.Heat
 {
     public sealed class HordeAreaHeatTracker : IManager
     {
+        public const int Radius = 3;
         const ulong GameTicksBeforeFull = 96000;
         const ulong GameTicksToFullyDecay = 48000;
         const ulong GameTicksBeforeDecay = 24000;
@@ -19,6 +22,8 @@ namespace ImprovedHordes.Horde
 
         private ThreadManager.ThreadInfo threadInfo;
         private AutoResetEvent writerThreadWaitHandle = new AutoResetEvent(false);
+
+        public event EventHandler<AreaHeatTickEvent> OnAreaHeatTick;
 
         public void StartThreads()
         {
@@ -52,6 +57,8 @@ namespace ImprovedHordes.Horde
 
                 ulong worldTime = manager.World.worldTime;
 
+                Dictionary<Vector2i, float> events = new Dictionary<Vector2i, float>();
+
                 foreach (var chunkEntry in GetNearbyChunks(position, 3)) // radius todo
                 {
                     var chunk = chunkEntry.Key;
@@ -66,8 +73,23 @@ namespace ImprovedHordes.Horde
 
                         heat.strength += (!heat.IsFull() ? value * offset : 0.0f) - (heat.WasUnloaded(worldTime) ? (heat.strength * Mathf.Clamp01((float)(worldTime - heat.lastUpdate) / (float)GameTicksToFullyDecay)) : 0);
                         heat.lastUpdate = manager.World.worldTime;
+
+                        events.Add(chunk, heat.strength);
                     }
                 }
+
+                ThreadManager.AddSingleTaskMainThread("ImprovedHordes-HordeAreaHeatTracker.TickEvent", (_param1) =>
+                {
+                    var areaEvent = OnAreaHeatTick;
+
+                    if (areaEvent == null)
+                        return;
+
+                    foreach(var chunkEntry in events)
+                    {
+                        areaEvent(this, new AreaHeatTickEvent(chunkEntry.Key, chunkEntry.Value));
+                    }
+                });
             }
             
             return -1;
@@ -86,7 +108,7 @@ namespace ImprovedHordes.Horde
 
         public float GetHeatAt(Vector3 position)
         {
-            return GetHeatInChunk(new Vector2i(global::Utils.Fastfloor(position.x / 16), global::Utils.Fastfloor(position.z / 16)));
+            return GetHeatInChunk(World.toChunkXZ(position));
         }
 
         public float GetHeatForGroup(PlayerHordeGroup group)
@@ -120,9 +142,9 @@ namespace ImprovedHordes.Horde
             int radiusSquared = radius * radius;
             Dictionary<Vector2i, float> nearbyChunks = new Dictionary<Vector2i, float>();
 
-            Vector2i currentChunk = new Vector2i(global::Utils.Fastfloor(position.x / 16f), global::Utils.Fastfloor(position.z / 16f));
+            Vector2i currentChunk = World.toChunkXZ(position);
 
-            nearbyChunks.Add(new Vector2i(currentChunk.x, currentChunk.y), 1f);
+            nearbyChunks.Add(currentChunk, 1f);
 
             for (int x = 1; x <= radiusSquared; x++)
             {

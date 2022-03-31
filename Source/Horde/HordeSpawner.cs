@@ -24,7 +24,7 @@ namespace ImprovedHordes.Horde
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
         private readonly HordeGenerator hordeGenerator;
 
-        private readonly ImprovedHordesManager manager;
+        protected readonly ImprovedHordesManager manager;
 
         public HordeSpawner(ImprovedHordesManager manager, HordeGenerator hordeGenerator)
         {

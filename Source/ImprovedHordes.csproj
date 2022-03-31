@@ -72,11 +72,14 @@
     <Compile Include="Horde\AI\Events\HordeKilledEvent.cs" />
     <Compile Include="Horde\AI\HordeAICommand.cs" />
     <Compile Include="Horde\AI\HordeAIEntity.cs" />
+    <Compile Include="Horde\Heat\Events\AreaHeatTickEvent.cs" />
+    <Compile Include="Horde\Heat\HordeHeatPatrolManager.cs" />
+    <Compile Include="Horde\Heat\PatrolHordeSpawner.cs" />
     <Compile Include="Horde\Horde.cs" />
     <Compile Include="Horde\AI\HordeAIHorde.cs" />
     <Compile Include="Horde\Data\HordeGroup.cs" />
     <Compile Include="Horde\Data\HordeGroupList.cs" />
-    <Compile Include="Horde\HordeAreaHeatTracker.cs" />
+    <Compile Include="Horde\Heat\HordeAreaHeatTracker.cs" />
     <Compile Include="Horde\HordeManager.cs" />
     <Compile Include="Horde\Data\HordesList.cs" />
     <Compile Include="Horde\Data\HordesFromXml.cs" />
