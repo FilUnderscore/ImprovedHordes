@@ -26,7 +26,7 @@ namespace ImprovedHordes.Horde.Heat
         private void OnAreaHeatTick(object sender, AreaHeatTickEvent e)
         {
             Vector2i area = GetAreaFromChunk(e.chunk);
-            
+
             if (patrolTime.ContainsKey(area))
             {
                 if (manager.World.worldTime >= patrolTime[area])
@@ -36,30 +36,48 @@ namespace ImprovedHordes.Horde.Heat
                     Utils.GetSpawnableY(ref pos);
 
                     PlayerHordeGroup group = this.spawner.GetHordeGroupNearLocation(pos);
+                    
+                    if (group != null && group.members.Count > 0)
+                    {
+                        ThreadManager.AddSingleTaskMainThread("ImprovedHordes-HordeHeatPatrolManager.PatrolSpawn", (_param1) =>
+                        {
+                            this.spawner.StartSpawningFor(group, false);
+                        });
+                    }
 
-                    if (group == null || group.members.Count == 0)
-                        return;
-
-                    this.spawner.StartSpawningFor(group, false);
                     patrolTime.Remove(area);
                 }
-
-                return;
             }
-
-            CalculatePatrolTime(e.chunk, e.heat);
+            else
+            {
+                CalculatePatrolTime(e.chunk, e.heat);
+            }
         }
 
         public Vector2i GetAreaFromChunk(Vector2i chunk)
         {
-            return new Vector2i(chunk.x / (2 * HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius), chunk.y / (2 * HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius));
+            return new Vector2i(chunk.x / (HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius), chunk.y / (HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius));
         }
 
         public Vector2 GetCenterOfArea(Vector2i area)
         {
             int radiusSquared = HordeAreaHeatTracker.Radius * HordeAreaHeatTracker.Radius;
             
-            return new Vector2(16f * (area.x * 2 * radiusSquared + radiusSquared), 16f * (area.y * 2 * radiusSquared + radiusSquared));
+            return new Vector2(16f * (area.x * radiusSquared + radiusSquared), 16f * (area.y * radiusSquared + radiusSquared));
+        }
+
+        public bool GetAreaPatrolTime(Vector3 position, out ulong time)
+        {
+            Vector2i area = GetAreaFromChunk(World.toChunkXZ(position));
+
+            if (patrolTime.ContainsKey(area))
+            {
+                time = patrolTime[area];
+                return true;
+            }
+
+            time = 0;
+            return false;
         }
 
         public void Update()
@@ -126,16 +144,16 @@ namespace ImprovedHordes.Horde.Heat
                     return;
             }
 
-            float mod = def != null ? def.LootStageMod : 0f;
-            float difficulty = mod + 1f + (heat / 100f);
+            float mod = def.LootStageMod;
+            float difficulty = mod * mod + 1f + (heat / 100f) * (mod + 1f);
 
             ulong worldTime = manager.World.worldTime;
             ulong time = (ulong)(24000f / difficulty);
 
-            Log.Out("Time: " + GameUtils.WorldTimeToString(worldTime + time) + " Def NULL: " + (def == null));
+            //Log.Out("Time: " + GameUtils.WorldTimeToString(worldTime + time) + " Def NULL: " + (def == null));
 
-            Log.Out("Chunk: " + chunk);
-            Log.Out("Area: " + area + " Center: " + center);
+            //Log.Out("Chunk: " + chunk);
+            //Log.Out("Area: " + area + " Center: " + center);
             patrolTime.Add(area, worldTime + time);
         }
 

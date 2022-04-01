@@ -144,9 +144,16 @@ namespace ImprovedHordes.Horde
             Vector3 commonPos = playerHordeGroup.CalculateAverageGroupPosition(true);
             FindAllFarthestDirectionalSpawnsFromGroup(playerHordeGroup, count, commonPos, out Vector2 centerStart, out startPositions);
 
-            Vector2 opposite = new Vector2(commonPos.x, commonPos.z) - (centerStart - new Vector2(commonPos.x, commonPos.z));
+            Vector2 direction = centerStart - commonPos.ToXZ();
+            float theta = Mathf.Atan2(direction.y, direction.x);
+            float mag = direction.magnitude;
 
-            endPos = new Vector3(opposite.x, 0, opposite.y);
+            float minThetaRange = theta + Mathf.PI / 2;
+            float maxThetaRange = 2 * Mathf.PI + theta - Mathf.PI / 2;
+
+            float thetaRandomnessFactor = this.manager.Random.RandomRange(minThetaRange, maxThetaRange);
+            
+            endPos = commonPos + new Vector3(mag * Mathf.Cos(thetaRandomnessFactor), 0, mag * Mathf.Sin(thetaRandomnessFactor));
             
             Utils.GetSpawnableY(ref endPos);
 
@@ -180,7 +187,7 @@ namespace ImprovedHordes.Horde
                 startPositions.Enqueue(spawnPosition);
             }
 
-            centerStart = new Vector2(farthestPlayerPosition.x + GetMaxSpawnDistance() * Mathf.Cos(theta), farthestPlayerPosition.z + GetMaxSpawnDistance() * Mathf.Sin(theta));
+            centerStart = new Vector2(farthestPlayerPosition.x + GetMaxSpawnDistance() * Mathf.Cos(thetaRandomnessFactor), farthestPlayerPosition.z + GetMaxSpawnDistance() * Mathf.Sin(thetaRandomnessFactor));
         }
 
         private float GetMaxSpawnDistance()

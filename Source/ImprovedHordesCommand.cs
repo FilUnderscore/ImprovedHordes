@@ -171,16 +171,17 @@ namespace ImprovedHordes
             {
                 HordePlayer hordePlayer = playerManager.GetPlayer(player);
                 builder.AppendLine("Player " + hordePlayer.playerEntityInstance.EntityName);
-                builder.AppendLine("Avg GS: " + hordePlayer.GetAverageGamestage());
-
-                foreach(var gsEntry in hordePlayer.gamestageTrend)
-                {
-                    builder.AppendLine("Day " + gsEntry.Key + " Start " + gsEntry.Value.startGamestage + " End " + gsEntry.Value.endGamestage);
-                }
-
+                
                 Vector3 pos = hordePlayer.playerEntityInstance.position;
                 Vector2i chunk = new Vector2i(global::Utils.Fastfloor(pos.x / 16), global::Utils.Fastfloor(pos.z / 16));
                 builder.AppendLine("Chunk " + chunk + " Heat: " + ImprovedHordesManager.Instance.HeatTracker.GetHeatInChunk(chunk));
+
+                if(ImprovedHordesManager.Instance.HeatPatrolManager.GetAreaPatrolTime(hordePlayer.playerEntityInstance.position, out ulong time))
+                {
+                    (int days, int hours, int minutes) = GameUtils.WorldTimeToElements(time);
+                    builder.AppendLine($"Area: " + ImprovedHordesManager.Instance.HeatPatrolManager.GetAreaFromChunk(World.toChunkXZ(hordePlayer.playerEntityInstance.position)));
+                    builder.AppendLine($"Patrol time: Day {days} {hours}:{minutes}");
+                }
             }
 
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());

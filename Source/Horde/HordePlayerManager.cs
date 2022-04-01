@@ -21,7 +21,7 @@ namespace ImprovedHordes.Horde
                 if (!players.ContainsKey(player.entityId))
                     players.Add(player.entityId, new HordePlayer(player));
 
-                players[player.entityId].Tick(worldTime);
+                //players[player.entityId].Tick(worldTime);
             }
 
             if(toRemove.Count > 0)

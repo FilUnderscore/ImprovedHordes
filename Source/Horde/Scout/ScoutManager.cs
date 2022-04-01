@@ -15,7 +15,6 @@ namespace ImprovedHordes.Horde.Scout
     public class ScoutManager : IManager
     {
         private int s_chunk_radius, s_max_scout_hordes_active_per_player_group;
-        private float s_feral_horde_chance_multiplier;
         private bool s_enabled;
 
         public int CHUNK_RADIUS
@@ -23,14 +22,6 @@ namespace ImprovedHordes.Horde.Scout
             get
             {
                 return s_chunk_radius;
-            }
-        }
-
-        public float FERAL_HORDE_CHANCE_MULTIPLIER
-        {
-            get
-            {
-                return s_feral_horde_chance_multiplier;
             }
         }
 
@@ -73,7 +64,6 @@ namespace ImprovedHordes.Horde.Scout
         {
             this.s_enabled = settings.GetBool("enabled", true);
             this.s_chunk_radius = settings.GetInt("chunk_radius", GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance), true, GamePrefs.GetInt(EnumGamePrefs.ServerMaxAllowedViewDistance));
-            this.s_feral_horde_chance_multiplier = settings.GetFloat("feral_horde_chance_multiplier", 0.0f, false, 1.0f);
             this.s_max_scout_hordes_active_per_player_group = settings.GetInt("max_scout_hordes_active_per_player_group", 0, false, 3);
         }
 
@@ -118,11 +108,6 @@ namespace ImprovedHordes.Horde.Scout
                     || entity.entityClass == EntityClass.FromString("zombieScreamerRadiated");
         }
 
-        private bool IsFeralScoutHorde(Horde horde)
-        {
-            return horde.feral && IsScoutHorde(horde);
-        }
-
         public void OnScoutEntityKilled(object sender, HordeEntityKilledEvent e)
         {
             if (this.scouts.ContainsKey(e.horde) && this.scouts[e.horde].ContainsKey(e.entity))
@@ -130,16 +115,6 @@ namespace ImprovedHordes.Horde.Scout
                 Log("[Scout] Scout entity {0} was killed.", e.entity.GetEntityId());
 
                 Scout scout = this.scouts[e.horde][e.entity];
-
-                if (this.IsFeralScoutHorde(e.horde.GetHordeInstance()) &&
-                    e.killer != null && e.killer is EntityPlayer)
-                {
-                    EntityPlayer killer = e.killer as EntityPlayer;
-
-                    Log("[Scout] Player {0} killed feral scout.", killer.EntityName);
-                    scout.killer = killer;
-                }
-
                 scout.state = EScoutState.DEAD;
             }
         }
@@ -150,23 +125,6 @@ namespace ImprovedHordes.Horde.Scout
                 return;
 
             Log("[Scout] Scout horde for group {0} has ended.", e.horde.GetHordeInstance().playerGroup);
-
-            int totalKilled;
-            // Surprise players with a horde called by the living scouts to avenge the killed scouts.
-            if (IsFeralScoutHorde(e.horde.GetHordeInstance()) && (totalKilled = e.horde.GetStat(EHordeAIStats.TOTAL_KILLED)) > 0)
-            {
-                Log("[Scout] {0} feral scouts were killed. Attempting to spawn horde.", totalKilled);
-
-                foreach(var scoutEntry in scouts[e.horde])
-                {
-                    var scout = scoutEntry.Value;
-
-                    if(scout.state == EScoutState.DEAD && scout.killer != null)
-                    {
-                        this.TrySpawnScoutHorde(scout.killer, scout);
-                    }
-                }
-            }
 
             scouts.Remove(e.horde);
         }
@@ -193,16 +151,13 @@ namespace ImprovedHordes.Horde.Scout
 
         public void SpawnScouts(Vector3 targetPos)
         {
-            const float DIFFICULTY_MODIFIER = 720; // Max gamestage.
-
             EntityPlayer closest = this.manager.World.GetClosestPlayer(targetPos, -1, false);
             PlayerHordeGroup group = this.spawner.GetHordeGroupNearPlayer(closest);
 
-            int groupGamestage = group.GetGroupGamestage();
-            float chance = Mathf.Clamp((groupGamestage / DIFFICULTY_MODIFIER) * FERAL_HORDE_CHANCE_MULTIPLIER, 0.0f, 0.75f);
+            float chance = Mathf.Clamp(ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(group), 0.0f, 0.75f);
 
-            // Scale feral scouts based on GS.
-            bool feral = this.manager.Random.RandomFloat < chance; // From 0% chance to 75% depending on GS.
+            // Scale feral scouts based on heat.
+            bool feral = this.manager.Random.RandomFloat < chance; // From 0% chance to 75% depending on heat.
 
             this.spawner.StartSpawningFor(group, feral, targetPos);
         }
@@ -214,9 +169,12 @@ namespace ImprovedHordes.Horde.Scout
 
         public void TrySpawnScoutHorde(EntityPlayer target, Scout scout)
         {
-            if (GetCurrentSpawnedScoutHordesCount(target.position) < MAX_SCOUT_HORDES_ACTIVE_PER_PLAYER_GROUP)
+            int count = GetCurrentSpawnedScoutHordesCount(target.position);
+
+            if (count < MAX_SCOUT_HORDES_ACTIVE_PER_PLAYER_GROUP)
             {
                 this.hordeSpawner.StartSpawningFor(target, scout, false, target.position);
+                manager.HeatTracker.Request(target.position, count * 4f);
             }
         }
 
@@ -224,7 +182,7 @@ namespace ImprovedHordes.Horde.Scout
         {
             int count = 0;
 
-            foreach(var scout in GetScoutsNear(position))
+            foreach(var scout in GetScoutsNear(position, false))
             {
                 count += currentScoutZombieHordesSpawned.Count(entry => entry.Value == scout);
             }
@@ -267,7 +225,7 @@ namespace ImprovedHordes.Horde.Scout
             this.hordeSpawner.Update();
         }
 
-        public List<Scout> GetScoutsNear(Vector3 targetPos)
+        public List<Scout> GetScoutsNear(Vector3 targetPos, bool alive = true)
         {
             int chunkDist = 16 * this.CHUNK_RADIUS;
 
@@ -280,7 +238,7 @@ namespace ImprovedHordes.Horde.Scout
                     var entity = scoutEntry.Key;
                     var scout = scoutEntry.Value;
 
-                    if (scout != null && scout.state != EScoutState.ALIVE)
+                    if (scout != null && !alive && scout.state != EScoutState.ALIVE)
                         continue;
 
                     Vector3 scoutPos = entity.entity.position;

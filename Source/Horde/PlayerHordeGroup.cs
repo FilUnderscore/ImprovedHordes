@@ -24,11 +24,11 @@ namespace ImprovedHordes.Horde
             
             foreach (var player in this.members)
             {
-                HordePlayer hordePlayer = ImprovedHordesManager.Instance.PlayerManager.GetPlayer(player.entityId);
+                //HordePlayer hordePlayer = ImprovedHordesManager.Instance.PlayerManager.GetPlayer(player.entityId);
 
-                if (hordePlayer != null)
-                    gamestages.Add(hordePlayer.GetAverageGamestage());
-                else
+                //if (hordePlayer != null)
+                //    gamestages.Add(hordePlayer.GetAverageGamestage());
+                //else
                     gamestages.Add(player.gameStage);
             }
 

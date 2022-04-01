@@ -86,11 +86,11 @@ namespace ImprovedHordes.Horde.AI
 
             if (tickSense(out SenseEntry entry))
             {
-                if ((command == null || command.GetType() != typeof(HordeAICommandInvestigate)))
+                if (command == null || (command.GetType() != typeof(HordeAICommandInvestigate) && command.CanInterruptWithSense(entry)))
                 {
                     this.commands.Insert(this.currentCommandIndex, new HordeAICommandInvestigate(entry));
                 }
-                else
+                else if(command.GetType() == typeof(HordeAICommandInvestigate))
                 {
                     HordeAICommandInvestigate hordeAICommandInvestigate = (HordeAICommandInvestigate)command;
 

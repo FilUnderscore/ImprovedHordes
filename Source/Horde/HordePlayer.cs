@@ -6,16 +6,17 @@ namespace ImprovedHordes.Horde
 {
     public sealed class HordePlayer
     {
-        const int STORED_HISTORY = 7;
+        //const int STORED_HISTORY = 7;
         
         public readonly EntityPlayer playerEntityInstance;
-        public readonly Dictionary<int, GameStage> gamestageTrend = new Dictionary<int, GameStage>();
+        //public readonly Dictionary<int, GameStage> gamestageTrend = new Dictionary<int, GameStage>();
 
         public HordePlayer(EntityPlayer playerEntityInstance)
         {
             this.playerEntityInstance = playerEntityInstance;
         }
 
+        /*
         public int GetAverageGamestage()
         {
             int gamestageDifference = 0;
@@ -75,5 +76,6 @@ namespace ImprovedHordes.Horde
                 return endGamestage - startGamestage;
             }
         }
+        */
     }
 }

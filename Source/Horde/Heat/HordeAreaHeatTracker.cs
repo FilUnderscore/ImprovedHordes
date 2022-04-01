@@ -65,6 +65,8 @@ namespace ImprovedHordes.Horde.Heat
 
                 Dictionary<Vector2i, float> events = new Dictionary<Vector2i, float>();
 
+                var areaEvent = OnAreaHeatTick;
+
                 foreach (var chunkEntry in GetNearbyChunks(position, 3)) // radius todo
                 {
                     var chunk = chunkEntry.Key;
@@ -84,18 +86,13 @@ namespace ImprovedHordes.Horde.Heat
                     }
                 }
 
-                ThreadManager.AddSingleTaskMainThread("ImprovedHordes-HordeAreaHeatTracker.TickEvent", (_param1) =>
+                if (areaEvent != null)
                 {
-                    var areaEvent = OnAreaHeatTick;
-
-                    if (areaEvent == null)
-                        return;
-
-                    foreach(var chunkEntry in events)
+                    foreach (var chunkEntry in events)
                     {
                         areaEvent(this, new AreaHeatTickEvent(chunkEntry.Key, chunkEntry.Value));
                     }
-                });
+                }
             }
             
             return -1;
@@ -172,6 +169,8 @@ namespace ImprovedHordes.Horde.Heat
 
                 nearbyChunks.Add(new Vector2i(currentChunk.x + x, currentChunk.y), strengthX);
                 nearbyChunks.Add(new Vector2i(currentChunk.x - x, currentChunk.y), strengthX);
+                nearbyChunks.Add(new Vector2i(currentChunk.x, currentChunk.y + x), strengthX);
+                nearbyChunks.Add(new Vector2i(currentChunk.x, currentChunk.y - x), strengthX);
             }
 
             return nearbyChunks;
