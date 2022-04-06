@@ -16,11 +16,57 @@ namespace ImprovedHordes.Horde.Heat
         private const ushort HEAT_TRACKER_MAGIC = 0x4854;
         private const uint HEAT_TRACKER_VERSION = 1;
 
-        public const int Radius = 3;
-        const ulong GameTicksBeforeFull = 96000;
-        const ulong GameTicksToFullyDecay = 48000;
-        const ulong GameTicksBeforeDecay = 24000;
-        const int EventThreshold = 100;
+        private static int s_radius, s_radius_squared;
+        private static int s_hrs_before_full, s_hrs_before_decay, s_hrs_to_fully_decay;
+        private static float s_event_multiplier;
+
+        public static int RADIUS
+        {
+            get
+            {
+                return s_radius;
+            }
+        }
+
+        public static int RADIUS_SQUARED
+        {
+            get
+            {
+                return s_radius_squared;
+            }
+        }
+
+        public static int HRS_BEFORE_FULL
+        {
+            get
+            {
+                return s_hrs_before_full;
+            }
+        }
+
+        public static int HRS_BEFORE_DECAY
+        {
+            get
+            {
+                return s_hrs_before_decay;
+            }
+        }
+
+        public static int HRS_TO_FULLY_DECAY
+        {
+            get
+            {
+                return s_hrs_to_fully_decay;
+            }
+        }
+
+        public static float EVENT_MULTIPLIER
+        {
+            get
+            {
+                return s_event_multiplier;
+            }
+        }
 
         private readonly ImprovedHordesManager manager;
         private readonly Dictionary<Vector2i, AreaHeat> chunkHeat = new Dictionary<Vector2i, AreaHeat>();
@@ -46,6 +92,16 @@ namespace ImprovedHordes.Horde.Heat
             StartThreads();
         }
 
+        public void ReadSettings(Settings settings)
+        {
+            s_radius = settings.GetInt("radius", 0, false, 3);
+            s_radius_squared = s_radius * s_radius;
+            s_hrs_before_full = settings.GetInt("hrs_before_full", 0, false, 168);
+            s_hrs_before_decay = settings.GetInt("hrs_before_decay", 1, false, 24);
+            s_hrs_to_fully_decay = settings.GetInt("hrs_to_fully_decay", 0, false, 96);
+            s_event_multiplier = settings.GetFloat("event_multiplier", 0f, false, 0.01f);
+        }
+
         private int UpdateHeat(ThreadManager.ThreadInfo threadInfo)
         {
             while (!threadInfo.TerminationRequested())
@@ -67,7 +123,7 @@ namespace ImprovedHordes.Horde.Heat
 
                 var areaEvent = OnAreaHeatTick;
 
-                foreach (var chunkEntry in GetNearbyChunks(position, 3)) // radius todo
+                foreach (var chunkEntry in GetNearbyChunks(position, RADIUS))
                 {
                     var chunk = chunkEntry.Key;
                     var offset = chunkEntry.Value;
@@ -79,7 +135,10 @@ namespace ImprovedHordes.Horde.Heat
 
                         AreaHeat heat = chunkHeat[chunk];
 
-                        heat.strength += (!heat.IsFull() ? value * offset : 0.0f) - (heat.WasUnloaded(worldTime) ? (heat.strength * Mathf.Clamp01((float)(worldTime - heat.lastUpdate) / (float)GameTicksToFullyDecay)) : 0);
+                        float decay = Mathf.Clamp(heat.WasUnloaded(worldTime) ? 100.0f * Mathf.Clamp01((float)(worldTime - heat.lastUpdate) / (float)(HRS_TO_FULLY_DECAY * 1000)) : 0f, 0f, 100f);
+                        float gain = Mathf.Clamp(heat.strength + (!heat.IsFull() ? value * offset : 0.0f), 0f, 100f);
+
+                        heat.strength = gain - decay;
                         heat.lastUpdate = manager.World.worldTime;
 
                         events.Add(chunk, heat.strength);
@@ -129,7 +188,7 @@ namespace ImprovedHordes.Horde.Heat
         {
             foreach (var player in manager.World.Players.list)
             {
-                queue.Enqueue(new AreaHeatRequest(player.position, (float)(100f / GameTicksBeforeFull)));
+                queue.Enqueue(new AreaHeatRequest(player.position, (float)(100f / (HRS_BEFORE_FULL * 1000))));
             }
 
             this.writerThreadWaitHandle.Set();
@@ -137,7 +196,7 @@ namespace ImprovedHordes.Horde.Heat
 
         private void NotifyEvent(AIDirectorChunkEvent chunkEvent)
         {
-            Request(chunkEvent.Position, chunkEvent.Value / EventThreshold);
+            Request(chunkEvent.Position, chunkEvent.Value * EVENT_MULTIPLIER);
         }
 
         private Dictionary<Vector2i, float> GetNearbyChunks(Vector3 position, int radius)
@@ -256,7 +315,7 @@ namespace ImprovedHordes.Horde.Heat
 
             public bool WasUnloaded(ulong worldTime)
             {
-                return worldTime - lastUpdate >= GameTicksBeforeDecay;
+                return worldTime - lastUpdate >= ((ulong)HRS_BEFORE_DECAY * 1000UL);
             }
 
             public override string ToString()
