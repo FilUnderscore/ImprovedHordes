@@ -15,7 +15,7 @@ namespace ImprovedHordes.Horde.Heat
 
         public override int GetGroupDistance()
         {
-            return HordeAreaHeatTracker.RADIUS_SQUARED * 16;
+            return HordeAreaHeatTracker.RADIUS_SQUARED * 16 / 2;
         }
 
         protected override void OnSpawn(EntityAlive entity, PlayerHordeGroup group, SpawningHorde horde)

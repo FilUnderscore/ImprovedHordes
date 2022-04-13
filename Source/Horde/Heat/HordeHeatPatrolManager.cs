@@ -70,15 +70,15 @@ namespace ImprovedHordes.Horde.Heat
         public Vector2i GetAreaFromChunk(Vector2i chunk)
         {
             int radiusSquared = HordeAreaHeatTracker.RADIUS_SQUARED;
-            
-            return new Vector2i(chunk.x / (2 * radiusSquared), chunk.y / (2 * radiusSquared));
+
+            return new Vector2i(Utils.Math.FastRound((float)chunk.x / radiusSquared), Utils.Math.FastRound((float)chunk.y / radiusSquared));
         }
 
         public Vector2 GetCenterOfArea(Vector2i area)
         {
             int radiusSquared = HordeAreaHeatTracker.RADIUS_SQUARED;
 
-            return new Vector2(16f * area.x * radiusSquared, 16f * area.y * radiusSquared);
+            return new Vector2(16f * (radiusSquared * area.x), 16f * (radiusSquared * area.y));
         }
 
         public bool GetAreaPatrolTime(Vector3 position, out ulong time)

@@ -153,6 +153,14 @@ namespace ImprovedHordes
 
                 return num;
             }
+
+            public static int FastRound(float value)
+            {
+                if (value < 0)
+                    return (int)(value - 0.5f);
+
+                return (int)(value + 0.5f);
+            }
         }
     }
 }
