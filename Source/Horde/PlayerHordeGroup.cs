@@ -24,10 +24,22 @@ namespace ImprovedHordes.Horde
             
             foreach (var player in this.members)
             {
-                gamestages.Add(player.gameStage);
+                //HordePlayer hordePlayer = ImprovedHordesManager.Instance.PlayerManager.GetPlayer(player.entityId);
+
+                //if (hordePlayer != null)
+                //    gamestages.Add(hordePlayer.GetAverageGamestage());
+                //else
+                    gamestages.Add(player.gameStage);
             }
 
-            return GameStageDefinition.CalcPartyLevel(gamestages);
+            int groupGS = GameStageDefinition.CalcPartyLevel(gamestages);
+            float heatDiff = 0.25f * (ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this) / 100f);
+            Vector3 pos = CalculateAverageGroupPosition(false);
+            BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome((int)pos.x, (int)pos.z);
+            float biomeDiff = biomeDef.LootStageMod;
+            float biomeBonus = biomeDef.LootStageBonus;
+
+            return global::Utils.Fastfloor(groupGS * (1f + heatDiff) + biomeBonus * biomeDiff);
         }
 
         public Vector3 CalculateAverageGroupPosition(bool calculateY)

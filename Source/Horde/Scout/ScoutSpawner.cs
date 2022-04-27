@@ -14,7 +14,7 @@ namespace ImprovedHordes.Horde.Scout
         private static readonly HordeGenerator SCOUTS_HORDE_GENERATOR = new ScoutsHordeGenerator(); // Scouts - e.g. Screamer
 
         private Vector3 latestTarget = Vector3.zero;
-        private readonly ScoutManager manager;
+        private new readonly ScoutManager manager;
 
         public ScoutSpawner(ScoutManager manager) : base(manager.manager, SCOUTS_HORDE_GENERATOR)
         {

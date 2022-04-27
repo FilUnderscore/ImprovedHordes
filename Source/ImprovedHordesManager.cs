@@ -11,6 +11,9 @@ using ImprovedHordes.Horde.Data;
 
 using ImprovedHordes.Horde.Wandering;
 using ImprovedHordes.Horde.Scout;
+using ImprovedHordes.Horde.Heat;
+
+using HarmonyLib;
 
 using CustomModManager.API;
 
@@ -18,12 +21,14 @@ namespace ImprovedHordes
 {
     public class ImprovedHordesManager : IManager
     {
+        private const ushort DATA_FILE_MAGIC = 0x4948;
+        private const uint DATA_FILE_VERSION = 1;
+
         private string DataFile;
         private readonly string XmlFilesDir;
         private readonly string ModPath;
 
         public World World;
-        public List<int> Players = new List<int>();
         public GameRandom Random;
 
         private static ImprovedHordesManager instance;
@@ -44,6 +49,10 @@ namespace ImprovedHordes
         public ScoutManager ScoutManager;
         public Settings Settings;
 
+        public HordePlayerManager PlayerManager;
+        public HordeAreaHeatTracker HeatTracker;
+        public HordeHeatPatrolManager HeatPatrolManager;
+
         public ImprovedHordesManager(Mod mod)
         {
             if (instance != null)
@@ -55,6 +64,9 @@ namespace ImprovedHordes
             AIManager = new HordeAIManager();
             WanderingHorde = new WanderingHordeManager(this);
             ScoutManager = new ScoutManager(this);
+            PlayerManager = new HordePlayerManager(this);
+            HeatTracker = new HordeAreaHeatTracker(this);
+            HeatPatrolManager = new HordeHeatPatrolManager(this);
 
             ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
@@ -69,11 +81,12 @@ namespace ImprovedHordes
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
             this.WanderingHorde.schedule.SetGameVariables();
-
+            
             // Reload data file location.
             DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
 
             this.Load();
+            this.HeatTracker.Init();
         }
 
         public void LoadSettings(Mod modInstance)
@@ -104,6 +117,8 @@ namespace ImprovedHordes
                 HordeGenerator.HookSettings(modSettings);
             }
 
+            this.HeatTracker.ReadSettings(this.Settings.GetSettings("heat_tracker"));
+
             Log("Loaded settings.");
         }
 
@@ -124,7 +139,12 @@ namespace ImprovedHordes
                 {
                     BinaryWriter writer = new BinaryWriter(stream);
 
+                    writer.Write(DATA_FILE_MAGIC);
+                    writer.Write(DATA_FILE_VERSION);
+
                     this.WanderingHorde.Save(writer);
+                    this.HeatTracker.Save(writer);
+                    this.HeatPatrolManager.Save(writer);
 
                     Log("Saved horde data.");
                 }
@@ -137,31 +157,38 @@ namespace ImprovedHordes
 
         public void Load()
         {
+            if (!File.Exists(DataFile))
+                return;
+
             try
             {
                 using(Stream stream = File.Open(DataFile, FileMode.Open))
                 {
                     BinaryReader reader = new BinaryReader(stream);
 
+                    if(reader.ReadUInt16() != DATA_FILE_MAGIC || reader.ReadUInt32() < DATA_FILE_VERSION)
+                    {
+                        Log("Data file version has changed.");
+
+                        return;
+                    }
+
                     this.WanderingHorde.Load(reader);
+                    this.HeatTracker.Load(reader);
+                    this.HeatPatrolManager.Load(reader);
 
                     Log("Loaded horde data.");
                 }
             }
-            catch(Exception )
+            catch(Exception e)
             {
-
+                Error("Failed to load: " + e.Message + " S: " + e.Source + " E: " + e.StackTrace);
             }
-        }
-
-        public void AddPlayer(int playerId)
-        {
-            this.Players.Add(playerId);
         }
 
         public void RemovePlayer(int playerId)
         {
-            this.Players.Remove(playerId);
+            PlayerManager.RemovePlayer(playerId);
         }
 
         public void Update()
@@ -172,6 +199,13 @@ namespace ImprovedHordes
             this.AIManager.Update();
             this.WanderingHorde.Update();
             this.ScoutManager.Update();
+            this.HeatPatrolManager.Update();
+        }
+
+        public void Tick(ulong time)
+        {
+            this.PlayerManager.Tick(time);
+            this.HeatTracker.Tick(time);
         }
 
         public void EntityKilled(Entity killed, Entity killer)
@@ -187,13 +221,30 @@ namespace ImprovedHordes
             this.AIManager.Shutdown();
             this.WanderingHorde.Shutdown();
             this.ScoutManager.Shutdown();
-
-            this.Players.Clear();
+            this.PlayerManager.Shutdown();
+            this.HeatTracker.Shutdown();
+            this.HeatPatrolManager.Shutdown();
         }
 
         public bool Initialized()
         {
             return this.World != null;
+        }
+
+        class HarmonyPatches
+        {
+            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch("SetTime")]
+            class WorldSetTimeHook
+            {
+                static void Postfix(ulong _time)
+                {
+                    if (!ImprovedHordesMod.IsHost())
+                        return;
+
+                    Instance.Tick(_time);
+                }
+            }
         }
     }
 }

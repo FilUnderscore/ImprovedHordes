@@ -7,5 +7,10 @@
         public abstract bool IsFinished(EntityAlive alive);
 
         public abstract void Execute(float dt, EntityAlive alive);
+
+        public virtual bool CanInterruptWithSense(HordeAIEntity.SenseEntry entry)
+        {
+            return true;
+        }
     }
 }

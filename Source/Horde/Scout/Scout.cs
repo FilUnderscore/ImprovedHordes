@@ -16,7 +16,6 @@ namespace ImprovedHordes.Horde.Scout
 
         public bool hasEndPosition = false;
 
-        public EntityPlayer killer = null;
         public EScoutState state = EScoutState.ALIVE;
 
         public Scout(HordeAIEntity aiEntity, HordeAIHorde aiHorde)

@@ -26,7 +26,7 @@ namespace ImprovedHordes.Horde
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
         private readonly HordeGenerator hordeGenerator;
 
-        private readonly ImprovedHordesManager manager;
+        protected readonly ImprovedHordesManager manager;
 
         public HordeSpawner(ImprovedHordesManager manager, HordeGenerator hordeGenerator)
         {
@@ -155,9 +155,16 @@ namespace ImprovedHordes.Horde
             Vector3 commonPos = playerHordeGroup.CalculateAverageGroupPosition(true);
             FindAllFarthestDirectionalSpawnsFromGroup(playerHordeGroup, count, commonPos, out Vector2 centerStart, out startPositions);
 
-            Vector2 opposite = new Vector2(commonPos.x, commonPos.z) - (centerStart - new Vector2(commonPos.x, commonPos.z));
+            Vector2 direction = centerStart - commonPos.ToXZ();
+            float theta = Mathf.Atan2(direction.y, direction.x);
+            float mag = direction.magnitude;
 
-            endPos = new Vector3(opposite.x, 0, opposite.y);
+            float minThetaRange = theta + Mathf.PI / 2;
+            float maxThetaRange = 2 * Mathf.PI + theta - Mathf.PI / 2;
+
+            float thetaRandomnessFactor = this.manager.Random.RandomRange(minThetaRange, maxThetaRange);
+            
+            endPos = commonPos + new Vector3(mag * Mathf.Cos(thetaRandomnessFactor), 0, mag * Mathf.Sin(thetaRandomnessFactor));
             
             Utils.GetSpawnableY(ref endPos);
 
@@ -172,8 +179,8 @@ namespace ImprovedHordes.Horde
             Vector3 direction = farthestPlayerPosition - centerPos;
             direction.y = 0.0f;
 
-            float theta = Mathf.Atan2(direction.z, direction.x) + Mathf.PI;
-            float thetaRange = Mathf.PI / 2;
+            float theta = Mathf.Atan2(direction.z, direction.x);
+            float thetaRange = group.members.Count > 1 ? Mathf.PI / 2 : Mathf.PI;
 
             float minThetaRange = theta - thetaRange;
             float maxThetaRange = theta + thetaRange;
@@ -191,7 +198,7 @@ namespace ImprovedHordes.Horde
                 startPositions.Enqueue(spawnPosition);
             }
 
-            centerStart = new Vector2(farthestPlayerPosition.x + GetMaxSpawnDistance() * Mathf.Cos(theta), farthestPlayerPosition.z + GetMaxSpawnDistance() * Mathf.Sin(theta));
+            centerStart = new Vector2(farthestPlayerPosition.x + GetMaxSpawnDistance() * Mathf.Cos(thetaRandomnessFactor), farthestPlayerPosition.z + GetMaxSpawnDistance() * Mathf.Sin(thetaRandomnessFactor));
         }
 
         private float GetMaxSpawnDistance()
@@ -289,7 +296,7 @@ namespace ImprovedHordes.Horde
         {
             HashSet<EntityPlayer> players = new HashSet<EntityPlayer>();
 
-            foreach (var playerId in ImprovedHordesManager.Instance.Players)
+            foreach (var playerId in ImprovedHordesManager.Instance.PlayerManager.GetPlayers())
             {
                 EntityPlayer player = ImprovedHordesManager.Instance.World.GetEntity(playerId) as EntityPlayer;
 
@@ -307,7 +314,7 @@ namespace ImprovedHordes.Horde
             List<int> grouped = new List<int>();
             List<PlayerHordeGroup> groups = new List<PlayerHordeGroup>();
 
-            foreach (var playerId in ImprovedHordesManager.Instance.Players)
+            foreach (var playerId in ImprovedHordesManager.Instance.PlayerManager.GetPlayers())
             {
                 if (grouped.Contains(playerId))
                     continue;

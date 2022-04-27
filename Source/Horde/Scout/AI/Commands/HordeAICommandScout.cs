@@ -30,6 +30,8 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
         private bool finished = false;
 
         private bool isScreamer = false;
+        private bool isFeral = false;
+        private HordeAIEntity.SenseEntry senseEntry;
 
         public HordeAICommandScout(ScoutManager manager, Scout scout, bool isScreamer)
         {
@@ -40,6 +42,7 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
             this.currentCommandIndex = scout.aiEntity.currentCommandIndex;
         
             this.isScreamer = isScreamer;
+            this.isFeral = scout.aiHorde.GetHordeInstance().feral;
         }
 
         public bool HasCommands()
@@ -118,13 +121,21 @@ namespace ImprovedHordes.Horde.Scout.AI.Commands
 
                     this.UpdateTarget(target.position, WANDER_TIME);
 
-                    attackDelay = ATTACK_DELAY * (this.manager.GetCurrentSpawnedScoutHordesCount(target.position) + 1); // Delay screamers longer while more zombies are present.
+                    attackDelay = ATTACK_DELAY / (isFeral ? 2 : 1) * (this.manager.GetCurrentSpawnedScoutHordesCount(target.position) + 1); // Delay screamers longer while more zombies are present.
                 }
                 else if (attackDelay > 0.0)
                 {
                     attackDelay -= dt;
                 }
             }
+        }
+
+        public override bool CanInterruptWithSense(HordeAIEntity.SenseEntry entry)
+        {
+            if(this.senseEntry != entry)
+                this.senseEntry = entry;
+
+            return false;
         }
 
         public override bool IsFinished(EntityAlive alive)

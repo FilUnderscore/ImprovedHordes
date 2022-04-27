@@ -54,6 +54,7 @@ namespace ImprovedHordes.Horde.AI
                         continue;
                     case EHordeAIHordeUpdateState.DEAD:
                         OnHordeKilledEvent(horde);
+                        hordesToRemove.Add(horde);
                         break;
                 }
             }

@@ -275,6 +275,8 @@ namespace ImprovedHordes.Horde.Wandering
             foreach (var previousHordeGroupsForPlayer in previousHordeGroupsForPlayers)
             {
                 writer.Write(previousHordeGroupsForPlayer.Key);
+
+                writer.Write(previousHordeGroupsForPlayer.Value.Count);
                 foreach (var group in previousHordeGroupsForPlayer.Value)
                 {
                     writer.Write(group.Key);

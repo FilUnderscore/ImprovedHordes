@@ -86,6 +86,11 @@ namespace ImprovedHordes
             }
         }
 
+        public static Vector2 ToXZ(this Vector3 position)
+        {
+            return new Vector2(position.x, position.z);
+        }
+
         public static class Logger
         {
             public static void Log(String message)
@@ -147,6 +152,14 @@ namespace ImprovedHordes
                     return max;
 
                 return num;
+            }
+
+            public static int FastRound(float value)
+            {
+                if (value < 0)
+                    return (int)(value - 0.5f);
+
+                return (int)(value + 0.5f);
             }
         }
     }

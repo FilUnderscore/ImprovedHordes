@@ -16,7 +16,7 @@ namespace ImprovedHordes.Horde.Wandering
     public class WanderingHordeSpawner : HordeSpawner
     {
         private static readonly WanderingHordeGenerator HORDE_GENERATOR = new WanderingHordeGenerator();
-        public readonly WanderingHordeManager manager;
+        public new readonly WanderingHordeManager manager;
 
         public WanderingHordeSpawner(WanderingHordeManager manager) : base(manager.manager, HORDE_GENERATOR)
         {

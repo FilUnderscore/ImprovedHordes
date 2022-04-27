@@ -75,14 +75,14 @@ namespace ImprovedHordes.Horde.Wandering
         {
             if (this.schedule.CheckIfNeedsReset() || (this.state == EHordeState.StillAlive && this.schedule.IsNextOccurrenceDue()))
             {
-                if(this.schedule.CheckIfNeedsReset())
-                    this.schedule.Reset();
-
                 this.spawner.StopAllSpawning();
                 this.DisbandAllWanderingHordes();
+
+                if (this.schedule.CheckIfNeedsReset())
+                    this.schedule.Reset();
             }
 
-            if (this.manager.Players.Count == 0)
+            if (!this.manager.PlayerManager.AnyPlayers())
                 return;
 
             this.spawner.Update();
@@ -101,25 +101,20 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void DisbandAllWanderingHordes()
         {
+            if (this.hordes.Count == 0)
+                return;
+
             Log("[Wandering Horde] Disbanding all hordes.");
 
-            if (this.hordes.Count > 0)
+            foreach (var horde in this.hordes)
             {
-                foreach (var horde in this.hordes)
-                {
-                    var aiHorde = this.manager.AIManager.GetAsAIHorde(horde);
+                var aiHorde = this.manager.AIManager.GetAsAIHorde(horde);
 
-                    if (aiHorde != null)
-                        aiHorde.Disband();
-                }
+                if (aiHorde != null)
+                    aiHorde.Disband();
+            }
 
-                this.hordes.Clear();
-            }
-            else
-            {
-                this.schedule.currentOccurrence++;
-                this.state = WanderingHordeManager.EHordeState.Finished;
-            }
+            this.hordes.Clear();
         }
 
         public void OnWanderingHordeKilled(object sender, HordeKilledEvent e)

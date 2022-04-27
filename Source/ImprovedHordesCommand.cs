@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using ImprovedHordes.Horde;
 using ImprovedHordes.Horde.Wandering;
+
+using UnityEngine;
 
 namespace ImprovedHordes
 {
@@ -19,6 +21,10 @@ namespace ImprovedHordes
                 else if(_params[0].EqualsCaseInsensitive("list"))
                 {
                     this.ExecuteList(_params);
+                }
+                else if(_params[0].EqualsCaseInsensitive("stats"))
+                {
+                    this.ExecuteStats(_params, _senderInfo);
                 }
             }
             else
@@ -70,10 +76,9 @@ namespace ImprovedHordes
         {
             var wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
-            wanderingHorde.state = WanderingHordeManager.EHordeState.Finished;
-            wanderingHorde.schedule.Reset();
             wanderingHorde.spawner.StopAllSpawning();
             wanderingHorde.DisbandAllWanderingHordes();
+            wanderingHorde.schedule.Reset();
 
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output("[Improved Hordes] Wandering Horde weekly schedule reset.");
         }
@@ -156,6 +161,33 @@ namespace ImprovedHordes
             SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());
         }
 
+        private void ExecuteStats(List<String> _params, CommandSenderInfo senderInfo)
+        {
+            var playerManager = ImprovedHordesManager.Instance.PlayerManager;
+
+            StringBuilder builder = new StringBuilder();
+
+            int player = ImprovedHordesManager.Instance.World.GetPrimaryPlayerId();
+
+            if (senderInfo.RemoteClientInfo != null)
+                player = senderInfo.RemoteClientInfo.entityId;
+
+            HordePlayer hordePlayer = playerManager.GetPlayer(player);
+            
+            Vector3 pos = hordePlayer.playerEntityInstance.position;
+            Vector2i chunk = World.toChunkXZ(pos);
+            builder.AppendLine("Chunk " + chunk + " Heat: " + ImprovedHordesManager.Instance.HeatTracker.GetHeatInChunk(chunk));
+
+            if (ImprovedHordesManager.Instance.HeatPatrolManager.GetAreaPatrolTime(pos, out ulong time))
+            {
+                (int days, int hours, int minutes) = GameUtils.WorldTimeToElements(time);
+                builder.AppendLine($"Area: " + ImprovedHordesManager.Instance.HeatPatrolManager.GetAreaFromChunk(chunk));
+                builder.AppendLine($"Patrol time: Day {days} {hours}:{minutes}");
+            }
+
+            SingletonMonoBehaviour<SdtdConsole>.Instance.Output(builder.ToString());
+        }
+
         public override string[] GetCommands()
         {
             return new string[] { "improvedhordes", "ih" };        
@@ -171,7 +203,8 @@ namespace ImprovedHordes
             return "Commands: \nimprovedhordes list - Shows all player groups and their associated hordes."
                 + "\nimprovedhordes wandering spawn (feral) - Spawns a wandering horde for all groups on the server. Non-Feral unless feral argument is specified (optional)."
                 + "\nimprovedhordes wandering reset - Resets the weekly schedule for the wandering hordes."
-                + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule.";
+                + "\nimprovedhordes wandering show - Shows information regarding the weekly wandering horde schedule."
+                + "\nimprovedhordes stats - Shows information regarding the area (such as patrol time / heat).";
         }
     }
 }
