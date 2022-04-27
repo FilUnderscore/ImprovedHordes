@@ -238,7 +238,7 @@ namespace ImprovedHordes.Horde.Scout
                     var entity = scoutEntry.Key;
                     var scout = scoutEntry.Value;
 
-                    if (scout != null && !alive && scout.state != EScoutState.ALIVE)
+                    if (scout == null || (alive && scout.state != EScoutState.ALIVE))
                         continue;
 
                     Vector3 scoutPos = entity.entity.position;
