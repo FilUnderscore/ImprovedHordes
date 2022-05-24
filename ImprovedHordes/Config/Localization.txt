@@ -28,3 +28,5 @@ IHxuiHordePerPlayerModSettingDesc,UI,XUI,x,,"Determines whether the generated ho
 IHxuiGeneralHordeSettingsTab,UI,XUI,x,,General
 IHxuiWanderingHordeSettingsTab,UI,XUI,x,,Wandering
 IHxuiScoutHordeSettingsTab,UI,XUI,x,,Scout
+IHxuiWanderingHordeScheduleCategory,UI,XUI,x,,Wandering Horde Schedule
+IHxuiWanderingHordeScheduleCategoryDesc,UI,XUI,x,,"Settings related to the Wandering Horde schedule."

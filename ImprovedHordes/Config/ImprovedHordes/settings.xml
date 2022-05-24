@@ -2,6 +2,7 @@
 	<max_alive_per_horde_player>10</max_alive_per_horde_player> <!-- -1 to disable. -->
 	
 	<wandering_horde>
+		<enabled>true</enabled>
 		<horde_player_group_dist>400</horde_player_group_dist> <!-- All players within 400m will be grouped together to calculate spawned horde gamestages. -->
 
 		<schedule>
@@ -26,10 +27,13 @@
 		<horde_per_player>false</horde_per_player> <!-- Set to true to enable. Multiplies the total horde entity count by the number of players in your group. -->
 	</horde_generator>
 	<heat_tracker>
+		<enabled>true</enabled>
 		<radius>3</radius> <!-- Radius of area that maximum heat is applied to. Also groups players in this squared radius for patrol horde difficulty. -->
 		<hrs_before_full>168</hrs_before_full> <!-- Hours before the heatmap fills up by remaining in one area for a long time. -->
 		<hrs_before_decay>24</hrs_before_decay> <!-- Hours before the heatmap can start to decay. Timer is reset if the area is revisited within the same day. -->
 		<hrs_to_fully_decay>96</hrs_to_fully_decay> <!-- Hours before the heatmap can fully decay. This amount of time scales depending on the amount of heat in an area. -->
 		<event_multiplier>0.01</event_multiplier> <!-- Multiplier to multiply standard heatmap activities by. -->
 	</heat_tracker>
+	<horde_ai>
+	</horde_ai>
 </improved_hordes>

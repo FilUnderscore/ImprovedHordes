@@ -43,15 +43,9 @@ namespace CustomModManager.API
             {
                 return new ModSettings(modInstance, CORE_ASSEMBLY.CreateInstance("CustomModManager.ModManagerModSettings", true, 0, null, new object[] { modInstance }, null, null));
             }
-            catch (TargetInvocationException ex)
+            catch
             {
-                Log.Warning(ex.InnerException.Message + " " + ex.InnerException.StackTrace + " " + ex.InnerException.Source);
-
-                return null;
-            }
-            catch(Exception ex)
-            {
-                Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to locate ModSettings instance in Mod Manager. Perhaps an out-of-date API version is being used? " + ex.Message + " " + ex.StackTrace + " " + ex.Source);
+                Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to locate ModSettings instance in Mod Manager. Perhaps an out-of-date API version is being used?");
 
                 return null;
             }
@@ -68,7 +62,7 @@ namespace CustomModManager.API
                 this.instance = instance;
             }
 
-            public ModSetting<T> Hook<T>(string key, string nameUnlocalized, Action<T> setCallback, Func<T> getCallback, Func<T, (string, string)> toString, Func<string, (T, bool)> fromString) where T : IComparable<T>
+            public ModSetting<T> Hook<T>(string key, string nameUnlocalized, Action<T> setCallback, Func<T> getCallback, Func<T, (string unformatted, string formatted)> toString, Func<string, (T, bool)> fromString)
             {
                 try
                 {
@@ -85,6 +79,32 @@ namespace CustomModManager.API
                 return null;
             }
 
+            public ModSetting<string> Category(string key, string nameUnlocalized)
+            {
+                try
+                {
+                    MethodInfo method = CORE_ASSEMBLY.GetType("CustomModManager.API.IModSettings").GetMethods().Single(m => m.Name == "Category");
+                    object settingInstance = method.Invoke(instance, new object[] { key, nameUnlocalized });
+
+                    return new ModSetting<string>(this, key, settingInstance);
+                }
+                catch
+                {
+                    Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to create Mod Setting instance. Perhaps an out-of-date API version is being used?");
+                }
+
+                return null;
+            }
+
+            public ModSetting<T> Hook<T>(string key, string nameUnlocalized, Action<T> setCallback, Func<T> getCallback, Func<T, string> toString, Func<string, (T, bool)> fromString)
+            {
+                return Hook(key, nameUnlocalized, setCallback, getCallback, (value) =>
+                {
+                    string valueAsString = toString(value);
+                    return (valueAsString, valueAsString);
+                }, fromString);
+            }
+
             public void CreateTab(string key, string nameUnlocalized)
             {
                 try
@@ -98,7 +118,7 @@ namespace CustomModManager.API
                 }
             }
 
-            public class ModSetting<T> where T : IComparable<T>
+            public class ModSetting<T>
             {
                 private readonly ModSettings settingsInstance;
                 private readonly string key;

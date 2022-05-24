@@ -7,6 +7,8 @@ using System;
 using ImprovedHordes.Horde.Heat.Events;
 using System.IO;
 
+using CustomModManager.API;
+
 using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Heat
@@ -16,9 +18,18 @@ namespace ImprovedHordes.Horde.Heat
         private const ushort HEAT_TRACKER_MAGIC = 0x4854;
         private const uint HEAT_TRACKER_VERSION = 1;
 
-        private static int s_radius, s_radius_squared;
-        private static int s_hrs_before_full, s_hrs_before_decay, s_hrs_to_fully_decay;
-        private static float s_event_multiplier;
+        private static bool s_enabled = true;
+        private static int s_radius = 3, s_radius_squared = s_radius * s_radius;
+        private static int s_hrs_before_full = 168, s_hrs_before_decay = 24, s_hrs_to_fully_decay = 96;
+        private static float s_event_multiplier = 0.01f;
+
+        public static bool ENABLED
+        {
+            get
+            {
+                return s_enabled;
+            }
+        }
 
         public static int RADIUS
         {
@@ -94,12 +105,52 @@ namespace ImprovedHordes.Horde.Heat
 
         public void ReadSettings(Settings settings)
         {
+            s_enabled = settings.GetBool("enabled", true);
             s_radius = settings.GetInt("radius", 0, false, 3);
             s_radius_squared = s_radius * s_radius;
             s_hrs_before_full = settings.GetInt("hrs_before_full", 0, false, 168);
             s_hrs_before_decay = settings.GetInt("hrs_before_decay", 1, false, 24);
             s_hrs_to_fully_decay = settings.GetInt("hrs_to_fully_decay", 0, false, 96);
             s_event_multiplier = settings.GetFloat("event_multiplier", 0f, false, 0.01f);
+        }
+
+        public void HookSettings(ModManagerAPI.ModSettings modSettings)
+        {
+            modSettings.Hook("hordeAreaHeatTrackerEnabled", "IHxuiHordeAreaHeatTrackerEnabled", value => s_enabled = value, () => s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            {
+                bool success = bool.TryParse(str, out bool val);
+                return (val, success);
+            }).SetTab("heatTrackerSettingsTab").SetAllowedValues(new bool[] { true, false });
+
+            modSettings.Hook("radius", "IHxuiHeatRadiusModSetting", value => s_radius = value, () => s_radius, toStr => (toStr.ToString(), toStr.ToString() + " Chunk" + (toStr > 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val);
+                return (val, success);
+            }).SetTab("heatTrackerSettingsTab").SetMinimumMaximumAndIncrementValues(1, GamePrefs.GetInt(EnumGamePrefs.OptionsGfxViewDistance), 1);
+
+            modSettings.Hook("hrs_before_full", "IHxuiHrsBeforeFullModSetting", value => s_hrs_before_full = value, () => s_hrs_before_full, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val) && val > 0;
+                return (val, success);
+            }).SetTab("heatTrackerSettingsTab");
+
+            modSettings.Hook("hrs_before_decay", "IHxuiHrsBeforeDecayModSetting", value => s_hrs_before_decay = value, () => s_hrs_before_decay, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val) && val > 0;
+                return (val, success);
+            }).SetTab("heatTrackerSettingsTab");
+
+            modSettings.Hook("hrs_to_fully_decay", "IHxuiHrsToFullyDecayModSetting", value => s_hrs_to_fully_decay = value, () => s_hrs_to_fully_decay, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
+            {
+                bool success = int.TryParse(str, out int val) && val > 0;
+                return (val, success);
+            }).SetTab("heatTrackerSettingsTab");
+
+            modSettings.Hook("event_multiplier", "IHxuiEventMultiplierModSetting", value => s_event_multiplier = value, () => s_event_multiplier, toStr => (toStr.ToString(), toStr.ToString() + "x"), str =>
+            {
+                bool success = float.TryParse(str, out float val) && val >= 0.0f;
+                return (val, success);
+            }).SetTab("heatTrackerSettingsTab");
         }
 
         private int UpdateHeat(ThreadManager.ThreadInfo threadInfo)

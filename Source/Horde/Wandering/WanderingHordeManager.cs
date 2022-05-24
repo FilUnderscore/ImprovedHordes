@@ -14,6 +14,7 @@ namespace ImprovedHordes.Horde.Wandering
 {
     public class WanderingHordeManager : IManager
     {
+        private bool s_enabled = true;
         private int s_horde_player_group_dist = 400;
 
         public int HORDE_PLAYER_GROUP_DISTANCE
@@ -24,6 +25,13 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
+        public bool ENABLED
+        {
+            get
+            {
+                return s_enabled;
+            }
+        }
         public readonly ImprovedHordesManager manager;
         public readonly WanderingHordeSpawner spawner;
         public readonly WanderingHordeSchedule schedule;
@@ -42,6 +50,7 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void ReadSettings(Settings settings)
         {
+            this.s_enabled = settings.GetBool("enabled", true);
             this.s_horde_player_group_dist = settings.GetInt("horde_player_group_dist", 0, false, 400);
 
             this.schedule.ReadSettings(settings.GetSettings("schedule"));
@@ -49,9 +58,15 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
-            modSettings.Hook<int>("horde_player_group_dist", "IHxuiHordePlayerGroupDistModSetting", value => this.s_horde_player_group_dist = value, () => this.s_horde_player_group_dist, toStr => (toStr.ToString(), toStr.ToString() + "m"), str =>
+            modSettings.Hook<bool>("wanderingHordeEnabled", "IHxuiWanderingHordeEnabledModSetting", value => this.s_enabled = value, () => this.s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
             {
-                bool success = int.TryParse(str, out int val);
+                bool success = bool.TryParse(str, out bool val);
+                return (val, success);
+            }).SetTab("wanderingHordeSettingsTab").SetAllowedValues(new bool[] { true, false });
+
+            modSettings.Hook<int>("wandering_horde_horde_player_group_dist", "IHxuiHordePlayerGroupDistModSetting", value => this.s_horde_player_group_dist = value, () => this.s_horde_player_group_dist, toStr => (toStr.ToString(), toStr.ToString() + "m"), str =>
+            {
+                bool success = int.TryParse(str, out int val) && val > 0;
                 return (val, success);
             }).SetTab("wanderingHordeSettingsTab");
 
@@ -176,7 +191,7 @@ namespace ImprovedHordes.Horde.Wandering
                 static bool Prefix()
                 {
                     // Prevent default wandering hordes from spawning at all.
-                    return !ImprovedHordesMod.IsHost();
+                    return !ImprovedHordesManager.Instance.WanderingHorde.ENABLED || !ImprovedHordesMod.IsHost();
                 }
             }
         }

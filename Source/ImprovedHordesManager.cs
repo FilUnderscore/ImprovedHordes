@@ -101,6 +101,8 @@ namespace ImprovedHordes
 
                 HordeSpawner.ReadSettings(this.Settings);
                 HordeGenerator.ReadSettings(this.Settings.GetSettings("horde_generator"));
+
+                this.HeatTracker.ReadSettings(this.Settings.GetSettings("heat_tracker"));
             }
             else
             {
@@ -109,15 +111,17 @@ namespace ImprovedHordes
                 modSettings.CreateTab("generalHordeSettingsTab", "IHxuiGeneralHordeSettingsTab");
                 modSettings.CreateTab("wanderingHordeSettingsTab", "IHxuiWanderingHordeSettingsTab");
                 modSettings.CreateTab("scoutHordeSettingsTab", "IHxuiScoutHordeSettingsTab");
+                modSettings.CreateTab("heatTrackerSettingsTab", "IHxuiHeatTrackerSettingsTab");
+                modSettings.CreateTab("aiSettingsTab", "IHxuiAISettingsTab");
 
                 this.WanderingHorde.HookSettings(modSettings);
                 this.ScoutManager.HookSettings(modSettings);
 
                 HordeSpawner.HookSettings(modSettings);
                 HordeGenerator.HookSettings(modSettings);
-            }
 
-            this.HeatTracker.ReadSettings(this.Settings.GetSettings("heat_tracker"));
+                this.HeatTracker.HookSettings(modSettings);
+            }
 
             Log("Loaded settings.");
         }

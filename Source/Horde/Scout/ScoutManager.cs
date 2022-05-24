@@ -16,8 +16,8 @@ namespace ImprovedHordes.Horde.Scout
 {
     public class ScoutManager : IManager
     {
-        private int s_chunk_radius, s_max_scout_hordes_active_per_player_group;
-        private bool s_enabled;
+        private int s_chunk_radius = 4, s_max_scout_hordes_active_per_player_group = 3;
+        private bool s_enabled = true;
 
         public int CHUNK_RADIUS
         {
@@ -71,21 +71,21 @@ namespace ImprovedHordes.Horde.Scout
 
         public void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
+            modSettings.Hook<bool>("scouts_enabled", "IHxuiScoutsEnabledModSetting", value => this.s_enabled = value, () => this.s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            {
+                bool success = bool.TryParse(str, out bool val);
+                return (val, success);
+            }).SetTab("scoutHordeSettingsTab").SetAllowedValues(new bool[] { true, false });
+
             modSettings.Hook<int>("chunk_radius", "IHxuiChunkRadiusModSetting", value => this.s_chunk_radius = value, () => this.s_chunk_radius, toStr => (toStr.ToString(), toStr.ToString() + " Chunk" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val);
                 return (val, success);
             }).SetTab("scoutHordeSettingsTab").SetMinimumMaximumAndIncrementValues(1, GamePrefs.GetInt(EnumGamePrefs.OptionsGfxViewDistance), 1);
 
-            modSettings.Hook<float>("feral_horde_chance_multiplier", "IHxuiFeralHordeChanceMultiplierModSetting", value => this.s_feral_horde_chance_multiplier = value, () => this.s_feral_horde_chance_multiplier, toStr => (toStr.ToString(), toStr.ToString() + "x"), str =>
-            {
-                bool success = float.TryParse(str, out float val);
-                return (val, success);
-            }).SetTab("scoutHordeSettingsTab");
-
             modSettings.Hook<int>("max_scout_hordes_active_per_player_group", "IHxuiMaxScoutHordesActivePerPlayerGroupModSetting", value => this.s_max_scout_hordes_active_per_player_group = value, () => this.s_max_scout_hordes_active_per_player_group, toStr => (toStr.ToString(), toStr.ToString() + " Horde" + (toStr > 1 ? "s" : "")), str =>
             {
-                bool success = int.TryParse(str, out int val);
+                bool success = int.TryParse(str, out int val) && val >= 0;
                 return (val, success);
             }).SetTab("scoutHordeSettingsTab");
         }
