@@ -51,7 +51,7 @@ namespace ImprovedHordes.Horde.Scout
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
-            float wanderTime = (90f + this.manager.manager.Random.RandomFloat * 4f) * 10f; // Stick around for a long time.
+            float wanderTime = (HordeAIManager.WANDER_TIME + this.manager.manager.Random.RandomFloat * 4f) * 10f; // Stick around for a long time.
 
             if (this.latestTargets.ContainsKey(group) && this.latestTargets[group] != null)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using ImprovedHordes.Horde.AI.Events;
+using CustomModManager.API;
 
 namespace ImprovedHordes.Horde.AI
 {
@@ -17,6 +18,34 @@ namespace ImprovedHordes.Horde.AI
         private readonly List<HordeAIHorde> hordesToRemove = new List<HordeAIHorde>();
 
         public readonly Dictionary<Entity, Entity> entityKilledQueue = new Dictionary<Entity, Entity>();
+
+        private static int s_sense_dist = 80;
+        private static float s_threshold = 20f;
+        private static float s_wander_time = 90f;
+
+        public static int SENSE_DIST
+        {
+            get
+            {
+                return s_sense_dist;
+            }
+        }
+
+        public static float THRESHOLD
+        {
+            get
+            {
+                return s_threshold;
+            }
+        }
+
+        public static float WANDER_TIME
+        {
+            get
+            {
+                return s_wander_time;
+            }
+        }
 
         public int GetHordesAlive()
         {
@@ -38,6 +67,38 @@ namespace ImprovedHordes.Horde.AI
             }
 
             return trackedHordes[horde];
+        }
+
+        public void HookSettings(ModManagerAPI.ModSettings modSettings)
+        {
+            modSettings.CreateTab("hordeAISettingsTab", "IHxuiHordeAISettingsTab");
+
+            modSettings.Hook("hordeAISenseDist", "IHxuiHordeAISenseDistModSetting", value => s_sense_dist = value, () => s_sense_dist, toStr => (toStr.ToString(), toStr.ToString() + "m"), str =>
+            {
+                bool success = int.TryParse(str, out int val) && val > 0;
+                return (val, success);
+            }).SetTab("hordeAISettingsTab");
+
+            modSettings.Hook("hordeAISenseThreshold", "IHxuiHordeAISenseThresholdModSetting", value => s_threshold = value, () => s_threshold, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            {
+                bool success = float.TryParse(str, out float val) && val > 0;
+                return (val, success);
+            }).SetTab("hordeAISettingsTab");
+
+            modSettings.Category("hordeAIAdvancedSettingsCategory", "IHxuiHordeAIAdvancedSettingsCategory").SetTab("hordeAISettingsTab");
+
+            modSettings.Hook("hordeAIWanderTime", "IHxuiHordeAIWanderTimeModSetting", value => s_wander_time = value, () => s_wander_time, toStr => (toStr.ToString(), toStr.ToString() + " Tick" + (toStr == 1 ? "" : "s")), str =>
+            {
+                bool success = float.TryParse(str, out float val) && val >= 0;
+                return (val, success);
+            }).SetTab("hordeAISettingsTab");
+        }
+
+        public void ReadSettings(Settings settings)
+        {
+            s_sense_dist = settings.GetInt("sense_dist", 1, false, 80);
+            s_threshold = settings.GetFloat("threshold", 0, false, 20f);
+            s_wander_time = settings.GetFloat("wander_time", 0f, false, 90f);
         }
 
         public void Update()

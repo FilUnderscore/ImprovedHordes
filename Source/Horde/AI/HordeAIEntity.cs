@@ -31,9 +31,6 @@ namespace ImprovedHordes.Horde.AI
         public event EventHandler<EntityKilledEvent> OnEntityKilled;
         public event EventHandler<EntityDespawnedEvent> OnEntityDespawned;
 
-        const int SENSE_DIST = 80;
-        const float THRESHOLD = 20f;
-
         public Dictionary<int, SenseEntry> sensations = new Dictionary<int, SenseEntry>();
 
         public HordeAIEntity(EntityAlive alive, bool despawnOnCompletion, List<HordeAICommand> commands)
@@ -148,7 +145,7 @@ namespace ImprovedHordes.Horde.AI
             {
                 EntityPlayer player = this.entity.world.Players.list[i];
                 
-                if((player.position - this.entity.position).sqrMagnitude <= (SENSE_DIST * SENSE_DIST))
+                if((player.position - this.entity.position).sqrMagnitude <= (HordeAIManager.SENSE_DIST * HordeAIManager.SENSE_DIST))
                 {
                     if (!sensations.ContainsKey(player.entityId))
                     {
@@ -164,7 +161,7 @@ namespace ImprovedHordes.Horde.AI
 
                     //Log.Out($"Player {entry.player.EntityName} {entry.position} S {entry.GetSound()} L {entry.GetLight()} C {entry.GetValue()} D {(entry.player.position - entity.position).magnitude}");
 
-                    if (entry.GetValue() > THRESHOLD)
+                    if (entry.GetValue() > HordeAIManager.THRESHOLD)
                         return true;
                 }
             }
@@ -182,7 +179,7 @@ namespace ImprovedHordes.Horde.AI
 
             public float GetValue()
             {
-                float distancePct = Mathf.Clamp01(1f - (entity.position - player.position).sqrMagnitude / (SENSE_DIST * SENSE_DIST));
+                float distancePct = Mathf.Clamp01(1f - (entity.position - player.position).sqrMagnitude / (HordeAIManager.SENSE_DIST * HordeAIManager.SENSE_DIST));
 
                 return (GetSound() + GetLight() * 0.5f) * distancePct;
             }
@@ -204,7 +201,7 @@ namespace ImprovedHordes.Horde.AI
 
             public void Update()
             {
-                if(GetValue() > THRESHOLD)
+                if(GetValue() > HordeAIManager.THRESHOLD)
                     this.position = player.position;
 
                 this.stealth = player.Stealth;

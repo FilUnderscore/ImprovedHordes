@@ -35,5 +35,11 @@
 		<event_multiplier>0.01</event_multiplier> <!-- Multiplier to multiply standard heatmap activities by. -->
 	</heat_tracker>
 	<horde_ai>
+		<sense_dist>80</sense_dist> <!-- The distance in m at which hordes can sense players nearby. -->
+		<threshold>20</threshold> <!-- The threshold before players nearby are sensed. -->
+		
+		<advanced_settings>
+			<wander_time>90</wander_time>
+		</advanced_settings>
 	</horde_ai>
 </improved_hordes>

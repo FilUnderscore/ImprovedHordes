@@ -121,49 +121,49 @@ namespace ImprovedHordes.Horde.Wandering
 
         public void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
-            modSettings.Category("wandering_horde_schedule", "IHxuiWanderingHordeScheduleCategory").SetTab("wanderingHordeSettingsTab");
+            modSettings.Category("hordeWanderingHordeSchedule", "IHxuiHordeWanderingHordeScheduleCategory").SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<int>("days_per_wandering_week", "IHxuiDaysPerWanderingWeekModSetting", value => this.s_days_per_wandering_week = value, () => this.s_days_per_wandering_week, toStr => (toStr.ToString(), toStr.ToString() + " Day" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook<int>("hordeWanderingDaysPerWanderingWeek", "IHxuiHordeWanderingDaysPerWanderingWeekModSetting", value => this.s_days_per_wandering_week = value, () => this.s_days_per_wandering_week, toStr => (toStr.ToString(), toStr.ToString() + " Day" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val > 0;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<int>("hrs_in_week_to_first_occurrence", "IHxuiHrsInWeekToFirstOccurrenceModSetting", value => this.s_hrs_in_week_to_first_occurrence = value, () => this.s_hrs_in_week_to_first_occurrence, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
+            modSettings.Hook<int>("hordeWanderingHrsInWeekToFirstOccurrence", "IHxuiHordeWanderingHrsInWeekToFirstOccurrenceModSetting", value => this.s_hrs_in_week_to_first_occurrence = value, () => this.s_hrs_in_week_to_first_occurrence, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val >= 0 && val < this.s_days_per_wandering_week * 24;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<int>("hrs_in_week_for_last_occurrence_max", "IHxuiHrsInWeekForLastOccurrenceMaxModSetting", value => this.s_hrs_in_week_for_last_occurrence_max = value, () => this.s_hrs_in_week_for_last_occurrence_max, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
+            modSettings.Hook<int>("hordeWanderingHrsInWeekForLastOccurrenceMax", "IHxuiHordeWanderingHrsInWeekForLastOccurrenceMaxModSetting", value => this.s_hrs_in_week_for_last_occurrence_max = value, () => this.s_hrs_in_week_for_last_occurrence_max, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val > 0 && val < this.s_days_per_wandering_week * 24;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<int>("min_hrs_between_occurrences", "IHxuiMinHrsBetweenOccurrencesModSetting", value => this.s_min_hrs_between_occurrences = value, () => this.s_min_hrs_between_occurrences, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
+            modSettings.Hook<int>("hordeWanderingMinHrsBetweenOccurrences", "IHxuiHordeWanderingMinHrsBetweenOccurrencesModSetting", value => this.s_min_hrs_between_occurrences = value, () => this.s_min_hrs_between_occurrences, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr != 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val >= 0 && val < this.s_days_per_wandering_week * 24;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<int>("min_occurrences", "IHxuiMinOccurrencesModSetting", value => this.s_min_occurrences = value, () => this.s_min_occurrences, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            modSettings.Hook<int>("hordeWanderingMinOccurrences", "IHxuiHordeWanderingMinOccurrencesModSetting", value => this.s_min_occurrences = value, () => this.s_min_occurrences, toStr => (toStr.ToString(), toStr.ToString()), str =>
             {
                 bool success = int.TryParse(str, out int val) && val >= 0;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<int>("max_occurrences", "IHxuiMaxOccurrencesModSetting", value => this.s_max_occurrences = value, () => this.s_max_occurrences, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            modSettings.Hook<int>("hordeWanderingMaxOccurrences", "IHxuiHordeWanderingMaxOccurrencesModSetting", value => this.s_max_occurrences = value, () => this.s_max_occurrences, toStr => (toStr.ToString(), toStr.ToString()), str =>
             {
                 bool success = int.TryParse(str, out int val) && val > 0;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
 
-            modSettings.Hook<float>("feral_horde_chance", "IHxuiFeralHordeChanceModSetting", value => this.s_feral_horde_chance = value, () => this.s_feral_horde_chance, toStr => (toStr.ToString(), toStr * 100f + "%"), str =>
+            modSettings.Hook<float>("hordeWanderingFeralHordeChance", "IHxuiHordeWanderingFeralHordeChanceModSetting", value => this.s_feral_horde_chance = value, () => this.s_feral_horde_chance, toStr => (toStr.ToString(), toStr * 100f + "%"), str =>
             {
                 bool success = float.TryParse(str, out float val) && val >= 0.0f && val <= 1.0f;
                 return (val, success);
-            }).SetTab("wanderingHordeSettingsTab");
+            }).SetTab("hordeWanderingSettingsTab");
         }
 
         public void SetGameVariables()

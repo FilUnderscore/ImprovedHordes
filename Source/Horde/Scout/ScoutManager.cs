@@ -71,23 +71,25 @@ namespace ImprovedHordes.Horde.Scout
 
         public void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
-            modSettings.Hook<bool>("scouts_enabled", "IHxuiScoutsEnabledModSetting", value => this.s_enabled = value, () => this.s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            modSettings.CreateTab("hordeScoutSettingsTab", "IHxuiHordeScoutSettingsTab");
+
+            modSettings.Hook<bool>("hordeScoutEnabled", "IHxuiHordeEnabledModSetting", value => this.s_enabled = value, () => this.s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
             {
                 bool success = bool.TryParse(str, out bool val);
                 return (val, success);
-            }).SetTab("scoutHordeSettingsTab").SetAllowedValues(new bool[] { true, false });
+            }).SetTab("hordeScoutSettingsTab").SetAllowedValues(new bool[] { true, false });
 
-            modSettings.Hook<int>("chunk_radius", "IHxuiChunkRadiusModSetting", value => this.s_chunk_radius = value, () => this.s_chunk_radius, toStr => (toStr.ToString(), toStr.ToString() + " Chunk" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook<int>("hordeScoutChunkRadius", "IHxuiHordeScoutChunkRadiusModSetting", value => this.s_chunk_radius = value, () => this.s_chunk_radius, toStr => (toStr.ToString(), toStr.ToString() + " Chunk" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val);
                 return (val, success);
-            }).SetTab("scoutHordeSettingsTab").SetMinimumMaximumAndIncrementValues(1, GamePrefs.GetInt(EnumGamePrefs.OptionsGfxViewDistance), 1);
+            }).SetTab("hordeScoutSettingsTab").SetMinimumMaximumAndIncrementValues(1, GamePrefs.GetInt(EnumGamePrefs.OptionsGfxViewDistance), 1);
 
-            modSettings.Hook<int>("max_scout_hordes_active_per_player_group", "IHxuiMaxScoutHordesActivePerPlayerGroupModSetting", value => this.s_max_scout_hordes_active_per_player_group = value, () => this.s_max_scout_hordes_active_per_player_group, toStr => (toStr.ToString(), toStr.ToString() + " Horde" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook<int>("hordeScoutMaxScoutHordesActivePerPlayerGroup", "IHxuiHordeScoutMaxScoutHordesActivePerPlayerGroupModSetting", value => this.s_max_scout_hordes_active_per_player_group = value, () => this.s_max_scout_hordes_active_per_player_group, toStr => (toStr.ToString(), toStr.ToString() + " Horde" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val >= 0;
                 return (val, success);
-            }).SetTab("scoutHordeSettingsTab");
+            }).SetTab("hordeScoutSettingsTab");
         }
 
         public void OnScoutEntitySpawned(object sender, HordeEntitySpawnedEvent e)

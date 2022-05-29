@@ -37,11 +37,11 @@ namespace ImprovedHordes.Horde
 
         public static void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
-            modSettings.Hook<bool>("horde_per_player", "IHxuiHordePerPlayerModSetting", value => s_horde_per_player = value, () => s_horde_per_player, toStr => (toStr.ToString(), toStr ? "Yes" : "No"), str =>
+            modSettings.Hook<bool>("hordeGeneralHordePerPlayer", "IHxuiHordeGeneralHordePerPlayerModSetting", value => s_horde_per_player = value, () => s_horde_per_player, toStr => (toStr.ToString(), toStr ? "Yes" : "No"), str =>
             {
                 bool success = bool.TryParse(str, out bool val);
                 return (val, success);
-            }).SetAllowedValues(new bool[] { true, false }).SetTab("generalHordeSettingsTab");
+            }).SetAllowedValues(new bool[] { false, true }).SetTab("hordeGeneralSettingsTab");
         }
 
         public bool GenerateHorde(PlayerHordeGroup playerGroup, bool feral, out Horde horde)

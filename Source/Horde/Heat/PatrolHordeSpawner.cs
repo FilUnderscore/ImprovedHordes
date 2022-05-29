@@ -22,7 +22,7 @@ namespace ImprovedHordes.Horde.Heat
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
-            float wanderTime = 90f + this.manager.Random.RandomFloat * 4f;
+            float wanderTime = HordeAIManager.WANDER_TIME + this.manager.Random.RandomFloat * 4f;
 
             commands.Add(new HordeAICommandDestination(GetRandomNearbyPosition(horde.targetPosition, DEST_RADIUS), DEST_RADIUS));
 

@@ -44,7 +44,7 @@ namespace ImprovedHordes.Horde.Scout
         {
             List<HordeAICommand> commands = new List<HordeAICommand>();
             const int DEST_RADIUS = 10;
-            float wanderTime = 450f + (this.manager.manager.Random.RandomFloat * 125f); // TODO customize?
+            float wanderTime = HordeAIManager.WANDER_TIME * 5f + (this.manager.manager.Random.RandomFloat * 125f); // TODO customize?
 
             commands.Add(new HordeAICommandDestination(latestTarget, DEST_RADIUS));
             commands.Add(new HordeAICommandWander(wanderTime));

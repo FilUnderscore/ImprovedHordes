@@ -100,7 +100,8 @@ namespace ImprovedHordes.Horde.Heat
 
         public void Init()
         {
-            StartThreads();
+            if(ENABLED)
+                StartThreads();
         }
 
         public void ReadSettings(Settings settings)
@@ -116,41 +117,43 @@ namespace ImprovedHordes.Horde.Heat
 
         public void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
-            modSettings.Hook("hordeAreaHeatTrackerEnabled", "IHxuiHordeAreaHeatTrackerEnabled", value => s_enabled = value, () => s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
+            modSettings.CreateTab("hordeAreaHeatSettingsTab", "IHxuiHordeAreaHeatSettingsTab");
+
+            modSettings.Hook("hordeAreaHeatTrackerEnabled", "IHxuiHordeAreaHeatTrackerEnabledModSetting", value => s_enabled = value, () => s_enabled, toStr => (toStr.ToString(), toStr.ToString()), str =>
             {
                 bool success = bool.TryParse(str, out bool val);
                 return (val, success);
-            }).SetTab("heatTrackerSettingsTab").SetAllowedValues(new bool[] { true, false });
+            }).SetTab("hordeAreaHeatSettingsTab").SetAllowedValues(new bool[] { true, false });
 
-            modSettings.Hook("radius", "IHxuiHeatRadiusModSetting", value => s_radius = value, () => s_radius, toStr => (toStr.ToString(), toStr.ToString() + " Chunk" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook("hordeAreaHeatRadius", "IHxuiHordeAreaHeatRadiusModSetting", value => s_radius = value, () => s_radius, toStr => (toStr.ToString(), toStr.ToString() + " Chunk" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val);
                 return (val, success);
-            }).SetTab("heatTrackerSettingsTab").SetMinimumMaximumAndIncrementValues(1, GamePrefs.GetInt(EnumGamePrefs.OptionsGfxViewDistance), 1);
+            }).SetTab("hordeAreaHeatSettingsTab").SetMinimumMaximumAndIncrementValues(1, GamePrefs.GetInt(EnumGamePrefs.OptionsGfxViewDistance), 1);
 
-            modSettings.Hook("hrs_before_full", "IHxuiHrsBeforeFullModSetting", value => s_hrs_before_full = value, () => s_hrs_before_full, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook("hordeAreaHeatHrsBeforeFull", "IHxuiHordeAreaHeatHrsBeforeFullModSetting", value => s_hrs_before_full = value, () => s_hrs_before_full, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val > 0;
                 return (val, success);
-            }).SetTab("heatTrackerSettingsTab");
+            }).SetTab("hordeAreaHeatSettingsTab");
 
-            modSettings.Hook("hrs_before_decay", "IHxuiHrsBeforeDecayModSetting", value => s_hrs_before_decay = value, () => s_hrs_before_decay, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook("hordeAreaHeatHrsBeforeDecay", "IHxuiHordeAreaHeatHrsBeforeDecayModSetting", value => s_hrs_before_decay = value, () => s_hrs_before_decay, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val > 0;
                 return (val, success);
-            }).SetTab("heatTrackerSettingsTab");
+            }).SetTab("hordeAreaHeatSettingsTab");
 
-            modSettings.Hook("hrs_to_fully_decay", "IHxuiHrsToFullyDecayModSetting", value => s_hrs_to_fully_decay = value, () => s_hrs_to_fully_decay, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
+            modSettings.Hook("hordeAreaHeatHrsToFullyDecay", "IHxuiHordeAreaHeatHrsToFullyDecayModSetting", value => s_hrs_to_fully_decay = value, () => s_hrs_to_fully_decay, toStr => (toStr.ToString(), toStr.ToString() + " Hour" + (toStr > 1 ? "s" : "")), str =>
             {
                 bool success = int.TryParse(str, out int val) && val > 0;
                 return (val, success);
-            }).SetTab("heatTrackerSettingsTab");
+            }).SetTab("hordeAreaHeatSettingsTab");
 
-            modSettings.Hook("event_multiplier", "IHxuiEventMultiplierModSetting", value => s_event_multiplier = value, () => s_event_multiplier, toStr => (toStr.ToString(), toStr.ToString() + "x"), str =>
+            modSettings.Hook("hordeAreaHeatEventMultiplier", "IHxuiHordeAreaHeatEventMultiplierModSetting", value => s_event_multiplier = value, () => s_event_multiplier, toStr => (toStr.ToString(), toStr.ToString() + "x"), str =>
             {
                 bool success = float.TryParse(str, out float val) && val >= 0.0f;
                 return (val, success);
-            }).SetTab("heatTrackerSettingsTab");
+            }).SetTab("hordeAreaHeatSettingsTab");
         }
 
         private int UpdateHeat(ThreadManager.ThreadInfo threadInfo)

@@ -41,11 +41,11 @@ namespace ImprovedHordes.Horde
 
         public static void HookSettings(ModManagerAPI.ModSettings modSettings)
         {
-            modSettings.Hook<int>("max_alive_per_horde_player", "IHxuiMaxAlivePerHordePlayerModSetting", value => s_max_alive_per_horde_player = value, () => s_max_alive_per_horde_player, toStr => (toStr.ToString(), toStr > -1 ? toStr.ToString() + " Zombie" + (toStr != 1 ? "s" : "") : "Unlimited"), str =>
+            modSettings.Hook<int>("hordeGeneralMaxAlivePerHordePlayer", "IHxuiHordeGeneralMaxAlivePerHordePlayerModSetting", value => s_max_alive_per_horde_player = value, () => s_max_alive_per_horde_player, toStr => (toStr.ToString(), toStr > -1 ? toStr.ToString() + " Zombie" + (toStr != 1 ? "s" : "") : "Unlimited"), str =>
             {
                 bool success = int.TryParse(str, out int val);
                 return (val, success);
-            }).SetTab("generalHordeSettingsTab");
+            }).SetTab("hordeGeneralSettingsTab");
         }
 
         public bool IsStillSpawningFor(PlayerHordeGroup playerHordeGroup)
