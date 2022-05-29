@@ -45,7 +45,7 @@ IHxuiHordeAreaHeatEventMultiplierModSetting,UI,XUI,x,,"Event Multiplier"
 IHxuiHordeAreaHeatEventMultiplierModSettingDesc,UI,XUI,x,,"This setting determines the multiplier to multiply standard heatmap activities by."
 IHxuiHordeAISettingsTab,UI,XUI,x,,AI
 IHxuiHordeAISenseDistModSetting,UI,XUI,x,,Sense Distance
-IHxuiHordeAISenseDistModSettingDesc,UI,XUI,,"The distance in m at which hordes can sense players nearby."
+IHxuiHordeAISenseDistModSettingDesc,UI,XUI,x,,"The distance in m at which hordes can sense players nearby."
 IHxuiHordeAISenseThresholdModSetting,UI,XUI,x,,Sense Threshold
 IHxuiHordeAISenseThresholdModSettingDesc,UI,XUI,x,,"The threshold before players nearby are sensed."
 IHxuiHordeAIAdvancedSettingsCategory,UI,XUI,x,,Advanced Horde AI Settings

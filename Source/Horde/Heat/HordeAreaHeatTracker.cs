@@ -398,7 +398,7 @@ namespace ImprovedHordes.Horde.Heat
             {
                 static void Postfix(AIDirectorChunkEvent _chunkEvent)
                 {
-                    if (!ImprovedHordesMod.IsHost())
+                    if (!ImprovedHordesMod.IsHost() || !ENABLED)
                         return;
 
                     ImprovedHordesManager.Instance.HeatTracker.NotifyEvent(_chunkEvent);
