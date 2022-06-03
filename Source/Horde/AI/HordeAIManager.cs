@@ -98,6 +98,12 @@ namespace ImprovedHordes.Horde.AI
         {
             s_sense_dist = settings.GetInt("sense_dist", 1, false, 80);
             s_threshold = settings.GetFloat("threshold", 0, false, 20f);
+
+            ReadAdvancedSettings(settings.GetSettings("advanced_settings"));
+        }
+
+        private void ReadAdvancedSettings(Settings settings)
+        {
             s_wander_time = settings.GetFloat("wander_time", 0f, false, 90f);
         }
 
