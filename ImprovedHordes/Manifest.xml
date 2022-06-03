@@ -1,5 +1,5 @@
 <ModManifest>
-	<ManifestUrl>https://github.com/FilUnderscore/ImprovedHordes/blob/dev/ImprovedHordes/Manifest.xml</ManifestUrl>
+	<ManifestUrl>https://raw.githubusercontent.com/FilUnderscore/ImprovedHordes/dev/ImprovedHordes/Manifest.xml</ManifestUrl>
 	<Version>1.1.1</Version>
 	<GameVersion ReleaseType="Alpha" Major="20" Minor="5" Build="2"/>
 </ModManifest>
