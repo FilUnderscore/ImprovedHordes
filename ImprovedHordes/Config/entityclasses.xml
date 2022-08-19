@@ -6,9 +6,9 @@
 	<remove xpath="/entity_classes/entity_class[@name='animalTemplateTimid']/property[@name='AITask-4']"/>
 	
 	<append xpath="/entity_classes/entity_class[@name='animalTemplateTimid']">
-		<property name="AITask-1" value="ApproachSpot"/>
-		<property name="AITask-2" value="RunawayWhenHurt"/>
-		<property name="AITask-3" value="RunawayFromEntity" data="class=EntityPlayer,EntityZombie,EntityEnemyAnimal"/>
+		<property name="AITask-1" value="RunawayWhenHurt"/>
+		<property name="AITask-2" value="RunawayFromEntity" data="class=EntityPlayer,EntityZombie,EntityEnemyAnimal"/>
+		<property name="AITask-3" value="ApproachSpot"/>
 		<property name="AITask-4" value="Look"/>
 		<property name="AITask-5" value="Wander"/>
 	</append>
@@ -20,9 +20,9 @@
 	<remove xpath="/entity_classes/entity_class[@name='animalRabbit']/property[@name='AITask-4']"/>
 	
 	<append xpath="/entity_classes/entity_class[@name='animalRabbit']">
-		<property name="AITask-1" value="ApproachSpot"/>
-		<property name="AITask-2" value="RunawayWhenHurt"/>
-		<property name="AITask-3" value="RunawayFromEntity" data="class=EntityPlayer,EntityZombie,EntityEnemyAnimal;safeDistance=20"/>
+		<property name="AITask-1" value="RunawayWhenHurt"/>
+		<property name="AITask-2" value="RunawayFromEntity" data="class=EntityPlayer,EntityZombie,EntityEnemyAnimal;safeDistance=20"/>
+		<property name="AITask-3" value="ApproachSpot"/>
 		<property name="AITask-4" value="Look"/>
 		<property name="AITask-5" value="Wander"/>
 	</append>
