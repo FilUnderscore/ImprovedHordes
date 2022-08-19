@@ -82,7 +82,7 @@ namespace ImprovedHordes.Horde
             ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData = chunk != null ? ((Chunk)chunk).GetChunkBiomeSpawnData() : null;
 
             if (chunkAreaBiomeSpawnData != null)
-                CheckPOITags(chunkAreaBiomeSpawnData);
+                Utils.CheckPOITags(chunkAreaBiomeSpawnData);
 
             foreach (var group in groups.Values)
             {
@@ -273,43 +273,6 @@ namespace ImprovedHordes.Horde
                 return false;
 
             return true;
-        }
-
-        private void CheckPOITags(ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
-        {
-            if (chunkAreaBiomeSpawnData.checkedPOITags)
-                return;
-
-            BiomeDefinition biome = GameManager.Instance.World.Biomes.GetBiome(chunkAreaBiomeSpawnData.biomeId);
-            if (biome == null)
-                return;
-
-            chunkAreaBiomeSpawnData.checkedPOITags = true;
-            POITags none = POITags.none;
-            Vector3i worldPos = chunkAreaBiomeSpawnData.chunk.GetWorldPos();
-
-            List<PrefabInstance> prefabInstances = new List<PrefabInstance>();
-            GameManager.Instance.World.GetPOIsAtXZ(worldPos.x + 16, worldPos.x + 80 - 16, worldPos.z + 16, worldPos.z + 80 - 16, prefabInstances);
-
-            foreach(var prefabInstance in prefabInstances)
-            {
-                none |= prefabInstance.prefab.Tags;
-            }
-
-            chunkAreaBiomeSpawnData.poiTags = none;
-            bool isEmpty = none.IsEmpty;
-
-            BiomeSpawnEntityGroupList spawnEntityGroupList = BiomeSpawningClass.list[biome.m_sBiomeName];
-            if (spawnEntityGroupList == null)
-                return;
-
-            for(int index = 0; index < spawnEntityGroupList.list.Count; index++)
-            {
-                BiomeSpawnEntityGroupData spawnEntityGroupData = spawnEntityGroupList.list[index];
-
-                if ((spawnEntityGroupData.POITags.IsEmpty || spawnEntityGroupData.POITags.Test_AnySet(none)) && (isEmpty || spawnEntityGroupData.noPOITags.IsEmpty || !spawnEntityGroupData.noPOITags.Test_AnySet(none)))
-                    chunkAreaBiomeSpawnData.groupsEnabledFlags |= 1 << index;
-            }
         }
 
         private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage, string biomeAtPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)

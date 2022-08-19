@@ -72,6 +72,43 @@ namespace ImprovedHordes
             pos.y = ImprovedHordesManager.Instance.World.GetHeightAt(pos.x, pos.z) + 1.0f;
         }
 
+        public static void CheckPOITags(ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
+        {
+            if (chunkAreaBiomeSpawnData.checkedPOITags)
+                return;
+
+            BiomeDefinition biome = GameManager.Instance.World.Biomes.GetBiome(chunkAreaBiomeSpawnData.biomeId);
+            if (biome == null)
+                return;
+
+            chunkAreaBiomeSpawnData.checkedPOITags = true;
+            POITags none = POITags.none;
+            Vector3i worldPos = chunkAreaBiomeSpawnData.chunk.GetWorldPos();
+
+            List<PrefabInstance> prefabInstances = new List<PrefabInstance>();
+            GameManager.Instance.World.GetPOIsAtXZ(worldPos.x + 16, worldPos.x + 80 - 16, worldPos.z + 16, worldPos.z + 80 - 16, prefabInstances);
+
+            foreach (var prefabInstance in prefabInstances)
+            {
+                none |= prefabInstance.prefab.Tags;
+            }
+
+            chunkAreaBiomeSpawnData.poiTags = none;
+            bool isEmpty = none.IsEmpty;
+
+            BiomeSpawnEntityGroupList spawnEntityGroupList = BiomeSpawningClass.list[biome.m_sBiomeName];
+            if (spawnEntityGroupList == null)
+                return;
+
+            for (int index = 0; index < spawnEntityGroupList.list.Count; index++)
+            {
+                BiomeSpawnEntityGroupData spawnEntityGroupData = spawnEntityGroupList.list[index];
+
+                if ((spawnEntityGroupData.POITags.IsEmpty || spawnEntityGroupData.POITags.Test_AnySet(none)) && (isEmpty || spawnEntityGroupData.noPOITags.IsEmpty || !spawnEntityGroupData.noPOITags.Test_AnySet(none)))
+                    chunkAreaBiomeSpawnData.groupsEnabledFlags |= 1 << index;
+            }
+        }
+
         public static void Randomize<T>(this List<T> list)
         {
             for(int i = 0; i < list.Count - 1; i++)

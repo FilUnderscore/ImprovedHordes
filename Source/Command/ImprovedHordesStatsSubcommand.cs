@@ -34,6 +34,17 @@ namespace ImprovedHordes.Command
                 (int days, int hours, int minutes) = GameUtils.WorldTimeToElements(time);
                 builder.AppendLine($"Area: " + ImprovedHordesManager.Instance.HeatPatrolManager.GetAreaFromChunk(chunk));
                 builder.AppendLine($"Patrol time: Day {days} {hours}:{minutes}");
+
+                IChunk chunkInstance = GameManager.Instance.World.GetChunkSync(Chunk.ToAreaMasterChunkPos(new Vector3i(global::Utils.Fastfloor(pos.x), global::Utils.Fastfloor(pos.y), global::Utils.Fastfloor(pos.z))));
+                ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData = chunk != null ? ((Chunk)chunkInstance).GetChunkBiomeSpawnData() : null;
+
+                if (chunkAreaBiomeSpawnData != null)
+                    Utils.CheckPOITags(chunkAreaBiomeSpawnData);
+
+                if (chunkAreaBiomeSpawnData != null && chunkAreaBiomeSpawnData.checkedPOITags && !chunkAreaBiomeSpawnData.poiTags.IsEmpty)
+                    builder.AppendLine($"POI tags: {chunkAreaBiomeSpawnData.poiTags.GetTagNames().ToString(str => str)}");
+                else
+                    builder.AppendLine("No POI tags found.");
             }
 
             message = builder.ToString();
@@ -47,7 +58,7 @@ namespace ImprovedHordes.Command
 
         public override string GetDescription()
         {
-            return "Shows information regarding the area (such as patrol time / heat).";
+            return "Shows information regarding the area (such as patrol time / heat / poi tags).";
         }
     }
 }
