@@ -101,7 +101,7 @@ namespace ImprovedHordes.Horde.Wandering
 
             Log("[Wandering Horde] Horde for group: {0}", group.ToString());
             Log("[Wandering Horde] Horde Group: {0}", horde.horde.group.name);
-            Log("[Wandering Horde] GS: {0}", group.GetGroupGamestage());
+            Log("[Wandering Horde] GS: {0}", horde.horde.gamestage);
             Log("[Wandering Horde] Start Pos #1 (offset from farthest player): " + horde.spawnPositions.Peek().ToString());
             Log("[Wandering Horde] End Pos: " + horde.targetPosition.ToString());
             Log("[Wandering Horde] Horde size: " + horde.horde.count);
@@ -127,7 +127,7 @@ namespace ImprovedHordes.Horde.Wandering
             public WanderingHordeGenerator() : base("wandering")
             { }
 
-            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
+            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, Vector3 hordeSpawnPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
             {
                 WanderingHordeManager wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
@@ -149,7 +149,7 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                 }
 
-                return base.CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, chunkAreaBiomeSpawnData);
+                return base.CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, hordeSpawnPosition, chunkAreaBiomeSpawnData);
             }
         }
     }

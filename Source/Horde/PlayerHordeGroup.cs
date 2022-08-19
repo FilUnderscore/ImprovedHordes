@@ -18,7 +18,7 @@ namespace ImprovedHordes.Horde
             this.members = new HashSet<EntityPlayer>(players);
         }
 
-        public int GetGroupGamestage()
+        public int GetGroupGamestage(Vector3 pos)
         {
             List<int> gamestages = new List<int>();
             
@@ -34,12 +34,16 @@ namespace ImprovedHordes.Horde
 
             int groupGS = GameStageDefinition.CalcPartyLevel(gamestages);
             float heatDiff = 0.25f * (ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this) / 100f);
-            Vector3 pos = CalculateAverageGroupPosition(false);
             BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome((int)pos.x, (int)pos.z);
             float biomeDiff = biomeDef.LootStageMod;
             float biomeBonus = biomeDef.LootStageBonus;
 
             return global::Utils.Fastfloor(groupGS * (1f + heatDiff) + biomeBonus * biomeDiff);
+        }
+
+        public int GetGroupGamestage()
+        {
+            return GetGroupGamestage(CalculateAverageGroupPosition(false));
         }
 
         public Vector3 CalculateAverageGroupPosition(bool calculateY)

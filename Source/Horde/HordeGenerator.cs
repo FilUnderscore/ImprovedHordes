@@ -44,13 +44,12 @@ namespace ImprovedHordes.Horde
             }).SetAllowedValues(new bool[] { false, true }).SetTab("hordeGeneralSettingsTab");
         }
 
-        public bool GenerateHorde(PlayerHordeGroup playerGroup, bool feral, out Horde horde)
+        public bool GenerateHorde(PlayerHordeGroup playerGroup, bool feral, Vector3 hordeSpawnPosition, out Horde horde)
         {
             var groups = HordesList.hordes[this.type].hordes;
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
 
-            Vector3 groupPosition = playerGroup.CalculateAverageGroupPosition(true);
-            BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z));
+            BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(hordeSpawnPosition.x), global::Utils.Fastfloor(hordeSpawnPosition.z));
 
             // TODO: Reschedule horde if biome is null for any reason.
             if (biomeDef == null)
@@ -59,7 +58,7 @@ namespace ImprovedHordes.Horde
                 {
                     for(int j = 0; j < 16; j++)
                     {
-                        biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x) + i, global::Utils.Fastfloor(groupPosition.z) + j);
+                        biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(hordeSpawnPosition.x) + i, global::Utils.Fastfloor(hordeSpawnPosition.z) + j);
 
                         if (biomeDef != null)
                             break;
@@ -78,7 +77,7 @@ namespace ImprovedHordes.Horde
 
             string biomeAtPosition = biomeDef.m_sBiomeName;
 
-            IChunk chunk = GameManager.Instance.World.GetChunkSync(Chunk.ToAreaMasterChunkPos(new Vector3i(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.y), global::Utils.Fastfloor(groupPosition.z))));
+            IChunk chunk = GameManager.Instance.World.GetChunkSync(Chunk.ToAreaMasterChunkPos(new Vector3i(global::Utils.Fastfloor(hordeSpawnPosition.x), global::Utils.Fastfloor(hordeSpawnPosition.y), global::Utils.Fastfloor(hordeSpawnPosition.z))));
             ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData = chunk != null ? ((Chunk)chunk).GetChunkBiomeSpawnData() : null;
 
             if (chunkAreaBiomeSpawnData != null)
@@ -86,7 +85,7 @@ namespace ImprovedHordes.Horde
 
             foreach (var group in groups.Values)
             {
-                if (!CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, chunkAreaBiomeSpawnData))
+                if (!CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, hordeSpawnPosition, chunkAreaBiomeSpawnData))
                     continue;
 
                 groupsToPick.Add(group);
@@ -103,7 +102,7 @@ namespace ImprovedHordes.Horde
             HordeGroup randomGroup = RandomGroup(groupsToPick, random);
             Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
-            int gamestage = playerGroup.GetGroupGamestage();
+            int gamestage = playerGroup.GetGroupGamestage(hordeSpawnPosition);
             EvaluateEntitiesInGroup(randomGroup, ref entitiesToSpawn, gamestage, biomeAtPosition, chunkAreaBiomeSpawnData);
 
             if(entitiesToSpawn.Count == 0)
@@ -155,7 +154,7 @@ namespace ImprovedHordes.Horde
 
             entityIds.Randomize();
 
-            horde = new Horde(playerGroup, randomGroup, totalCount, feral, entityIds);
+            horde = new Horde(playerGroup, randomGroup, gamestage, totalCount, feral, entityIds);
             return true;
         }
 
@@ -217,9 +216,9 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
+        public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, Vector3 hordeSpawnPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
         {
-            int gamestage = playerGroup.GetGroupGamestage();
+            int gamestage = playerGroup.GetGroupGamestage(hordeSpawnPosition);
             bool isDay = ImprovedHordesManager.Instance.World.IsDaytime();
 
             int groupsThatMatchGS = 0;
