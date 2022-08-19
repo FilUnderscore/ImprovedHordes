@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ImprovedHordes.Horde.AI.Events
+﻿namespace ImprovedHordes.Horde.AI.Events
 {
     public class HordeEntityDespawnedEvent : EntityDespawnedEvent
     {

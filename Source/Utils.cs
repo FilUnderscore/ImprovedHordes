@@ -4,8 +4,6 @@ using System.Text;
 
 using UnityEngine;
 
-using ImprovedHordes.Horde;
-
 namespace ImprovedHordes
 {
     public static class Utils
