@@ -148,7 +148,9 @@ namespace ImprovedHordes.Horde.Data
 
             RuntimeEval.Value<ETimeOfDay> timeOfDay = ParseIfExists<ETimeOfDay>(entityElement, "time", str => ParseTimeOfDay(str));
 
-            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, biomes, chance, minCount, maxCount, timeOfDay);
+            RuntimeEval.Value<POITags> tags = ParseIfExists<POITags>(entityElement, "tags", str => POITags.Parse(str));
+
+            HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, biomes, chance, minCount, maxCount, timeOfDay, tags);
 
             group.entities.Add(entity);
         }

@@ -127,7 +127,7 @@ namespace ImprovedHordes.Horde.Wandering
             public WanderingHordeGenerator() : base("wandering")
             { }
 
-            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition)
+            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
             {
                 WanderingHordeManager wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
@@ -149,7 +149,7 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                 }
 
-                return base.CanHordeGroupBePicked(playerGroup, group, biomeAtPosition);
+                return base.CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, chunkAreaBiomeSpawnData);
             }
         }
     }

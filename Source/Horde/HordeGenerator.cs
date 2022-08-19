@@ -49,7 +49,7 @@ namespace ImprovedHordes.Horde
             var groups = HordesList.hordes[this.type].hordes;
             List<HordeGroup> groupsToPick = new List<HordeGroup>();
 
-            Vector3 groupPosition = playerGroup.CalculateAverageGroupPosition(false);
+            Vector3 groupPosition = playerGroup.CalculateAverageGroupPosition(true);
             BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.z));
 
             // TODO: Reschedule horde if biome is null for any reason.
@@ -78,9 +78,15 @@ namespace ImprovedHordes.Horde
 
             string biomeAtPosition = biomeDef.m_sBiomeName;
 
+            IChunk chunk = GameManager.Instance.World.GetChunkSync(Chunk.ToAreaMasterChunkPos(new Vector3i(global::Utils.Fastfloor(groupPosition.x), global::Utils.Fastfloor(groupPosition.y), global::Utils.Fastfloor(groupPosition.z))));
+            ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData = chunk != null ? ((Chunk)chunk).GetChunkBiomeSpawnData() : null;
+
+            if (chunkAreaBiomeSpawnData != null)
+                CheckPOITags(chunkAreaBiomeSpawnData);
+
             foreach (var group in groups.Values)
             {
-                if (!CanHordeGroupBePicked(playerGroup, group, biomeAtPosition))
+                if (!CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, chunkAreaBiomeSpawnData))
                     continue;
 
                 groupsToPick.Add(group);
@@ -98,7 +104,7 @@ namespace ImprovedHordes.Horde
             Dictionary<HordeGroupEntity, int> entitiesToSpawn = new Dictionary<HordeGroupEntity, int>();
 
             int gamestage = playerGroup.GetGroupGamestage();
-            EvaluateEntitiesInGroup(randomGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
+            EvaluateEntitiesInGroup(randomGroup, ref entitiesToSpawn, gamestage, biomeAtPosition, chunkAreaBiomeSpawnData);
 
             if(entitiesToSpawn.Count == 0)
             {
@@ -211,7 +217,7 @@ namespace ImprovedHordes.Horde
             }
         }
 
-        public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition)
+        public virtual bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
         {
             int gamestage = playerGroup.GetGroupGamestage();
             bool isDay = ImprovedHordesManager.Instance.World.IsDaytime();
@@ -239,6 +245,16 @@ namespace ImprovedHordes.Horde
                         continue;
                 }
 
+                if(entity.tags != null)
+                {
+                    POITags tags = entity.tags.Evaluate();
+
+                    if (chunkAreaBiomeSpawnData == null || 
+                        !chunkAreaBiomeSpawnData.checkedPOITags || 
+                        (!chunkAreaBiomeSpawnData.poiTags.IsEmpty && !chunkAreaBiomeSpawnData.poiTags.Test_AnySet(tags)))
+                        continue;
+                }
+
                 if (entity.gs != null)
                 {
                     GS gs = entity.gs;
@@ -259,7 +275,44 @@ namespace ImprovedHordes.Horde
             return true;
         }
 
-        private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage, string biomeAtPosition)
+        private void CheckPOITags(ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
+        {
+            if (chunkAreaBiomeSpawnData.checkedPOITags)
+                return;
+
+            BiomeDefinition biome = GameManager.Instance.World.Biomes.GetBiome(chunkAreaBiomeSpawnData.biomeId);
+            if (biome == null)
+                return;
+
+            chunkAreaBiomeSpawnData.checkedPOITags = true;
+            POITags none = POITags.none;
+            Vector3i worldPos = chunkAreaBiomeSpawnData.chunk.GetWorldPos();
+
+            List<PrefabInstance> prefabInstances = new List<PrefabInstance>();
+            GameManager.Instance.World.GetPOIsAtXZ(worldPos.x + 16, worldPos.x + 80 - 16, worldPos.z + 16, worldPos.z + 80 - 16, prefabInstances);
+
+            foreach(var prefabInstance in prefabInstances)
+            {
+                none |= prefabInstance.prefab.Tags;
+            }
+
+            chunkAreaBiomeSpawnData.poiTags = none;
+            bool isEmpty = none.IsEmpty;
+
+            BiomeSpawnEntityGroupList spawnEntityGroupList = BiomeSpawningClass.list[biome.m_sBiomeName];
+            if (spawnEntityGroupList == null)
+                return;
+
+            for(int index = 0; index < spawnEntityGroupList.list.Count; index++)
+            {
+                BiomeSpawnEntityGroupData spawnEntityGroupData = spawnEntityGroupList.list[index];
+
+                if ((spawnEntityGroupData.POITags.IsEmpty || spawnEntityGroupData.POITags.Test_AnySet(none)) && (isEmpty || spawnEntityGroupData.noPOITags.IsEmpty || !spawnEntityGroupData.noPOITags.Test_AnySet(none)))
+                    chunkAreaBiomeSpawnData.groupsEnabledFlags |= 1 << index;
+            }
+        }
+
+        private void EvaluateEntitiesInGroup(HordeGroup randomGroup, ref Dictionary<HordeGroupEntity, int> entitiesToSpawn, int gamestage, string biomeAtPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
         {
             GameRandom random = ImprovedHordesManager.Instance.Random;
             bool isDay = ImprovedHordesManager.Instance.World.IsDaytime();
@@ -283,6 +336,16 @@ namespace ImprovedHordes.Horde
                     ETimeOfDay timeOfDay = entity.timeOfDay.Evaluate();
 
                     if ((timeOfDay == ETimeOfDay.Night && isDay) || (timeOfDay == ETimeOfDay.Day && !isDay))
+                        continue;
+                }
+
+                if(entity.tags != null)
+                {
+                    POITags tags = entity.tags.Evaluate();
+
+                    if (chunkAreaBiomeSpawnData == null || 
+                        !chunkAreaBiomeSpawnData.checkedPOITags || 
+                        (!chunkAreaBiomeSpawnData.poiTags.IsEmpty && !chunkAreaBiomeSpawnData.poiTags.Test_AnySet(tags)))
                         continue;
                 }
 
@@ -376,7 +439,7 @@ namespace ImprovedHordes.Horde
                         var hordesDict = HordesList.hordes[entity.horde].hordes;
 
                         var randomHordeGroup = hordesDict.Values.ToList().ElementAt(random.RandomRange(0, hordesDict.Count));
-                        EvaluateEntitiesInGroup(randomHordeGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
+                        EvaluateEntitiesInGroup(randomHordeGroup, ref entitiesToSpawn, gamestage, biomeAtPosition, chunkAreaBiomeSpawnData);
                     }
                     else
                     {
@@ -386,7 +449,7 @@ namespace ImprovedHordes.Horde
                         }
 
                         var subGroup = HordesList.hordes[entity.horde].hordes[entity.group];
-                        EvaluateEntitiesInGroup(subGroup, ref entitiesToSpawn, gamestage, biomeAtPosition);
+                        EvaluateEntitiesInGroup(subGroup, ref entitiesToSpawn, gamestage, biomeAtPosition, chunkAreaBiomeSpawnData);
                     }
                 }
             }

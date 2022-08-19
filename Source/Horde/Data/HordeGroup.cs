@@ -53,7 +53,9 @@ namespace ImprovedHordes.Horde.Data
         
         public readonly RuntimeEval.Value<ETimeOfDay> timeOfDay;
 
-        public HordeGroupEntity(GS gs, string name, string group, string horde, RuntimeEval.Value<HashSet<string>> biomes, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount, RuntimeEval.Value<ETimeOfDay> timeOfDay)
+        public readonly RuntimeEval.Value<POITags> tags;
+
+        public HordeGroupEntity(GS gs, string name, string group, string horde, RuntimeEval.Value<HashSet<string>> biomes, RuntimeEval.Value<float> chance, RuntimeEval.Value<int> minCount, RuntimeEval.Value<int> maxCount, RuntimeEval.Value<ETimeOfDay> timeOfDay, RuntimeEval.Value<POITags> tags)
         {
             this.gs = gs;
             this.name = name;
@@ -64,6 +66,7 @@ namespace ImprovedHordes.Horde.Data
             this.minCount = minCount;
             this.maxCount = maxCount;
             this.timeOfDay = timeOfDay;
+            this.tags = tags;
         }
     }
 
