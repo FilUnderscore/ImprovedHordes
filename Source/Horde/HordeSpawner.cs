@@ -8,6 +8,8 @@ using UnityEngine;
 using static ImprovedHordes.Utils.Logger;
 
 using CustomModManager.API;
+using ImprovedHordes.Horde.Data;
+using System;
 
 namespace ImprovedHordes.Horde
 {
@@ -23,6 +25,8 @@ namespace ImprovedHordes.Horde
             }
         }
 
+        private static readonly List<HordeSpawner> spawners = new List<HordeSpawner>();
+
         private readonly Dictionary<PlayerHordeGroup, SpawningHorde> hordesSpawning = new Dictionary<PlayerHordeGroup, SpawningHorde>();
         private readonly HordeGenerator hordeGenerator;
 
@@ -32,6 +36,8 @@ namespace ImprovedHordes.Horde
         {
             this.manager = manager;
             this.hordeGenerator = hordeGenerator;
+
+            spawners.Add(this);
         }
 
         public static void ReadSettings(Settings settings)
@@ -77,14 +83,41 @@ namespace ImprovedHordes.Horde
             }
         }
 
+        public void StartSpawningFor(List<PlayerHordeGroup> groups, bool feral, HordeGroup hordeGroup)
+        {
+            foreach(var group in groups)
+            {
+                StartSpawningFor(group, feral, hordeGroup);
+            }
+        }
+
         public void StartSpawningFor(PlayerHordeGroup group, bool feral)
+        {
+            StartSpawningFor(group, feral, (centerStartParam) =>
+            {
+                bool success = this.hordeGenerator.GenerateHorde(group, feral, centerStartParam, out Horde horde);
+                return (horde, success);
+            });
+        }
+
+        public void StartSpawningFor(PlayerHordeGroup group, bool feral, HordeGroup hordeGroup)
+        {
+            StartSpawningFor(group, feral, (centerStartParam) =>
+            {
+                bool success = this.hordeGenerator.GenerateHorde(group, feral, centerStartParam, hordeGroup, out Horde horde);
+                return (horde, success);
+            });
+        }
+
+        public void StartSpawningFor(PlayerHordeGroup group, bool feral, Func<Vector3, (Horde, bool)> generateHordeFunc)
         {
             if (hordesSpawning.ContainsKey(group))
                 return;
 
             Vector3 centerStart = FindFarthestDirectionalSpawnFromGroup(group);
+            (Horde horde, bool success) = generateHordeFunc.Invoke(centerStart);
 
-            if(!this.hordeGenerator.GenerateHorde(group, feral, centerStart, out Horde horde))
+            if (!success)
             {
                 Log("No horde spawned for group {0}, as there were no matching horde groups.", group);
                 return;
@@ -105,7 +138,7 @@ namespace ImprovedHordes.Horde
         }
 
         private readonly List<PlayerHordeGroup> toRemove = new List<PlayerHordeGroup>();
-        public void Update()
+        private void Update()
         {
             if (hordesSpawning.Count == 0)
                 return;
@@ -132,6 +165,12 @@ namespace ImprovedHordes.Horde
 
             if(toRemove.Count > 0)
                 toRemove.Clear();
+        }
+
+        internal static void UpdateAll()
+        {
+            foreach (var spawner in spawners)
+                spawner.Update();
         }
 
         protected virtual void PreSpawn(PlayerHordeGroup playerHordeGroup, SpawningHorde horde) { }

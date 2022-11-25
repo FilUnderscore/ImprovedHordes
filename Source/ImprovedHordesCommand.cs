@@ -9,6 +9,7 @@ namespace ImprovedHordes
             RegisterSubcommand(new ImprovedHordesWanderingSubcommand());
             RegisterSubcommand(new ImprovedHordesListSubcommand());
             RegisterSubcommand(new ImprovedHordesStatsSubcommand());
+            RegisterSubcommand(new ImprovedHordesSpawnSubcommand());
         }
 
         public override string GetDescription()

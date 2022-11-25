@@ -95,14 +95,6 @@ namespace ImprovedHordes.Horde.Heat
             return false;
         }
 
-        public void Update()
-        {
-            if (!manager.PlayerManager.AnyPlayers())
-                return;
-
-            this.spawner.Update();
-        }
-
         public void Load(BinaryReader reader)
         {
             if(reader.ReadUInt16() != HEAT_PATROL_MAGIC || reader.ReadUInt32() < HEAT_PATROL_VERSION)

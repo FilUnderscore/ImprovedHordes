@@ -201,8 +201,7 @@ namespace ImprovedHordes
 
             this.AIManager.Update();
             this.WanderingHorde.Update();
-            this.ScoutManager.Update();
-            this.HeatPatrolManager.Update();
+            this.HordeManager.Update();
         }
 
         public void Tick(ulong time)

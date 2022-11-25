@@ -190,10 +190,34 @@ namespace ImprovedHordes.Command
         {
             SubcommandBase command = subcommands[subcommand];
 
-            if (command is ExecutableSubcommandBase)
-                return ((ExecutableSubcommandBase)command).Execute(args, _senderInfo, ref message);
+            if (command is ExecutableSubcommandBase esb)
+                return ExecuteSubcommand(esb, args, _senderInfo, ref message);
             else
                 return command.CallSubcommand(args, _senderInfo, ref message);
+        }
+
+        private bool ExecuteSubcommand(ExecutableSubcommandBase command, List<string> args, CommandSenderInfo _senderInfo, ref string message)
+        {
+            int argsCountRequired = 0;
+
+            if (command.GetArgs() != null)
+            {
+                foreach ((string, bool optional) templatedArg in command.GetArgs())
+                {
+                    if (!templatedArg.optional)
+                        argsCountRequired++;
+                }
+            }
+
+            if (args.Count >= argsCountRequired)
+            {
+                return command.Execute(args, _senderInfo, ref message);
+            }
+            else
+            {
+                message = $"You must specify the required arguments for the specified subcommand before it can be successfully executed.";
+                return false;
+            }
         }
     }
 

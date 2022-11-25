@@ -241,15 +241,6 @@ namespace ImprovedHordes.Horde.Scout
             }
         }
 
-        public void Update()
-        {
-            if (!this.manager.PlayerManager.AnyPlayers())
-                return;
-
-            this.spawner.Update();
-            this.hordeSpawner.Update();
-        }
-
         public List<Scout> GetScoutsNear(Vector3 targetPos, bool alive = true)
         {
             int chunkDist = 16 * this.CHUNK_RADIUS;

@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\ImprovedHordesListSubcommand.cs" />
+    <Compile Include="Command\ImprovedHordesSpawnSubcommand.cs" />
     <Compile Include="Command\ImprovedHordesStatsSubcommand.cs" />
     <Compile Include="Command\ImprovedHordesWanderingSubcommand.cs" />
     <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />

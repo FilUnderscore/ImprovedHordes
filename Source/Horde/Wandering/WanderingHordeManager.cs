@@ -101,8 +101,6 @@ namespace ImprovedHordes.Horde.Wandering
             if (!this.manager.PlayerManager.AnyPlayers())
                 return;
 
-            this.spawner.Update();
-
             if (ShouldSpawnWanderingHorde() && this.state == EHordeState.Finished)
             {
                 if (this.manager.World.GetWorldTime() > lastSpawnAttempt + SPAWN_ATTEMPT_COOLDOWN) // Retry spawning if it fails.

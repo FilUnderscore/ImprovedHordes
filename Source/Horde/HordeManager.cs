@@ -23,6 +23,14 @@ namespace ImprovedHordes.Horde
             this.manager.AIManager.OnHordeKilled += OnHordeKilled;
         }
 
+        public void Update()
+        {
+            if (!manager.PlayerManager.AnyPlayers())
+                return;
+
+            HordeSpawner.UpdateAll();
+        }
+
         private void OnHordeKilled(object sender, HordeKilledEvent e)
         {
             ImprovedHordesManager.Instance.HordeManager.DeregisterHorde(e.horde.GetHordeInstance());
