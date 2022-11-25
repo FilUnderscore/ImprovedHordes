@@ -312,16 +312,25 @@ namespace ImprovedHordes.Horde
                 return true; // End spawning since we don't have any more spawns left and will loop until crash occurs. This scenario should never realistically occur.
 
             EntityAlive entity = EntityFactory.CreateEntity(entityId, spawnPosition) as EntityAlive;
-            ImprovedHordesManager.Instance.World.SpawnEntityInWorld(entity);
 
-            entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
+            if (entity != null)
+            {
+                ImprovedHordesManager.Instance.World.SpawnEntityInWorld(entity);
 
-            this.SetAttributes(entity);
-            this.OnSpawn(entity, group, horde);
+                entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
+
+                this.SetAttributes(entity);
+                this.OnSpawn(entity, group, horde);
 
 #if DEBUG
-            entity.AddNavObject("ih_horde_zombie_debug", "");
+                entity.AddNavObject("ih_horde_zombie_debug", "");
 #endif
+            }
+            else
+            {
+                Warning($"[Horde Spawner] Attempted to spawn an entity of unknown type {entityId}. Perhaps this entity has not been defined as an entityclass/entitygroup? Ignoring this entity spawn.");
+            }
+
             // returns true if spawned all entities to signal that spawning is complete
             // returns false if more will be spawned.
             return horde.entityIndex >= horde.horde.entityIds.Count;
