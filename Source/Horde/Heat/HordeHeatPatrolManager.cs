@@ -83,7 +83,7 @@ namespace ImprovedHordes.Horde.Heat
 
         public bool GetAreaPatrolTime(Vector3 position, out ulong time)
         {
-            Vector2i area = GetAreaFromChunk(World.toChunkXZ(position));
+            Vector2i area = GetAreaFromChunk(global::World.toChunkXZ(position));
 
             if (patrolTime.ContainsKey(area))
             {

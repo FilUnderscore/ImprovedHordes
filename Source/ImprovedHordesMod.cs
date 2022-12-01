@@ -86,7 +86,7 @@ namespace ImprovedHordes
 
         class HarmonyPatches
         {
-            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch(typeof(global::World))]
             [HarmonyPatch("Save")]
             class WorldSaveHook
             {
@@ -100,7 +100,7 @@ namespace ImprovedHordes
                 }
             }
 
-            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch(typeof(global::World))]
             [HarmonyPatch("Cleanup")]
             class WorldCleanupHook
             {

@@ -224,7 +224,7 @@ namespace ImprovedHordes.Horde.Heat
 
         public float GetHeatAt(Vector3 position)
         {
-            return GetHeatInChunk(World.toChunkXZ(position));
+            return GetHeatInChunk(global::World.toChunkXZ(position));
         }
 
         public float GetHeatForGroup(PlayerHordeGroup group)
@@ -258,7 +258,7 @@ namespace ImprovedHordes.Horde.Heat
             int radiusSquared = radius * radius;
             Dictionary<Vector2i, float> nearbyChunks = new Dictionary<Vector2i, float>();
 
-            Vector2i currentChunk = World.toChunkXZ(position);
+            Vector2i currentChunk = global::World.toChunkXZ(position);
 
             nearbyChunks.Add(currentChunk, 1f);
 

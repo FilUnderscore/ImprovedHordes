@@ -111,6 +111,11 @@
     <Compile Include="Horde\Wandering\WanderingHordeManager.cs" />
     <Compile Include="ImprovedHordesCommand.cs" />
     <Compile Include="RuntimeEval.cs" />
+    <Compile Include="World\WorldEntitiesFromXml.cs" />
+    <Compile Include="World\WorldEntitiesList.cs" />
+    <Compile Include="World\WorldEntityDefinition.cs" />
+    <Compile Include="World\WorldEntityGenerator.cs" />
+    <Compile Include="World\WorldEntitySpawner.cs" />
     <Compile Include="XPath\XPathPatcher.cs" />
   </ItemGroup>
   <ItemGroup />

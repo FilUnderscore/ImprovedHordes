@@ -26,7 +26,7 @@ namespace ImprovedHordes.Command
             HordePlayer hordePlayer = playerManager.GetPlayer(player);
 
             Vector3 pos = hordePlayer.playerEntityInstance.position;
-            Vector2i chunk = World.toChunkXZ(pos);
+            Vector2i chunk = global::World.toChunkXZ(pos);
             builder.AppendLine("Chunk " + chunk + " Heat: " + ImprovedHordesManager.Instance.HeatTracker.GetHeatInChunk(chunk));
 
             if (ImprovedHordesManager.Instance.HeatPatrolManager.GetAreaPatrolTime(pos, out ulong time))

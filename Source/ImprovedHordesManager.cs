@@ -15,6 +15,7 @@ using ImprovedHordes.Horde.Heat;
 using HarmonyLib;
 
 using CustomModManager.API;
+using ImprovedHordes.World;
 
 namespace ImprovedHordes
 {
@@ -27,7 +28,7 @@ namespace ImprovedHordes
         private readonly string XmlFilesDir;
         private readonly string ModPath;
 
-        public World World;
+        public global::World World;
         public GameRandom Random;
 
         private static ImprovedHordesManager instance;
@@ -52,6 +53,8 @@ namespace ImprovedHordes
         public HordeAreaHeatTracker HeatTracker;
         public HordeHeatPatrolManager HeatPatrolManager;
 
+        public WorldEntitySpawner WorldEntitySpawner;
+
         public ImprovedHordesManager(Mod mod)
         {
             if (instance != null)
@@ -66,6 +69,7 @@ namespace ImprovedHordes
             PlayerManager = new HordePlayerManager(this);
             HeatTracker = new HordeAreaHeatTracker(this);
             HeatPatrolManager = new HordeHeatPatrolManager(this);
+            WorldEntitySpawner = new WorldEntitySpawner(this);
 
             ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
@@ -80,12 +84,13 @@ namespace ImprovedHordes
             Random = GameRandomManager.Instance.CreateGameRandom(Guid.NewGuid().GetHashCode());
 
             this.WanderingHorde.schedule.SetGameVariables();
-            
+
             // Reload data file location.
             DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
 
             this.Load();
             this.HeatTracker.Init();
+            this.WorldEntitySpawner.Init();
         }
 
         public void LoadSettings(Mod modInstance)
@@ -130,6 +135,7 @@ namespace ImprovedHordes
             Log("Loading Xml Configs in {0}", XmlFilesDir);
 
             XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
+            XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes", "worldentities.xml", xmlFile => WorldEntitiesFromXml.LoadWorldEntities(xmlFile));
 
             Log("Loaded all Xml configs.");
         }
@@ -148,6 +154,7 @@ namespace ImprovedHordes
                     this.WanderingHorde.Save(writer);
                     this.HeatTracker.Save(writer);
                     this.HeatPatrolManager.Save(writer);
+                    this.WorldEntitySpawner.Save(writer);
 
                     Log("Saved horde data.");
                 }
@@ -179,6 +186,7 @@ namespace ImprovedHordes
                     this.WanderingHorde.Load(reader);
                     this.HeatTracker.Load(reader);
                     this.HeatPatrolManager.Load(reader);
+                    this.WorldEntitySpawner.Load(reader);
 
                     Log("Loaded horde data.");
                 }
@@ -226,6 +234,7 @@ namespace ImprovedHordes
             this.PlayerManager.Shutdown();
             this.HeatTracker.Shutdown();
             this.HeatPatrolManager.Shutdown();
+            this.WorldEntitySpawner.Shutdown();
         }
 
         public bool Initialized()
@@ -235,7 +244,7 @@ namespace ImprovedHordes
 
         class HarmonyPatches
         {
-            [HarmonyPatch(typeof(World))]
+            [HarmonyPatch(typeof(global::World))]
             [HarmonyPatch("SetTime")]
             class WorldSetTimeHook
             {

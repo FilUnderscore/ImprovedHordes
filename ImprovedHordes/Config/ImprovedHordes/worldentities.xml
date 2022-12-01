@@ -1,0 +1,73 @@
+<!-- Define World Entities for Improved Hordes Custom World Spawning. -->
+<worldentities>
+	<!-- Enemies -->
+	<worldentity type="enemy" name="Zombie">
+		<!-- Wasteland -->
+		<entity time="day" biomes="wasteland" group="ZombiesWasteland"/>
+		<entity time="night" biomes="wasteland" group="ZombiesWastelandNight"/>
+		
+		<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland"/>
+
+		<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland"/>
+		<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight"/>
+		
+		<!-- Other Biomes -->
+		<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll"/>
+		<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight"/>
+		
+		<!-- Feral Zombies -->
+		<gs min="50">
+			<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral"/>
+			<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight"/>
+		</gs>
+		
+		<!-- Radiated Zombies -->
+		<gs min="165">
+			<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated"/>
+			<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight"/>
+		</gs>
+	</worldentity>
+	
+	<worldentity type="enemy" name="ZombieDog">
+		<entity biomes="wasteland" name="animalZombieDog"/>
+		<entity chance="0.01" name="animalZombieDog"/>
+	</worldentity>
+	
+	<!-- Animals -->
+	<worldentity type="animal" chance="0.15" name="Wolf">
+		<entity biomes="desert,snow" tags="wilderness" name="animalCoyote"/>
+		<entity biomes="pine_forest,burnt_forest" tags="wilderness" name="animalWolf"/>
+		
+		<entity biomes="pine_forest,desert,burnt_forest,wasteland" tags="wilderness" name="animalDireWolf"/>
+		<entity biomes="snow" tags="wilderness" name="animalMountainLion"/>
+	</worldentity>
+	
+	<worldentity type="animal" chance="0.05" name="Bear">
+		<entity biomes="pine_forest,snow" tags="wilderness" name="animalBear"/>
+		
+		<entity time="day" biomes="wasteland,burnt_forest" name="animalZombieBear"/>
+		<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear"/>
+	</worldentity>
+	
+	<worldentity type="animal" chance="0.1" name="VultureSnake">
+		<entity biomes="desert,pine_forest" tags="wilderness" name="animalSnake"/>
+		<entity biomes="desert,burnt_forest" name="animalZombieVulture"/>
+		
+		<entity biomes="wasteland" name="animalZombieVulture"/>
+		<entity biomes="wasteland" name="animalZombieVultureRadiated"/>
+	</worldentity>
+	
+	<worldentity type="animal" chance="0.25" name="Deer">
+		<entity biomes="pine_forest,snow" tags="wilderness" name="animalStag"/>
+		<entity biomes="pine_forest,snow" tags="wilderness" name="animalDoe"/>
+	</worldentity>
+	
+	<worldentity type="animal" chance="0.25" name="Boar">
+		<entity biomes="pine_forest" tags="wilderness" name="animalBoar"/>
+	</worldentity>
+	
+	<worldentity type="animal" name="SmallAnimal">
+		<entity biomes="pine_forest,snow,desert" tags="wilderness" name="animalChicken"/>
+		<entity biomes="pine_forest,snow,desert" tags="wilderness" name="animalRabbit"/>
+	</worldentity>
+</worldentities>
