@@ -20,22 +20,26 @@ namespace ImprovedHordes.World
             {
                 public readonly Dictionary<WorldEntityType, int> entitiesSpawned;
                 public readonly Dictionary<WorldEntityType, int> entitiesSpawnedMax;
+                public readonly Dictionary<WorldEntityType, ulong> entitiesRespawnTime;
 
-                private SaveData(Dictionary<WorldEntityType, int> entitiesSpawned, Dictionary<WorldEntityType, int> entitiesSpawnedMax)
+                private SaveData(Dictionary<WorldEntityType, int> entitiesSpawned, Dictionary<WorldEntityType, int> entitiesSpawnedMax, Dictionary<WorldEntityType, ulong> entitiesRespawnTime)
                 {
                     this.entitiesSpawned = entitiesSpawned;
                     this.entitiesSpawnedMax = entitiesSpawnedMax;
+                    this.entitiesRespawnTime = entitiesRespawnTime;
                 }
 
                 public SaveData()
                 {
                     this.entitiesSpawned = new Dictionary<WorldEntityType, int>();
                     this.entitiesSpawnedMax = new Dictionary<WorldEntityType, int>();
+                    this.entitiesRespawnTime = new Dictionary<WorldEntityType, ulong>();
 
                     foreach (WorldEntityType worldEntityType in Enum.GetValues(typeof(WorldEntityType)))
                     {
                         entitiesSpawned.Add(worldEntityType, 0);
                         entitiesSpawnedMax.Add(worldEntityType, 1);
+                        this.entitiesRespawnTime.Add(worldEntityType, 0UL);
                     }
                 }
 
@@ -43,6 +47,7 @@ namespace ImprovedHordes.World
                 {
                     Dictionary<WorldEntityType, int> entitiesSpawned = new Dictionary<WorldEntityType, int>();
                     Dictionary<WorldEntityType, int> entitiesSpawnedMax = new Dictionary<WorldEntityType, int>();
+                    Dictionary<WorldEntityType, ulong> entitiesRespawnTime = new Dictionary<WorldEntityType, ulong>();
 
                     int typeCount = reader.ReadInt32();
                     for (int j = 0; j < typeCount; j++)
@@ -50,12 +55,14 @@ namespace ImprovedHordes.World
                         WorldEntityType type = (WorldEntityType)reader.ReadInt32();
                         int entityCount = reader.ReadInt32();
                         int entityCountMax = reader.ReadInt32();
+                        ulong entityRespawnTime = reader.ReadUInt64();
 
                         entitiesSpawned[type] = entityCount;
                         entitiesSpawnedMax[type] = entityCountMax;
+                        entitiesRespawnTime[type] = entityRespawnTime;
                     }
 
-                    return new SaveData(entitiesSpawned, entitiesSpawnedMax);
+                    return new SaveData(entitiesSpawned, entitiesSpawnedMax, entitiesRespawnTime);
                 }
 
                 public void Serialize(BinaryWriter writer)
@@ -66,6 +73,7 @@ namespace ImprovedHordes.World
                         writer.Write((int)worldEntityType);
                         writer.Write(entitiesSpawned[worldEntityType]);
                         writer.Write(entitiesSpawnedMax[worldEntityType]);
+                        writer.Write(entitiesRespawnTime[worldEntityType]);
                     }
                 }
             }
@@ -95,7 +103,8 @@ namespace ImprovedHordes.World
 
             public void DecreaseEntityCount(WorldEntityType worldEntityType)
             {
-                this.saveData.entitiesSpawned[worldEntityType]--;
+                int entityCount = this.saveData.entitiesSpawned[worldEntityType]--;
+                this.saveData.entitiesRespawnTime[worldEntityType] = ImprovedHordesManager.Instance.World.worldTime + (ulong)(entityCount * 1000);
             }
 
             public int GetEntityCount(WorldEntityType worldEntityType)
@@ -115,6 +124,9 @@ namespace ImprovedHordes.World
 
             public bool IsSpawnNeeded(WorldEntityType worldEntityType)
             {
+                if (!this.saveData.entitiesRespawnTime.TryGetValue(worldEntityType, out ulong respawnTime) || respawnTime > ImprovedHordesManager.Instance.World.worldTime)
+                    return false;
+
                 return GetEntityCount(worldEntityType) < GetMaxEntityCount(worldEntityType);
             }
 
