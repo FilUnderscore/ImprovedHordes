@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
 
 namespace ImprovedHordes.Horde
@@ -24,15 +24,12 @@ namespace ImprovedHordes.Horde
             
             foreach (var player in this.members)
             {
-                //HordePlayer hordePlayer = ImprovedHordesManager.Instance.PlayerManager.GetPlayer(player.entityId);
-
-                //if (hordePlayer != null)
-                //    gamestages.Add(hordePlayer.GetAverageGamestage());
-                //else
-                    gamestages.Add(player.gameStage);
+                gamestages.Add(player.gameStage);
             }
 
-            int groupGS = GameStageDefinition.CalcPartyLevel(gamestages);
+            int groupGSDiff = gamestages.Max() - gamestages.Min();
+            int groupGS = (gamestages.Sum() / Mathf.Max(1, gamestages.Count - 1)) - groupGSDiff;
+
             float heatDiff = 0.25f * (ImprovedHordesManager.Instance.HeatTracker.GetHeatForGroup(this) / 100f);
             BiomeDefinition biomeDef = ImprovedHordesManager.Instance.World.GetBiome((int)pos.x, (int)pos.z);
             float biomeDiff = biomeDef.LootStageMod;

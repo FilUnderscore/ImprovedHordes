@@ -104,7 +104,10 @@ namespace ImprovedHordes.World
             public void DecreaseEntityCount(WorldEntityType worldEntityType)
             {
                 int entityCount = this.saveData.entitiesSpawned[worldEntityType]--;
-                this.saveData.entitiesRespawnTime[worldEntityType] = ImprovedHordesManager.Instance.World.worldTime + (ulong)(entityCount * 1000);
+                long remainingRespawnTime = (long)(this.saveData.entitiesRespawnTime[worldEntityType] - ImprovedHordesManager.Instance.World.worldTime);
+                remainingRespawnTime = Math.Max(0, remainingRespawnTime);
+
+                this.saveData.entitiesRespawnTime[worldEntityType] = ImprovedHordesManager.Instance.World.worldTime + (ulong)remainingRespawnTime + (ulong)(entityCount * 1000);
             }
 
             public int GetEntityCount(WorldEntityType worldEntityType)
@@ -162,7 +165,7 @@ namespace ImprovedHordes.World
             private int DetermineMaxEntityCount(int gs, int playerCount, WorldEntityType worldEntityType)
             {
                 int count = (worldEntityType == WorldEntityType.Animal ? MAX_ANIMALS_PER_AREA : MAX_ENEMIES_PER_AREA) * playerCount;
-                Log.Out($"Type {worldEntityType} count {count} gs {gs} mined {Math.Min(count, (int)Mathf.Pow(count * gs, 0.25f))}");
+                //Log.Out($"Type {worldEntityType} count {count} gs {gs} mined {Math.Min(count, (int)Mathf.Pow(count * gs, 0.25f))}");
 
                 return Math.Min(count, (int)Mathf.Pow(count * gs, 0.25f));
             }
@@ -190,7 +193,11 @@ namespace ImprovedHordes.World
             for(int i = 0; i < count; i++)
             {
                 Vector3i chunkPos = new Vector3i(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-                this.worldEntitySpawnDataSavedEntityCounts.Add(chunkPos, ChunkAreaWorldEntitySpawnData.SaveData.Deserialize(reader));
+
+                if (!this.worldEntitySpawnDataSavedEntityCounts.ContainsKey(chunkPos))
+                    this.worldEntitySpawnDataSavedEntityCounts.Add(chunkPos, ChunkAreaWorldEntitySpawnData.SaveData.Deserialize(reader));
+                else
+                    this.worldEntitySpawnDataSavedEntityCounts[chunkPos] = ChunkAreaWorldEntitySpawnData.SaveData.Deserialize(reader);
             }
         }
 
@@ -241,6 +248,8 @@ namespace ImprovedHordes.World
             ChunkAreaBiomeSpawnData chunkBiomeSpawnData = chunkSync.GetChunkBiomeSpawnData();
             if (chunkBiomeSpawnData == null)
                 return;
+
+            FillIfNotFound(chunkBiomeSpawnData);
             ChunkAreaWorldEntitySpawnData chunkAreaWorldEntitySpawnData = GetWorldEntitySpawnData(chunkBiomeSpawnData);
             switch (_reason)
             {

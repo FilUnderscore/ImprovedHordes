@@ -127,7 +127,7 @@ namespace ImprovedHordes.Horde.Wandering
             public WanderingHordeGenerator() : base("wandering")
             { }
 
-            public override bool CanHordeGroupBePicked(PlayerHordeGroup playerGroup, HordeGroup group, string biomeAtPosition, Vector3 hordeSpawnPosition, ChunkAreaBiomeSpawnData chunkAreaBiomeSpawnData)
+            protected override bool CanHordeGroupBePicked(HordeGenerationData hordeGenerationData, HordeGroup group)
             {
                 WanderingHordeManager wanderingHorde = ImprovedHordesManager.Instance.WanderingHorde;
 
@@ -135,7 +135,7 @@ namespace ImprovedHordes.Horde.Wandering
                 {
                     var maxWeeklyOccurrences = group.MaxWeeklyOccurrences.Evaluate();
 
-                    var weeklyOccurrencesForPlayer = wanderingHorde.schedule.GetAverageWeeklyOccurrencesForGroup(playerGroup, group);
+                    var weeklyOccurrencesForPlayer = wanderingHorde.schedule.GetAverageWeeklyOccurrencesForGroup(hordeGenerationData.PlayerGroup, group);
 
                     if (weeklyOccurrencesForPlayer >= maxWeeklyOccurrences)
                         return false;
@@ -149,7 +149,7 @@ namespace ImprovedHordes.Horde.Wandering
                     }
                 }
 
-                return base.CanHordeGroupBePicked(playerGroup, group, biomeAtPosition, hordeSpawnPosition, chunkAreaBiomeSpawnData);
+                return base.CanHordeGroupBePicked(hordeGenerationData, group);
             }
         }
     }

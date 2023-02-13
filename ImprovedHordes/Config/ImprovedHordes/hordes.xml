@@ -32,6 +32,10 @@
 			<gs min="5" countIncPerGS="0.1">
 				<entity name="animalZombieDog" minCount="1" maxCount="20"/>
 			</gs>
+			
+			<gs min="5" countIncPerGS="0.05">
+				<entity biomes="wasteland" name="zombieFatCop" minCount="1" maxCount="10"/>
+			</gs>
 		</hordegroup>
 		
 		<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurrences="1">			
@@ -69,7 +73,8 @@
 		
 		<hordegroup name="Zombies">
 			<!-- Standard Zombies -->
-			<gs max="165" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">
+			<!--<gs max="165" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">-->
+			<gs max="165" chanceIncPerGS="0" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">
 				<gs min="35">
 					<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
 				</gs>

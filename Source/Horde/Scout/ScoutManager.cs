@@ -156,6 +156,10 @@ namespace ImprovedHordes.Horde.Scout
 
         public void OnScoutZombieHordeKilled(object sender, HordeKilledEvent e) // Fix for scout zombie hordes spawning infinitely.
         {
+            // TODO Investigate?
+            if (e.horde == null || e.horde.GetHordeInstance() == null || e.horde.GetHordeInstance().group == null)
+                return;
+
             if(e.horde.GetHordeInstance().group.list.type.EqualsCaseInsensitive("Scout"))
             {
                 if (currentScoutZombieHordesSpawned.ContainsKey(e.horde))

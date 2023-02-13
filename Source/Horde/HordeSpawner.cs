@@ -95,7 +95,7 @@ namespace ImprovedHordes.Horde
         {
             StartSpawningFor(group, feral, (centerStartParam) =>
             {
-                bool success = this.hordeGenerator.GenerateHorde(group, feral, centerStartParam, out Horde horde);
+                bool success = this.hordeGenerator.GenerateHorde(new HordeGenerator.HordeGenerationData(group, feral, centerStartParam), out Horde horde);
                 return (horde, success);
             });
         }
@@ -104,7 +104,7 @@ namespace ImprovedHordes.Horde
         {
             StartSpawningFor(group, feral, (centerStartParam) =>
             {
-                bool success = this.hordeGenerator.GenerateHorde(group, feral, centerStartParam, hordeGroup, out Horde horde);
+                bool success = this.hordeGenerator.GenerateHorde(new HordeGenerator.HordeGenerationData(group, feral, centerStartParam, hordeGroup), out Horde horde);
                 return (horde, success);
             });
         }
