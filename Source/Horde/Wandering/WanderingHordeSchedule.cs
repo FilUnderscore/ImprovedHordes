@@ -13,7 +13,7 @@ namespace ImprovedHordes.Horde.Wandering
     public class WanderingHordeSchedule
     {
         private const ushort SCHEDULE_MAGIC = 0x5748;
-        private const uint SCHEDULE_VERSION = 1;
+        private const uint SCHEDULE_VERSION = 2;
 
         private int s_days_per_wandering_week = 7,
             s_hrs_in_week_to_first_occurrence = 0,
@@ -22,7 +22,7 @@ namespace ImprovedHordes.Horde.Wandering
             s_min_occurrences = 6,
             s_max_occurrences = 8;
 
-        private float s_feral_horde_chance = 0.5f;
+        //private float s_feral_horde_chance = 0.5f;
 
         public int DAYS_PER_RESET
         {
@@ -72,6 +72,7 @@ namespace ImprovedHordes.Horde.Wandering
             }
         }
 
+        /*
         public float FERAL_HORDE_CHANCE
         {
             get
@@ -79,6 +80,7 @@ namespace ImprovedHordes.Horde.Wandering
                 return s_feral_horde_chance;
             }
         }
+        */
 
         public ulong nextResetTime = 0UL;
         public int currentOccurrence = 0;
@@ -110,13 +112,15 @@ namespace ImprovedHordes.Horde.Wandering
             this.s_min_occurrences = settings.GetInt("min_occurrences", 0, false, 2);
             this.s_max_occurrences = settings.GetInt("max_occurrences", this.s_min_occurrences + 1, false, this.s_min_occurrences + 3);
 
+            /*
             this.s_feral_horde_chance = settings.GetFloat("feral_horde_chance", 0.0f, false, 0.5f);
 
             if(this.s_feral_horde_chance > 1.0f)
             {
                 Warning("[Wandering Horde] Feral horde chance greater than 1. Setting to 1.");
                 this.s_feral_horde_chance = 1.0f;
-            }    
+            } 
+            */
         }
 
         public void HookSettings(ModManagerAPI.ModSettings modSettings)
@@ -159,11 +163,13 @@ namespace ImprovedHordes.Horde.Wandering
                 return (val, success);
             }).SetTab("hordeWanderingSettingsTab");
 
+            /*
             modSettings.Hook<float>("hordeWanderingFeralHordeChance", "IHxuiHordeWanderingFeralHordeChanceModSetting", value => this.s_feral_horde_chance = value, () => this.s_feral_horde_chance, toStr => (toStr.ToString(), toStr * 100f + "%"), str =>
             {
                 bool success = float.TryParse(str, out float val) && val >= 0.0f && val <= 1.0f;
                 return (val, success);
             }).SetTab("hordeWanderingSettingsTab");
+            */
         }
 
         public void SetGameVariables()
@@ -399,8 +405,7 @@ namespace ImprovedHordes.Horde.Wandering
                     break;
                 }
 
-                bool feral = FERAL_HORDE_CHANCE < 1.0f ? random.RandomRange(0.0f, 1.0f) <= FERAL_HORDE_CHANCE : true;
-                occurrences.Add(new Occurrence(nextOccurrence, feral));
+                occurrences.Add(new Occurrence(nextOccurrence, false));
                 possibleOccurrences++;
 
 #if DEBUG
