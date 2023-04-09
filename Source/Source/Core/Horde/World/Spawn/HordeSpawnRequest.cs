@@ -6,7 +6,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 {
     public abstract class HordeSpawnRequest
     {
-        private ManualResetEventSlim slim = new ManualResetEventSlim(false);
+        private readonly ManualResetEventSlim slim = new ManualResetEventSlim(false);
 
         /// <summary>
         /// Execute per tick on main thread.

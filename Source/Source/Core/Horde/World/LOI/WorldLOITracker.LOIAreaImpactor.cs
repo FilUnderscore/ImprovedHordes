@@ -12,6 +12,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 		private class LOIAreaImpactor : Thread
 		{
 			private readonly ConcurrentQueue<LocationOfInterest> locations = new ConcurrentQueue<LocationOfInterest>();
+			private readonly List<LocationOfInterest> locationsToNotify = new List<LocationOfInterest>();
+
 			private AutoResetEvent readEvent = new AutoResetEvent(false);
 
 			private LOIInterestDecayer decayer;
@@ -33,7 +35,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 			{
 				readEvent.WaitOne();
 
-				List<LocationOfInterest> locations = new List<LocationOfInterest>();
 				while (this.locations.TryDequeue(out LocationOfInterest location))
 				{
 					Dictionary<Vector2i, float> nearby = GetNearbyChunks(location.GetLocation(), 3);
@@ -44,11 +45,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 						float strength = chunk.Value;
 
 						float chunkInterest = location.GetInterestLevel() * strength;
-						locations.Add(new LocationOfInterest(chunkLocation, chunkInterest));
+						locationsToNotify.Add(new LocationOfInterest(chunkLocation, chunkInterest));
 					}
 				}
 
-				this.decayer.Notify(locations);
+				this.decayer.Notify(locationsToNotify);
+				locationsToNotify.Clear();
 
 				return true;
 			}
