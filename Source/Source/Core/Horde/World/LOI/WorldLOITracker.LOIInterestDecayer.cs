@@ -33,12 +33,15 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 this.MAP_SIZE_POW_2_LOG_N = Math.Pow(2, MAP_SIZE_LOG_N);
             }
 
-            public void Notify(List<LocationOfInterest> locations)
+            public void Notify(ConcurrentBag<LocationOfInterest> locations)
             {
                 if (locations != null)
                 {
                     Monitor.Enter(this.reportedLocations);
-                    this.reportedLocations.AddRange(locations);
+                    
+                    while(locations.TryTake(out LocationOfInterest location))
+                        this.reportedLocations.Add(location);
+
                     Monitor.Exit(this.reportedLocations);
                 }
             }
