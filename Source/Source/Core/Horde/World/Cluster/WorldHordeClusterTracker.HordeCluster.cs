@@ -10,13 +10,16 @@ namespace ImprovedHordes.Source.Core.Horde.World
         {
             protected readonly WorldHordeSpawner spawner;
             protected readonly IHorde horde;
+            protected PlayerHordeGroup nearbyPlayerGroup;
+            protected float density;
 
             private bool stateSet = false;
 
-            public HordeCluster(WorldHordeSpawner spawner, IHorde horde)
+            public HordeCluster(WorldHordeSpawner spawner, IHorde horde, float density)
             {
                 this.spawner = spawner;
                 this.horde = horde;
+                this.density = density;
             }
 
             public IHorde GetHorde()
@@ -27,8 +30,22 @@ namespace ImprovedHordes.Source.Core.Horde.World
             public abstract Vector3 GetLocation();
             public abstract bool IsLoaded();
 
-            public abstract int GetEntityCount();
+            public float GetEntityDensity()
+            {
+                return this.density;
+            }
+
             public abstract IAIAgent[] GetAIAgents();
+
+            public void SetNearbyPlayerGroup(PlayerHordeGroup playerGroup)
+            {
+                this.nearbyPlayerGroup = playerGroup;
+            }
+
+            public PlayerHordeGroup GetNearbyPlayerGroup()
+            {
+                return this.nearbyPlayerGroup;
+            }
 
             public virtual void OnStateChange() { }
 
@@ -42,7 +59,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 return this.stateSet;
             }
 
-            public abstract HordeCluster Split(int size);
+            public abstract HordeCluster Split(float density);
             public abstract void Recombine(HordeCluster cluster);
         }
     }

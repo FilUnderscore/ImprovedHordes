@@ -53,11 +53,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         private int index;
         private readonly EntityAlive[] entities;
 
-        public HordeEntitySpawnRequest(IHorde horde, Vector3 location, int size)
+        public HordeEntitySpawnRequest(IHorde horde, PlayerHordeGroup playerGroup, Vector3 location, float density)
         {
             this.generator = horde.GetEntityGenerator();
             this.location = location;
-            this.size = size;
+            this.size = this.generator.DetermineEntityCount(playerGroup, density);
 
             this.index = 0;
             this.entities = new EntityAlive[size];

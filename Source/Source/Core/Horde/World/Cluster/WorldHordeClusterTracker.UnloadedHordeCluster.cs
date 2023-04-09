@@ -9,24 +9,17 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private sealed class UnloadedHordeCluster : HordeCluster, IAIAgent
         {
             private Vector3 location;
-            private int size;
 
-            public UnloadedHordeCluster(WorldHordeSpawner spawner, LoadedHordeCluster loadedHordeCluster) : this(spawner, loadedHordeCluster.GetHorde(), loadedHordeCluster.GetLocation(), loadedHordeCluster.GetEntityCount()) { }
+            public UnloadedHordeCluster(WorldHordeSpawner spawner, LoadedHordeCluster loadedHordeCluster) : this(spawner, loadedHordeCluster.GetHorde(), loadedHordeCluster.GetLocation(), loadedHordeCluster.GetEntityDensity()) { }
 
-            public UnloadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, Vector3 location, int size) : base(spawner, horde)
+            public UnloadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, Vector3 location, float density) : base(spawner, horde, density)
             {
                 this.location = location;
-                this.size = size;
             }
 
             public override IAIAgent[] GetAIAgents()
             {
                 return new IAIAgent[] { this };
-            }
-
-            public override int GetEntityCount()
-            {
-                return this.size;
             }
 
             public override Vector3 GetLocation()
@@ -41,7 +34,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public bool IsDead()
             {
-                return this.size == 0;
+                return this.density <= 0.0f;
             }
 
             public override bool IsLoaded()
@@ -56,15 +49,15 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public override void Recombine(HordeCluster cluster)
             {
-                this.size += cluster.GetEntityCount();
+                this.density += cluster.GetEntityDensity();
             }
 
-            public override HordeCluster Split(int size)
+            public override HordeCluster Split(float density)
             {
-                size = Mathf.Clamp(size, 0, this.size);
-                this.size -= size;
+                float newDensity = Mathf.Clamp(this.density - density, 0, this.density);
+                this.density = newDensity;
 
-                return new UnloadedHordeCluster(this.spawner, this.horde, this.location, size);
+                return new UnloadedHordeCluster(this.spawner, this.horde, this.location, density);
             }
         }
     }

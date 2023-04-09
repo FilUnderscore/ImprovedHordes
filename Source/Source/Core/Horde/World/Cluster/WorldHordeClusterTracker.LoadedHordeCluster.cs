@@ -11,30 +11,30 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private sealed class LoadedHordeCluster : HordeCluster
         {
             private const double CACHED_LOCATION_SECONDS = 1.0;
-
             private readonly List<Entity> entities;
 
             private Vector3? cachedLocation;
             private double lastUpdatedCachedLocation;
 
-            public LoadedHordeCluster(WorldHordeSpawner spawner, UnloadedHordeCluster unloadedHordeCluster) : this(spawner, unloadedHordeCluster.GetHorde(), unloadedHordeCluster.GetLocation(), unloadedHordeCluster.GetEntityCount())
+            public LoadedHordeCluster(WorldHordeSpawner spawner, UnloadedHordeCluster unloadedHordeCluster) : this(spawner, unloadedHordeCluster.GetHorde(), unloadedHordeCluster.GetLocation(), unloadedHordeCluster.GetEntityDensity())
             {
+                this.nearbyPlayerGroup = unloadedHordeCluster.GetNearbyPlayerGroup();
             }
 
-            public LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, Vector3 location, int size) : base(spawner, horde)
+            private LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, Vector3 location, float density) : base(spawner, horde, density)
             {
                 this.entities = new List<Entity>();
-                this.GenerateEntities(location, size);
+                this.GenerateEntities(location, density);
             }
 
-            private LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, List<Entity> entities) : base(spawner, horde)
+            private LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, float density, List<Entity> entities) : base(spawner, horde, density)
             {
                 this.entities = entities;
             }
 
-            private void GenerateEntities(Vector3 location, int size)
+            private void GenerateEntities(Vector3 location, float density)
             {
-                HordeEntitySpawnRequest request = new HordeEntitySpawnRequest(this.GetHorde(), location, size);
+                HordeEntitySpawnRequest request = new HordeEntitySpawnRequest(this.GetHorde(), this.nearbyPlayerGroup, location, density);
                 this.spawner.Request(request);
 
                 foreach (var entity in request.GetEntities())
@@ -48,14 +48,16 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 this.spawner.Request(new HordeDespawnRequest(this.entities.Select(entity => entity.GetEntityInstance()).ToList()));
             }
 
-            public override HordeCluster Split(int size)
+            public override HordeCluster Split(float density)
             {
-                size = Mathf.Clamp(size, 0, this.entities.Count);
+                int size = Mathf.Clamp(Mathf.FloorToInt(this.entities.Count * density), 0, this.entities.Count);
 
                 List<Entity> entities = this.entities.Take(size).ToList();
                 this.entities.RemoveRange(0, size);
 
-                return new LoadedHordeCluster(this.spawner, this.horde, this.entities);
+                this.density -= density;
+
+                return new LoadedHordeCluster(this.spawner, this.horde, density, this.entities);
             }
 
             public override void Recombine(HordeCluster horde)
@@ -66,7 +68,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 }
                 else
                 {
-                    this.GenerateEntities(horde.GetLocation(), horde.GetEntityCount());
+                    this.GenerateEntities(horde.GetLocation(), horde.GetEntityDensity());
                 }
             }
 
@@ -100,11 +102,6 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                 this.cachedLocation = avgPos / this.entities.Count;
                 return this.cachedLocation.Value;
-            }
-
-            public override int GetEntityCount()
-            {
-                return this.entities.Count;
             }
 
             public override IAIAgent[] GetAIAgents()

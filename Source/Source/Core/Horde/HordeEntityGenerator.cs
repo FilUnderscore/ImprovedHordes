@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ImprovedHordes.Source.Core.Horde.World;
+using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde
 {
@@ -32,6 +33,11 @@ namespace ImprovedHordes.Source.Core.Horde
             }
 
             return entity;
+        }
+
+        public int DetermineEntityCount(PlayerHordeGroup playerGroup, float density)
+        {
+            return 10;
         }
     }
 }

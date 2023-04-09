@@ -50,13 +50,18 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn) where Horde : IHorde where HordeSpawn : IHordeSpawn
         {
+            this.Spawn<Horde, HordeSpawn>(spawn, 1.0f);
+        }
+
+        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, float density) where Horde : IHorde where HordeSpawn : IHordeSpawn
+        {
             Horde horde = Activator.CreateInstance<Horde>();
 
             Vector2 surfaceSpawnLocation = spawn.DetermineSurfaceLocation();
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.worldHordeClusterTracker.AddHorde(horde, spawnLocation, 10);
+            this.worldHordeClusterTracker.AddHorde(horde, spawnLocation, density);
         }
 
         public void Request(HordeSpawnRequest request)

@@ -59,24 +59,16 @@ namespace ImprovedHordes.Source.Core.Horde.World
                         if (cluster.NextStateSet())
                             continue;
 
-                        bool anyNearby = false;
-                        foreach (PlayerSnapshot snapshot in this.tracker.Snapshots)
-                        {
-                            Vector3 location = snapshot.GetLocation();
-                            int gamestage = snapshot.GetGamestage();
-                            bool nearby = IsNearby(location, cluster);
-
-                            anyNearby |= nearby;
-
-                            if (nearby)
-                                break;
-                        }
+                        bool anyNearby = IsPlayerNearby(cluster);
 
                         if(cluster.IsLoaded() != anyNearby)
                         {
                             if (Monitor.TryEnter(cluster))
                             {
                                 cluster.SetNextStateSet(true);
+
+                                if(!cluster.IsLoaded())
+                                    cluster.SetNearbyPlayerGroup(DeterminePlayerGroup(cluster));
 
                                 clustersToChange[anyNearby].Add(cluster);
 
@@ -104,6 +96,42 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 clustersToChange[false].Clear();
 
                 return true;
+            }
+
+            private bool IsPlayerNearby(HordeCluster cluster)
+            {
+                bool anyNearby = false;
+
+                foreach (PlayerSnapshot snapshot in this.tracker.Snapshots)
+                {
+                    Vector3 location = snapshot.GetLocation();
+                    int gamestage = snapshot.GetGamestage();
+                    bool nearby = IsNearby(location, cluster);
+
+                    anyNearby |= nearby;
+
+                    if (nearby)
+                        break;
+                }
+
+                return anyNearby;
+            }
+
+            private PlayerHordeGroup DeterminePlayerGroup(HordeCluster cluster)
+            {
+                PlayerHordeGroup playerGroup = new PlayerHordeGroup();
+
+                foreach (PlayerSnapshot snapshot in this.tracker.Snapshots)
+                {
+                    Vector3 location = snapshot.GetLocation();
+                    int gamestage = snapshot.GetGamestage();
+                    bool nearby = IsNearby(location, cluster);
+
+                    if (nearby)
+                        playerGroup.AddPlayer(gamestage);
+                }
+
+                return playerGroup;
             }
         }
 

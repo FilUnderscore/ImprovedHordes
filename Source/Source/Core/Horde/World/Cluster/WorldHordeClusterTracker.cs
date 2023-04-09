@@ -122,12 +122,12 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         private void NotifyCluster(HordeCluster cluster, Vector3 location, float interestLevel)
         {
-            int sizeToSplitAndDirect = (int)(cluster.GetEntityCount() * (interestLevel / 100.0f));
+            float densityToSplitAndDirect = (int)(cluster.GetEntityDensity() * (interestLevel / 100.0f));
 
             HordeCluster splitCluster;
-            if (sizeToSplitAndDirect < cluster.GetEntityCount())
+            if (densityToSplitAndDirect < cluster.GetEntityDensity())
             {
-                splitCluster = cluster.Split(sizeToSplitAndDirect);
+                splitCluster = cluster.Split(densityToSplitAndDirect);
                 this.Hordes.Add(splitCluster);
             }
             else
@@ -147,9 +147,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
         /// <param name="horde"></param>
         /// <param name="location"></param>
         /// <param name="num"></param>
-        public void AddHorde(IHorde horde, Vector3 location, int num)
+        public void AddHorde(IHorde horde, Vector3 location, float density)
         {
-            this.AddHorde(new UnloadedHordeCluster(this.manager.GetSpawner(), horde, location, num));
+            this.AddHorde(new UnloadedHordeCluster(this.manager.GetSpawner(), horde, location, density));
         }
 
         private void AddHorde(HordeCluster horde)
