@@ -43,7 +43,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
                 float circleSize = 10.0f;
 
                 Vector2 surfaceSpawnLocation = new Vector2(location.x, location.z) + randomInsideCircle * circleSize;
-                float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y);
+                float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
                 Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
                 this.entities[i] = generator.GenerateEntity(spawnLocation);
