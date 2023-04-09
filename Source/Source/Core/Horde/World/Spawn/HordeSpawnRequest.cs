@@ -106,7 +106,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         public override void TickExecute()
         {
             EntityAlive entity = this.entities.Dequeue();
-            GameManager.Instance.World.RemoveEntity(entity.entityId, EnumRemoveEntityReason.Despawned);
+            GameManager.Instance.World.RemoveEntity(entity.entityId, EnumRemoveEntityReason.Killed);
         }
     }
 }

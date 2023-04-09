@@ -17,7 +17,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
         // Shared
         private readonly List<LOIInterestNotificationEvent> Events = new List<LOIInterestNotificationEvent>();
 
-        //public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationMainThread;
+        public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationMainThread;
         public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationEventThread;
 
         public WorldLOITracker(float mapSize)
@@ -31,15 +31,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             this.impactor.ExecuteThread();
 
             HarmonyPatches.AIDirectorChunkEventComponent_NotifyEvent_Hook.WorldLOITracker = this;
-            //this.OnInterestNotificationMainThread += WorldLOITracker_OnInterestNotificationMainThread;
+            this.OnInterestNotificationMainThread += WorldLOITracker_OnInterestNotificationMainThread;
         }
 
-        /*
         private void WorldLOITracker_OnInterestNotificationMainThread(object sender, LOIInterestNotificationEvent e)
         {
             Log.Out($"Event: {e.GetLocation()}: {e.GetDistance()} blocks");
         }
-        */
 
         private void Report(LocationOfInterest location)
         {
@@ -78,10 +76,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
         private void NotifyEventsOnMainThread()
         {
-            // Not recommended right now..
-            return;
-
-            /*
             if (OnInterestNotificationMainThread == null)
                 return;
 
@@ -100,7 +94,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
                 Monitor.Exit(Events);
             }
-            */
         }
 
         private class HarmonyPatches

@@ -21,7 +21,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             private readonly List<LocationOfInterest> reportedLocations = new List<LocationOfInterest>();
             
             // Personal
-            private readonly Dictionary<Vector2i, LocationOfInterest> locations = new Dictionary<Vector2i, LocationOfInterest>();
+            private readonly Dictionary<Vector2i, LocationOfInterest> locationHistory = new Dictionary<Vector2i, LocationOfInterest>();
             private readonly List<Vector2i> locationsToRemove = new List<Vector2i>();
             private readonly List<LOIInterestNotificationEvent> eventsToReport = new List<LOIInterestNotificationEvent>();
 
@@ -53,15 +53,20 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                         foreach (var locationOfInterest in this.reportedLocations)
                         {
                             Vector2i location = locationOfInterest.GetChunkLocation();
-
-                            if (locations.TryGetValue(location, out LocationOfInterest firstLocationReport))
+                            float interestLevel;
+                            
+                            if (locationHistory.TryGetValue(location, out LocationOfInterest firstLocationReport))
                             {
                                 firstLocationReport.Add(locationOfInterest.GetInterestLevel());
+                                interestLevel = firstLocationReport.GetInterestLevel();
                             }
                             else
                             {
-                                locations.Add(location, locationOfInterest);
+                                locationHistory.Add(location, locationOfInterest);
+                                interestLevel = locationOfInterest.GetInterestLevel();
                             }
+
+                            eventsToReport.Add(new LOIInterestNotificationEvent(locationOfInterest.GetLocation(), interestLevel, CalculateInterestDistance(interestLevel)));
                         }
 
                         this.reportedLocations.Clear();
@@ -71,21 +76,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 }
 
                 // Report events
-                foreach (var entry in this.locations)
+                foreach (var entry in this.locationHistory)
                 {
                     LocationOfInterest locationOfInterest = entry.Value;
                     float interestLevel = locationOfInterest.GetInterestLevel();
 
-                    if (interestLevel > 0.0)
-                    {
-                        int distance = CalculateInterestDistance(locationOfInterest.GetInterestLevel());
-
-                        if (distance > 0)
-                        {
-                            eventsToReport.Add(new LOIInterestNotificationEvent(locationOfInterest.GetLocation(), distance));
-                        }
-                    }
-                    else
+                    if (interestLevel <= 0.0)
                     {
                         locationsToRemove.Add(entry.Key);
                     }
@@ -94,9 +90,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 // Notify game thread of events, wait for lock if needed.
                 if (eventsToReport.Count > 0)
                 {
-                    //Monitor.Enter(this.tracker.Events);
-                    //this.tracker.Events.AddRange(this.eventsToReport);
-                    //Monitor.Exit(this.tracker.Events);
+                    Monitor.Enter(this.tracker.Events);
+                    this.tracker.Events.AddRange(this.eventsToReport);
+                    Monitor.Exit(this.tracker.Events);
 
                     if(this.tracker.OnInterestNotificationEventThread != null)
                     {
@@ -111,7 +107,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
                 foreach (Vector2i location in locationsToRemove)
                 {
-                    locations.Remove(location);
+                    this.locationHistory.Remove(location);
                 }
 
                 locationsToRemove.Clear();
