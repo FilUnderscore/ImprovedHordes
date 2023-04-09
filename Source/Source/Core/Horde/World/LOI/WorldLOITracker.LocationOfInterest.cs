@@ -12,15 +12,20 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             private float interest;
             private float interest_ln;
 
+            private readonly float strength;
+
             private double time;
+            
+            public LocationOfInterest(Vector3 position, float interest) : this(global::World.toChunkXZ(position), interest, 1.0f) { }
+            public LocationOfInterest(Vector3 position, float interest, float strength) : this(global::World.toChunkXZ(position), interest, strength) { }
 
-            public LocationOfInterest(Vector3 position, float interest) : this(global::World.toChunkXZ(position), interest) { }
-
-            public LocationOfInterest(Vector2i chunkLocation, float interest)
+            public LocationOfInterest(Vector2i chunkLocation, float interest, float strength)
             {
                 this.chunkLocation = chunkLocation;
                 this.interest = interest;
                 this.interest_ln = Mathf.Log(interest + 1);
+
+                this.strength = strength;
 
                 this.time = Time.timeAsDouble;
             }
@@ -55,9 +60,15 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 return decayingInterest;
             }
 
-            public void Add(float interest)
+            public void Add(LocationOfInterest other)
             {
-                this.interest = Mathf.Clamp(this.interest + interest, 0.0f, 100.0f);
+                float cap = 100.0f;
+                if(other.strength != 1.0f)
+                {
+                    cap *= other.strength;
+                }
+
+                this.interest = Mathf.Clamp(this.interest + other.interest, 0.0f, cap);
                 this.interest_ln = Mathf.Log(this.interest + 1);
 
                 this.time = Time.timeAsDouble;

@@ -60,7 +60,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                             
                             if (locationHistory.TryGetValue(location, out LocationOfInterest firstLocationReport))
                             {
-                                firstLocationReport.Add(locationOfInterest.GetInterestLevel());
+                                firstLocationReport.Add(locationOfInterest);
                                 interestLevel = firstLocationReport.GetInterestLevel();
                             }
                             else

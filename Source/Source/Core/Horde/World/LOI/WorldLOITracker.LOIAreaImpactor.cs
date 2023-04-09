@@ -51,7 +51,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                             float strength = chunk.Value;
 
                             float chunkInterest = location.GetInterestLevel() * strength;
-                            locationsToNotify.Add(new LocationOfInterest(chunkLocation, chunkInterest));
+                            locationsToNotify.Add(new LocationOfInterest(chunkLocation, chunkInterest, strength));
                         }
                     });
 

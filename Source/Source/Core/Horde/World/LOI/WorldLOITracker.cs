@@ -114,7 +114,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
                 private class ChunkEventLOI : LocationOfInterest
                 {
-                    public ChunkEventLOI(AIDirectorChunkEvent chunkEvent) : base(chunkEvent.Position, chunkEvent.Value * 10)
+                    public ChunkEventLOI(AIDirectorChunkEvent chunkEvent) : base(chunkEvent.Position, chunkEvent.Value * 10, 1.0f)
                     {
                     }
                 }
