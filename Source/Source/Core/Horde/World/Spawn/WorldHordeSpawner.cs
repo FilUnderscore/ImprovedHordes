@@ -13,8 +13,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         {
             this.worldHordeClusterTracker = worldHordeClusterTracker;
         }
+        
+        // Shared
+        private readonly List<HordeSpawnRequest> requests = new List<HordeSpawnRequest>();
 
-        private readonly List<IHordeSpawnRequest> requests = new List<IHordeSpawnRequest>();
+        // Private
+        private readonly List<HordeSpawnRequest> requestsToRemove = new List<HordeSpawnRequest>();
 
         public void Update()
         {
@@ -22,11 +26,24 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             {
                 foreach(var request in requests)
                 {
-                    request.Execute();
-                    request.Notify();
+                    if(!request.IsDone())
+                    {
+                        request.TickExecute();
+                    }
+                    else
+                    {
+                        request.Notify();
+                        requestsToRemove.Add(request);
+                    }
                 }
 
-                requests.Clear();
+                foreach(var requestToRemove in requestsToRemove)
+                {
+                    requests.Remove(requestToRemove);
+                }
+
+                requestsToRemove.Clear();
+
                 Monitor.Exit(requests);
             }
         }
@@ -42,7 +59,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             this.worldHordeClusterTracker.AddHorde(horde, spawnLocation, 10);
         }
 
-        public void Request(IHordeSpawnRequest request)
+        public void Request(HordeSpawnRequest request)
         {
             Monitor.Enter(this.requests);
             requests.Add(request);

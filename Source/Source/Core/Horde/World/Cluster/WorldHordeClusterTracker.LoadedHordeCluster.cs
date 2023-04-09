@@ -34,7 +34,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             private void GenerateEntities(Vector3 location, int size)
             {
-                HordeSpawnRequest request = new HordeSpawnRequest(this.GetHorde(), location, size);
+                HordeEntitySpawnRequest request = new HordeEntitySpawnRequest(this.GetHorde(), location, size);
                 this.spawner.Request(request);
 
                 foreach (var entity in request.GetEntities())
