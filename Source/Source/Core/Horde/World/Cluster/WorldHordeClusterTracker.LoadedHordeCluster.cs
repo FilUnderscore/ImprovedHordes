@@ -46,7 +46,6 @@ namespace ImprovedHordes.Source.Core.Horde.World
             public override void OnStateChange()
             {
                 this.spawner.Request(new HordeDespawnRequest(this.entities.Select(entity => entity.GetEntityInstance()).ToList()));
-                this.entities.Clear();
             }
 
             public override HordeCluster Split(int size)

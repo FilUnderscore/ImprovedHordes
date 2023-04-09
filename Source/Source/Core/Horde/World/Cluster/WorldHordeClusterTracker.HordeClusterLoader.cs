@@ -1,8 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
-using ImprovedHordes.Source.Horde;
-using ImprovedHordes.Source.Utils;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -150,14 +147,15 @@ namespace ImprovedHordes.Source.Core.Horde.World
                         if (cluster is T)
                             continue;
 
-                        cluster.OnStateChange();
                         T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
-                        
+                        cluster.OnStateChange();
+
                         this.tracker.Hordes.Add(loadedHordeCluster);
                         this.tracker.Hordes.Remove(cluster);
                     }
 
                     this.tracker.Hordes.EndWrite();
+                    this.clustersToLoad.Clear();
                 }
                 Monitor.Exit(this.clustersToLoad);
 

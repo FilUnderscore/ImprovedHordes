@@ -68,8 +68,12 @@ namespace ImprovedHordes.Source.Core.Threading
 
         public void StartWrite()
         {
-            this.notification.Reset();
             Monitor.Enter(this.lockObject);
+
+            Monitor.Enter(this.readingLock);
+            this.reading = false;
+            this.notification.Reset();
+            Monitor.Exit(this.readingLock);
         }
 
         public void EndWrite()
