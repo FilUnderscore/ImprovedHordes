@@ -28,110 +28,115 @@
 <!-- Define horde enemies for Improved Hordes. -->
 <hordes>
 	<horde type="wandering">
-		<hordegroup name="ZombieDogs" prefWeekDay="3,6,7" maxWeeklyOccurrences="2">
-			<gs min="5" countIncPerGS="0.1">
-				<entity name="animalZombieDog" minCount="1" maxCount="20"/>
-			</gs>
-			
-			<gs min="5" countIncPerGS="0.05">
-				<entity biomes="wasteland" name="zombieFatCop" minCount="1" maxCount="10"/>
-			</gs>
-		</hordegroup>
-		
-		<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurrences="1">			
-			<gs min="10" countIncPerGS="0.033">
-				<entity biomes="desert,snow" tags="wilderness" name="animalCoyote" minCount="1" maxCount="6"/>
-				<entity biomes="pine_forest,burnt_forest" tags="wilderness" name="animalWolf" minCount="2" maxCount="6"/>
-			</gs>
-			
-			<gs min="50" countIncPerGS="0.025">
-				<entity biomes="pine_forest,desert,wasteland,burnt_forest" tags="wilderness" name="animalDireWolf" minCount="1" maxCount="3"/>
-				<entity biomes="snow" name="animalMountainLion" tags="wilderness" minCount="1" maxCount="3"/>
-			</gs>
-		</hordegroup>
-		
-		<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurrences="1">
-			<gs min="50" countIncPerGS="0.02">
-				<entity biomes="pine_forest,snow" tags="wilderness" name="animalBear" minCount="1" maxCount="6"/>
-			</gs>
-			
-			<gs min="100" countIncPerGS="0.02">
-				<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="7"/>
-			</gs>
-		</hordegroup>
-		
-		<hordegroup name="Deserted" weight="0.1" prefWeekDay="4,5" maxWeeklyOccurrences="1">
-			<gs min="20" countIncPerGS="0.03">
-				<entity biomes="desert,burnt_forest,wasteland" name="animalZombieVulture" minCount="1" maxCount="4"/>
-				<entity biomes="desert,pine_forest" tags="wilderness" name="animalSnake" minCount="1" maxCount="3"/>
-			</gs>
-				
-			<gs min="100" countIncPerGS="0.025">
-				<entity biomes="wasteland" name="animalZombieVultureRadiated" minCount="1" maxCount="4"/>
-			</gs>
-		</hordegroup>
-		
-		<hordegroup name="Zombies">
-			<!-- Standard Zombies -->
-			<!--<gs max="165" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">-->
-			<gs max="165" chanceIncPerGS="0" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">
-				<gs min="35">
-					<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
-				</gs>
-			
-				<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="3" maxCount="20"/>
-				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="3" maxCount="20"/>
-			
-				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="3" maxCount="20"/>
-				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="3" maxCount="20"/>
-			</gs>
-			
-			<!-- Example of GS
-			Start spawning at GS100 and increase count by 0.02 per GS from there, 
-			at GS400 start decreasing spawn count by 0.1 per GS after 400, 
-			then cease any remaining spawns at GS700.-->
-			<!-- Feral Zombies -->
-			<gs min="50" max="285" countIncPerGS="0.18" countDecGS="165" countDecPerPostGS="0.18">
-				<gs min="105">
-					<entity name="zombieScreamerFeral" chance="0.2" minCount="1" maxCount="1"/>
+		<configuration>
+			<setting name="countPerKMSquared" value="">
+		</configuration>
+		<groups>
+			<hordegroup name="ZombieDogs">
+				<gs min="5" countIncPerGS="0.1">
+					<entity name="animalZombieDog" minCount="1" maxCount="20"/>
 				</gs>
 				
-				<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="1" maxCount="20"/>
-				<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="20"/>
-				
-				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
-				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="20"/>
-			</gs>
-			
-			<!-- Radiated Zombies -->
-			<gs min="165" countIncPerGS="0.18">
-				<gs min="195">
-					<entity name="zombieScreamerRadiated" chance="0.25" minCount="1" maxCount="1"/>
+				<gs min="5" countIncPerGS="0.05">
+					<entity biomes="wasteland" name="zombieFatCop" minCount="1" maxCount="10"/>
 				</gs>
+			</hordegroup>
 			
-				<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="40"/>
-				<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="40"/>
+			<hordegroup name="Wolfs" weight="0.5" prefWeekDay="1,2,3,6" maxWeeklyOccurrences="1">			
+				<gs min="10" countIncPerGS="0.033">
+					<entity biomes="desert,snow" tags="wilderness" name="animalCoyote" minCount="1" maxCount="6"/>
+					<entity biomes="pine_forest,burnt_forest" tags="wilderness" name="animalWolf" minCount="2" maxCount="6"/>
+				</gs>
+				
+				<gs min="50" countIncPerGS="0.025">
+					<entity biomes="pine_forest,desert,wasteland,burnt_forest" tags="wilderness" name="animalDireWolf" minCount="1" maxCount="3"/>
+					<entity biomes="snow" name="animalMountainLion" tags="wilderness" minCount="1" maxCount="3"/>
+				</gs>
+			</hordegroup>
 			
-				<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="40"/>
-				<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="40"/>
-			</gs>
-		</hordegroup>
-		
-		<hordegroup name="Stags" weight="0.75" parent="Farm" maxWeeklyOccurrences="1">
-			<entity time="day" biomes="pine_forest,snow" tags="wilderness" name="animalStag" minCount="1" maxCount="2"/>
-			<entity time="day" biomes="pine_forest,snow" tags="wilderness" name="animalDoe" minCount="1" maxCount="1"/>
-		</hordegroup>
-		
-		<hordegroup name="Boars" weight="0.75" parent="Farm" maxWeeklyOccurrences="1">
-			<entity time="day" biomes="pine_forest" tags="wilderness" name="animalBoar" minCount="1" maxCount="2"/>
-		</hordegroup>
-		
-		<hordegroup name="Farm" weight="0.5" maxWeeklyOccurrences="1">
-			<entity time="day" biomes="pine_forest,snow" tags="wilderness" horde="wandering" group="Stags" maxCount="2"/>
-			<entity time="day" biomes="pine_forest" tags="wilderness" horde="wandering" group="Boars" maxCount="2"/>
-			<entity time="day" biomes="pine_forest,snow,desert" tags="wilderness" name="animalChicken" minCount="2" maxCount="3"/>
-			<entity time="day" biomes="pine_forest,snow,desert" tags="wilderness" name="animalRabbit" minCount="1" maxCount="2"/>
-		</hordegroup>
+			<hordegroup name="Bears" weight="0.5" prefWeekDay="1,2,3" maxWeeklyOccurrences="1">
+				<gs min="50" countIncPerGS="0.02">
+					<entity biomes="pine_forest,snow" tags="wilderness" name="animalBear" minCount="1" maxCount="6"/>
+				</gs>
+				
+				<gs min="100" countIncPerGS="0.02">
+					<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="7"/>
+				</gs>
+			</hordegroup>
+			
+			<hordegroup name="Deserted" weight="0.1" prefWeekDay="4,5" maxWeeklyOccurrences="1">
+				<gs min="20" countIncPerGS="0.03">
+					<entity biomes="desert,burnt_forest,wasteland" name="animalZombieVulture" minCount="1" maxCount="4"/>
+					<entity biomes="desert,pine_forest" tags="wilderness" name="animalSnake" minCount="1" maxCount="3"/>
+				</gs>
+					
+				<gs min="100" countIncPerGS="0.025">
+					<entity biomes="wasteland" name="animalZombieVultureRadiated" minCount="1" maxCount="4"/>
+				</gs>
+			</hordegroup>
+			
+			<hordegroup name="Zombies">
+				<!-- Standard Zombies -->
+				<!--<gs max="165" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">-->
+				<gs max="165" chanceIncPerGS="0" countIncPerGS="0.417" countDecGS="48" countDecPerPostGS="0.18">
+					<gs min="35">
+						<entity name="zombieScreamer" chance="0.1" minCount="1" maxCount="1"/>
+					</gs>
+				
+					<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="3" maxCount="20"/>
+					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="3" maxCount="20"/>
+				
+					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="3" maxCount="20"/>
+					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="3" maxCount="20"/>
+				</gs>
+				
+				<!-- Example of GS
+				Start spawning at GS100 and increase count by 0.02 per GS from there, 
+				at GS400 start decreasing spawn count by 0.1 per GS after 400, 
+				then cease any remaining spawns at GS700.-->
+				<!-- Feral Zombies -->
+				<gs min="50" max="285" countIncPerGS="0.18" countDecGS="165" countDecPerPostGS="0.18">
+					<gs min="105">
+						<entity name="zombieScreamerFeral" chance="0.2" minCount="1" maxCount="1"/>
+					</gs>
+					
+					<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="1" maxCount="20"/>
+					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="20"/>
+					
+					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
+					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="20"/>
+				</gs>
+				
+				<!-- Radiated Zombies -->
+				<gs min="165" countIncPerGS="0.18">
+					<gs min="195">
+						<entity name="zombieScreamerRadiated" chance="0.25" minCount="1" maxCount="1"/>
+					</gs>
+				
+					<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="40"/>
+					<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="40"/>
+				
+					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="40"/>
+					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="40"/>
+				</gs>
+			</hordegroup>
+			
+			<hordegroup name="Stags" weight="0.75" parent="Farm">
+				<entity time="day" biomes="pine_forest,snow" tags="wilderness" name="animalStag" minCount="1" maxCount="2"/>
+				<entity time="day" biomes="pine_forest,snow" tags="wilderness" name="animalDoe" minCount="1" maxCount="1"/>
+			</hordegroup>
+			
+			<hordegroup name="Boars" weight="0.75" parent="Farm">
+				<entity time="day" biomes="pine_forest" tags="wilderness" name="animalBoar" minCount="1" maxCount="2"/>
+			</hordegroup>
+			
+			<hordegroup name="Farm" weight="0.5">
+				<entity time="day" biomes="pine_forest,snow" tags="wilderness" horde="wandering" group="Stags" maxCount="2"/>
+				<entity time="day" biomes="pine_forest" tags="wilderness" horde="wandering" group="Boars" maxCount="2"/>
+				<entity time="day" biomes="pine_forest,snow,desert" tags="wilderness" name="animalChicken" minCount="2" maxCount="3"/>
+				<entity time="day" biomes="pine_forest,snow,desert" tags="wilderness" name="animalRabbit" minCount="1" maxCount="2"/>
+			</hordegroup>
+		</groups>
 	</horde>
 	
 	<!-- Scouts -->

@@ -60,65 +60,44 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command\CommandBase.cs" />
-    <Compile Include="Command\ImprovedHordesListSubcommand.cs" />
-    <Compile Include="Command\ImprovedHordesSpawnSubcommand.cs" />
-    <Compile Include="Command\ImprovedHordesStatsSubcommand.cs" />
-    <Compile Include="Command\ImprovedHordesWanderingSubcommand.cs" />
-    <Compile Include="Horde\AI\Commands\HordeAICommandDestination.cs" />
-    <Compile Include="Horde\AI\Commands\HordeAICommandDestinationPlayer.cs" />
-    <Compile Include="Horde\AI\Commands\HordeAICommandDestinationMoving.cs" />
-    <Compile Include="Horde\AI\Commands\HordeAICommandInvestigate.cs" />
-    <Compile Include="Horde\AI\Events\EntityDespawnedEvent.cs" />
-    <Compile Include="Horde\AI\Events\EntityKilledEvent.cs" />
-    <Compile Include="Horde\AI\Events\HordeEntityDespawnedEvent.cs" />
-    <Compile Include="Horde\AI\Events\HordeEntityKilledEvent.cs" />
-    <Compile Include="Horde\AI\Events\HordeEntitySpawnedEvent.cs" />
-    <Compile Include="Horde\AI\Events\HordeKilledEvent.cs" />
-    <Compile Include="Horde\AI\HordeAICommand.cs" />
-    <Compile Include="Horde\AI\HordeAIEntity.cs" />
-    <Compile Include="Horde\Heat\Events\AreaHeatTickEvent.cs" />
-    <Compile Include="Horde\Heat\HordeHeatPatrolManager.cs" />
-    <Compile Include="Horde\Heat\PatrolHordeSpawner.cs" />
-    <Compile Include="Horde\Horde.cs" />
-    <Compile Include="Horde\AI\HordeAIHorde.cs" />
-    <Compile Include="Horde\Data\HordeGroup.cs" />
-    <Compile Include="Horde\Data\HordeGroupList.cs" />
-    <Compile Include="Horde\Heat\HordeAreaHeatTracker.cs" />
-    <Compile Include="Horde\HordeManager.cs" />
-    <Compile Include="Horde\Data\HordesList.cs" />
-    <Compile Include="Horde\Data\HordesFromXml.cs" />
-    <Compile Include="Horde\HordeGenerator.cs" />
-    <Compile Include="Horde\HordePlayer.cs" />
-    <Compile Include="Horde\HordePlayerManager.cs" />
-    <Compile Include="ImprovedHordesManager.cs" />
-    <Compile Include="Horde\AI\HordeAIManager.cs" />
-    <Compile Include="Horde\HordeSpawner.cs" />
-    <Compile Include="Horde\IManager.cs" />
-    <Compile Include="Horde\PlayerHordeGroup.cs" />
-    <Compile Include="Horde\Scout\AI\Commands\HordeAICommandScout.cs" />
-    <Compile Include="Horde\Scout\Scout.cs" />
-    <Compile Include="Horde\Scout\ScoutHordeSpawner.cs" />
-    <Compile Include="Horde\Scout\ScoutManager.cs" />
-    <Compile Include="Horde\Scout\ScoutSpawner.cs" />
-    <Compile Include="Horde\Wandering\AI\Commands\HordeAICommandWander.cs" />
-    <Compile Include="Horde\Wandering\WanderingHordeSchedule.cs" />
-    <Compile Include="ModManagerAPI.cs" />
-    <Compile Include="Settings.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="ImprovedHordesMod.cs" />
-    <Compile Include="Horde\Wandering\WanderingHordeSpawner.cs" />
-    <Compile Include="Horde\Wandering\WanderingHordeManager.cs" />
-    <Compile Include="ImprovedHordesCommand.cs" />
-    <Compile Include="RuntimeEval.cs" />
-    <Compile Include="World\WorldEntitiesFromXml.cs" />
-    <Compile Include="World\WorldEntitiesList.cs" />
-    <Compile Include="World\WorldEntityDefinition.cs" />
-    <Compile Include="World\WorldEntityGenerator.cs" />
-    <Compile Include="World\WorldEntitySpawner.cs" />
-    <Compile Include="XPath\XPathPatcher.cs" />
+    <Compile Include="Source\Core\Command\CommandBase.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.HordeClusterLoader.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\LocationOfInterest.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\LOIInterestDecayer.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\PlayerSnapshot.cs" />
+    <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawn.cs" />
+    <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawnRequest.cs" />
+    <Compile Include="Source\Core\Horde\World\Spawn\LocationHordeSpawn.cs" />
+    <Compile Include="Source\Core\Horde\World\Spawn\PlayerHordeSpawn.cs" />
+    <Compile Include="Source\Core\Threading\LockedList.cs" />
+    <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
+    <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\LOIInterestNotificationEvent.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.cs" />
+    <Compile Include="Source\Core\Horde\World\WorldHordeManager.cs" />
+    <Compile Include="Source\Core\Horde\World\Spawn\WorldHordeSpawner.cs" />
+    <Compile Include="Source\ImprovedHordesCommand.cs" />
+    <Compile Include="Source\Core\Horde\AI\AIAgent.cs" />
+    <Compile Include="Source\Core\Horde\AI\AICommand.cs" />
+    <Compile Include="Source\Core\Horde\AI\AIExecutor.cs" />
+    <Compile Include="Source\Core\Horde\AI\Commands\GoToTargetAICommand.cs" />
+    <Compile Include="Source\Core\Horde\Horde.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.HordeCluster.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.UnloadedHordeCluster.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.LoadedHordeCluster.cs" />
+    <Compile Include="Source\ImprovedHordesCore.cs" />
+    <Compile Include="Source\ImprovedHordesMod.cs" />
+    <Compile Include="Source\Core\Threading\Thread.cs" />
+    <Compile Include="Source\Scout\ScoutHorde.cs" />
+    <Compile Include="Source\Scout\ScoutHordeGenerator.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Source\Core\Horde\Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Source\Core\Horde\World\LOI\LOIAreaImpactor.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>robocopy "$(TargetDir) " "C:\\Program Files (x86)\\Steam\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e
