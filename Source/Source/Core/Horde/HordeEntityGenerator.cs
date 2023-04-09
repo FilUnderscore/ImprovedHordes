@@ -37,7 +37,8 @@ namespace ImprovedHordes.Source.Core.Horde
 
         public int DetermineEntityCount(PlayerHordeGroup playerGroup, float density)
         {
-            return 10;
+            Log.Out("Entity density: " + density);
+            return Mathf.CeilToInt(10 * density);
         }
     }
 }

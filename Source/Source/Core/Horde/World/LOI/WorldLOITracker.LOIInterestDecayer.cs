@@ -83,9 +83,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 foreach (var entry in this.locationHistory)
                 {
                     LocationOfInterest locationOfInterest = entry.Value;
-                    float interestLevel = locationOfInterest.GetInterestLevel();
-
-                    if (interestLevel <= 0.0)
+                    
+                    if (locationOfInterest.HasLostInterest())
                     {
                         locationsToRemove.Add(entry.Key);
                     }

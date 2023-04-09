@@ -78,6 +78,14 @@ namespace ImprovedHordes.Source.Core.Horde.World
                                 Monitor.Exit(cluster.Lock);
                             }
                         }
+                        else if(cluster.IsLoaded())
+                        {
+                            if(Monitor.TryEnter(cluster.Lock))
+                            {
+                                ((LoadedHordeCluster)cluster).Notify(this.tracker.EntsKilled);
+                                Monitor.Exit(cluster.Lock);
+                            }
+                        }
                     }
 
                     this.tracker.Hordes.EndRead();
@@ -176,10 +184,14 @@ namespace ImprovedHordes.Source.Core.Horde.World
                         if (cluster is T)
                             continue;
 
-                        T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
-                        cluster.OnStateChange();
+                        if (cluster.GetEntityDensity() > 0.0f)
+                        {
+                            T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
+                            cluster.OnStateChange();
 
-                        this.tracker.Hordes.Add(loadedHordeCluster);
+                            this.tracker.Hordes.Add(loadedHordeCluster);
+                        }
+
                         this.tracker.Hordes.Remove(cluster);
                     }
 

@@ -11,7 +11,10 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private sealed class LoadedHordeCluster : HordeCluster
         {
             private const double CACHED_LOCATION_SECONDS = 1.0;
-            private readonly List<Entity> entities;
+            private readonly Dictionary<int, Entity> entities;
+            private readonly List<int> entitiesToRemove = new List<int>();
+
+            private float densityPerEntity;
 
             private Vector3? cachedLocation;
             private double lastUpdatedCachedLocation;
@@ -23,11 +26,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             private LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, Vector3 location, float density) : base(spawner, horde, density)
             {
-                this.entities = new List<Entity>();
+                this.entities = new Dictionary<int, Entity>();
                 this.GenerateEntities(location, density);
             }
 
-            private LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, float density, List<Entity> entities) : base(spawner, horde, density)
+            private LoadedHordeCluster(WorldHordeSpawner spawner, IHorde horde, float density, Dictionary<int, Entity> entities) : base(spawner, horde, density)
             {
                 this.entities = entities;
             }
@@ -39,32 +42,63 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                 foreach (var entity in request.GetEntities())
                 {
-                    this.entities.Add(new Entity(entity));
+                    this.entities.Add(entity.entityId, new Entity(entity));
                 }
+
+                this.densityPerEntity = this.density / this.entities.Count;
+            }
+
+            public void Notify(List<int> entities)
+            {
+                foreach(int entityId in entities)
+                {
+                    if(this.entities.ContainsKey(entityId))
+                    {
+                        entitiesToRemove.Add(entityId);
+                    }
+                }
+
+                foreach(var entity in entitiesToRemove)
+                {
+                    this.entities.Remove(entity);
+                    entities.Remove(entity);
+
+                    this.density -= this.densityPerEntity;
+                }
+
+                entitiesToRemove.Clear();
+
+                if (this.entities.Count > 0)
+                {
+                    this.densityPerEntity = this.density / this.entities.Count;
+                }
+
+                this.density = Mathf.Max(this.density, 0.0f);
             }
 
             public override void OnStateChange()
             {
-                this.spawner.Request(new HordeDespawnRequest(this.entities.Select(entity => entity.GetEntityInstance()).ToList()));
+                this.spawner.Request(new HordeDespawnRequest(this.entities.Values.Select(entity => entity.GetEntityInstance()).ToList()));
             }
 
             public override HordeCluster Split(float density)
             {
                 int size = Mathf.Clamp(Mathf.FloorToInt(this.entities.Count * density), 0, this.entities.Count);
 
-                List<Entity> entities = this.entities.Take(size).ToList();
-                this.entities.RemoveRange(0, size);
+                var entities = this.entities.Take(size).ToList();
+                entities.ForEach(entry => this.entities.Remove(entry.Key));
 
                 this.density -= density;
 
-                return new LoadedHordeCluster(this.spawner, this.horde, density, this.entities);
+                return new LoadedHordeCluster(this.spawner, this.horde, density, entities.ToDictionary(key => key.Key, value => value.Value));
             }
 
             public override void Recombine(HordeCluster horde)
             {
                 if (horde is LoadedHordeCluster lhc)
                 {
-                    this.entities.AddRange(lhc.entities);
+                    foreach(var entry in lhc.entities)
+                        this.entities.Add(entry.Key, entry.Value);
                 }
                 else
                 {
@@ -95,7 +129,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 lastUpdatedCachedLocation = Time.timeAsDouble;
                 Vector3 avgPos = Vector3.zero;
 
-                foreach (Entity entity in this.entities)
+                foreach (Entity entity in this.entities.Values)
                 {
                     avgPos += entity.GetLocation();
                 }
@@ -106,7 +140,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public override IAIAgent[] GetAIAgents()
             {
-                return this.entities.ToArray<IAIAgent>();
+                return this.entities.Values.ToArray<IAIAgent>();
             }
 
             private class Entity : IAIAgent

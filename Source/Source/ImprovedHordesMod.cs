@@ -17,6 +17,16 @@ namespace ImprovedHordes.Source
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
             ModEvents.GameShutdown.RegisterHandler(GameShutdown);
+
+            ModEvents.EntityKilled.RegisterHandler(EntityKilled);
+        }
+
+        private static void EntityKilled(Entity killed, Entity killer)
+        {
+            if (core == null)
+                return;
+
+            core.GetHordeManager().Notify(killed);
         }
 
         private static void GameStartDone()

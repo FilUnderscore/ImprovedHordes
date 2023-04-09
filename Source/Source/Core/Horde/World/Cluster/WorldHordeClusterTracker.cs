@@ -26,6 +26,10 @@ namespace ImprovedHordes.Source.Core.Horde.World
         // Shared
         private readonly List<PlayerSnapshot> Snapshots = new List<PlayerSnapshot>();
         private readonly object SnapshotsLock = new object();
+        
+        private readonly List<int> EntsKilled = new List<int>();
+
+        private readonly List<int> entitiesKilled = new List<int>();
 
         private readonly LockedList<HordeCluster> Hordes = new LockedList<HordeCluster>();
 
@@ -63,8 +67,15 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     this.playerTracker.Notify();
                 }
 
+                this.EntsKilled.AddRange(this.entitiesKilled);
+
                 Monitor.Exit(SnapshotsLock);
             }
+        }
+
+        public void NotifyKilled(int entityId)
+        {
+            this.entitiesKilled.Add(entityId);
         }
 
         public void Update()

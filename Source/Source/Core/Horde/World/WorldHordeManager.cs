@@ -3,6 +3,7 @@ using ImprovedHordes.Source.Core.Horde.World.LOI;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Horde.AI;
 using ImprovedHordes.Source.Horde.World.LOI;
+using System;
 
 namespace ImprovedHordes.Source.Horde
 {
@@ -48,6 +49,15 @@ namespace ImprovedHordes.Source.Horde
         public void Shutdown()
         {
             this.worldHordeClusterTracker.Shutdown();
+        }
+
+        public void Notify(Entity killed)
+        {
+            if (killed == null)
+                return;
+
+            this.worldHordeClusterTracker.NotifyKilled(killed.entityId);
+            Log.Out("Notified entity " + killed.entityId + " killed");
         }
     }
 }
