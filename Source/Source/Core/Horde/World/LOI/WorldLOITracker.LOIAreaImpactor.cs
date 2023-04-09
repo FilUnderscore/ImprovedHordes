@@ -1,6 +1,4 @@
-﻿using ImprovedHordes.Source.Utils;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using Thread = ImprovedHordes.Source.Utils.Thread;
@@ -11,10 +9,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
     {
 		private class LOIAreaImpactor : Thread
 		{
-			private readonly ConcurrentQueue<LocationOfInterest> locations = new ConcurrentQueue<LocationOfInterest>();
+			private readonly Queue<LocationOfInterest> locations = new Queue<LocationOfInterest>();
 			private readonly List<LocationOfInterest> locationsToNotify = new List<LocationOfInterest>();
-
-			private AutoResetEvent readEvent = new AutoResetEvent(false);
 
 			private LOIInterestDecayer decayer;
 
@@ -23,34 +19,47 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 				this.decayer = decayer;
 			}
 
-			public void Notify(LocationOfInterest location)
+			public bool Notify(List<LocationOfInterest> locations)
 			{
-				if (location != null)
-					locations.Enqueue(location);
+				bool success = Monitor.TryEnter(this.locations);
 
-				readEvent.Set();
+				if (success)
+				{
+					foreach(var locationOfInterest in locations)
+						this.locations.Enqueue(locationOfInterest);
+
+					Monitor.Exit(this.locations);
+				}
+
+				return success;
 			}
 
 			public override bool OnLoop()
 			{
-				readEvent.WaitOne();
+				Monitor.Enter(this.locations);
 
-				while (this.locations.TryDequeue(out LocationOfInterest location))
+				if (this.locations.Count > 0)
 				{
-					Dictionary<Vector2i, float> nearby = GetNearbyChunks(location.GetLocation(), 3);
-
-					foreach (var chunk in nearby)
+					do
 					{
-						Vector2i chunkLocation = chunk.Key;
-						float strength = chunk.Value;
+						LocationOfInterest location = this.locations.Dequeue();
+						Dictionary<Vector2i, float> nearby = GetNearbyChunks(location.GetLocation(), 3);
 
-						float chunkInterest = location.GetInterestLevel() * strength;
-						locationsToNotify.Add(new LocationOfInterest(chunkLocation, chunkInterest));
-					}
+						foreach (var chunk in nearby)
+						{
+							Vector2i chunkLocation = chunk.Key;
+							float strength = chunk.Value;
+
+							float chunkInterest = location.GetInterestLevel() * strength;
+							locationsToNotify.Add(new LocationOfInterest(chunkLocation, chunkInterest));
+						}
+					} while (this.locations.Count > 0);
+
+					this.decayer.Notify(locationsToNotify);
+					locationsToNotify.Clear();
 				}
 
-				this.decayer.Notify(locationsToNotify);
-				locationsToNotify.Clear();
+				Monitor.Exit(this.locations);
 
 				return true;
 			}

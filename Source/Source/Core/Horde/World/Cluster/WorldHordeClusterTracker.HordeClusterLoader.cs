@@ -118,7 +118,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             private readonly AutoResetEvent waitEvent = new AutoResetEvent(false);
             private readonly WorldHordeClusterTracker tracker;
 
-            private readonly ConcurrentQueue<HordeCluster> clustersToLoad = new ConcurrentQueue<HordeCluster>();
+            private readonly List<HordeCluster> clustersToLoad = new List<HordeCluster>();
 
             public HordeClusterLoader(WorldHordeClusterTracker tracker) : base("IH-" + typeof(T).Name + "Loader")
             {
@@ -127,8 +127,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public void Notify(List<HordeCluster> clusters)
             {
-                foreach (HordeCluster cluster in clusters)
-                    clustersToLoad.Enqueue(cluster);
+                Monitor.Enter(this.clustersToLoad);
+                clustersToLoad.AddRange(clusters);
+                Monitor.Exit(this.clustersToLoad);
 
                 this.waitEvent.Set();
             }
@@ -139,11 +140,12 @@ namespace ImprovedHordes.Source.Core.Horde.World
             {
                 this.waitEvent.WaitOne();
 
-                if (!this.clustersToLoad.IsEmpty)
+                Monitor.Enter(this.clustersToLoad);
+                if (this.clustersToLoad.Count > 0)
                 {
                     this.tracker.Hordes.StartWrite();
 
-                    while (this.clustersToLoad.TryDequeue(out HordeCluster cluster))
+                    foreach (var cluster in this.clustersToLoad)
                     {
                         if (cluster is T)
                             continue;
@@ -157,6 +159,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                     this.tracker.Hordes.EndWrite();
                 }
+                Monitor.Exit(this.clustersToLoad);
 
                 return true;
             }

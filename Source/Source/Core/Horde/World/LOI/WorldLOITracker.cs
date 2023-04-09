@@ -11,8 +11,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
         private readonly LOIAreaImpactor impactor;
         private readonly LOIInterestDecayer decayer;
 
+        // Private
+        private readonly List<LocationOfInterest> toReport = new List<LocationOfInterest>();
+
+        // Shared
         private readonly List<LOIInterestNotificationEvent> Events = new List<LOIInterestNotificationEvent>();
-        public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationMainThread;
+
+        //public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationMainThread;
         public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationEventThread;
 
         public WorldLOITracker(float mapSize)
@@ -26,17 +31,21 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             this.impactor.ExecuteThread();
 
             HarmonyPatches.AIDirectorChunkEventComponent_NotifyEvent_Hook.WorldLOITracker = this;
-            this.OnInterestNotificationMainThread += WorldLOITracker_OnInterestNotificationMainThread;
+            //this.OnInterestNotificationMainThread += WorldLOITracker_OnInterestNotificationMainThread;
         }
 
+        /*
         private void WorldLOITracker_OnInterestNotificationMainThread(object sender, LOIInterestNotificationEvent e)
         {
             Log.Out($"Event: {e.GetLocation()}: {e.GetDistance()} blocks");
         }
+        */
 
         private void Report(LocationOfInterest location)
         {
-            this.impactor.Notify(location);
+            Monitor.Enter(this.toReport);
+            this.toReport.Add(location);
+            Monitor.Exit(this.toReport);
         }
 
         public void Shutdown()
@@ -50,11 +59,34 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
         public void Update()
         {
+            this.TryReport();
+            this.NotifyEventsOnMainThread();
+        }
+
+        private void TryReport()
+        {
+            if (Monitor.TryEnter(this.toReport))
+            {
+                if (this.impactor.Notify(this.toReport))
+                {
+                    this.toReport.Clear();
+                }
+
+                Monitor.Exit(this.toReport);
+            }
+        }
+
+        private void NotifyEventsOnMainThread()
+        {
+            // Not recommended right now..
+            return;
+
+            /*
             if (OnInterestNotificationMainThread == null)
                 return;
 
             // Try acquire events if written to.
-            if(Monitor.TryEnter(Events))
+            if (Monitor.TryEnter(Events))
             {
                 if (Events.Count > 0)
                 {
@@ -68,6 +100,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
                 Monitor.Exit(Events);
             }
+            */
         }
 
         private class HarmonyPatches

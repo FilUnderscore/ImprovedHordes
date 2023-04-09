@@ -18,9 +18,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             private WorldLOITracker tracker;
 
             // Shared            
-            private readonly ConcurrentQueue<LocationOfInterest> reportedLocations = new ConcurrentQueue<LocationOfInterest>();
-            private readonly AutoResetEvent waitEvent = new AutoResetEvent(false);
-
+            private readonly List<LocationOfInterest> reportedLocations = new List<LocationOfInterest>();
+            
             // Personal
             private readonly Dictionary<Vector2i, LocationOfInterest> locations = new Dictionary<Vector2i, LocationOfInterest>();
             private readonly List<Vector2i> locationsToRemove = new List<Vector2i>();
@@ -38,32 +37,37 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             {
                 if (locations != null)
                 {
-                    foreach (LocationOfInterest location in locations)
-                    {
-                        this.reportedLocations.Enqueue(location);
-                    }
+                    Monitor.Enter(this.reportedLocations);
+                    this.reportedLocations.AddRange(locations);
+                    Monitor.Exit(this.reportedLocations);
                 }
-
-                this.waitEvent.Set();
             }
 
             public override bool OnLoop()
             {
-                this.waitEvent.WaitOne();
-
                 // First register/modify existing locations.
-                while (this.reportedLocations.TryDequeue(out LocationOfInterest locationOfInterest))
+                if (Monitor.TryEnter(this.reportedLocations))
                 {
-                    Vector2i location = locationOfInterest.GetChunkLocation();
+                    if (this.reportedLocations.Count > 0)
+                    {
+                        foreach (var locationOfInterest in this.reportedLocations)
+                        {
+                            Vector2i location = locationOfInterest.GetChunkLocation();
 
-                    if (locations.TryGetValue(location, out LocationOfInterest firstLocationReport))
-                    {
-                        firstLocationReport.Add(locationOfInterest.GetInterestLevel());
+                            if (locations.TryGetValue(location, out LocationOfInterest firstLocationReport))
+                            {
+                                firstLocationReport.Add(locationOfInterest.GetInterestLevel());
+                            }
+                            else
+                            {
+                                locations.Add(location, locationOfInterest);
+                            }
+                        }
+
+                        this.reportedLocations.Clear();
                     }
-                    else
-                    {
-                        locations.Add(location, locationOfInterest);
-                    }
+
+                    Monitor.Exit(this.reportedLocations);
                 }
 
                 // Report events
@@ -90,9 +94,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 // Notify game thread of events, wait for lock if needed.
                 if (eventsToReport.Count > 0)
                 {
-                    Monitor.Enter(this.tracker.Events);
-                    this.tracker.Events.AddRange(this.eventsToReport);
-                    Monitor.Exit(this.tracker.Events);
+                    //Monitor.Enter(this.tracker.Events);
+                    //this.tracker.Events.AddRange(this.eventsToReport);
+                    //Monitor.Exit(this.tracker.Events);
 
                     if(this.tracker.OnInterestNotificationEventThread != null)
                     {
