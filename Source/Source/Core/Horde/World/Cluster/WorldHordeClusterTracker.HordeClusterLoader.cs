@@ -150,9 +150,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
                         if (cluster is T)
                             continue;
 
-                        T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
                         cluster.OnStateChange();
-
+                        T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
+                        
                         this.tracker.Hordes.Add(loadedHordeCluster);
                         this.tracker.Hordes.Remove(cluster);
                     }
