@@ -16,7 +16,7 @@ namespace ImprovedHordes.Source.Utils
 
         public void ExecuteThread()
         {
-            this.threadInfo = ThreadManager.StartThread(this.name, new ThreadManager.ThreadFunctionDelegate(StartThread), new ThreadManager.ThreadFunctionLoopDelegate(LoopThread), new ThreadManager.ThreadFunctionEndDelegate(EndThread), System.Threading.ThreadPriority.Lowest, null, null, true);
+            this.threadInfo = ThreadManager.StartThread(this.name, new ThreadManager.ThreadFunctionDelegate(StartThread), new ThreadManager.ThreadFunctionLoopDelegate(LoopThread), new ThreadManager.ThreadFunctionEndDelegate(EndThread), System.Threading.ThreadPriority.Normal, null, null, true);
         }
 
         public void ShutdownThread()

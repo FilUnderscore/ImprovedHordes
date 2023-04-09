@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.LOI
 {
@@ -15,6 +16,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             private readonly float strength;
 
             private double time;
+            private double expire_time;
             
             public LocationOfInterest(Vector3 position, float interest) : this(global::World.toChunkXZ(position), interest, 1.0f) { }
             public LocationOfInterest(Vector3 position, float interest, float strength) : this(global::World.toChunkXZ(position), interest, strength) { }
@@ -28,6 +30,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 this.strength = strength;
 
                 this.time = Time.timeAsDouble;
+                this.expire_time = GetExpireTime();
             }
 
             public Vector2i GetChunkLocation()
@@ -60,6 +63,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 return decayingInterest;
             }
 
+            private double GetExpireTime()
+            {
+                double topSqrt = TIME_SCALE * this.interest;
+                double bottomSqrt = this.interest_ln;
+
+                return Math.Sqrt(topSqrt / bottomSqrt);
+            }
+
+            public bool HasLostInterest()
+            {
+                return (Time.timeAsDouble - time) > this.expire_time;
+            }
+
             public void Add(LocationOfInterest other)
             {
                 float cap = 100.0f;
@@ -72,6 +88,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 this.interest_ln = Mathf.Log(this.interest + 1);
 
                 this.time = Time.timeAsDouble;
+                this.expire_time = GetExpireTime();
             }
         }
     }
