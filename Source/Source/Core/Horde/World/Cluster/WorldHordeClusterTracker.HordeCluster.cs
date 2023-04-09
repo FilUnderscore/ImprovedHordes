@@ -8,6 +8,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
     {
         private abstract class HordeCluster
         {
+            public readonly object Lock = new object();
+
             protected readonly WorldHordeSpawner spawner;
             protected readonly IHorde horde;
             protected PlayerHordeGroup nearbyPlayerGroup;

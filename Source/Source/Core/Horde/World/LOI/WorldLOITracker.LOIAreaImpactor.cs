@@ -12,6 +12,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 		private class LOIAreaImpactor : Thread
 		{
 			private readonly List<LocationOfInterest> locations = new List<LocationOfInterest>();
+			private readonly object locationsLock = new object();
+
 			private readonly ConcurrentBag<LocationOfInterest> locationsToNotify = new ConcurrentBag<LocationOfInterest>();
 
 			private LOIInterestDecayer decayer;
@@ -23,13 +25,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
 			public bool Notify(List<LocationOfInterest> locations)
 			{
-				bool success = Monitor.TryEnter(this.locations);
+				bool success = Monitor.TryEnter(locationsLock);
 
 				if (success)
 				{
 					this.locations.AddRange(locations);
 
-					Monitor.Exit(this.locations);
+					Monitor.Exit(locationsLock);
 				}
 
 				return success;
@@ -37,7 +39,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
 			public override bool OnLoop()
 			{
-				Monitor.Enter(this.locations);
+				Monitor.Enter(locationsLock);
 
 				if (this.locations.Count > 0)
 				{
@@ -59,7 +61,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 					this.decayer.Notify(locationsToNotify);
 				}
 
-				Monitor.Exit(this.locations);
+				Monitor.Exit(locationsLock);
 
 				return true;
 			}

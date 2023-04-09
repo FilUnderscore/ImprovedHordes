@@ -16,13 +16,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         
         // Shared
         private readonly List<HordeSpawnRequest> requests = new List<HordeSpawnRequest>();
+        private readonly object requestsLock = new object();
 
         // Private
         private readonly List<HordeSpawnRequest> requestsToRemove = new List<HordeSpawnRequest>();
 
         public void Update()
         {
-            if(Monitor.TryEnter(requests))
+            if(Monitor.TryEnter(requestsLock))
             {
                 foreach(var request in requests)
                 {
@@ -44,7 +45,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
                 requestsToRemove.Clear();
 
-                Monitor.Exit(requests);
+                Monitor.Exit(requestsLock);
             }
         }
 
@@ -66,9 +67,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public void Request(HordeSpawnRequest request)
         {
-            Monitor.Enter(this.requests);
+            Monitor.Enter(this.requestsLock);
             requests.Add(request);
-            Monitor.Exit(this.requests);
+            Monitor.Exit(this.requestsLock);
 
             request.Wait();
             request.Dispose();

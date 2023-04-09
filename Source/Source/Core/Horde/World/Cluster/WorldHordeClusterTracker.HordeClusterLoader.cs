@@ -49,7 +49,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             {
                 this.waitEvent.WaitOne();
 
-                Monitor.Enter(this.tracker.Snapshots);
+                Monitor.Enter(this.tracker.SnapshotsLock);
 
                 bool loaded = false, unloaded = false;
                 if (this.tracker.Hordes.TryRead())
@@ -63,7 +63,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                         if(cluster.IsLoaded() != anyNearby)
                         {
-                            if (Monitor.TryEnter(cluster))
+                            if (Monitor.TryEnter(cluster.Lock))
                             {
                                 cluster.SetNextStateSet(true);
 
@@ -75,7 +75,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                                 loaded |= anyNearby;
                                 unloaded |= !anyNearby;
 
-                                Monitor.Exit(cluster);
+                                Monitor.Exit(cluster.Lock);
                             }
                         }
                     }
@@ -84,7 +84,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 }
 
                 this.tracker.Snapshots.Clear();
-                Monitor.Exit(this.tracker.Snapshots);
+                Monitor.Exit(this.tracker.SnapshotsLock);
 
                 if(loaded)
                     this.loader.Notify(clustersToChange[true]);
@@ -144,6 +144,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             private readonly WorldHordeClusterTracker tracker;
 
             private readonly List<HordeCluster> clustersToLoad = new List<HordeCluster>();
+            private readonly object clustersToLoadLock = new object();
 
             public HordeClusterLoader(WorldHordeClusterTracker tracker) : base("IH-" + typeof(T).Name + "Loader")
             {
@@ -152,9 +153,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public void Notify(List<HordeCluster> clusters)
             {
-                Monitor.Enter(this.clustersToLoad);
+                Monitor.Enter(this.clustersToLoadLock);
                 clustersToLoad.AddRange(clusters);
-                Monitor.Exit(this.clustersToLoad);
+                Monitor.Exit(this.clustersToLoadLock);
 
                 this.waitEvent.Set();
             }
@@ -165,7 +166,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             {
                 this.waitEvent.WaitOne();
 
-                Monitor.Enter(this.clustersToLoad);
+                Monitor.Enter(this.clustersToLoadLock);
                 if (this.clustersToLoad.Count > 0)
                 {
                     this.tracker.Hordes.StartWrite();
@@ -185,7 +186,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     this.tracker.Hordes.EndWrite();
                     this.clustersToLoad.Clear();
                 }
-                Monitor.Exit(this.clustersToLoad);
+                Monitor.Exit(this.clustersToLoadLock);
 
                 return true;
             }

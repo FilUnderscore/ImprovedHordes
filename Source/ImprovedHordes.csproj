@@ -71,6 +71,7 @@
     <Compile Include="Source\Core\Horde\World\Spawn\LocationHordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\PlayerHordeSpawn.cs" />
     <Compile Include="Source\Core\Threading\LockedList.cs" />
+    <Compile Include="Source\Core\Threading\Thread.cs" />
     <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />
     <Compile Include="Source\Core\Horde\World\LOI\LOIInterestNotificationEvent.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.LoadedHordeCluster.cs" />
     <Compile Include="Source\ImprovedHordesCore.cs" />
     <Compile Include="Source\ImprovedHordesMod.cs" />
-    <Compile Include="Source\Core\Threading\Thread.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
     <Compile Include="Source\Scout\ScoutHordeGenerator.cs" />
   </ItemGroup>

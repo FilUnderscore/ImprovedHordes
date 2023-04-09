@@ -19,7 +19,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
             // Shared            
             private readonly List<LocationOfInterest> reportedLocations = new List<LocationOfInterest>();
-            
+            private readonly object reportedLocationsLock = new object();
+
             // Personal
             private readonly Dictionary<Vector2i, LocationOfInterest> locationHistory = new Dictionary<Vector2i, LocationOfInterest>();
             private readonly List<Vector2i> locationsToRemove = new List<Vector2i>();
@@ -37,19 +38,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             {
                 if (locations != null)
                 {
-                    Monitor.Enter(this.reportedLocations);
+                    Monitor.Enter(this.reportedLocationsLock);
                     
                     while(locations.TryTake(out LocationOfInterest location))
                         this.reportedLocations.Add(location);
 
-                    Monitor.Exit(this.reportedLocations);
+                    Monitor.Exit(this.reportedLocationsLock);
                 }
             }
 
             public override bool OnLoop()
             {
                 // First register/modify existing locations.
-                if (Monitor.TryEnter(this.reportedLocations))
+                if (Monitor.TryEnter(this.reportedLocationsLock))
                 {
                     if (this.reportedLocations.Count > 0)
                     {
@@ -75,7 +76,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                         this.reportedLocations.Clear();
                     }
 
-                    Monitor.Exit(this.reportedLocations);
+                    Monitor.Exit(this.reportedLocationsLock);
                 }
 
                 // Report events
@@ -93,9 +94,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 // Notify game thread of events, wait for lock if needed.
                 if (eventsToReport.Count > 0)
                 {
-                    Monitor.Enter(this.tracker.Events);
+                    Monitor.Enter(this.tracker.EventsLock);
                     this.tracker.Events.AddRange(this.eventsToReport);
-                    Monitor.Exit(this.tracker.Events);
+                    Monitor.Exit(this.tracker.EventsLock);
 
                     if(this.tracker.OnInterestNotificationEventThread != null)
                     {

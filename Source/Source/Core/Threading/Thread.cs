@@ -7,6 +7,7 @@ namespace ImprovedHordes.Source.Utils
         private readonly string name;
         private ThreadManager.ThreadInfo threadInfo;
 
+        private object runningLock = new object();
         private bool running; // Atomic by nature.
 
         public Thread(string name)
@@ -21,9 +22,9 @@ namespace ImprovedHordes.Source.Utils
 
         public void ShutdownThread()
         {
-            Monitor.Enter(this.running);
+            Monitor.Enter(this.runningLock);
             this.running = false;
-            Monitor.Exit(this.running);
+            Monitor.Exit(this.runningLock);
         }
 
         private void StartThread(ThreadManager.ThreadInfo threadInfo)
@@ -36,17 +37,17 @@ namespace ImprovedHordes.Source.Utils
         private int LoopThread(ThreadManager.ThreadInfo threadInfo)
         {
             bool entered;
-            while ((entered = !Monitor.TryEnter(this.running)) || running)
+            while ((entered = !Monitor.TryEnter(this.runningLock)) || running)
             {
                 if (!this.OnLoop())
                     break;
 
                 if (entered)
-                    Monitor.Exit(this.running);
+                    Monitor.Exit(this.runningLock);
             }
 
             this.running = false;
-            Monitor.Exit(this.running);
+            Monitor.Exit(this.runningLock);
 
             return -1;
         }

@@ -13,9 +13,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
         // Private
         private readonly List<LocationOfInterest> toReport = new List<LocationOfInterest>();
+        private readonly object ReportLock = new object();
 
         // Shared
         private readonly List<LOIInterestNotificationEvent> Events = new List<LOIInterestNotificationEvent>();
+        private readonly object EventsLock = new object();
 
         public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationMainThread;
         public event EventHandler<LOIInterestNotificationEvent> OnInterestNotificationEventThread;
@@ -41,9 +43,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
         private void Report(LocationOfInterest location)
         {
-            Monitor.Enter(this.toReport);
+            Monitor.Enter(ReportLock);
             this.toReport.Add(location);
-            Monitor.Exit(this.toReport);
+            Monitor.Exit(ReportLock);
         }
 
         public void Shutdown()
@@ -63,14 +65,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
         private void TryReport()
         {
-            if (Monitor.TryEnter(this.toReport))
+            if (Monitor.TryEnter(ReportLock))
             {
                 if (this.impactor.Notify(this.toReport))
                 {
                     this.toReport.Clear();
                 }
 
-                Monitor.Exit(this.toReport);
+                Monitor.Exit(ReportLock);
             }
         }
 
@@ -80,7 +82,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 return;
 
             // Try acquire events if written to.
-            if (Monitor.TryEnter(Events))
+            if (Monitor.TryEnter(EventsLock))
             {
                 if (Events.Count > 0)
                 {
@@ -92,7 +94,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                     this.Events.Clear();
                 }
 
-                Monitor.Exit(Events);
+                Monitor.Exit(EventsLock);
             }
         }
 

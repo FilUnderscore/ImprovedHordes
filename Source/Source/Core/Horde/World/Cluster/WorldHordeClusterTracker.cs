@@ -25,6 +25,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         // Shared
         private readonly List<PlayerSnapshot> Snapshots = new List<PlayerSnapshot>();
+        private readonly object SnapshotsLock = new object();
+
         private readonly LockedList<HordeCluster> Hordes = new LockedList<HordeCluster>();
 
         public WorldHordeClusterTracker(WorldHordeManager manager, AIExecutor aiExecutor)
@@ -46,7 +48,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
         /// </summary>
         private void TakeSnapshot()
         {
-            if(Monitor.TryEnter(this.Snapshots))
+            if(Monitor.TryEnter(SnapshotsLock))
             {
                 if(this.Snapshots.Count == 0)
                 {
@@ -61,7 +63,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     this.playerTracker.Notify();
                 }
 
-                Monitor.Exit(this.Snapshots);
+                Monitor.Exit(SnapshotsLock);
             }
         }
 
