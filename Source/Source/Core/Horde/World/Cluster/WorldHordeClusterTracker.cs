@@ -14,7 +14,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
     /**
      * Splits and merges horde clusters through tracking.
      */
-    public sealed partial class WorldHordeClusterTracker : Thread
+    public sealed partial class WorldHordeClusterTracker
     {
         private readonly WorldHordeManager manager;
         private readonly AIExecutor aiExecutor;
@@ -27,7 +27,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private readonly List<PlayerSnapshot> Snapshots = new List<PlayerSnapshot>();
         private readonly LockedList<HordeCluster> Hordes = new LockedList<HordeCluster>();
 
-        public WorldHordeClusterTracker(WorldHordeManager manager, AIExecutor aiExecutor) : base("IH-WorldHordeClusterTracker")
+        public WorldHordeClusterTracker(WorldHordeManager manager, AIExecutor aiExecutor)
         {
             this.manager = manager;
             this.aiExecutor = aiExecutor;
@@ -35,6 +35,10 @@ namespace ImprovedHordes.Source.Core.Horde.World
             this.hordeClusterLoader = new HordeClusterLoaderLoaded(this);
             this.hordeClusterUnloader = new HordeClusterLoaderUnloaded(this);
             this.playerTracker = new PlayerTracker(this, this.hordeClusterLoader, this.hordeClusterUnloader);
+
+            this.playerTracker.ExecuteThread();
+            this.hordeClusterLoader.ExecuteThread();
+            this.hordeClusterUnloader.ExecuteThread();
         }
 
         /// <summary>
@@ -157,25 +161,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
             Log.Out("Written");
         }
 
-        public override void OnStartup()
-        {
-            this.playerTracker.ExecuteThread();
-            this.hordeClusterLoader.ExecuteThread();
-            this.hordeClusterUnloader.ExecuteThread();
-        }
-
-        public override void OnShutdown()
+        public void Shutdown()
         {
             this.playerTracker.ShutdownThread();
             this.hordeClusterLoader.ShutdownThread();
             this.hordeClusterUnloader.ShutdownThread();
-        }
-
-        public override bool OnLoop()
-        {
-            this.Update();
-
-            return true;
         }
     }
 }

@@ -62,9 +62,9 @@
   <ItemGroup>
     <Compile Include="Source\Core\Command\CommandBase.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.HordeClusterLoader.cs" />
-    <Compile Include="Source\Core\Horde\World\LOI\LocationOfInterest.cs" />
-    <Compile Include="Source\Core\Horde\World\LOI\LOIInterestDecayer.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\PlayerSnapshot.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LocationOfInterest.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIInterestDecayer.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.PlayerSnapshot.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawnRequest.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\LocationHordeSpawn.cs" />
@@ -96,7 +96,7 @@
     <Folder Include="Source\Core\Horde\Data\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Core\Horde\World\LOI\LOIAreaImpactor.cs" />
+    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIAreaImpactor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

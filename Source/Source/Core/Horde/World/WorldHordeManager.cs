@@ -19,8 +19,6 @@ namespace ImprovedHordes.Source.Horde
             this.worldHordeClusterTracker = new WorldHordeClusterTracker(this, this.aiExecutor);
             this.spawner = new WorldHordeSpawner(this.worldHordeClusterTracker);
 
-            this.worldHordeClusterTracker.ExecuteThread();
-
             worldLOITracker.OnInterestNotificationEventThread += WorldLOITracker_OnInterestNotification;
         }
 
@@ -36,7 +34,9 @@ namespace ImprovedHordes.Source.Horde
 
         public void Update(float dt)
         {
+            this.worldHordeClusterTracker.Update();
             this.spawner.Update();
+
             this.aiExecutor.Update(dt);
         }
 
@@ -47,7 +47,7 @@ namespace ImprovedHordes.Source.Horde
 
         public void Shutdown()
         {
-            this.worldHordeClusterTracker.ShutdownThread();
+            this.worldHordeClusterTracker.Shutdown();
         }
     }
 }
