@@ -9,8 +9,6 @@ namespace ImprovedHordes.Source.Core.Threading
         private readonly List<T> list = new List<T>();
         private readonly object lockObject = new object();
 
-        private readonly ManualResetEvent notification = new ManualResetEvent(true);
-
         private bool reading = false;
         private readonly object readingLock = new object();
 
@@ -24,16 +22,28 @@ namespace ImprovedHordes.Source.Core.Threading
             this.list.Remove(item);
         }
 
+        public bool Contains(T item)
+        {
+            return this.list.Contains(item);
+        }
+
+        public int GetCount()
+        {
+            return this.list.Count;
+        }
+
         public List<T> GetList()
         {
             return list;
         }
 
+        /*
         public void BlockRead()
         {
             this.notification.WaitOne();
             this.TryRead();
         }
+        */
 
         public bool TryRead()
         {
@@ -43,7 +53,6 @@ namespace ImprovedHordes.Source.Core.Threading
 
             if (result)
             {
-                this.notification.Set();
                 this.reading = true;
             }
 
@@ -59,7 +68,6 @@ namespace ImprovedHordes.Source.Core.Threading
             {
                 Monitor.Enter(this.readingLock);
                 this.reading = false;
-                this.notification.Reset();
                 Monitor.Exit(this.readingLock);
 
                 Monitor.Exit(this.lockObject);
@@ -72,7 +80,6 @@ namespace ImprovedHordes.Source.Core.Threading
 
             Monitor.Enter(this.readingLock);
             this.reading = false;
-            this.notification.Reset();
             Monitor.Exit(this.readingLock);
         }
 

@@ -29,8 +29,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
         
         private readonly List<int> EntsKilled = new List<int>();
 
+        // Personal
         private readonly List<int> entitiesKilled = new List<int>();
-
+        
         private readonly LockedList<HordeCluster> Hordes = new LockedList<HordeCluster>();
 
         public WorldHordeClusterTracker(WorldHordeManager manager, AIExecutor aiExecutor)
@@ -63,8 +64,6 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                         this.Snapshots.Add(new PlayerSnapshot(player));
                     }
-
-                    this.playerTracker.Notify();
                 }
 
                 this.EntsKilled.AddRange(this.entitiesKilled);
@@ -83,46 +82,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
             this.TakeSnapshot();
         }
 
-        /* in update()
-        while(this.queuedClusters.TryDequeue(out IHordeCluster cluster)) 
-        {
-            hordes.Add(cluster);
-        }
-
-        for(int i = 0; i < hordes.Count; i++) 
-        {
-            IHordeCluster horde = hordes[i];
-
-            if (i < hordes.Count - 1)
-            {
-                IHordeCluster otherHorde = hordes[i + 1];
-
-                if (CanMerge(horde, otherHorde))
-                {
-                    horde.Recombine(otherHorde);
-                    hordes.RemoveAt(i--);
-                    continue;
-                }
-            }
-        }
-        */
-
-        /*
-        private bool CanMerge(IHordeCluster horde, IHordeCluster other)
-        {
-            float distance = Vector3.Distance(horde.GetLocation(), other.GetLocation());
-
-            if (distance > 20.0f)
-                return false;
-
-            // See if they are
-
-            return true;
-        }
-        */
-
         public void NotifyHordeClustersNearby(Vector3 location, float distance)
         {
+            Log.Out("notifying nearby : " + location + " and " + distance);
+            return;
+
             this.Hordes.StartWrite();
             
             this.Hordes.GetList().Where(hordeCluster => Vector3.Distance(hordeCluster.GetLocation(), location) <= distance).ToList().Do(cluster =>

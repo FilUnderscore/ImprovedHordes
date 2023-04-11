@@ -76,6 +76,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 return (Time.timeAsDouble - time) > this.expire_time;
             }
 
+            public float GetStrength()
+            {
+                return this.strength;
+            }
+
             public void Add(LocationOfInterest other)
             {
                 float cap = 100.0f;

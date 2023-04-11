@@ -18,7 +18,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
             private WorldLOITracker tracker;
 
             // Shared            
-            private readonly List<LocationOfInterest> reportedLocations = new List<LocationOfInterest>();
+            private readonly List<LOIArea> reportedLocations = new List<LOIArea>();
             private readonly object reportedLocationsLock = new object();
 
             // Personal
@@ -34,13 +34,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 this.MAP_SIZE_POW_2_LOG_N = Math.Pow(2, MAP_SIZE_LOG_N);
             }
 
-            public void Notify(ConcurrentBag<LocationOfInterest> locations)
+            public void Notify(ConcurrentBag<LOIArea> locations)
             {
                 if (locations != null)
                 {
                     Monitor.Enter(this.reportedLocationsLock);
                     
-                    while(locations.TryTake(out LocationOfInterest location))
+                    while(locations.TryTake(out LOIArea location))
                         this.reportedLocations.Add(location);
 
                     Monitor.Exit(this.reportedLocationsLock);
@@ -54,8 +54,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                 {
                     if (this.reportedLocations.Count > 0)
                     {
-                        foreach (var locationOfInterest in this.reportedLocations)
+                        foreach (var loiArea in this.reportedLocations)
                         {
+                            var locationOfInterest = loiArea.locationOfInterest;
+
                             Vector2i location = locationOfInterest.GetChunkLocation();
                             float interestLevel;
                             
@@ -70,7 +72,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                                 interestLevel = locationOfInterest.GetInterestLevel();
                             }
 
-                            eventsToReport.Add(new LOIInterestNotificationEvent(locationOfInterest.GetLocation(), interestLevel, CalculateInterestDistance(interestLevel)));
+                            if(loiArea.origin)
+                                eventsToReport.Add(new LOIInterestNotificationEvent(locationOfInterest.GetLocation(), interestLevel, CalculateInterestDistance(interestLevel)));
                         }
 
                         this.reportedLocations.Clear();

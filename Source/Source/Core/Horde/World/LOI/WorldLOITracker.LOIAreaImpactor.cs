@@ -9,12 +9,24 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 {
     public sealed partial class WorldLOITracker
     {
+		private struct LOIArea
+		{
+			public LocationOfInterest locationOfInterest;
+			public bool origin;
+
+			public LOIArea(LocationOfInterest locationOfInterest, bool origin)
+			{
+				this.locationOfInterest = locationOfInterest;
+				this.origin = origin;
+			}
+		}
+
 		private class LOIAreaImpactor : Thread
 		{
 			private readonly List<LocationOfInterest> locations = new List<LocationOfInterest>();
 			private readonly object locationsLock = new object();
 
-			private readonly ConcurrentBag<LocationOfInterest> locationsToNotify = new ConcurrentBag<LocationOfInterest>();
+			private readonly ConcurrentBag<LOIArea> locationsToNotify = new ConcurrentBag<LOIArea>();
 
 			private LOIInterestDecayer decayer;
 
@@ -53,8 +65,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
                             float strength = chunk.Value;
 
                             float chunkInterest = location.GetInterestLevel() * strength;
-                            locationsToNotify.Add(new LocationOfInterest(chunkLocation, chunkInterest, strength));
+                            locationsToNotify.Add(new LOIArea(new LocationOfInterest(chunkLocation, chunkInterest, strength), false));
                         }
+
+						locationsToNotify.Add(new LOIArea(location, true));
                     });
 
 					this.locations.Clear();
@@ -73,7 +87,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
 				Vector2i currentChunk = global::World.toChunkXZ(position);
 
-				nearbyChunks.Add(currentChunk, 1f);
+				//nearbyChunks.Add(currentChunk, 1f);
 
 				for (int x = 1; x <= radiusSquared; x++)
 				{

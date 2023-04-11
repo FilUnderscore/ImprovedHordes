@@ -50,7 +50,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public void Notify(List<int> entities)
             {
-                foreach(int entityId in entities)
+                foreach (int entityId in entities)
                 {
                     if(this.entities.ContainsKey(entityId))
                     {
@@ -58,22 +58,25 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     }
                 }
 
-                foreach(var entity in entitiesToRemove)
+                if (entitiesToRemove.Count == 0)
+                    return;
+
+                Log.Out("Notifying entity killed in cluster");
+
+                foreach (var entity in entitiesToRemove)
                 {
                     this.entities.Remove(entity);
-                    entities.Remove(entity);
-
+                    
                     this.density -= this.densityPerEntity;
+                    this.densityPerEntity = this.density / Mathf.Max(this.entities.Count, 1);
+
+                    Log.Out("Killed entity");
                 }
 
                 entitiesToRemove.Clear();
 
-                if (this.entities.Count > 0)
-                {
-                    this.densityPerEntity = this.density / this.entities.Count;
-                }
-
                 this.density = Mathf.Max(this.density, 0.0f);
+                Log.Out("New density: " + this.density + " new entity density: " + this.densityPerEntity);
             }
 
             public override void OnStateChange()

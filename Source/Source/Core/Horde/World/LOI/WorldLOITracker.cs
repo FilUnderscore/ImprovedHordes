@@ -38,7 +38,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
         private void WorldLOITracker_OnInterestNotificationMainThread(object sender, LOIInterestNotificationEvent e)
         {
-            Log.Out($"Event: {e.GetLocation()}: {e.GetDistance()} blocks");
+            //Log.Out($"Event: {e.GetLocation()}: {e.GetDistance()} blocks");
         }
 
         private void Report(LocationOfInterest location)

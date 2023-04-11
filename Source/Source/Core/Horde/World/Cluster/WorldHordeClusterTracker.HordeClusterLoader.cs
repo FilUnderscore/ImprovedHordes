@@ -17,13 +17,13 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         private sealed class PlayerTracker : Thread
         {
-            private readonly AutoResetEvent waitEvent = new AutoResetEvent(false);
             private readonly WorldHordeClusterTracker tracker;
 
             private readonly HordeClusterLoader<LoadedHordeCluster> loader;
             private readonly HordeClusterLoader<UnloadedHordeCluster> unloader;
 
             private readonly Dictionary<bool, List<HordeCluster>> clustersToChange = new Dictionary<bool, List<HordeCluster>>();
+            private readonly List<HordeCluster> clustersToRemove = new List<HordeCluster>();
 
             public PlayerTracker(WorldHordeClusterTracker tracker, HordeClusterLoader<LoadedHordeCluster> loader, HordeClusterLoader<UnloadedHordeCluster> unloader) : base("IH-PlayerTracker")
             {
@@ -40,58 +40,71 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 return "IH-PlayerTracker";
             }
 
-            public void Notify()
-            {
-                this.waitEvent.Set();
-            }
-
             public override bool OnLoop()
             {
-                this.waitEvent.WaitOne();
-
                 Monitor.Enter(this.tracker.SnapshotsLock);
+                
+                if (this.tracker.Snapshots.Count == 0)
+                {
+                    Monitor.Exit(this.tracker.SnapshotsLock);
+                    return true;
+                }    
 
                 bool loaded = false, unloaded = false;
                 if (this.tracker.Hordes.TryRead())
                 {
+                    // Begin read.
                     foreach (HordeCluster cluster in this.tracker.Hordes) // Iterate hordes first to reduce locks.
                     {
-                        if (cluster.NextStateSet())
+                        if (!Monitor.TryEnter(cluster.Lock) || cluster.NextStateSet())
                             continue;
 
                         bool anyNearby = IsPlayerNearby(cluster);
 
-                        if(cluster.IsLoaded() != anyNearby)
+                        if (cluster.IsLoaded() != anyNearby)
                         {
-                            if (Monitor.TryEnter(cluster.Lock))
-                            {
-                                cluster.SetNextStateSet(true);
+                            cluster.SetNextStateSet(true);
 
-                                if(!cluster.IsLoaded())
-                                    cluster.SetNearbyPlayerGroup(DeterminePlayerGroup(cluster));
+                            if (!cluster.IsLoaded())
+                                cluster.SetNearbyPlayerGroup(DeterminePlayerGroup(cluster));
 
-                                clustersToChange[anyNearby].Add(cluster);
+                            clustersToChange[anyNearby].Add(cluster);
 
-                                loaded |= anyNearby;
-                                unloaded |= !anyNearby;
-
-                                Monitor.Exit(cluster.Lock);
-                            }
+                            loaded |= anyNearby;
+                            unloaded |= !anyNearby;
                         }
-                        else if(cluster.IsLoaded())
+                        else if (cluster.IsLoaded())
                         {
-                            if(Monitor.TryEnter(cluster.Lock))
-                            {
-                                ((LoadedHordeCluster)cluster).Notify(this.tracker.EntsKilled);
-                                Monitor.Exit(cluster.Lock);
-                            }
+                            ((LoadedHordeCluster)cluster).Notify(this.tracker.EntsKilled); 
                         }
+
+                        if (cluster.GetEntityDensity() == 0.0f)
+                        {
+                            clustersToRemove.Add(cluster);
+                        }
+
+                        Monitor.Exit(cluster.Lock);
                     }
 
                     this.tracker.Hordes.EndRead();
+
+                    this.tracker.Hordes.StartWrite();
+                    // Begin Write.
+
+                    foreach (var cluster in clustersToRemove)
+                    {
+                        Log.Out("Removed");
+                        this.tracker.Hordes.Remove(cluster);
+                    }
+
+                    clustersToRemove.Clear();
+
+                    this.tracker.Hordes.EndWrite();
                 }
 
                 this.tracker.Snapshots.Clear();
+                this.tracker.EntsKilled.Clear();
+
                 Monitor.Exit(this.tracker.SnapshotsLock);
 
                 if(loaded)
@@ -148,7 +161,6 @@ namespace ImprovedHordes.Source.Core.Horde.World
         /// </summary>
         private abstract class HordeClusterLoader<T> : Thread where T: HordeCluster
         {
-            private readonly AutoResetEvent waitEvent = new AutoResetEvent(false);
             private readonly WorldHordeClusterTracker tracker;
 
             private readonly List<HordeCluster> clustersToLoad = new List<HordeCluster>();
@@ -164,16 +176,12 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 Monitor.Enter(this.clustersToLoadLock);
                 clustersToLoad.AddRange(clusters);
                 Monitor.Exit(this.clustersToLoadLock);
-
-                this.waitEvent.Set();
             }
 
             public abstract T Create(WorldHordeSpawner spawner, HordeCluster cluster);
 
             public override bool OnLoop()
             {
-                this.waitEvent.WaitOne();
-
                 Monitor.Enter(this.clustersToLoadLock);
                 if (this.clustersToLoad.Count > 0)
                 {
@@ -181,19 +189,21 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                     foreach (var cluster in this.clustersToLoad)
                     {
-                        if (cluster is T)
+                        if (!Monitor.TryEnter(cluster.Lock) || cluster is T || !this.tracker.Hordes.Contains(cluster))
                             continue;
 
-                        if (cluster.GetEntityDensity() > 0.0f)
-                        {
-                            T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
-                            cluster.OnStateChange();
+                        T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
+                        cluster.OnStateChange();
 
-                            this.tracker.Hordes.Add(loadedHordeCluster);
-                        }
+                        Log.Out($"From {cluster.GetType().FullName} to {typeof(T).FullName}");
 
+                        this.tracker.Hordes.Add(loadedHordeCluster);
                         this.tracker.Hordes.Remove(cluster);
+
+                        Monitor.Exit(cluster.Lock);
                     }
+
+                    Log.Out("Count: " + this.tracker.Hordes.GetCount());
 
                     this.tracker.Hordes.EndWrite();
                     this.clustersToLoad.Clear();

@@ -14,6 +14,7 @@ namespace ImprovedHordes.Source
 
         private static ImprovedHordesCore Instance;
 
+        private bool initialized = false;
         private WorldLOITracker worldLOITracker;
         private WorldHordeManager hordeManager;
 
@@ -37,6 +38,7 @@ namespace ImprovedHordes.Source
 
             this.worldLOITracker = new WorldLOITracker(maxSize.x - minSize.x);
             this.hordeManager = new WorldHordeManager(this.worldLOITracker);
+            this.initialized = true;
         }
 
         public WorldHordeManager GetHordeManager()
@@ -46,6 +48,9 @@ namespace ImprovedHordes.Source
 
         public void Update()
         {
+            if (!this.initialized)
+                return;
+
             float dt = Time.fixedDeltaTime;
 
             this.worldLOITracker.Update();
