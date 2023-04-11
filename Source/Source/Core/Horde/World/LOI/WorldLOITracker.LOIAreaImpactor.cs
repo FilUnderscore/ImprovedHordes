@@ -87,8 +87,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.LOI
 
 				Vector2i currentChunk = global::World.toChunkXZ(position);
 
-				//nearbyChunks.Add(currentChunk, 1f);
-
 				for (int x = 1; x <= radiusSquared; x++)
 				{
 					float xDivRad = (float)(x / radius) / (float)radius;

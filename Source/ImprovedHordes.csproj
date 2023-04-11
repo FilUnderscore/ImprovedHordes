@@ -99,9 +99,6 @@
   <ItemGroup>
     <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIAreaImpactor.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIPulseEventNotifier.cs" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>robocopy "$(TargetDir) " "C:\\Program Files (x86)\\Steam\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e

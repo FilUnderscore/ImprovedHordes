@@ -45,6 +45,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     this.entities.Add(entity.entityId, new Entity(entity));
                 }
 
+                Log.Out("Generated: " + this.entities.Count);
                 this.densityPerEntity = this.density / this.entities.Count;
             }
 
@@ -68,8 +69,6 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     this.entities.Remove(entity);
                     
                     this.density -= this.densityPerEntity;
-                    this.densityPerEntity = this.density / Mathf.Max(this.entities.Count, 1);
-
                     Log.Out("Killed entity");
                 }
 
@@ -134,6 +133,12 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
                 foreach (Entity entity in this.entities.Values)
                 {
+                    if(entity.IsDead())
+                    {
+                        entitiesToRemove.Add(entity.GetEntityInstance().entityId);
+                        continue;
+                    }
+
                     avgPos += entity.GetLocation();
                 }
 

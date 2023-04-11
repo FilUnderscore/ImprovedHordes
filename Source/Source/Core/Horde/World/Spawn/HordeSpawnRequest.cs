@@ -51,7 +51,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         private readonly int size;
 
         private int index;
-        private readonly EntityAlive[] entities;
+        private readonly List<EntityAlive> entities;
 
         public HordeEntitySpawnRequest(IHorde horde, PlayerHordeGroup playerGroup, Vector3 location, float density)
         {
@@ -60,19 +60,15 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             this.size = this.generator.DetermineEntityCount(playerGroup, density);
 
             this.index = 0;
-            this.entities = new EntityAlive[size];
+            this.entities = new List<EntityAlive>();
         }
 
         public override void TickExecute()
         {
-            Vector2 randomInsideCircle = GameManager.Instance.World.GetGameRandom().RandomInsideUnitCircle;
-            float circleSize = 10.0f;
+            if (GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 20, 20, true, out Vector3 spawnLocation, false))
+                this.entities.Add(generator.GenerateEntity(spawnLocation));
 
-            Vector2 surfaceSpawnLocation = new Vector2(location.x, location.z) + randomInsideCircle * circleSize;
-            float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
-
-            Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.entities[index++] = generator.GenerateEntity(spawnLocation);
+            this.index++;
         }
 
         public override bool IsDone()
@@ -82,7 +78,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public EntityAlive[] GetEntities()
         {
-            return this.entities;
+            return this.entities.ToArray();
         }
     }
 
