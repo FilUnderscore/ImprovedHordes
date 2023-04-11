@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
-using Thread = ImprovedHordes.Source.Utils.Thread;
 
 namespace ImprovedHordes.Source.Core.Horde.World
 {
@@ -87,7 +86,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             return Vector3.Distance(cluster1.GetLocation(), cluster2.GetLocation()) <= 20;
         }
 
-        public void NotifyHordeClustersNearby(Vector3 location, float distance)
+        public void NotifyHordeClustersNearby(Vector3 location, float distance, float interestLevel)
         {
             Log.Out("notifying nearby : " + location + " and " + distance);
             
@@ -95,7 +94,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             
             this.Hordes.GetList().Where(hordeCluster => Vector3.Distance(hordeCluster.GetLocation(), location) <= distance).ToList().Do(cluster =>
             {
-                NotifyCluster(cluster, location, distance);
+                NotifyCluster(cluster, location, interestLevel);
             });
 
             this.Hordes.EndWrite();
@@ -107,6 +106,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
             float chanceToSplit = 1.0f - interestLevel01;
             HordeCluster splitCluster;
 
+            Log.Out("Chance to split: " + chanceToSplit + " Interest level: " + interestLevel01);
             if (GameManager.Instance.World.GetGameRandom().RandomFloat <= chanceToSplit)
             {
                 float densityToSplitAndDirect = cluster.GetEntityDensity() * interestLevel01;

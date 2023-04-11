@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
+﻿using HarmonyLib;
+using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -196,6 +197,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
                         cluster.OnStateChange();
 
                         Log.Out($"From {cluster.GetType().FullName} to {typeof(T).FullName}");
+
+                        loadedHordeCluster.GetAIAgents().Do(agent => this.tracker.aiExecutor.RegisterAgent(agent));
+                        cluster.GetAIAgents().Do(agent => this.tracker.aiExecutor.UnregisterAgent(agent));
 
                         this.tracker.Hordes.Add(loadedHordeCluster);
                         this.tracker.Hordes.Remove(cluster);

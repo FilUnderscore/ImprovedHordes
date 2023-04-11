@@ -43,7 +43,7 @@ namespace ImprovedHordes.Source.Horde
 
         private void WorldLOITracker_OnInterestNotification(object sender, LOIInterestNotificationEvent e)
         {
-            this.worldHordeClusterTracker.NotifyHordeClustersNearby(e.GetLocation(), e.GetDistance());
+            this.worldHordeClusterTracker.NotifyHordeClustersNearby(e.GetLocation(), e.GetDistance(), e.GetInterestLevel());
         }
 
         public void Shutdown()
