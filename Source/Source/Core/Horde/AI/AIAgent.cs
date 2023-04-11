@@ -7,6 +7,7 @@ namespace ImprovedHordes.Source.Horde.AI
         bool IsDead();
         Vector3 GetLocation();
 
+        bool CanInterrupt();
         EntityAlive GetTarget();
         void MoveTo(Vector3 location, float dt);
     }

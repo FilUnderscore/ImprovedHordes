@@ -43,7 +43,7 @@ namespace ImprovedHordes.Source.Horde.AI
             this.agentsToRegister.Enqueue(agent);
         }
 
-        public void Queue(IAIAgent agent, IAICommand command, bool interrupt = false)
+        public void Queue(IAIAgent agent, AICommand command, bool interrupt = false)
         {
             if (!this.agents.TryGetValue(agent, out AIAgentExecutor executor))
                 return;
@@ -54,17 +54,17 @@ namespace ImprovedHordes.Source.Horde.AI
         private class AIAgentExecutor
         {
             private readonly IAIAgent agent;
-            private readonly ConcurrentQueue<IAICommand> commands;
+            private readonly ConcurrentQueue<AICommand> commands;
 
             public AIAgentExecutor(AIExecutor executor, IAIAgent agent)
             {
                 this.agent = agent;
-                this.commands = new ConcurrentQueue<IAICommand>();
+                this.commands = new ConcurrentQueue<AICommand>();
             }
 
             public void Update(float dt) 
             {
-                if (commands.Count == 0 || !commands.TryPeek(out IAICommand nextCommand))
+                if (commands.Count == 0 || !commands.TryPeek(out AICommand nextCommand))
                     return;
 
                 if(!nextCommand.CanExecute(this.agent))
@@ -76,14 +76,20 @@ namespace ImprovedHordes.Source.Horde.AI
                     return;
 
                 commands.TryDequeue(out _);
+
+                while(commands.TryPeek(out AICommand nextNextCommand))
+                {
+                    if (nextNextCommand.HasExpired())
+                        commands.TryDequeue(out _);
+                }
             }
 
-            public void Queue(IAICommand command, bool interrupt)
+            public void Queue(AICommand command, bool interrupt)
             {
                 if (command == null)
                     throw new NullReferenceException("Cannot queue a null AICommand.");
 
-                if (interrupt)
+                if (interrupt && agent.CanInterrupt())
                 {
                     while (commands.TryDequeue(out _)) { }
                 }

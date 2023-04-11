@@ -17,6 +17,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 this.location = location;
             }
 
+            public bool CanInterrupt()
+            {
+                return true;
+            }
+
             public override IAIAgent[] GetAIAgents()
             {
                 return new IAIAgent[] { this };

@@ -185,6 +185,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     this.entity.SetInvestigatePosition(location, 6000, false);
                     AstarManager.Instance.AddLocationLine(this.entity.position, location, 64);
                 }
+
+                public bool CanInterrupt()
+                {
+                    return this.GetTarget() == null || !(this.GetTarget() is EntityPlayer);
+                }
             }
         }
     }

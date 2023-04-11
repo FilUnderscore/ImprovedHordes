@@ -82,11 +82,15 @@ namespace ImprovedHordes.Source.Core.Horde.World
             this.TakeSnapshot();
         }
 
+        private bool AreClustersNearbyToMerge(HordeCluster cluster1, HordeCluster cluster2)
+        {
+            return Vector3.Distance(cluster1.GetLocation(), cluster2.GetLocation()) <= 20;
+        }
+
         public void NotifyHordeClustersNearby(Vector3 location, float distance)
         {
             Log.Out("notifying nearby : " + location + " and " + distance);
-            return;
-
+            
             this.Hordes.StartWrite();
             
             this.Hordes.GetList().Where(hordeCluster => Vector3.Distance(hordeCluster.GetLocation(), location) <= distance).ToList().Do(cluster =>
@@ -99,13 +103,25 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         private void NotifyCluster(HordeCluster cluster, Vector3 location, float interestLevel)
         {
-            float densityToSplitAndDirect = (int)(cluster.GetEntityDensity() * (interestLevel / 100.0f));
-
+            float interestLevel01 = (interestLevel / 100.0f);
+            float chanceToSplit = 1.0f - interestLevel01;
             HordeCluster splitCluster;
-            if (densityToSplitAndDirect < cluster.GetEntityDensity())
+
+            if (GameManager.Instance.World.GetGameRandom().RandomFloat <= chanceToSplit)
             {
-                splitCluster = cluster.Split(densityToSplitAndDirect);
-                this.Hordes.Add(splitCluster);
+                float densityToSplitAndDirect = cluster.GetEntityDensity() * interestLevel01;
+
+                if (densityToSplitAndDirect < cluster.GetEntityDensity())
+                {
+                    Log.Out("Split density: " + densityToSplitAndDirect);
+
+                    splitCluster = cluster.Split(densityToSplitAndDirect);
+                    this.Hordes.Add(splitCluster);
+                }
+                else
+                {
+                    splitCluster = cluster;
+                }
             }
             else
             {
