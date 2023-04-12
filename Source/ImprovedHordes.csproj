@@ -68,6 +68,7 @@
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawnRequest.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\LocationHordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\PlayerHordeSpawn.cs" />
+    <Compile Include="Source\Core\Horde\World\Spawn\RandomHordeSpawn.cs" />
     <Compile Include="Source\ImprovedHordesStatsSubcommand.cs" />
     <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />

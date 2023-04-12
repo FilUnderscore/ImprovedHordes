@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using ImprovedHordes.Source.Scout;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,9 +25,17 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         private readonly List<HordeSpawnRequest> requestsBeingProcessed = new List<HordeSpawnRequest>();
         private readonly List<HordeSpawnRequest> requestsToRemove = new List<HordeSpawnRequest>();
 
-        public void Update()
+        public void RequestAndWait(HordeSpawnRequest request)
         {
-            while(requests.TryDequeue(out HordeSpawnRequest request))
+            requests.Enqueue(request);
+
+            request.Wait();
+            request.Dispose();
+        }
+
+        private void ProcessSpawnRequests()
+        {
+            while (requests.TryDequeue(out HordeSpawnRequest request))
             {
                 requestsBeingProcessed.Add(request);
             }
@@ -43,12 +52,18 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
                 }
             }
 
-            foreach(var request in requestsToRemove)
+            foreach (var request in requestsToRemove)
             {
                 requestsBeingProcessed.Remove(request);
                 request.Notify();
             }
             requestsToRemove.Clear();
+        }
+
+        public void Update()
+        {
+            this.ProcessSpawnRequests();
+            this.PopulateWorldHordes();
         }
 
         public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn) where Horde : IHorde where HordeSpawn : IHordeSpawn
@@ -67,12 +82,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             this.worldHordeClusterTracker.Add(new HordeCluster(horde, spawnLocation, density));
         }
 
-        public void RequestAndWait(HordeSpawnRequest request)
+        private void PopulateWorldHordes() 
         {
-            requests.Enqueue(request);
-
-            request.Wait();
-            request.Dispose();
+            if(this.worldHordeClusterTracker.GetClusterCount() < 2000)
+            {
+                this.Spawn<ScoutHorde, RandomHordeSpawn>(new RandomHordeSpawn(), 1.0f);
+            }
         }
     }
 }

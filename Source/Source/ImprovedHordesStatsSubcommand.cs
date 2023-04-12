@@ -14,7 +14,7 @@ namespace ImprovedHordes.Command
             if (ImprovedHordesCore.TryGetInstance(out ImprovedHordesCore core))
             {
                 int clusterCount = core.GetHordeManager().GetClusterTracker().GetClusterCount();
-                message = $"Total clusters ({clusterCount})";
+                message = $"Total clusters ({clusterCount}) ";
             }
             else
             {

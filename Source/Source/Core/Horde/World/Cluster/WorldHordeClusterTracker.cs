@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using HarmonyLib;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,16 +26,21 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private List<HordeCluster> toAdd = new List<HordeCluster>();
         private ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
 
+        private int clusterCount = 0;
         private List<HordeCluster> clusters = new List<HordeCluster>();
+
+        private List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
 
         public void Update()
         {
             if(UpdateTask != null && UpdateTask.IsCompleted)
             {
+                snapshots.Clear();
+
                 foreach(var cluster in toAdd)
                 {
                     clusters.Add(cluster);
-                    Log.Out("Added cluster");
+                    //Log.Out("Added cluster");
                 }
 
                 toAdd.Clear();
@@ -44,11 +50,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     clusters.Remove(cluster);
                     Log.Out("Removed cluster");
                 }
+
+                this.clusterCount = this.clusters.Count;
             }
 
             if(UpdateTask == null || UpdateTask.IsCompleted)
             {
-                List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
                 foreach(var player in GameManager.Instance.World.Players.list)
                 {
                     snapshots.Add(new PlayerSnapshot(player.position, player.gameStage));
@@ -56,31 +63,31 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 this.UpdateTask = Task.Run(async () =>
                 {
-                    await UpdateAsync(snapshots.AsReadOnly());
+                    await UpdateAsync(snapshots);
                 });
             }
         }
 
         public int GetClusterCount()
         {
-            return this.clusters.Count;
+            return this.clusterCount;
         }
 
-        private async Task UpdateAsync(IReadOnlyCollection<PlayerSnapshot> players)
+        private async Task UpdateAsync(List<PlayerSnapshot> players)
         {
             await Task.Run(() =>
             {
                 Parallel.ForEach(this.clusters, cluster =>
                 {
-                    List<PlayerSnapshot> nearby = players.AsParallel().Where(player =>
+                    IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
                     {
                         return Vector3.Distance(player.location, cluster.GetLocation()) <= 90;
-                    }).ToList();
+                    });
 
                     if(nearby.Any() && !cluster.IsSpawned())
                     {
                         PlayerHordeGroup group = new PlayerHordeGroup();
-                        nearby.ForEach(player => group.AddPlayer(player.gamestage));
+                        nearby.Do(player => group.AddPlayer(player.gamestage));
 
                         cluster.Spawn(group);
                     }

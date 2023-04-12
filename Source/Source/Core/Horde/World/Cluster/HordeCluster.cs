@@ -9,6 +9,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private readonly IHorde horde;
         private Vector3 location;
         private float density;
+        private float densityPerEntity;
 
         private List<EntityAlive> entities = new List<EntityAlive>();
         private bool spawned;
@@ -45,6 +46,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 instance.GetHordeManager().GetSpawner().RequestAndWait(request);
 
                 this.entities.AddRange(request.GetEntities());
+                this.densityPerEntity = this.density / this.entities.Count;
 
                 spawned = true;
             }
@@ -72,6 +74,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 request.GetDead().ForEach(deadEntity =>
                 {
                     this.entities.Remove(deadEntity);
+                    this.density -= this.densityPerEntity;
                 });
             }
         }
@@ -83,7 +86,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public bool IsDead()
         {
-            return this.entities.Count == 0;
+            return this.density <= 0.0f;
         }
     }
 }
