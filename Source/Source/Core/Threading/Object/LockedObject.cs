@@ -48,6 +48,7 @@ namespace ImprovedHordes.Source.Core.Threading
 
         public Writer Set(bool block)
         {
+            Monitor.Enter(data.readingLockObject);
             bool result = block || Monitor.TryEnter(data.lockObject);
 
             if(block)
@@ -57,11 +58,10 @@ namespace ImprovedHordes.Source.Core.Threading
 
             if (result)
             {
-                Monitor.Enter(data.readingLockObject);
                 data.reading = false;
-                Monitor.Exit(data.readingLockObject);
             }
 
+            Monitor.Exit(data.readingLockObject);
             return CreateWriter(result);
         }
     }

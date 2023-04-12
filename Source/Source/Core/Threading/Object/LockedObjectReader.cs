@@ -8,6 +8,8 @@ namespace ImprovedHordes.Source.Core.Threading
         protected readonly T value;
         protected readonly LockedObjectData<T> data;
 
+        private bool disposed = false;
+
         public LockedObjectReader(LockedObjectData<T> data)
         {
             this.value = data != null ? data.value : default;
@@ -27,6 +29,9 @@ namespace ImprovedHordes.Source.Core.Threading
 
         public virtual void Dispose()
         {
+            if (disposed)
+                return;
+
             if(IsReading())
             {
                 if(Monitor.IsEntered(this.data.lockObject))
@@ -38,6 +43,8 @@ namespace ImprovedHordes.Source.Core.Threading
                     Monitor.Exit(this.data.lockObject);
                 }
             }
+
+            disposed = true;
         }
 
         protected void ThrowIfNotReading()

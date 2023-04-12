@@ -6,6 +6,7 @@ namespace ImprovedHordes.Source.Core.Threading
     public class LockedObjectWriter<T> : IDisposable
     {
         private readonly LockedObjectData<T> data;
+        private bool disposed = false;
 
         public LockedObjectWriter(LockedObjectData<T> data)
         {
@@ -31,8 +32,13 @@ namespace ImprovedHordes.Source.Core.Threading
 
         public void Dispose()
         {
+            if (disposed)
+                return;
+
             if(IsWriting())
                 Monitor.Exit(this.data.lockObject);
+
+            disposed = true;
         }
 
         protected void ThrowIfNotWriting()

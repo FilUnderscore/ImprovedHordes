@@ -104,11 +104,14 @@ namespace ImprovedHordes.Source.Core.Horde.World
                 if (!hordesWriter.IsWriting())
                     return;
 
+                Log.Out("In writer");
                 hordesWriter.Get().Where(hordeCluster => Vector3.Distance(hordeCluster.GetLocation(), location) <= distance).ToList().Do(cluster =>
                 {
                     NotifyCluster(hordesWriter, cluster, location, interestLevel);
                 });
             }
+
+            Log.Out("Done");
         }
 
         private void NotifyCluster(LockedListWriter<HordeCluster> writer, HordeCluster cluster, Vector3 location, float interestLevel)
@@ -164,9 +167,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     return;
 
                 hordesWriter.Add(horde);
+                Log.Out("Written");
             }
-
-            Log.Out("Written");
         }
 
         public void Shutdown()
