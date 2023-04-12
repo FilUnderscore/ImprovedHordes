@@ -1,76 +1,31 @@
-﻿using System;
+﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace ImprovedHordes.Source.Horde.AI
 {
-    public sealed class AIExecutor
+    public sealed class HordeClusterAIExecutor
     {
         private readonly Dictionary<IAIAgent, AIAgentExecutor> agents = new Dictionary<IAIAgent, AIAgentExecutor>();
+        private readonly HordeCluster cluster;
 
-        // Shared
-        private readonly Queue<IAIAgent> agentsToRegister = new Queue<IAIAgent>();
-        private readonly object RegisterAgentsLock = new object();
-
-        private readonly Queue<IAIAgent> agentsToRemove = new Queue<IAIAgent>();
-        private readonly object RemoveAgentsLock = new object();
+        public HordeClusterAIExecutor(HordeCluster cluster)
+        {
+            this.cluster = cluster;
+        }
 
         public void Update(float dt)
         {
-            if(Monitor.TryEnter(RegisterAgentsLock)) 
-            {
-                while(agentsToRegister.Count > 0)
-                {
-                    IAIAgent agent = agentsToRegister.Dequeue();
-                    agents.Add(agent, new AIAgentExecutor(agent));
-                }
 
-                Monitor.Exit(RegisterAgentsLock);
-            }
-            
-            foreach(KeyValuePair<IAIAgent, AIAgentExecutor> agentEntry in agents)
-            {
-                IAIAgent agent = agentEntry.Key;
-                AIAgentExecutor agentExecutor = agentEntry.Value;
-
-                if (agent.IsDead())
-                {
-                    if (Monitor.TryEnter(RemoveAgentsLock))
-                    {
-                        agentsToRemove.Enqueue(agent);
-                        Monitor.Exit(RemoveAgentsLock);
-                    }
-                }
-                else
-                {
-                    agentExecutor.Update(dt);
-                }
-            }
-
-            if (Monitor.TryEnter(RemoveAgentsLock))
-            {
-                while (agentsToRemove.Count > 0)
-                {
-                    agents.Remove(agentsToRemove.Dequeue());
-                }
-
-                Monitor.Exit(RemoveAgentsLock);
-            }
         }
 
         public void RegisterAgent(IAIAgent agent)
         {
-            Monitor.Enter(this.RegisterAgentsLock);
-            this.agentsToRegister.Enqueue(agent);
-            Monitor.Exit(this.RegisterAgentsLock);
         }
 
         public void UnregisterAgent(IAIAgent agent)
         {
-            Monitor.Enter(this.RemoveAgentsLock);
-            this.agentsToRemove.Enqueue(agent);
-            Monitor.Exit(this.RemoveAgentsLock);
         }
 
         public void Queue(IAIAgent agent, AICommand command, bool interrupt = false)

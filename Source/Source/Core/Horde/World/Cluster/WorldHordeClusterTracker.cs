@@ -30,8 +30,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private List<HordeCluster> clusters = new List<HordeCluster>();
 
         private List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
+        private List<WorldEvent> events = new List<WorldEvent>();
 
-        public void Update()
+        public void Update(float dt)
         {
             if(UpdateTask != null && UpdateTask.IsCompleted)
             {
@@ -63,7 +64,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 this.UpdateTask = Task.Run(async () =>
                 {
-                    await UpdateAsync(snapshots);
+                    await UpdateAsync(snapshots, dt);
                 });
             }
         }
@@ -73,7 +74,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.clusterCount;
         }
 
-        private async Task UpdateAsync(List<PlayerSnapshot> players)
+        private async Task UpdateAsync(List<PlayerSnapshot> players, float dt)
         {
             await Task.Run(() =>
             {

@@ -1,19 +1,15 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
-using ImprovedHordes.Source.Horde.AI;
 
 namespace ImprovedHordes.Source.Horde
 {
     public sealed class WorldHordeManager
     {
-        private readonly AIExecutor aiExecutor;
-
         private readonly WorldHordeClusterTracker clusterTracker;
         private readonly WorldHordeSpawner spawner;
 
         public WorldHordeManager()
         {
-            this.aiExecutor = new AIExecutor();
             this.clusterTracker = new WorldHordeClusterTracker();
             this.spawner = new WorldHordeSpawner(this.clusterTracker);
 
@@ -32,10 +28,8 @@ namespace ImprovedHordes.Source.Horde
 
         public void Update(float dt)
         {
-            this.clusterTracker.Update();
+            this.clusterTracker.Update(dt);
             this.spawner.Update();
-
-            this.aiExecutor.Update(dt);
         }
     }
 }
