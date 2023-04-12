@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
+using ImprovedHordes.Source.Core.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -20,6 +21,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
 			private readonly Dictionary<bool, List<HordeCluster>> clustersToChange = new Dictionary<bool, List<HordeCluster>>();
 			private readonly List<HordeCluster> clustersToRemove = new List<HordeCluster>();
 
+			private readonly List<int> killed = new List<int>();
+
 			public PlayerTracker(WorldHordeClusterTracker tracker, HordeClusterLoader<LoadedHordeCluster> loader, HordeClusterLoader<UnloadedHordeCluster> unloader) : base("IH-PlayerTracker")
 			{
 				this.tracker = tracker;
@@ -37,88 +40,96 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
 			public override bool OnLoop()
 			{
-				Monitor.Enter(this.tracker.SnapshotsLock);
-
-				if (this.tracker.Snapshots.Count == 0)
+				using(var snapshotsWriter = this.tracker.Snapshots.Set(true))
 				{
-					Monitor.Exit(this.tracker.SnapshotsLock);
-					return true;
-				}
+					if (!snapshotsWriter.IsWriting())
+						return true;
 
-				bool loaded = false, unloaded = false;
-				if (this.tracker.Hordes.TryRead())
-				{
-					// Begin read.
-					foreach (HordeCluster cluster in this.tracker.Hordes) // Iterate hordes first to reduce locks.
-					{
-						if (!Monitor.TryEnter(cluster.Lock) || cluster.NextStateSet())
-							continue;
+					if (snapshotsWriter.GetCount() == 0)
+						return true;
 
-						bool anyNearby = IsPlayerNearby(cluster);
-
-						if (cluster.IsLoaded() != anyNearby)
+					using (var entitiesKilledWriter = this.tracker.EntitiesKilled.Set(true))
+                    {
+						if (entitiesKilledWriter.IsWriting())
 						{
-							cluster.SetNextStateSet(true);
-
-							if (!cluster.IsLoaded())
-								cluster.SetNearbyPlayerGroup(DeterminePlayerGroup(cluster));
-
-							clustersToChange[anyNearby].Add(cluster);
-
-							loaded |= anyNearby;
-							unloaded |= !anyNearby;
+							killed.AddRange(entitiesKilledWriter.Get());
+							entitiesKilledWriter.Clear();
 						}
-						else if (cluster.IsLoaded())
-						{
-							((LoadedHordeCluster)cluster).Notify(this.tracker.EntsKilled);
-						}
-
-						if (cluster.GetEntityDensity() == 0.0f)
-						{
-							clustersToRemove.Add(cluster);
-						}
-
-						Monitor.Exit(cluster.Lock);
 					}
 
-					this.tracker.Hordes.EndRead();
-
-					this.tracker.Hordes.StartWrite();
-					// Begin Write.
-
-					foreach (var cluster in clustersToRemove)
+                    bool loaded = false, unloaded = false;
+					using (var hordesReader = this.tracker.Hordes.Get(false))
 					{
-						Log.Out("Removed");
-						this.tracker.Hordes.Remove(cluster);
-					}
+                        if (hordesReader.IsReading())
+                        {
+                            // Begin read.
+                            foreach (HordeCluster cluster in hordesReader) // Iterate hordes first to reduce locks.
+                            {
+                                if (!Monitor.TryEnter(cluster.Lock) || cluster.NextStateSet())
+                                    continue;
 
-					clustersToRemove.Clear();
+                                bool anyNearby = IsPlayerNearby(snapshotsWriter, cluster);
 
-					this.tracker.Hordes.EndWrite();
-				}
+                                if (cluster.IsLoaded() != anyNearby)
+                                {
+                                    cluster.SetNextStateSet(true);
 
-				this.tracker.Snapshots.Clear();
-				this.tracker.EntsKilled.Clear();
+                                    if (!cluster.IsLoaded())
+                                        cluster.SetNearbyPlayerGroup(DeterminePlayerGroup(snapshotsWriter, cluster));
 
-				Monitor.Exit(this.tracker.SnapshotsLock);
+                                    clustersToChange[anyNearby].Add(cluster);
 
-				if (loaded)
-					this.loader.Notify(clustersToChange[true]);
+                                    loaded |= anyNearby;
+                                    unloaded |= !anyNearby;
+                                }
+                                else if (cluster.IsLoaded())
+                                {
+                                    ((LoadedHordeCluster)cluster).Notify(killed);
+                                }
 
-				if (unloaded)
-					this.unloader.Notify(clustersToChange[false]);
+                                if (cluster.GetEntityDensity() == 0.0f)
+                                {
+                                    clustersToRemove.Add(cluster);
+                                }
 
-				clustersToChange[true].Clear();
-				clustersToChange[false].Clear();
+                                Monitor.Exit(cluster.Lock);
+                            }
+                        }
+                    }
+
+                    snapshotsWriter.Clear();
+
+                    using (var hordesWriter = this.tracker.Hordes.Set(true))
+					{
+                        foreach (var cluster in clustersToRemove)
+                        {
+                            Log.Out("Removed");
+                            hordesWriter.Remove(cluster);
+                        }
+
+                        clustersToRemove.Clear();
+                    }
+
+                    if (loaded)
+                        this.loader.Notify(clustersToChange[true]);
+
+                    if (unloaded)
+                        this.unloader.Notify(clustersToChange[false]);
+
+                    clustersToChange[true].Clear();
+                    clustersToChange[false].Clear();
+
+					killed.Clear();
+                }
 
 				return true;
 			}
 
-			private bool IsPlayerNearby(HordeCluster cluster)
+			private bool IsPlayerNearby(LockedListWriter<PlayerSnapshot> snapshotsWriter, HordeCluster cluster)
 			{
 				bool anyNearby = false;
 
-				foreach (PlayerSnapshot snapshot in this.tracker.Snapshots)
+				foreach (PlayerSnapshot snapshot in snapshotsWriter)
 				{
 					Vector3 location = snapshot.GetLocation();
 					int gamestage = snapshot.GetGamestage();
@@ -133,11 +144,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
 				return anyNearby;
 			}
 
-			private PlayerHordeGroup DeterminePlayerGroup(HordeCluster cluster)
+			private PlayerHordeGroup DeterminePlayerGroup(LockedListWriter<PlayerSnapshot> snapshotsWriter, HordeCluster cluster)
 			{
 				PlayerHordeGroup playerGroup = new PlayerHordeGroup();
 
-				foreach (PlayerSnapshot snapshot in this.tracker.Snapshots)
+				foreach (PlayerSnapshot snapshot in snapshotsWriter)
 				{
 					Vector3 location = snapshot.GetLocation();
 					int gamestage = snapshot.GetGamestage();

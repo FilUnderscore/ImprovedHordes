@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
+using ImprovedHordes.Source.Core.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -16,10 +17,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private abstract class HordeClusterLoader<T> : Thread where T: HordeCluster
         {
             private readonly WorldHordeClusterTracker tracker;
-
-            private readonly List<HordeCluster> clustersToLoad = new List<HordeCluster>();
-            private readonly object clustersToLoadLock = new object();
-
+            private readonly LockedList<HordeCluster> clustersToLoad = new LockedList<HordeCluster>();
+            
             public HordeClusterLoader(WorldHordeClusterTracker tracker) : base("IH-" + typeof(T).Name + "Loader")
             {
                 this.tracker = tracker;
@@ -27,45 +26,55 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             public void Notify(List<HordeCluster> clusters)
             {
-                Monitor.Enter(this.clustersToLoadLock);
-                clustersToLoad.AddRange(clusters);
-                Monitor.Exit(this.clustersToLoadLock);
+                using(var clustersToLoadWriter = clustersToLoad.Set(true))
+                {
+                    if (!clustersToLoadWriter.IsWriting())
+                        return;
+
+                    clustersToLoadWriter.AddRange(clusters);
+                }
             }
 
             public abstract T Create(WorldHordeSpawner spawner, HordeCluster cluster);
 
             public override bool OnLoop()
             {
-                Monitor.Enter(this.clustersToLoadLock);
-                if (this.clustersToLoad.Count > 0)
+                using(var clustersToLoadWriter = clustersToLoad.Set(true))
                 {
-                    this.tracker.Hordes.StartWrite();
+                    if (!clustersToLoadWriter.IsWriting())
+                        return true;
 
-                    foreach (var cluster in this.clustersToLoad)
+                    if (clustersToLoadWriter.GetCount() > 0)
                     {
-                        if (!Monitor.TryEnter(cluster.Lock) || cluster is T || !this.tracker.Hordes.Contains(cluster))
-                            continue;
+                        using (var hordesWriter = this.tracker.Hordes.Set(true))
+                        {
+                            if (!hordesWriter.IsWriting())
+                                return true;
 
-                        T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
-                        cluster.OnStateChange();
+                            foreach (var cluster in clustersToLoadWriter)
+                            {
+                                if (!Monitor.TryEnter(cluster.Lock) || cluster is T || !hordesWriter.Contains(cluster))
+                                    continue;
 
-                        Log.Out($"From {cluster.GetType().FullName} to {typeof(T).FullName}");
+                                T loadedHordeCluster = Create(this.tracker.manager.GetSpawner(), cluster);
+                                cluster.OnStateChange();
 
-                        loadedHordeCluster.GetAIAgents().Do(agent => this.tracker.aiExecutor.RegisterAgent(agent));
-                        cluster.GetAIAgents().Do(agent => this.tracker.aiExecutor.UnregisterAgent(agent));
+                                Log.Out($"From {cluster.GetType().FullName} to {typeof(T).FullName}");
 
-                        this.tracker.Hordes.Add(loadedHordeCluster);
-                        this.tracker.Hordes.Remove(cluster);
+                                loadedHordeCluster.GetAIAgents().Do(agent => this.tracker.aiExecutor.RegisterAgent(agent));
+                                cluster.GetAIAgents().Do(agent => this.tracker.aiExecutor.UnregisterAgent(agent));
 
-                        Monitor.Exit(cluster.Lock);
+                                hordesWriter.Add(loadedHordeCluster);
+                                hordesWriter.Remove(cluster);
+
+                                Monitor.Exit(cluster.Lock);
+                            }
+
+                            Log.Out("Count: " + hordesWriter.GetCount());
+                            clustersToLoadWriter.Clear();
+                        }
                     }
-
-                    Log.Out("Count: " + this.tracker.Hordes.GetCount());
-
-                    this.tracker.Hordes.EndWrite();
-                    this.clustersToLoad.Clear();
                 }
-                Monitor.Exit(this.clustersToLoadLock);
 
                 return true;
             }

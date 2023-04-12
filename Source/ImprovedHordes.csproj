@@ -70,7 +70,13 @@
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawnRequest.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\LocationHordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\PlayerHordeSpawn.cs" />
-    <Compile Include="Source\Core\Threading\LockedList.cs" />
+    <Compile Include="Source\Core\Threading\List\LockedList.cs" />
+    <Compile Include="Source\Core\Threading\List\LockedListReader.cs" />
+    <Compile Include="Source\Core\Threading\List\LockedListWriter.cs" />
+    <Compile Include="Source\Core\Threading\Object\LockedObject.cs" />
+    <Compile Include="Source\Core\Threading\Object\LockedObjectData.cs" />
+    <Compile Include="Source\Core\Threading\Object\LockedObjectReader.cs" />
+    <Compile Include="Source\Core\Threading\Object\LockedObjectWriter.cs" />
     <Compile Include="Source\Core\Threading\Thread.cs" />
     <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />
@@ -98,6 +104,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIAreaImpactor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.PlayerTracker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

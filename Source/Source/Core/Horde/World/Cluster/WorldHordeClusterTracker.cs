@@ -5,7 +5,6 @@ using ImprovedHordes.Source.Horde.AI;
 using ImprovedHordes.Source.Horde.AI.Commands;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World
@@ -23,10 +22,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private readonly PlayerTracker playerTracker;
 
         // Shared
-        private readonly List<PlayerSnapshot> Snapshots = new List<PlayerSnapshot>();
-        private readonly object SnapshotsLock = new object();
-        
-        private readonly List<int> EntsKilled = new List<int>();
+        private readonly LockedList<PlayerSnapshot> Snapshots = new LockedList<PlayerSnapshot>();        
+        private readonly LockedList<int> EntitiesKilled = new LockedList<int>();
 
         // Personal
         private readonly List<int> entitiesKilled = new List<int>();
@@ -52,22 +49,33 @@ namespace ImprovedHordes.Source.Core.Horde.World
         /// </summary>
         private void TakeSnapshot()
         {
-            if(Monitor.TryEnter(SnapshotsLock))
+            using(var snapshotWriter = this.Snapshots.Set(false))
             {
-                if(this.Snapshots.Count == 0)
+                if(!snapshotWriter.IsWriting())
+                    return;
+
+                if (snapshotWriter.GetCount() == 0)
                 {
-                    foreach(var player in GameManager.Instance.World.Players.list)
+                    foreach (var player in GameManager.Instance.World.Players.list)
                     {
                         if (player == null)
                             continue;
 
-                        this.Snapshots.Add(new PlayerSnapshot(player));
+                        snapshotWriter.Add(new PlayerSnapshot(player));
                     }
                 }
+            }
+        }
 
-                this.EntsKilled.AddRange(this.entitiesKilled);
+        private void ReportEntitiesKilled()
+        {
+            using(var entitiesKilledWriter = this.EntitiesKilled.Set(false))
+            {
+                if (!entitiesKilledWriter.IsWriting())
+                    return;
 
-                Monitor.Exit(SnapshotsLock);
+                entitiesKilledWriter.AddRange(this.entitiesKilled);
+                this.entitiesKilled.Clear();
             }
         }
 
@@ -79,6 +87,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
         public void Update()
         {
             this.TakeSnapshot();
+            this.ReportEntitiesKilled();
         }
 
         private bool AreClustersNearbyToMerge(HordeCluster cluster1, HordeCluster cluster2)
@@ -90,17 +99,19 @@ namespace ImprovedHordes.Source.Core.Horde.World
         {
             Log.Out("notifying nearby : " + location + " and " + distance);
             
-            this.Hordes.StartWrite();
-            
-            this.Hordes.GetList().Where(hordeCluster => Vector3.Distance(hordeCluster.GetLocation(), location) <= distance).ToList().Do(cluster =>
+            using(var hordesWriter = this.Hordes.Set(true))
             {
-                NotifyCluster(cluster, location, interestLevel);
-            });
+                if (!hordesWriter.IsWriting())
+                    return;
 
-            this.Hordes.EndWrite();
+                hordesWriter.Get().Where(hordeCluster => Vector3.Distance(hordeCluster.GetLocation(), location) <= distance).ToList().Do(cluster =>
+                {
+                    NotifyCluster(hordesWriter, cluster, location, interestLevel);
+                });
+            }
         }
 
-        private void NotifyCluster(HordeCluster cluster, Vector3 location, float interestLevel)
+        private void NotifyCluster(LockedListWriter<HordeCluster> writer, HordeCluster cluster, Vector3 location, float interestLevel)
         {
             float interestLevel01 = (interestLevel / 100.0f);
             float chanceToSplit = 1.0f - interestLevel01;
@@ -116,7 +127,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
                     Log.Out("Split density: " + densityToSplitAndDirect);
 
                     splitCluster = cluster.Split(densityToSplitAndDirect);
-                    this.Hordes.Add(splitCluster);
+                    writer.Add(splitCluster);
                 }
                 else
                 {
@@ -147,9 +158,13 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         private void AddHorde(HordeCluster horde)
         {
-            this.Hordes.StartWrite();
-            this.Hordes.Add(horde);
-            this.Hordes.EndWrite();
+            using(var hordesWriter = this.Hordes.Set(true))
+            {
+                if (!hordesWriter.IsWriting())
+                    return;
+
+                hordesWriter.Add(horde);
+            }
 
             Log.Out("Written");
         }

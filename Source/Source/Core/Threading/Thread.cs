@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using ImprovedHordes.Source.Core.Threading;
+using System.Threading;
 
 namespace ImprovedHordes.Source.Utils
 {
@@ -7,8 +8,7 @@ namespace ImprovedHordes.Source.Utils
         private readonly string name;
         private ThreadManager.ThreadInfo threadInfo;
 
-        private object runningLock = new object();
-        private bool running; // Atomic by nature.
+        private LockedObject<bool,LockedObjectReader<bool>,LockedObjectWriter<bool>> running = new LockedObject<bool, LockedObjectReader<bool>, LockedObjectWriter<bool>>(false);
 
         public Thread(string name)
         {
@@ -22,32 +22,39 @@ namespace ImprovedHordes.Source.Utils
 
         public void ShutdownThread()
         {
-            Monitor.Enter(this.runningLock);
-            this.running = false;
-            Monitor.Exit(this.runningLock);
+            using(var runningWriter = this.running.Set(true))
+            {
+                runningWriter.Set(false);
+            }
         }
 
         private void StartThread(ThreadManager.ThreadInfo threadInfo)
         {
-            running = true;
+            using(var runningWriter = this.running.Set(true))
+            {
+                runningWriter.Set(true);
+            }
 
             this.OnStartup();
         }
 
         private int LoopThread(ThreadManager.ThreadInfo threadInfo)
         {
-            bool entered;
-            while ((entered = !Monitor.TryEnter(this.runningLock)) || running)
+            while (true)
             {
-                if (!this.OnLoop())
-                    break;
-
-                if (entered)
-                    Monitor.Exit(this.runningLock);
+                using (var runningReader = this.running.Get(false))
+                {
+                    if((runningReader.IsReading() && !runningReader.Get()) || !this.OnLoop())
+                    {
+                        break;
+                    }
+                }
             }
 
-            this.running = false;
-            Monitor.Exit(this.runningLock);
+            using(var runningWriter = this.running.Set(true))
+            {
+                runningWriter.Set(false);
+            }
 
             return -1;
         }
