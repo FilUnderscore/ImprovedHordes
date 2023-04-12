@@ -42,8 +42,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if(ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                var request = new HordeEntitySpawnRequest(horde, group, location, density);
-                instance.GetHordeManager().GetSpawner().RequestAndWait(request);
+                var request = new HordeSpawnRequest(horde, group, location, density);
+                instance.GetMainThreadRequestProcessor().RequestAndWait(request);
 
                 this.entities.AddRange(request.GetEntities());
                 this.densityPerEntity = this.density / this.entities.Count;
@@ -56,7 +56,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if(ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                instance.GetHordeManager().GetSpawner().RequestAndWait(new HordeDespawnRequest(this.entities));
+                instance.GetMainThreadRequestProcessor().RequestAndWait(new HordeDespawnRequest(this.entities));
                 this.entities.Clear();
 
                 spawned = false;
@@ -67,8 +67,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if (ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                var request = new HordePositionUpdateRequest(this.entities);
-                instance.GetHordeManager().GetSpawner().RequestAndWait(request);
+                var request = new HordeUpdateRequest(this.entities);
+                instance.GetMainThreadRequestProcessor().RequestAndWait(request);
 
                 this.location = request.GetPosition();
                 request.GetDead().ForEach(deadEntity =>

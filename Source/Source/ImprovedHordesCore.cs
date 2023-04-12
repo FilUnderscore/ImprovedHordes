@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Source.Horde;
+﻿using ImprovedHordes.Source.Core.Threading;
+using ImprovedHordes.Source.Horde;
 using System;
 using UnityEngine;
 
@@ -13,10 +14,13 @@ namespace ImprovedHordes.Source
 
         private bool initialized = false;
         private WorldHordeManager hordeManager;
+        private MainThreadRequestProcessor mainThreadRequestProcessor;
 
         public ImprovedHordesCore(Mod mod)
         {
             Instance = this;
+
+            this.mainThreadRequestProcessor = new MainThreadRequestProcessor();
         }
 
         public static bool TryGetInstance(out ImprovedHordesCore instance)
@@ -41,6 +45,11 @@ namespace ImprovedHordes.Source
             return this.hordeManager;
         }
 
+        public MainThreadRequestProcessor GetMainThreadRequestProcessor()
+        {
+            return this.mainThreadRequestProcessor;
+        }
+
         public void Update()
         {
             if (!this.initialized)
@@ -48,6 +57,7 @@ namespace ImprovedHordes.Source
 
             float dt = Time.fixedDeltaTime;
 
+            this.mainThreadRequestProcessor.Update();
             this.hordeManager.Update(dt);
         }
 

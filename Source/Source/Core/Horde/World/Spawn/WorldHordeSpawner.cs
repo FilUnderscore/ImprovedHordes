@@ -3,8 +3,6 @@ using ImprovedHordes.Source.Scout;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Spawn
@@ -18,51 +16,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             this.worldHordeClusterTracker = worldHordeClusterTracker;
         }
 
-        // Shared
-        private readonly ConcurrentQueue<HordeSpawnRequest> requests = new ConcurrentQueue<HordeSpawnRequest>();
-
-        // Private
-        private readonly List<HordeSpawnRequest> requestsBeingProcessed = new List<HordeSpawnRequest>();
-        private readonly List<HordeSpawnRequest> requestsToRemove = new List<HordeSpawnRequest>();
-
-        public void RequestAndWait(HordeSpawnRequest request)
-        {
-            requests.Enqueue(request);
-
-            request.Wait();
-            request.Dispose();
-        }
-
-        private void ProcessSpawnRequests()
-        {
-            while (requests.TryDequeue(out HordeSpawnRequest request))
-            {
-                requestsBeingProcessed.Add(request);
-            }
-
-            foreach (var request in requestsBeingProcessed)
-            {
-                if (!request.IsDone())
-                {
-                    request.TickExecute();
-                }
-                else
-                {
-                    requestsToRemove.Add(request);
-                }
-            }
-
-            foreach (var request in requestsToRemove)
-            {
-                requestsBeingProcessed.Remove(request);
-                request.Notify();
-            }
-            requestsToRemove.Clear();
-        }
-
         public void Update()
         {
-            this.ProcessSpawnRequests();
             this.PopulateWorldHordes();
         }
 

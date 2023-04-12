@@ -1,41 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using ImprovedHordes.Source.Core.Threading;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 {
-    public abstract class HordeSpawnRequest
-    {
-        private ManualResetEventSlim slim = new ManualResetEventSlim(false);
-
-        /// <summary>
-        /// Execute per tick on main thread.
-        /// </summary>
-        public abstract void TickExecute();
-
-        /// <summary>
-        /// Is the request fulfilled? If so, notify waiting threads.
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool IsDone();
-
-        public void Notify()
-        {
-            this.slim.Set();
-        }
-
-        public void Wait()
-        {
-            this.slim.Wait();
-        }
-
-        public void Dispose()
-        {
-            this.slim.Dispose();
-        }
-    }
-
-    public sealed class HordeEntitySpawnRequest : HordeSpawnRequest
+    public sealed class HordeSpawnRequest : MainThreadRequest
     {
         private readonly HordeEntityGenerator generator;
         private readonly Vector3 location;
@@ -44,7 +14,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         private int index;
         private readonly List<EntityAlive> entities;
 
-        public HordeEntitySpawnRequest(IHorde horde, PlayerHordeGroup playerGroup, Vector3 location, float density)
+        public HordeSpawnRequest(IHorde horde, PlayerHordeGroup playerGroup, Vector3 location, float density)
         {
             this.generator = horde.GetEntityGenerator();
             this.location = location;
@@ -73,7 +43,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         }
     }
 
-    public sealed class HordeDespawnRequest : HordeSpawnRequest
+    public sealed class HordeDespawnRequest : MainThreadRequest
     {
         private readonly Queue<EntityAlive> entities = new Queue<EntityAlive>();
 
@@ -97,14 +67,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         }
     }
 
-    public sealed class HordePositionUpdateRequest : HordeSpawnRequest
+    public sealed class HordeUpdateRequest : MainThreadRequest
     {
         private readonly List<EntityAlive> entities;
 
         private Vector3? position;
         private readonly List<EntityAlive> deadEntities = new List<EntityAlive>();
 
-        public HordePositionUpdateRequest(List<EntityAlive> entities)
+        public HordeUpdateRequest(List<EntityAlive> entities)
         {
             this.entities = entities;
             this.position = null;
