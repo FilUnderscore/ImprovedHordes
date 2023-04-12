@@ -12,7 +12,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             }
 
             float x = GameManager.Instance.World.GetGameRandom().RandomRange(maxSize.x - minSize.x) + minSize.x;
-            float z = GameManager.Instance.World.GetGameRandom().RandomRange(maxSize.y - minSize.y) + minSize.y;
+            float z = GameManager.Instance.World.GetGameRandom().RandomRange(maxSize.z - minSize.z) + minSize.z;
 
             return new Vector2(x, z);
         }
