@@ -53,7 +53,6 @@ namespace ImprovedHordes.Source
 
         public void Shutdown()
         {
-            this.hordeManager.Shutdown();
         }
     }
 }

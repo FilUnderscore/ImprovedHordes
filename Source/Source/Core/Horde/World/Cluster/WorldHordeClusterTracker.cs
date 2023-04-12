@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -22,6 +23,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private Task UpdateTask;
 
         private List<HordeCluster> toAdd = new List<HordeCluster>();
+        private ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
+
         private List<HordeCluster> clusters = new List<HordeCluster>();
 
         public void Update()
@@ -35,6 +38,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 }
 
                 toAdd.Clear();
+
+                while(toRemove.TryDequeue(out HordeCluster cluster))
+                {
+                    clusters.Remove(cluster);
+                    Log.Out("Removed cluster");
+                }
             }
 
             if(UpdateTask == null || UpdateTask.IsCompleted)
@@ -50,6 +59,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     await UpdateAsync(snapshots.AsReadOnly());
                 });
             }
+        }
+
+        public int GetClusterCount()
+        {
+            return this.clusters.Count;
         }
 
         private async Task UpdateAsync(IReadOnlyCollection<PlayerSnapshot> players)
@@ -78,6 +92,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     if(cluster.IsSpawned())
                     {
                         cluster.UpdatePosition();
+                    }
+
+                    if(cluster.IsDead())
+                    {
+                        toRemove.Enqueue(cluster);
                     }
                 });
             });

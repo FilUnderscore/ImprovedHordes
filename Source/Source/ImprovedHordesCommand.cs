@@ -7,6 +7,7 @@ namespace ImprovedHordes
         public ImprovedHordesCommand() : base("improvedhordes", "[Improved Hordes]", "ih")
         {
             RegisterSubcommand(new ImprovedHordesTestSubcommand());
+            RegisterSubcommand(new ImprovedHordesStatsSubcommand());
         }
 
         public override string GetDescription()

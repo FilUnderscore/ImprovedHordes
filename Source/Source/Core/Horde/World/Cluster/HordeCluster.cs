@@ -1,9 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster
@@ -73,12 +69,21 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 instance.GetHordeManager().GetSpawner().RequestAndWait(request);
 
                 this.location = request.GetPosition();
+                request.GetDead().ForEach(deadEntity =>
+                {
+                    this.entities.Remove(deadEntity);
+                });
             }
         }
 
         public bool IsSpawned()
         {
             return this.spawned;
+        }
+
+        public bool IsDead()
+        {
+            return this.entities.Count == 0;
         }
     }
 }

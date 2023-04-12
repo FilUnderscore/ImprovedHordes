@@ -100,7 +100,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
     public sealed class HordePositionUpdateRequest : HordeSpawnRequest
     {
         private readonly List<EntityAlive> entities;
+
         private Vector3? position;
+        private readonly List<EntityAlive> deadEntities = new List<EntityAlive>();
 
         public HordePositionUpdateRequest(List<EntityAlive> entities)
         {
@@ -115,9 +117,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public override void TickExecute()
         {
+            this.position = Vector3.zero;
+
+            if (this.entities.Count == 0)
+                return;
+
             foreach(var entity in this.entities)
             {
                 this.position += entity.position;
+
+                if(entity.IsDead())
+                {
+                    deadEntities.Add(entity);
+                }
             }
 
             this.position /= this.entities.Count;
@@ -126,6 +138,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         public Vector3 GetPosition()
         {
             return this.position.Value;
+        }
+
+        public List<EntityAlive> GetDead()
+        {
+            return this.deadEntities;
         }
     }
 }

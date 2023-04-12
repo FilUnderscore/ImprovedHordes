@@ -8,14 +8,14 @@ namespace ImprovedHordes.Source.Horde
     {
         private readonly AIExecutor aiExecutor;
 
-        private readonly WorldHordeClusterTracker worldHordeClusterTracker;
+        private readonly WorldHordeClusterTracker clusterTracker;
         private readonly WorldHordeSpawner spawner;
 
         public WorldHordeManager()
         {
             this.aiExecutor = new AIExecutor();
-            this.worldHordeClusterTracker = new WorldHordeClusterTracker();
-            this.spawner = new WorldHordeSpawner(this.worldHordeClusterTracker);
+            this.clusterTracker = new WorldHordeClusterTracker();
+            this.spawner = new WorldHordeSpawner(this.clusterTracker);
 
             //worldLOITracker.OnInterestNotificationEventThread += WorldLOITracker_OnInterestNotification;
         }
@@ -25,37 +25,17 @@ namespace ImprovedHordes.Source.Horde
             return this.spawner;
         }
 
-        public string GetName()
+        public WorldHordeClusterTracker GetClusterTracker()
         {
-            return "IH-WorldHordeManager";
+            return this.clusterTracker;
         }
 
         public void Update(float dt)
         {
-            this.worldHordeClusterTracker.Update();
+            this.clusterTracker.Update();
             this.spawner.Update();
 
             this.aiExecutor.Update(dt);
-        }
-
-        /*
-        private void WorldLOITracker_OnInterestNotification(object sender, LOIInterestNotificationEvent e)
-        {
-            this.worldHordeClusterTracker.NotifyHordeClustersNearby(e.GetLocation(), e.GetDistance(), e.GetInterestLevel());
-        }
-        */
-
-        public void Shutdown()
-        {
-        }
-
-        public void Notify(Entity killed)
-        {
-            if (killed == null)
-                return;
-
-            //this.worldHordeClusterTracker.NotifyKilled(killed.entityId);
-            Log.Out("Notified entity " + killed.entityId + " killed");
         }
     }
 }
