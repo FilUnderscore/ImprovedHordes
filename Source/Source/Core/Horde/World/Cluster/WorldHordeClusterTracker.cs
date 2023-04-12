@@ -30,7 +30,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         // Personal
         private readonly List<int> entitiesKilled = new List<int>();
-        
+
         private readonly LockedList<HordeCluster> Hordes = new LockedList<HordeCluster>();
 
         public WorldHordeClusterTracker(WorldHordeManager manager, AIExecutor aiExecutor)
