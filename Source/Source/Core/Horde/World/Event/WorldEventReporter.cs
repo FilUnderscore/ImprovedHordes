@@ -14,9 +14,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
         private const double LOG_N_100 = 4.60517018599;
         private readonly double MAP_SIZE_LOG_N, MAP_SIZE_POW_2_LOG_N;
 
+        // Shared
         private readonly ConcurrentQueue<WorldEvent> eventsToStore = new ConcurrentQueue<WorldEvent>();
         private readonly ConcurrentQueue<Vector3> eventsToReportKeys = new ConcurrentQueue<Vector3>();
 
+        // Personal
         private readonly Dictionary<Vector3, WorldEvent> eventHistory = new Dictionary<Vector3, WorldEvent>();
         private List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
@@ -53,7 +55,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
 
             if(UpdateTask == null || UpdateTask.IsCompleted)
             {
-                this.UpdateTask = Task.Run(async () =>
+                this.UpdateTask = Task.Run(() =>
                 {
                     while(eventsToStore.TryDequeue(out WorldEvent worldEvent))
                     {
@@ -94,7 +96,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
 
         public void Report(WorldEvent worldEvent)
         {
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 float interest = worldEvent.GetInterestLevel();
 
