@@ -1,7 +1,4 @@
-﻿using ImprovedHordes.Source.Core.Horde.World;
-using ImprovedHordes.Source.Core.Horde.World.LOI;
-using ImprovedHordes.Source.Horde;
-using ImprovedHordes.Source.Utils;
+﻿using ImprovedHordes.Source.Horde;
 using System;
 using UnityEngine;
 
@@ -15,7 +12,6 @@ namespace ImprovedHordes.Source
         private static ImprovedHordesCore Instance;
 
         private bool initialized = false;
-        private WorldLOITracker worldLOITracker;
         private WorldHordeManager hordeManager;
 
         public ImprovedHordesCore(Mod mod)
@@ -36,8 +32,7 @@ namespace ImprovedHordes.Source
                 throw new InvalidOperationException("Could not determine world size.");
             }
 
-            this.worldLOITracker = new WorldLOITracker(maxSize.x - minSize.x);
-            this.hordeManager = new WorldHordeManager(this.worldLOITracker);
+            this.hordeManager = new WorldHordeManager();
             this.initialized = true;
         }
 
@@ -53,14 +48,12 @@ namespace ImprovedHordes.Source
 
             float dt = Time.fixedDeltaTime;
 
-            this.worldLOITracker.Update();
             this.hordeManager.Update(dt);
         }
 
         public void Shutdown()
         {
             this.hordeManager.Shutdown();
-            this.worldLOITracker.Shutdown();
         }
     }
 }

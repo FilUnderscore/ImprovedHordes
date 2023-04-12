@@ -1,9 +1,6 @@
-﻿using ImprovedHordes.Source.Core.Horde.World;
-using ImprovedHordes.Source.Core.Horde.World.LOI;
+﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Horde.AI;
-using ImprovedHordes.Source.Horde.World.LOI;
-using System;
 
 namespace ImprovedHordes.Source.Horde
 {
@@ -14,13 +11,13 @@ namespace ImprovedHordes.Source.Horde
         private readonly WorldHordeClusterTracker worldHordeClusterTracker;
         private readonly WorldHordeSpawner spawner;
 
-        public WorldHordeManager(WorldLOITracker worldLOITracker)
+        public WorldHordeManager()
         {
             this.aiExecutor = new AIExecutor();
-            this.worldHordeClusterTracker = new WorldHordeClusterTracker(this, this.aiExecutor);
+            this.worldHordeClusterTracker = new WorldHordeClusterTracker();
             this.spawner = new WorldHordeSpawner(this.worldHordeClusterTracker);
 
-            worldLOITracker.OnInterestNotificationEventThread += WorldLOITracker_OnInterestNotification;
+            //worldLOITracker.OnInterestNotificationEventThread += WorldLOITracker_OnInterestNotification;
         }
 
         public WorldHordeSpawner GetSpawner()
@@ -41,14 +38,15 @@ namespace ImprovedHordes.Source.Horde
             this.aiExecutor.Update(dt);
         }
 
+        /*
         private void WorldLOITracker_OnInterestNotification(object sender, LOIInterestNotificationEvent e)
         {
             this.worldHordeClusterTracker.NotifyHordeClustersNearby(e.GetLocation(), e.GetDistance(), e.GetInterestLevel());
         }
+        */
 
         public void Shutdown()
         {
-            this.worldHordeClusterTracker.Shutdown();
         }
 
         public void Notify(Entity killed)
@@ -56,7 +54,7 @@ namespace ImprovedHordes.Source.Horde
             if (killed == null)
                 return;
 
-            this.worldHordeClusterTracker.NotifyKilled(killed.entityId);
+            //this.worldHordeClusterTracker.NotifyKilled(killed.entityId);
             Log.Out("Notified entity " + killed.entityId + " killed");
         }
     }

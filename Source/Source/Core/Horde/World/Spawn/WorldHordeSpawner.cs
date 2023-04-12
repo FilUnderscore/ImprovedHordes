@@ -1,6 +1,9 @@
-﻿using System;
+﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Spawn
@@ -13,40 +16,39 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         {
             this.worldHordeClusterTracker = worldHordeClusterTracker;
         }
-        
+
         // Shared
-        private readonly List<HordeSpawnRequest> requests = new List<HordeSpawnRequest>();
-        private readonly object requestsLock = new object();
+        private readonly ConcurrentQueue<HordeSpawnRequest> requests = new ConcurrentQueue<HordeSpawnRequest>();
 
         // Private
+        private readonly List<HordeSpawnRequest> requestsBeingProcessed = new List<HordeSpawnRequest>();
         private readonly List<HordeSpawnRequest> requestsToRemove = new List<HordeSpawnRequest>();
 
         public void Update()
         {
-            if(Monitor.TryEnter(requestsLock))
+            while(requests.TryDequeue(out HordeSpawnRequest request))
             {
-                foreach(var request in requests)
-                {
-                    if(!request.IsDone())
-                    {
-                        request.TickExecute();
-                    }
-                    else
-                    {
-                        request.Notify();
-                        requestsToRemove.Add(request);
-                    }
-                }
-
-                foreach(var requestToRemove in requestsToRemove)
-                {
-                    requests.Remove(requestToRemove);
-                }
-
-                requestsToRemove.Clear();
-
-                Monitor.Exit(requestsLock);
+                requestsBeingProcessed.Add(request);
             }
+
+            foreach (var request in requestsBeingProcessed)
+            {
+                if (!request.IsDone())
+                {
+                    request.TickExecute();
+                }
+                else
+                {
+                    requestsToRemove.Add(request);
+                }
+            }
+
+            foreach(var request in requestsToRemove)
+            {
+                requestsBeingProcessed.Remove(request);
+                request.Notify();
+            }
+            requestsToRemove.Clear();
         }
 
         public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn) where Horde : IHorde where HordeSpawn : IHordeSpawn
@@ -62,14 +64,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.worldHordeClusterTracker.AddHorde(horde, spawnLocation, density);
+            this.worldHordeClusterTracker.Add(new HordeCluster(horde, spawnLocation, density));
         }
 
-        public void Request(HordeSpawnRequest request)
+        public void RequestAndWait(HordeSpawnRequest request)
         {
-            Monitor.Enter(this.requestsLock);
-            requests.Add(request);
-            Monitor.Exit(this.requestsLock);
+            requests.Enqueue(request);
 
             request.Wait();
             request.Dispose();

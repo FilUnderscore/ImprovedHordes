@@ -6,7 +6,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 {
     public abstract class HordeSpawnRequest
     {
-        private readonly ManualResetEventSlim slim = new ManualResetEventSlim(false);
+        private ManualResetEventSlim slim = new ManualResetEventSlim(false);
 
         /// <summary>
         /// Execute per tick on main thread.
@@ -19,25 +19,16 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         /// <returns></returns>
         public abstract bool IsDone();
 
-        /// <summary>
-        /// Notify waiting thread to continue execution.
-        /// </summary>
         public void Notify()
         {
             this.slim.Set();
         }
 
-        /// <summary>
-        /// Called by waiting thread.
-        /// </summary>
         public void Wait()
         {
             this.slim.Wait();
         }
 
-        /// <summary>
-        /// Called by waiting thread to dispose of sync object.
-        /// </summary>
         public void Dispose()
         {
             this.slim.Dispose();
@@ -103,6 +94,38 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         {
             EntityAlive entity = this.entities.Dequeue();
             GameManager.Instance.World.RemoveEntity(entity.entityId, EnumRemoveEntityReason.Killed);
+        }
+    }
+
+    public sealed class HordePositionUpdateRequest : HordeSpawnRequest
+    {
+        private readonly List<EntityAlive> entities;
+        private Vector3? position;
+
+        public HordePositionUpdateRequest(List<EntityAlive> entities)
+        {
+            this.entities = entities;
+            this.position = null;
+        }
+
+        public override bool IsDone()
+        {
+            return this.position != null;
+        }
+
+        public override void TickExecute()
+        {
+            foreach(var entity in this.entities)
+            {
+                this.position += entity.position;
+            }
+
+            this.position /= this.entities.Count;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return this.position.Value;
         }
     }
 }

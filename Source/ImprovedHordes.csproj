@@ -61,28 +61,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Core\Command\CommandBase.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.HordeClusterLoader.cs" />
-    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LocationOfInterest.cs" />
-    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIInterestDecayer.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.PlayerSnapshot.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\HordeCluster.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.cs" />
     <Compile Include="Source\Core\Horde\World\PlayerHordeGroup.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawnRequest.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\LocationHordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\PlayerHordeSpawn.cs" />
-    <Compile Include="Source\Core\Threading\List\LockedList.cs" />
-    <Compile Include="Source\Core\Threading\List\LockedListReader.cs" />
-    <Compile Include="Source\Core\Threading\List\LockedListWriter.cs" />
-    <Compile Include="Source\Core\Threading\Object\LockedObject.cs" />
-    <Compile Include="Source\Core\Threading\Object\LockedObjectData.cs" />
-    <Compile Include="Source\Core\Threading\Object\LockedObjectReader.cs" />
-    <Compile Include="Source\Core\Threading\Object\LockedObjectWriter.cs" />
-    <Compile Include="Source\Core\Threading\Thread.cs" />
     <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />
-    <Compile Include="Source\Core\Horde\World\LOI\LOIInterestNotificationEvent.cs" />
-    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.cs" />
     <Compile Include="Source\Core\Horde\World\WorldHordeManager.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\WorldHordeSpawner.cs" />
     <Compile Include="Source\ImprovedHordesCommand.cs" />
@@ -91,9 +78,6 @@
     <Compile Include="Source\Core\Horde\AI\AIExecutor.cs" />
     <Compile Include="Source\Core\Horde\AI\Commands\GoToTargetAICommand.cs" />
     <Compile Include="Source\Core\Horde\Horde.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.HordeCluster.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.UnloadedHordeCluster.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.LoadedHordeCluster.cs" />
     <Compile Include="Source\ImprovedHordesCore.cs" />
     <Compile Include="Source\ImprovedHordesMod.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
@@ -101,12 +85,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Source\Core\Horde\Data\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Source\Core\Horde\World\LOI\WorldLOITracker.LOIAreaImpactor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.PlayerTracker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
