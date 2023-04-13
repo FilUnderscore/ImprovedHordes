@@ -12,7 +12,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private float density;
         private float densityPerEntity;
 
-        private List<EntityAlive> entities = new List<EntityAlive>();
+        private readonly List<EntityAlive> entities = new List<EntityAlive>();
         private bool spawned;
 
         public HordeCluster(IHorde horde, Vector3 location, float density)
@@ -53,7 +53,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public float GetDensityToSpawn()
+        private float GetDensityToSpawn()
         {
             if (this.entities.Count == 0 || this.densityPerEntity == 0.0f)
                 return this.density;
