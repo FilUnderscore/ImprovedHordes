@@ -168,9 +168,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.location += direction * speed;
         }
 
-        public void Queue(AICommand command, bool interrupt = false)
+        public void Queue(bool interrupt = false, params AICommand[] commands)
         {
-            this.AIExecutor.Queue(command, interrupt);
+            this.AIExecutor.Queue(interrupt, commands);
         }
     }
 }

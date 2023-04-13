@@ -100,11 +100,13 @@ namespace ImprovedHordes.Source.Horde.AI
             this.clusterExecutor.Update(dt);
         }
 
-        public void Queue(AICommand command, bool interrupt = false)
+        public void Queue(bool interrupt = false, params AICommand[] commands)
         {
+            this.clusterExecutor.Queue(interrupt, commands);
+
             foreach (var executor in this.executors.Values)
             {
-                executor.Queue(command, interrupt);
+                executor.Queue(interrupt, commands);
             }
         }
 
@@ -112,22 +114,61 @@ namespace ImprovedHordes.Source.Horde.AI
         {
             public readonly IAIAgent agent;
             private readonly ConcurrentQueue<AICommand> commands;
+            private readonly ConcurrentStack<AICommand> interruptCommands;
             public bool loaded;
 
             public AIAgentExecutor(IAIAgent agent)
             {
                 this.agent = agent;
                 this.commands = new ConcurrentQueue<AICommand>();
+                this.interruptCommands = new ConcurrentStack<AICommand>();
             }
 
             public void Update(float dt) 
             {
-                if (commands.Count == 0 || !commands.TryPeek(out AICommand nextCommand))
+                if (commands.Count == 0 && interruptCommands.Count == 0)
                     return;
 
-                if(!nextCommand.CanExecute(this.agent))
+                if(agent.CanInterrupt())
+                {
+                    this.UpdateInterruptCommands(dt);
                     return;
-                
+                }
+
+                this.UpdateCommands(dt);
+            }
+
+            private void UpdateInterruptCommands(float dt)
+            {
+                if (!interruptCommands.TryPeek(out AICommand nextCommand))
+                    return;
+
+                if (!nextCommand.CanExecute(this.agent))
+                    return;
+
+                nextCommand.Execute(this.agent, dt);
+
+                if (!nextCommand.IsComplete(this.agent))
+                    return;
+
+                Log.Out($"Completed interrupt command {nextCommand.GetType().Name}");
+                interruptCommands.TryPop(out _);
+
+                while (interruptCommands.TryPeek(out AICommand nextNextCommand))
+                {
+                    if (nextNextCommand.HasExpired())
+                        interruptCommands.TryPop(out _);
+                }
+            }
+
+            private void UpdateCommands(float dt)
+            {
+                if (!commands.TryPeek(out AICommand nextCommand))
+                    return;
+
+                if (!nextCommand.CanExecute(this.agent))
+                    return;
+
                 nextCommand.Execute(this.agent, dt);
 
                 if (!nextCommand.IsComplete(this.agent))
@@ -136,24 +177,28 @@ namespace ImprovedHordes.Source.Horde.AI
                 Log.Out($"Completed command {nextCommand.GetType().Name}");
                 commands.TryDequeue(out _);
 
-                while(commands.TryPeek(out AICommand nextNextCommand))
+                while (commands.TryPeek(out AICommand nextNextCommand))
                 {
                     if (nextNextCommand.HasExpired())
                         commands.TryDequeue(out _);
                 }
             }
 
-            public void Queue(AICommand command, bool interrupt)
+            public void Queue(bool interrupt, params AICommand[] commands)
             {
-                if (command == null)
+                if (commands == null)
                     throw new NullReferenceException("Cannot queue a null AICommand.");
 
-                if (interrupt && agent.CanInterrupt())
+                if (interrupt)
                 {
-                    while (commands.TryDequeue(out _)) { }
+                    while (interruptCommands.TryPop(out _)) { }
+                    interruptCommands.PushRange(commands);
                 }
-
-                commands.Enqueue(command);
+                else
+                {
+                    foreach(var command in commands)
+                        this.commands.Enqueue(command);
+                }
             }
         }
     }

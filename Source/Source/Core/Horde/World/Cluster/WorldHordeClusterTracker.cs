@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
+using ImprovedHordes.Source.Horde.AI.Commands;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,11 +140,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         if(nearbyReports.Any())
                         {
                             // Interrupt AI to split off/target reported event.
+                            WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
+                            cluster.Queue(true, new GoToTargetAICommand(nearbyEvent.GetLocation()));
                         }
-                        else
-                        {
-                            // Tick AI.
-                        }
+
+                        cluster.Update(dt);
                     }
                 });
 
