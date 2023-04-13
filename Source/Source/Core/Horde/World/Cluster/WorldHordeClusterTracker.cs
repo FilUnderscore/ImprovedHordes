@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Event;
+using ImprovedHordes.Source.Core.Threading;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        private Task UpdateTask;
+        private Task<int> UpdateTask;
 
         private ConcurrentQueue<HordeCluster> toAdd = new ConcurrentQueue<HordeCluster>();
         private ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
@@ -70,8 +71,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 // Update cluster count.
                 this.clusterCount = this.clusters.Count;
 
-                // Clear old events.
-                this.eventsToReport.Clear();
+                int eventsProcessed = UpdateTask.Result;
+
+                if(eventsProcessed > 0)
+                    this.eventsToReport.RemoveRange(0, eventsProcessed);
             }
 
             if(UpdateTask == null || UpdateTask.IsCompleted)
@@ -83,7 +86,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 this.UpdateTask = Task.Run(async () =>
                 {
-                    await UpdateAsync(snapshots, eventsToReport.ToList(), dt);
+                    return await UpdateAsync(snapshots, eventsToReport.ToList(), dt);
                 });
             }
         }
@@ -93,7 +96,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.clusterCount;
         }
 
-        private async Task UpdateAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
+        private async Task<int> UpdateAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
         {
             await Task.Run(() =>
             {
@@ -168,11 +171,36 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     }
                 }
             });
+
+            return eventReports.Count;
         }
 
         public void Add(HordeCluster cluster)
         {
             toAdd.Enqueue(cluster);
+        }
+
+        private class LogReportRequest : MainThreadRequest
+        {
+            private readonly string str;
+            private bool done;
+
+            public LogReportRequest(string str)
+            {
+                this.str = str;
+                this.done = false;
+            }
+
+            public override bool IsDone()
+            {
+                return this.done;
+            }
+
+            public override void TickExecute()
+            {
+                Log.Out(this.str);
+                this.done = true;
+            }
         }
     }
 }

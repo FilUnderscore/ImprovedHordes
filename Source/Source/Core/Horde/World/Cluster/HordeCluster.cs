@@ -112,6 +112,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.density += cluster.density;
             cluster.merged = true;
 
+            // Check when merging if both clusters have same objective.
+
             return true;
         }
     }
