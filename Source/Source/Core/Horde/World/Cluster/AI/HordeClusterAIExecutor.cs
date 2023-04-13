@@ -70,7 +70,7 @@ namespace ImprovedHordes.Source.Horde.AI
             }
         }
 
-        private class EntityAIUpdateRequest : IMainThreadRequest
+        private sealed class EntityAIUpdateRequest : IMainThreadRequest
         {
             private readonly AIAgentExecutor executor;
             private readonly HordeClusterAIExecutor hordeClusterExecutor;
@@ -113,7 +113,7 @@ namespace ImprovedHordes.Source.Horde.AI
             }
         }
 
-        private class AIAgentExecutor
+        private sealed class AIAgentExecutor
         {
             public readonly IAIAgent agent;
             private readonly ConcurrentQueue<AICommand> commands;
@@ -132,7 +132,8 @@ namespace ImprovedHordes.Source.Horde.AI
                 foreach (var command in commands.ToArray())
                     executor.commands.Enqueue(command);
 
-                executor.interruptCommands.PushRange(interruptCommands.ToArray());
+                foreach(var interruptCommand in interruptCommands.ToArray())
+                    executor.interruptCommands.Push(interruptCommand);
             }
 
             public void Update(float dt) 

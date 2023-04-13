@@ -15,5 +15,10 @@ namespace ImprovedHordes.Source.Scout
         {
             return 1.0f;
         }
+
+        public float GetWalkSpeed()
+        {
+            return 1.6f;
+        }
     }
 }

@@ -12,7 +12,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
     public sealed class WorldHordeClusterTracker
     {
-        private const int MERGE_DISTANCE = 100;
+        private const int MERGE_DISTANCE_LOADED = 10;
+        private const int MERGE_DISTANCE_UNLOADED = 100;
+
+        private readonly int VIEW_DISTANCE = 90;
 
         private struct PlayerSnapshot
         {
@@ -105,7 +108,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 {
                     IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
                     {
-                        return Vector3.Distance(player.location, cluster.GetLocation()) <= 90;
+                        float distance = cluster.IsSpawned() ? VIEW_DISTANCE + 20 : VIEW_DISTANCE;
+                        return Vector3.Distance(player.location, cluster.GetLocation()) <= distance;
                     });
 
                     if((nearby.Any() && !cluster.IsSpawned()) || !cluster.IsDensityMatchedWithEntityCount())
@@ -161,7 +165,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                             if (!otherCluster.IsDead())
                             {
-                                bool nearby = Vector3.Distance(cluster.GetLocation(), otherCluster.GetLocation()) <= MERGE_DISTANCE;
+                                int mergeDistance = cluster.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
+                                bool nearby = Vector3.Distance(cluster.GetLocation(), otherCluster.GetLocation()) <= mergeDistance;
 
                                 if (nearby && cluster.Merge(otherCluster))
                                 {

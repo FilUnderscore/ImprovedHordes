@@ -165,7 +165,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void MoveTo(Vector3 location, float dt)
         {
-            float speed = DAY_SPEED * dt;
+            float speed = this.horde.GetWalkSpeed() * dt;
             Vector3 direction = (location - this.location).normalized;
 
             this.location += direction * speed;

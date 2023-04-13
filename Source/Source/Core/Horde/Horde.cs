@@ -8,5 +8,6 @@ namespace ImprovedHordes.Source.Core.Horde
         HordeEntityGenerator GetEntityGenerator();
 
         float GetSensitivity();
+        float GetWalkSpeed();
     }
 }
