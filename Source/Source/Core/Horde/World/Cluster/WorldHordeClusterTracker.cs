@@ -62,7 +62,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 while(toAdd.TryDequeue(out HordeCluster cluster))
                 {
                     clusters.Add(cluster);
-                    //Log.Out("Added cluster");
                 }
 
                 // Remove dead/merged clusters.

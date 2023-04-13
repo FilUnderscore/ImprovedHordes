@@ -123,7 +123,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public bool IsDead()
         {
-            return this.density <= 0.0f;
+            return this.density < 0.1f;
         }
 
         private bool merged;
