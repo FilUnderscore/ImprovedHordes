@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ImprovedHordes.Source.Core.Horde.World.Event;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,36 +26,52 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private Task UpdateTask;
 
-        private List<HordeCluster> toAdd = new List<HordeCluster>();
+        private ConcurrentQueue<HordeCluster> toAdd = new ConcurrentQueue<HordeCluster>();
         private ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
 
         private int clusterCount = 0;
         private List<HordeCluster> clusters = new List<HordeCluster>();
 
         private List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
-        private List<WorldEvent> events = new List<WorldEvent>();
+        private List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
+
+        public WorldHordeClusterTracker(WorldEventReporter reporter)
+        {
+            reporter.OnWorldEventReport += Reporter_OnWorldEventReport;
+        }
+
+        private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
+        {
+            Log.Out($"Pos {e.GetLocation()} Interest {e.GetInterest()} Dist {e.GetDistance()}");
+            this.eventsToReport.Add(e);
+        }
 
         public void Update(float dt)
         {
             if(UpdateTask != null && UpdateTask.IsCompleted)
             {
+                // Clear old snapshots after task is complete.
                 snapshots.Clear();
 
-                foreach(var cluster in toAdd)
+                // Add clusters.
+                while(toAdd.TryDequeue(out HordeCluster cluster))
                 {
                     clusters.Add(cluster);
                     //Log.Out("Added cluster");
                 }
 
-                toAdd.Clear();
-
+                // Remove dead/merged clusters.
                 while(toRemove.TryDequeue(out HordeCluster cluster))
                 {
                     clusters.Remove(cluster);
                     Log.Out("Removed cluster");
                 }
 
+                // Update cluster count.
                 this.clusterCount = this.clusters.Count;
+
+                // Clear old events.
+                this.eventsToReport.Clear();
             }
 
             if(UpdateTask == null || UpdateTask.IsCompleted)
@@ -66,7 +83,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 this.UpdateTask = Task.Run(async () =>
                 {
-                    await UpdateAsync(snapshots, dt);
+                    await UpdateAsync(snapshots, eventsToReport.ToList(), dt);
                 });
             }
         }
@@ -76,7 +93,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.clusterCount;
         }
 
-        private async Task UpdateAsync(List<PlayerSnapshot> players, float dt)
+        private async Task UpdateAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
         {
             await Task.Run(() =>
             {
@@ -108,6 +125,23 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     {
                         toRemove.Enqueue(cluster);
                     }
+                    else
+                    {
+                        // Tick AI.
+                        IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
+                        {
+                            return Vector3.Distance(report.GetLocation(), cluster.GetLocation()) <= report.GetDistance() * cluster.GetHorde().GetSensitivity();
+                        });
+
+                        if(nearbyReports.Any())
+                        {
+                            // Interrupt AI to split off/target reported event.
+                        }
+                        else
+                        {
+                            // Tick AI.
+                        }
+                    }
                 });
 
                 // Merge nearby clusters.
@@ -138,7 +172,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void Add(HordeCluster cluster)
         {
-            toAdd.Add(cluster);
+            toAdd.Enqueue(cluster);
         }
     }
 }

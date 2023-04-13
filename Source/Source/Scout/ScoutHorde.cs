@@ -10,5 +10,10 @@ namespace ImprovedHordes.Source.Scout
         {
             return GENERATOR;
         }
+
+        public float GetSensitivity()
+        {
+            return 1.0f;
+        }
     }
 }

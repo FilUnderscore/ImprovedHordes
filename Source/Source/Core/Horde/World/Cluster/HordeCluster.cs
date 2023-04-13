@@ -1,6 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster

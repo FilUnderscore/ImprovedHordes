@@ -38,16 +38,9 @@ namespace ImprovedHordes.Source
                 throw new InvalidOperationException("Could not determine world size.");
             }
 
-            this.hordeManager = new WorldHordeManager();
             this.worldEventReporter = new WorldEventReporter(maxSize.x - minSize.x);
+            this.hordeManager = new WorldHordeManager(this.worldEventReporter);
             this.initialized = true;
-
-            this.worldEventReporter.OnWorldEventReport += WorldEventReporter_OnWorldEventReport;
-        }
-
-        private void WorldEventReporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
-        {
-            Log.Out($"Pos {e.GetLocation()} Interest {e.GetInterest()} Dist {e.GetDistance()}");
         }
 
         public WorldHordeManager GetHordeManager()
@@ -74,6 +67,7 @@ namespace ImprovedHordes.Source
 
         public void Shutdown()
         {
+            this.initialized = false;
         }
     }
 }

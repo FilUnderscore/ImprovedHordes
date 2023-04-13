@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 
 namespace ImprovedHordes.Source.Horde
@@ -8,12 +9,10 @@ namespace ImprovedHordes.Source.Horde
         private readonly WorldHordeClusterTracker clusterTracker;
         private readonly WorldHordeSpawner spawner;
 
-        public WorldHordeManager()
+        public WorldHordeManager(WorldEventReporter reporter)
         {
-            this.clusterTracker = new WorldHordeClusterTracker();
+            this.clusterTracker = new WorldHordeClusterTracker(reporter);
             this.spawner = new WorldHordeSpawner(this.clusterTracker);
-
-            //worldLOITracker.OnInterestNotificationEventThread += WorldLOITracker_OnInterestNotification;
         }
 
         public WorldHordeSpawner GetSpawner()
