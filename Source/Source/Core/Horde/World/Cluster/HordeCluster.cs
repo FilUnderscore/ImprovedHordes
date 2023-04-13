@@ -8,6 +8,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
     public class HordeCluster : IAIAgent
     {
+        private const float DAY_SPEED = 1.6f;
+        private const float NIGHT_SPEED = 3.2f;
+
         private readonly IHorde horde;
         private Vector3 location;
         private float density;
@@ -162,7 +165,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void MoveTo(Vector3 location, float dt)
         {
-            float speed = 1 * dt;
+            float speed = DAY_SPEED * dt;
             Vector3 direction = (location - this.location).normalized;
 
             this.location += direction * speed;

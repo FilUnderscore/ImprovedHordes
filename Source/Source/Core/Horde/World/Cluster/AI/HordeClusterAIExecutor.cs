@@ -32,7 +32,10 @@ namespace ImprovedHordes.Source.Horde.AI
         {
             foreach(var entity in entities)
             {
-                this.executors.Add(entity, new AIAgentExecutor(entity));
+                AIAgentExecutor executor;
+                this.executors.Add(entity, executor = new AIAgentExecutor(entity));
+
+                this.clusterExecutor.CopyTo(executor);
             }
         }
 
@@ -122,6 +125,14 @@ namespace ImprovedHordes.Source.Horde.AI
                 this.agent = agent;
                 this.commands = new ConcurrentQueue<AICommand>();
                 this.interruptCommands = new ConcurrentStack<AICommand>();
+            }
+
+            public void CopyTo(AIAgentExecutor executor)
+            {
+                foreach (var command in commands.ToArray())
+                    executor.commands.Enqueue(command);
+
+                executor.interruptCommands.PushRange(interruptCommands.ToArray());
             }
 
             public void Update(float dt) 
