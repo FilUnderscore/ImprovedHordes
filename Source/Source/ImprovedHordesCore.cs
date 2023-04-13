@@ -38,6 +38,8 @@ namespace ImprovedHordes.Source
                 throw new InvalidOperationException("Could not determine world size.");
             }
 
+            Log.Out("[Improved Hordes] [Core] Initializing.");
+
             this.worldEventReporter = new WorldEventReporter(maxSize.x - minSize.x);
             this.hordeManager = new WorldHordeManager(this.worldEventReporter);
             this.initialized = true;

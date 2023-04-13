@@ -30,8 +30,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
 
         public WorldEventReporter(float mapSize)
         {
-            Log.Out("[World Event Reporter] Map Size: " + mapSize);
-
             this.MAP_SIZE_LOG_N = Math.Log(mapSize);
             this.MAP_SIZE_POW_2_LOG_N = Math.Pow(2, MAP_SIZE_LOG_N);
 
