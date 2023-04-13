@@ -9,6 +9,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
     public sealed class WorldHordeClusterTracker
     {
+        private const int MERGE_DISTANCE = 100;
+
         private struct PlayerSnapshot
         {
             public Vector3 location;
@@ -85,7 +87,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         return Vector3.Distance(player.location, cluster.GetLocation()) <= 90;
                     });
 
-                    if(nearby.Any() && !cluster.IsSpawned())
+                    if((nearby.Any() && !cluster.IsSpawned()) || !cluster.IsDensityMatchedWithEntityCount())
                     {
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage));
@@ -107,6 +109,30 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         toRemove.Enqueue(cluster);
                     }
                 });
+
+                // Merge nearby clusters.
+                for(int index = 0; index < clusters.Count; index++)
+                {
+                    HordeCluster cluster = clusters[index];
+
+                    if (!cluster.IsDead())
+                    {
+                        for(int j = index + 1; j < clusters.Count; j++)
+                        {
+                            HordeCluster otherCluster = clusters[j];
+
+                            if (!otherCluster.IsDead())
+                            {
+                                bool nearby = Vector3.Distance(cluster.GetLocation(), otherCluster.GetLocation()) <= MERGE_DISTANCE;
+
+                                if (nearby && cluster.Merge(otherCluster))
+                                {
+                                    toRemove.Enqueue(otherCluster);
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 

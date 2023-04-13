@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster
@@ -42,7 +43,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if(ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                var request = new HordeSpawnRequest(horde, group, location, density);
+                var request = new HordeSpawnRequest(horde, group, location, GetDensityToSpawn());
                 instance.GetMainThreadRequestProcessor().RequestAndWait(request);
 
                 this.entities.AddRange(request.GetEntities());
@@ -50,6 +51,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 spawned = true;
             }
+        }
+
+        public float GetDensityToSpawn()
+        {
+            if (this.entities.Count == 0 || this.densityPerEntity == 0.0f)
+                return this.density;
+
+            return this.density - (this.densityPerEntity * this.entities.Count);
+        }
+
+        public bool IsDensityMatchedWithEntityCount()
+        {
+            return this.spawned ? this.densityPerEntity * this.entities.Count >= this.density : true;
         }
 
         public void Despawn()
@@ -87,6 +101,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         public bool IsDead()
         {
             return this.density <= 0.0f;
+        }
+
+        private bool merged;
+        
+        public bool Merge(HordeCluster cluster)
+        {
+            if (cluster.merged)
+                return false;
+
+            this.density += cluster.density;
+            cluster.merged = true;
+
+            return true;
         }
     }
 }

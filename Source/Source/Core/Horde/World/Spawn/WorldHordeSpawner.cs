@@ -39,7 +39,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         private void PopulateWorldHordes() 
         {
-            if(this.worldHordeClusterTracker.GetClusterCount() < 2000)
+            if(this.worldHordeClusterTracker.GetClusterCount() < 200)
             {
                 this.Spawn<ScoutHorde, RandomHordeSpawn>(new RandomHordeSpawn(), 1.0f);
             }
