@@ -12,6 +12,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private const float TIME_SCALE = 1e5f;
 
         private Vector2i chunkLocation;
+        private Vector3 blockLocation;
+
         private float interest;
         private float interest_ln;
 
@@ -20,12 +22,14 @@ namespace ImprovedHordes.Source.Core.Horde.World
         private double time;
         private double expire_time;
 
-        public WorldEvent(Vector3 position, float interest) : this(global::World.toChunkXZ(position), interest, 1.0f) { }
-        public WorldEvent(Vector3 position, float interest, float strength) : this(global::World.toChunkXZ(position), interest, strength) { }
+        public WorldEvent(Vector3 blockPosition, float interest) : this(blockPosition, global::World.toChunkXZ(blockPosition), interest, 1.0f) { }
+        public WorldEvent(Vector3 blockPosition, float interest, float strength) : this(blockPosition, global::World.toChunkXZ(blockPosition), interest, strength) { }
 
-        public WorldEvent(Vector2i chunkLocation, float interest, float strength)
+        public WorldEvent(Vector3 blockPosition, Vector2i chunkLocation, float interest, float strength)
         {
+            this.blockLocation = blockPosition;
             this.chunkLocation = chunkLocation;
+
             this.interest = interest;
             this.interest_ln = Mathf.Log(interest + 1);
 
@@ -42,11 +46,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         public Vector3 GetLocation()
         {
-            float centerX = this.chunkLocation.x * 16 - 8;
-            float centerZ = this.chunkLocation.y * 16 - 8;
-            float centerY = GameManager.Instance.World.GetHeightAt(centerX, centerZ) + 1.0f;
-
-            return new Vector3(centerX, centerY, centerZ);
+            return this.blockLocation;
         }
 
         public float GetInterestLevel() // TODO: Scale interest near blood moons.

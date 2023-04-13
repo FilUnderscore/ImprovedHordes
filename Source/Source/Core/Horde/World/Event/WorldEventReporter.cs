@@ -19,10 +19,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
         private readonly ConcurrentQueue<Vector3> eventsToReportKeys = new ConcurrentQueue<Vector3>();
 
         // Personal
-        private readonly Dictionary<Vector3, WorldEvent> eventHistory = new Dictionary<Vector3, WorldEvent>();
+        private readonly Dictionary<Vector2i, WorldEvent> eventHistory = new Dictionary<Vector2i, WorldEvent>();
         private List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
-        private readonly List<Vector3> eventsToRemove = new List<Vector3>();
+        private readonly List<Vector2i> eventsToRemove = new List<Vector2i>();
 
         private Task UpdateTask;
 
@@ -59,13 +59,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
                 {
                     while(eventsToStore.TryDequeue(out WorldEvent worldEvent))
                     {
-                        if(eventHistory.ContainsKey(worldEvent.GetLocation()))
+                        if(eventHistory.ContainsKey(worldEvent.GetChunkLocation()))
                         {
-                            eventHistory[worldEvent.GetLocation()].Add(worldEvent);
+                            eventHistory[worldEvent.GetChunkLocation()].Add(worldEvent);
                         }
                         else
                         {
-                            eventHistory.Add(worldEvent.GetLocation(), worldEvent);
+                            eventHistory.Add(worldEvent.GetChunkLocation(), worldEvent);
                         }
                     }
 
@@ -85,7 +85,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
 
                     while (eventsToReportKeys.TryDequeue(out Vector3 key))
                     {
-                        WorldEvent worldEvent = eventHistory[key];
+                        WorldEvent worldEvent = eventHistory[global::World.toChunkXZ(key)];
                         float interest = worldEvent.GetInterestLevel();
 
                         eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
@@ -104,7 +104,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
 
                 foreach(var entry in nearby)
                 {
-                    eventsToStore.Enqueue(new WorldEvent(entry.Key, interest * entry.Value, entry.Value));
+                    eventsToStore.Enqueue(new WorldEvent(worldEvent.GetLocation(), entry.Key, interest * entry.Value, entry.Value));
                 }
 
                 eventsToStore.Enqueue(worldEvent);
