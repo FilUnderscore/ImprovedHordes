@@ -14,7 +14,10 @@ namespace ImprovedHordes.Command
             if (ImprovedHordesCore.TryGetInstance(out ImprovedHordesCore core))
             {
                 int clusterCount = core.GetHordeManager().GetClusterTracker().GetClusterCount();
-                message = $"Total clusters ({clusterCount}) ";
+                int requestsCount = core.GetMainThreadRequestProcessor().GetRequestCount();
+
+                message = $"WorldHordeClusterTracker: Total clusters ({clusterCount})";
+                message += $"\nMainThreadRequestProcessor: Main thread requests being processed {requestsCount}";
             }
             else
             {
@@ -31,7 +34,7 @@ namespace ImprovedHordes.Command
 
         public override string GetDescription()
         {
-            return "Spawns a test horde.";
+            return "Stats regarding Improved Hordes core systems.";
         }
     }
 }

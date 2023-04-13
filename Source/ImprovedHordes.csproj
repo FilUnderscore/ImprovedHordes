@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Source\Core\Command\CommandBase.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\HordeCluster.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\HordeClusterEntity.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeClusterTracker.cs" />
     <Compile Include="Source\Core\Horde\World\Event\WorldEventReportEvent.cs" />
     <Compile Include="Source\Core\Horde\World\Event\WorldEventReporter.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="Source\ImprovedHordesCommand.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\AIAgent.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\AICommand.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\AI\AIExecutor.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeClusterAIExecutor.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\Commands\GoToTargetAICommand.cs" />
     <Compile Include="Source\Core\Horde\Horde.cs" />
     <Compile Include="Source\ImprovedHordesCore.cs" />

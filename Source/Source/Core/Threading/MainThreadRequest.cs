@@ -2,7 +2,21 @@
 
 namespace ImprovedHordes.Source.Core.Threading
 {
-    public abstract class MainThreadRequest
+    public interface IMainThreadRequest
+    {
+        /// <summary>
+        /// Execute per tick on main thread.
+        /// </summary>
+        void TickExecute();
+
+        /// <summary>
+        /// Is the request fulfilled? If so, notify waiting threads.
+        /// </summary>
+        /// <returns></returns>
+        bool IsDone();
+    }
+
+    public abstract class BlockingMainThreadRequest : IMainThreadRequest
     {
         private readonly ManualResetEventSlim slim = new ManualResetEventSlim(false);
 

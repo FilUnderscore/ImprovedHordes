@@ -1,11 +1,11 @@
-﻿using ImprovedHordes.Source.Core.Threading;
+﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using ImprovedHordes.Source.Core.Threading;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 {
-    public sealed class HordeSpawnRequest : MainThreadRequest
+    public sealed class HordeSpawnRequest : BlockingMainThreadRequest
     {
         private readonly HordeEntityGenerator generator;
         private readonly Vector3 location;
@@ -43,13 +43,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
         }
     }
 
-    public sealed class HordeDespawnRequest : MainThreadRequest
+    public sealed class HordeDespawnRequest : BlockingMainThreadRequest
     {
-        private readonly Queue<EntityAlive> entities = new Queue<EntityAlive>();
+        private readonly Queue<HordeClusterEntity> entities = new Queue<HordeClusterEntity>();
 
-        public HordeDespawnRequest(List<EntityAlive> entities)
+        public HordeDespawnRequest(List<HordeClusterEntity> entities)
         {
-            foreach(EntityAlive entity in entities) 
+            foreach(HordeClusterEntity entity in entities) 
             {
                 this.entities.Enqueue(entity);
             }
@@ -62,19 +62,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public override void TickExecute()
         {
-            EntityAlive entity = this.entities.Dequeue();
-            GameManager.Instance.World.RemoveEntity(entity.entityId, EnumRemoveEntityReason.Killed);
+            HordeClusterEntity entity = this.entities.Dequeue();
+            GameManager.Instance.World.RemoveEntity(entity.GetEntity().entityId, EnumRemoveEntityReason.Killed);
         }
     }
 
-    public sealed class HordeUpdateRequest : MainThreadRequest
+    public sealed class HordeUpdateRequest : BlockingMainThreadRequest
     {
-        private readonly List<EntityAlive> entities;
+        private readonly List<HordeClusterEntity> entities;
 
         private Vector3? position;
-        private readonly List<EntityAlive> deadEntities = new List<EntityAlive>();
+        private readonly List<HordeClusterEntity> deadEntities = new List<HordeClusterEntity>();
 
-        public HordeUpdateRequest(List<EntityAlive> entities)
+        public HordeUpdateRequest(List<HordeClusterEntity> entities)
         {
             this.entities = entities;
             this.position = null;
@@ -94,7 +94,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
             foreach(var entity in this.entities)
             {
-                this.position += entity.position;
+                this.position += entity.GetLocation();
 
                 if(entity.IsDead())
                 {
@@ -110,7 +110,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             return this.position.Value;
         }
 
-        public List<EntityAlive> GetDead()
+        public List<HordeClusterEntity> GetDead()
         {
             return this.deadEntities;
         }
