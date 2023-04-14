@@ -1,7 +1,6 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.POI;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -29,7 +28,7 @@ namespace ImprovedHordes.Source.Wandering
             if (!this.worldPOIScanner.HasScanCompleted())
                 return;
 
-            if (this.hordeClusterTracker.GetClustersOf<WanderingHorde>().Count >= this.worldPOIScanner.GetZoneCount() && !TimeToPopulate())
+            if (!CanPopulate())
                 return;
 
             if(PopulateCheckTask != null && PopulateCheckTask.IsCompleted)
@@ -62,9 +61,10 @@ namespace ImprovedHordes.Source.Wandering
             }
         }
 
-        private bool TimeToPopulate()
+        private bool CanPopulate()
         {
-            return Time.timeAsDouble - this.lastPopulationTime > 60.0;
+            return this.hordeClusterTracker.GetClustersOf<WanderingHorde>().Count < this.worldPOIScanner.GetZoneCount() && 
+                   Time.timeAsDouble - this.lastPopulationTime > 60.0;
         }
 
         private void SpawnHordeAt(WorldPOIScanner.Zone zone)

@@ -21,7 +21,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private HordeClusterAIExecutor AIExecutor;
 
-        public HordeCluster(IHorde horde, Vector3 location, float density)
+        public HordeCluster(IHorde horde, Vector3 location, float density, params AICommand[] commands)
         {
             this.horde = horde;
             this.location = location;
@@ -30,6 +30,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.spawned = false;
 
             this.AIExecutor = new HordeClusterAIExecutor(this);
+            this.AIExecutor.Queue(false, commands);
         }
 
         public IHorde GetHorde()

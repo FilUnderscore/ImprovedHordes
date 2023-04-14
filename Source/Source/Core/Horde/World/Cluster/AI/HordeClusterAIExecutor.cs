@@ -83,14 +83,17 @@ namespace ImprovedHordes.Source.Horde.AI
 
             public bool IsDone()
             {
-                return !this.executor.loaded || this.executor.agent.IsDead();
+                return this.executor.agent.IsDead() || !this.executor.loaded;
             }
 
             public void TickExecute()
             {
                 this.executor.Update(Time.deltaTime);
+            }
 
-                if(this.executor.agent.IsDead())
+            public void OnCleanup()
+            {
+                if (this.executor.agent.IsDead())
                 {
                     this.hordeClusterExecutor.executors.Remove(this.executor.agent);
                     Log.Out("Dead agent, removing");

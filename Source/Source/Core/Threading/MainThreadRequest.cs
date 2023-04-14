@@ -14,6 +14,8 @@ namespace ImprovedHordes.Source.Core.Threading
         /// </summary>
         /// <returns></returns>
         bool IsDone();
+
+        void OnCleanup();
     }
 
     public abstract class BlockingMainThreadRequest : IMainThreadRequest
@@ -30,6 +32,8 @@ namespace ImprovedHordes.Source.Core.Threading
         /// </summary>
         /// <returns></returns>
         public abstract bool IsDone();
+
+        public virtual void OnCleanup() { }
 
         public void Notify()
         {

@@ -25,6 +25,7 @@ namespace ImprovedHordes.Source.Core.Threading
 
                 if(request.IsDone())
                 {
+                    request.OnCleanup();
                     requestsToRemove.Add(request);
                 }
             }

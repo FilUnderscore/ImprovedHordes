@@ -231,25 +231,5 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             toAdd.Enqueue(cluster);
         }
-
-        private class LogReportRequest : IMainThreadRequest
-        {
-            private readonly string str;
-
-            public LogReportRequest(string str)
-            {
-                this.str = str;
-            }
-
-            public bool IsDone()
-            {
-                return true;
-            }
-
-            public void TickExecute()
-            {
-                Log.Out(this.str);
-            }
-        }
     }
 }
