@@ -6,6 +6,9 @@ namespace ImprovedHordes.Source.POI
 {
     public sealed class WorldPOIScanner
     {
+        private readonly List<Zone> zones = new List<Zone>();
+        private float highestDensity;
+
         public WorldPOIScanner()
         {
             this.Scan();
@@ -13,12 +16,11 @@ namespace ImprovedHordes.Source.POI
 
         public void Scan()
         {
-            Log.Out("Scanning POIs");
+            Log.Out("[Improved Hordes] [World POI Scanner] Scanning POIs.");
 
             DynamicPrefabDecorator dynamicPrefabDecorator = GameManager.Instance.World.ChunkClusters[0].ChunkProvider.GetDynamicPrefabDecorator();
             List<PrefabInstance> pois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
-            List<Zone> zones = new List<Zone>();
-
+            
             // Merge POIs into sub-zones.
             for(int i = 0; i < pois.Count; i++) 
             {
@@ -60,10 +62,11 @@ namespace ImprovedHordes.Source.POI
                 }
             }
 
-            Log.Out("Zones: " + zones.Count);
+            highestDensity = zones.Max(zone => zone.GetCount());
+            Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) max count {highestDensity}");
         }
 
-        private class Zone
+        public sealed class Zone
         {
             private Bounds bounds;
             private readonly List<PrefabInstance> pois = new List<PrefabInstance>();
@@ -99,6 +102,11 @@ namespace ImprovedHordes.Source.POI
                 // Recalculate bounds
                 this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
             }
+        }
+
+        public float GetDensity(Zone zone)
+        {
+            return zone.GetCount() / this.highestDensity;
         }
     }
 }
