@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde;
+using ImprovedHordes.Source.POI;
 using System;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ namespace ImprovedHordes.Source
         private WorldHordeManager hordeManager;
         private MainThreadRequestProcessor mainThreadRequestProcessor;
         private WorldEventReporter worldEventReporter;
+        private WorldPOIScanner poiScanner;
 
         public ImprovedHordesCore(Mod mod)
         {
@@ -42,6 +44,7 @@ namespace ImprovedHordes.Source
 
             this.worldEventReporter = new WorldEventReporter(maxSize.x - minSize.x);
             this.hordeManager = new WorldHordeManager(this.worldEventReporter);
+            this.poiScanner = new WorldPOIScanner();
             this.initialized = true;
         }
 

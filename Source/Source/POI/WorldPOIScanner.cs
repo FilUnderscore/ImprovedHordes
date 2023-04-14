@@ -1,0 +1,104 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace ImprovedHordes.Source.POI
+{
+    public sealed class WorldPOIScanner
+    {
+        public WorldPOIScanner()
+        {
+            this.Scan();
+        }
+
+        public void Scan()
+        {
+            Log.Out("Scanning POIs");
+
+            DynamicPrefabDecorator dynamicPrefabDecorator = GameManager.Instance.World.ChunkClusters[0].ChunkProvider.GetDynamicPrefabDecorator();
+            List<PrefabInstance> pois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
+            List<Zone> zones = new List<Zone>();
+
+            // Merge POIs into sub-zones.
+            for(int i = 0; i < pois.Count; i++) 
+            {
+                var poi = pois[i];
+                var zone = new Zone(poi);
+
+                for(int j = i + 1; j < pois.Count; j++)
+                {
+                    var other = pois[j];
+                    float sqrDistance = zone.GetBounds().SqrDistance(other.GetAABB().center);
+                    float size = zone.GetBounds().size.sqrMagnitude * (other.GetAABB().size.sqrMagnitude / zone.GetBounds().size.sqrMagnitude);
+
+                    if(zone.GetBounds().Intersects(other.GetAABB()) || sqrDistance <= size)
+                    {
+                        pois.RemoveAt(j--);
+                        zone.Add(other);
+                    }
+                }
+
+                zones.Add(zone);
+            }
+
+            // Merge nearby sub-zones into larger zones (e.g. cities)
+            for(int i = 0; i < zones.Count; i++)
+            {
+                var zone = zones[i];
+
+                for(int j = i + 1; j < zones.Count; j++)
+                {
+                    var other = zones[j];
+                    float sqrDistance = zone.GetBounds().SqrDistance(other.GetBounds().center);
+                    float size = zone.GetBounds().size.sqrMagnitude * (other.GetBounds().size.sqrMagnitude / zone.GetBounds().size.sqrMagnitude);
+
+                    if (zone.GetBounds().Intersects(other.GetBounds()) || sqrDistance <= size)
+                    {
+                        zones.RemoveAt(j--);
+                        zone.Merge(other);
+                    }
+                }
+            }
+
+            Log.Out("Zones: " + zones.Count);
+        }
+
+        private class Zone
+        {
+            private Bounds bounds;
+            private readonly List<PrefabInstance> pois = new List<PrefabInstance>();
+
+            public Zone(PrefabInstance poi)
+            {
+                this.bounds = poi.GetAABB();
+                this.pois.Add(poi);
+            }
+
+            public int GetCount()
+            {
+                return this.pois.Count;
+            }
+
+            public Bounds GetBounds()
+            {
+                return this.bounds;
+            }
+
+            public void Add(PrefabInstance poi)
+            {
+                this.pois.Add(poi);
+
+                // Recalculate bounds.
+                this.bounds.SetMinMax(Vector3.Min(bounds.min, poi.GetAABB().min), Vector3.Max(bounds.max, poi.GetAABB().max));
+            }
+
+            public void Merge(Zone zone)
+            {
+                this.pois.AddRange(zone.pois);
+
+                // Recalculate bounds
+                this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
+            }
+        }
+    }
+}

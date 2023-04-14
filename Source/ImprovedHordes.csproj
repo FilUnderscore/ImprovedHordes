@@ -88,6 +88,7 @@
     <Compile Include="Source\Core\Horde\Horde.cs" />
     <Compile Include="Source\ImprovedHordesCore.cs" />
     <Compile Include="Source\ImprovedHordesMod.cs" />
+    <Compile Include="Source\POI\WorldPOIScanner.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
     <Compile Include="Source\Scout\ScoutHordeGenerator.cs" />
   </ItemGroup>
