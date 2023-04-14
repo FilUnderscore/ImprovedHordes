@@ -28,6 +28,8 @@ namespace ImprovedHordes.Source.Horde.AI
 
         public abstract bool IsComplete(IAIAgent agent);
 
+        public abstract int GetObjectiveScore(IAIAgent agent);
+
         public bool HasExpired()
         {
             return this.canExpire && Time.timeAsDouble - timeAssigned > expiryTimeSeconds;

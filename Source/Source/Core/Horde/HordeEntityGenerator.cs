@@ -30,8 +30,6 @@ namespace ImprovedHordes.Source.Core.Horde
 #if DEBUG
                 entity.AddNavObject("ih_horde_zombie_debug", "");
 #endif
-
-                //Log.Out("Spawned horde zombie.");
             }
 
             return entity;

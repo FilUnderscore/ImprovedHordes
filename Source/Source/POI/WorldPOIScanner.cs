@@ -6,7 +6,10 @@ namespace ImprovedHordes.Source.POI
 {
     public sealed class WorldPOIScanner
     {
+        private const float CITY_DENSITY_THRESHOLD = 0.5f;
+
         private readonly List<Zone> zones = new List<Zone>();
+
         private float highestDensity;
 
         public WorldPOIScanner()
@@ -14,10 +17,8 @@ namespace ImprovedHordes.Source.POI
             this.Scan();
         }
 
-        public void Scan()
+        private void Scan()
         {
-            Log.Out("[Improved Hordes] [World POI Scanner] Scanning POIs.");
-
             DynamicPrefabDecorator dynamicPrefabDecorator = GameManager.Instance.World.ChunkClusters[0].ChunkProvider.GetDynamicPrefabDecorator();
             List<PrefabInstance> pois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
             
@@ -65,7 +66,7 @@ namespace ImprovedHordes.Source.POI
             }
 
             highestDensity = zones.Max(zone => zone.GetCount());
-            Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) max count {highestDensity}");
+            Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) - highest POI count in zones ({highestDensity})");
         }
 
         public sealed class Zone

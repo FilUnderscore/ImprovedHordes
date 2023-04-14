@@ -3,6 +3,7 @@ using ImprovedHordes.Source.Core.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Horde.AI
@@ -60,14 +61,17 @@ namespace ImprovedHordes.Source.Horde.AI
                 {
                     executor.loaded = true;
                     mainThreadRequestProcessor.Request(new EntityAIUpdateRequest(executor, this));
-                    Log.Out("Requesting entity updates");
                 }
                 else if(!loaded && executor.loaded)
                 {
                     executor.loaded = false;
-                    Log.Out("Stopping entity updates");
                 }
             }
+        }
+
+        public int CalculateObjectiveScore()
+        {
+            return this.clusterExecutor.CalculateObjectiveScore();
         }
 
         private sealed class EntityAIUpdateRequest : IMainThreadRequest
@@ -214,6 +218,38 @@ namespace ImprovedHordes.Source.Horde.AI
                     foreach(var command in commands)
                         this.commands.Enqueue(command);
                 }
+            }
+
+            /// <summary>
+            /// Calculate this agent's objective score. A lower objective score means more important.
+            /// </summary>
+            /// <returns></returns>
+            public int CalculateObjectiveScore()
+            {
+                int commandScore = 0, commandCount = 0;
+                foreach(var command in commands.ToArray())
+                {
+                    commandScore += command.GetObjectiveScore(this.agent);
+                    commandCount++;
+                }
+
+                if(commandCount > 0)
+                    commandScore /= commandCount;
+
+                int interruptScore = 0, interruptCount = 0;
+                foreach(var interruptCommand in interruptCommands.ToArray())
+                {
+                    interruptScore += interruptCommand.GetObjectiveScore(this.agent);
+                    interruptCount++;
+                }
+
+                if(interruptCount > 0)
+                    interruptScore /= interruptCount;
+
+                int score = commandScore - interruptScore;
+                Log.Out($"Computed objective score: {score} -- CS {commandScore} - IS {interruptScore}");
+
+                return score;
             }
         }
     }

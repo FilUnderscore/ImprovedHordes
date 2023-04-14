@@ -131,7 +131,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public bool Merge(HordeCluster cluster)
         {
-            if (cluster.merged)
+            if (cluster.merged || (cluster.AIExecutor.CalculateObjectiveScore() < this.AIExecutor.CalculateObjectiveScore()))
                 return false;
 
             this.density += cluster.density;

@@ -26,7 +26,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public override void TickExecute()
         {
-            if (GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 20, 20, true, out Vector3 spawnLocation, false))
+            if (GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 40, 40, true, out Vector3 spawnLocation, false))
                 this.entities.Add(generator.GenerateEntity(spawnLocation));
 
             this.index++;

@@ -27,6 +27,11 @@ namespace ImprovedHordes.Source.Horde.AI.Commands
             agent.MoveTo(this.target, dt);
         }
 
+        public override int GetObjectiveScore(IAIAgent agent)
+        {
+            return Mathf.FloorToInt(Vector3.Distance(agent.GetLocation(), this.target));
+        }
+
         public override bool IsComplete(IAIAgent agent)
         {
             return Vector3.Distance(agent.GetLocation(), this.target) < MIN_DISTANCE_TO_TARGET;

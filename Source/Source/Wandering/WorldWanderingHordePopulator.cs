@@ -70,7 +70,7 @@ namespace ImprovedHordes.Source.Wandering
         private void SpawnHordeAt(WorldPOIScanner.Zone zone)
         {
             Vector3 zoneSpawnLocation = zone.GetBounds().center;
-            float zoneSpawnDensity = Mathf.Max(1.0f, this.worldPOIScanner.GetDensity(zone) * 10.0f);
+            float zoneSpawnDensity = Mathf.Max(1.0f, this.worldPOIScanner.GetDensity(zone) * 2.0f);
 
             this.hordeSpawner.Spawn<WanderingHorde, LocationHordeSpawn>(new LocationHordeSpawn(new Vector2(zoneSpawnLocation.x, zoneSpawnLocation.z)), zoneSpawnDensity);
             this.lastPopulationTime = Time.timeAsDouble;

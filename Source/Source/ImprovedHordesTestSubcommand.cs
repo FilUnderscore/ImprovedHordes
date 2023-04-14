@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Source;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
+using ImprovedHordes.Source.Horde.AI.Commands;
 using ImprovedHordes.Source.Scout;
 using System.Collections.Generic;
 
@@ -15,7 +16,9 @@ namespace ImprovedHordes.Command
         {
             if (ImprovedHordesCore.TryGetInstance(out ImprovedHordesCore core))
             {
-                core.GetHordeManager().GetSpawner().Spawn<ScoutHorde, PlayerHordeSpawn>(new PlayerHordeSpawn(GameManager.Instance.World.GetPrimaryPlayer(), 50));
+                EntityPlayerLocal player = GameManager.Instance.World.GetPrimaryPlayer();
+
+                core.GetHordeManager().GetSpawner().Spawn<ScoutHorde, PlayerHordeSpawn>(new PlayerHordeSpawn(player, 150), new GoToTargetAICommand(player.position));
                 message = "Spawned test";
             }
             else
