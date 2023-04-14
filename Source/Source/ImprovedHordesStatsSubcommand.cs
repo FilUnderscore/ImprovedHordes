@@ -13,10 +13,18 @@ namespace ImprovedHordes.Command
         {
             if (ImprovedHordesCore.TryGetInstance(out ImprovedHordesCore core))
             {
-                int clusterCount = core.GetHordeManager().GetClusterTracker().GetClusterCount();
                 int requestsCount = core.GetMainThreadRequestProcessor().GetRequestCount();
+                int totalCount = 0;
 
-                message = $"WorldHordeClusterTracker: Total clusters ({clusterCount})";
+                message = "WorldHordeClusterTracker: ";
+                foreach (var clusterEntry in core.GetHordeManager().GetClusterTracker().GetClusters())
+                {
+                    message += $"{clusterEntry.Key.Name} - ({clusterEntry.Value.Count}) ";
+                    totalCount += clusterEntry.Value.Count;
+                }
+
+                message += $"\nTotal Count {totalCount}";
+
                 message += $"\nMainThreadRequestProcessor: Main thread requests being processed {requestsCount}";
             }
             else

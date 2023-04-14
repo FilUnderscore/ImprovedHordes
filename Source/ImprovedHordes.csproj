@@ -91,6 +91,9 @@
     <Compile Include="Source\POI\WorldPOIScanner.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
     <Compile Include="Source\Scout\ScoutHordeGenerator.cs" />
+    <Compile Include="Source\Wandering\WanderingHorde.cs" />
+    <Compile Include="Source\Wandering\WanderingHordeGenerator.cs" />
+    <Compile Include="Source\Wandering\WorldWanderingHordePopulator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Source\Core\Horde\Data\" />

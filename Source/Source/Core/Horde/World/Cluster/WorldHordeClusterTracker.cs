@@ -2,9 +2,12 @@
 using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI.Commands;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -17,10 +20,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private readonly int VIEW_DISTANCE = 90;
 
-        private struct PlayerSnapshot
+        private readonly struct PlayerSnapshot
         {
-            public Vector3 location;
-            public int gamestage;
+            public readonly Vector3 location;
+            public readonly int gamestage;
 
             public PlayerSnapshot(Vector3 location, int gamestage)
             {
@@ -29,20 +32,50 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
+        public readonly struct ClusterSnapshot
+        {
+            public readonly IHorde horde;
+            public readonly Vector3 location;
+            public readonly float density;
+
+            public ClusterSnapshot(IHorde horde, Vector3 location, float density)
+            {
+                this.horde = horde;
+                this.location = location;
+                this.density = density;
+            }
+        }
+
         private Task<int> UpdateTask;
 
-        private ConcurrentQueue<HordeCluster> toAdd = new ConcurrentQueue<HordeCluster>();
-        private ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
+        // Shared
+        private readonly ConcurrentQueue<HordeCluster> toAdd = new ConcurrentQueue<HordeCluster>();
+        private readonly ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
 
-        private int clusterCount = 0;
-        private List<HordeCluster> clusters = new List<HordeCluster>();
+        // Personal (main-thread), updated after task is completed.
+        private readonly List<HordeCluster> clusters = new List<HordeCluster>();
 
-        private List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
-        private List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
+        private readonly List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
+        private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
+
+        private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
 
         public WorldHordeClusterTracker(WorldEventReporter reporter)
         {
             reporter.OnWorldEventReport += Reporter_OnWorldEventReport;
+
+            this.RegisterHordes();
+        }
+
+        private void RegisterHordes()
+        {
+            var type = typeof(IHorde);
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+
+            foreach(var hordeType in types)
+            {
+                clusterSnapshots.Add(hordeType, new List<ClusterSnapshot>());
+            }
         }
 
         private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
@@ -71,13 +104,22 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     Log.Out("Removed cluster");
                 }
 
-                // Update cluster count.
-                this.clusterCount = this.clusters.Count;
-
                 int eventsProcessed = UpdateTask.Result;
 
                 if(eventsProcessed > 0)
                     this.eventsToReport.RemoveRange(0, eventsProcessed);
+
+                // Update cluster snapshots and remove outdated ones.
+                
+                foreach(var key in clusterSnapshots.Keys)
+                {
+                    clusterSnapshots[key].Clear();
+                }
+
+                foreach(var cluster in this.clusters)
+                {
+                    clusterSnapshots[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), cluster.GetLocation(), cluster.GetDensity()));
+                }
             }
 
             if(UpdateTask == null || UpdateTask.IsCompleted)
@@ -94,9 +136,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public int GetClusterCount()
+        public List<ClusterSnapshot> GetClustersOf<Horde>() where Horde: IHorde
         {
-            return this.clusterCount;
+            return this.clusterSnapshots[typeof(Horde)];
+        }
+
+        public Dictionary<Type, List<ClusterSnapshot>> GetClusters()
+        {
+            return this.clusterSnapshots;
         }
 
         private async Task<int> UpdateAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)

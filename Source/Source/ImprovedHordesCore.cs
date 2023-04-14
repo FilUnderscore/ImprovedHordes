@@ -2,6 +2,7 @@
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde;
 using ImprovedHordes.Source.POI;
+using ImprovedHordes.Source.Wandering;
 using System;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace ImprovedHordes.Source
         private MainThreadRequestProcessor mainThreadRequestProcessor;
         private WorldEventReporter worldEventReporter;
         private WorldPOIScanner poiScanner;
+        private WorldWanderingHordePopulator wanderingHordePopulator;
 
         public ImprovedHordesCore(Mod mod)
         {
@@ -45,6 +47,8 @@ namespace ImprovedHordes.Source
             this.worldEventReporter = new WorldEventReporter(maxSize.x - minSize.x);
             this.hordeManager = new WorldHordeManager(this.worldEventReporter);
             this.poiScanner = new WorldPOIScanner();
+            this.wanderingHordePopulator = new WorldWanderingHordePopulator(this.poiScanner, this.hordeManager.GetClusterTracker(), this.hordeManager.GetSpawner());
+
             this.initialized = true;
         }
 
@@ -68,6 +72,7 @@ namespace ImprovedHordes.Source
             this.mainThreadRequestProcessor.Update();
             this.hordeManager.Update(dt);
             this.worldEventReporter.Update();
+            this.wanderingHordePopulator.Update();
         }
 
         public void Shutdown()

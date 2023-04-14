@@ -51,10 +51,12 @@ namespace ImprovedHordes.Source.POI
                 for(int j = i + 1; j < zones.Count; j++)
                 {
                     var other = zones[j];
+                    /*
                     float sqrDistance = zone.GetBounds().SqrDistance(other.GetBounds().center);
                     float size = zone.GetBounds().size.sqrMagnitude * (other.GetBounds().size.sqrMagnitude / zone.GetBounds().size.sqrMagnitude);
+                    */
 
-                    if (zone.GetBounds().Intersects(other.GetBounds()) || sqrDistance <= size)
+                    if (zone.GetBounds().Intersects(other.GetBounds())/* || sqrDistance <= size*/)
                     {
                         zones.RemoveAt(j--);
                         zone.Merge(other);
@@ -107,6 +109,21 @@ namespace ImprovedHordes.Source.POI
         public float GetDensity(Zone zone)
         {
             return zone.GetCount() / this.highestDensity;
+        }
+
+        public Zone PickRandomZone()
+        {
+            return zones.RandomObject();
+        }
+
+        public bool HasScanCompleted()
+        {
+            return zones.Count > 0;
+        }
+
+        public int GetZoneCount()
+        {
+            return zones.Count;
         }
     }
 }
