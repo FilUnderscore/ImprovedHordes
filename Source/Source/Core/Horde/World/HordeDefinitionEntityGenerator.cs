@@ -56,7 +56,7 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         public override bool IsStillValidFor(PlayerHordeGroup playerGroup)
         {
-            return this.group.IsEligible(playerGroup);
+            return this.group.IsEligible(playerGroup, true);
         }
     }
 }

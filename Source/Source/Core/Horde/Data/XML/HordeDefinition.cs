@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -24,10 +25,14 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
 
         public sealed class Group
         {
+            private readonly float? chance;
             private readonly List<Entity> entities = new List<Entity>();
-
+            
             public Group(XmlEntry entry)
             {
+                if(entry.GetAttribute("chance", out string chanceValue))
+                    this.chance = float.Parse(chanceValue);
+
                 entry.GetEntries("entity").ForEach(entityEntry =>
                 {
                     this.entities.Add(new Entity(entityEntry));
@@ -41,9 +46,10 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
                 });
             }
 
-            public bool IsEligible(PlayerHordeGroup playerGroup)
+            public bool IsEligible(PlayerHordeGroup playerGroup, bool ignoreRandom = false)
             {
-                return this.entities.Where(entity => entity.IsEligible(playerGroup)).Any();
+                return this.entities.Where(entity => entity.IsEligible(playerGroup)).Any() && 
+                    (ignoreRandom || chance == null || GameManager.Instance.World.GetGameRandom().RandomFloat <= this.chance);
             }
 
             public List<Entity> GetEligible(PlayerHordeGroup playerGroup)
@@ -54,7 +60,8 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
             public sealed class GS
             {
                 private readonly int min;
-                private readonly int max;
+                private readonly int? max;
+                private readonly float? increaseEvery; 
 
                 private readonly List<Entity> entities = new List<Entity>();
 
@@ -65,6 +72,8 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
 
                     if(entry.GetAttribute("max", out string maxValue))
                         this.max = int.Parse(maxValue);
+                    else if(entry.GetAttribute("increaseEvery", out string increaseEvery))
+                        this.increaseEvery = float.Parse(increaseEvery);
 
                     entry.GetEntries("entity").ForEach(entityEntry =>
                     {
@@ -86,6 +95,25 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
                 }
 
                 public int GetCount(int gs, int minCount, int maxCount)
+                {
+                    if (this.max == null && this.increaseEvery != null)
+                    {
+                        return GetCountRelativeToMinIncrease(gs, minCount, maxCount);
+                    }
+                    else if(this.max != null && this.increaseEvery == null)
+                    {
+                        return GetCountRelativeToMinMax(gs, minCount, maxCount);
+                    }
+
+                    throw new Exception("[Improved Hordes] GS must have either a defined max attribute or increaseEvery attribute.");
+                }
+
+                private int GetCountRelativeToMinIncrease(int gs, int minCount, int maxCount)
+                {
+                    return Mathf.Clamp(minCount + Mathf.RoundToInt((1f / this.increaseEvery.Value) * (gs - min)), minCount, maxCount);
+                }
+
+                private int GetCountRelativeToMinMax(int gs, int minCount, int maxCount)
                 {
                     float pct = (gs - min) / (float)max;
 
