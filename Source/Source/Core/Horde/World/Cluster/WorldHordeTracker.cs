@@ -1,19 +1,16 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Event;
-using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI.Commands;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
-    public sealed class WorldHordeClusterTracker
+    public sealed class WorldHordeTracker
     {
         private const int MERGE_DISTANCE_LOADED = 10;
         private const int MERGE_DISTANCE_UNLOADED = 100;
@@ -49,18 +46,18 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private Task<int> UpdateTask;
 
         // Shared
-        private readonly ConcurrentQueue<HordeCluster> toAdd = new ConcurrentQueue<HordeCluster>();
-        private readonly ConcurrentQueue<HordeCluster> toRemove = new ConcurrentQueue<HordeCluster>();
+        private readonly ConcurrentQueue<WorldHorde> toAdd = new ConcurrentQueue<WorldHorde>();
+        private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
 
         // Personal (main-thread), updated after task is completed.
-        private readonly List<HordeCluster> clusters = new List<HordeCluster>();
+        private readonly List<WorldHorde> hordes = new List<WorldHorde>();
 
         private readonly List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
         private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
         private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
 
-        public WorldHordeClusterTracker(WorldEventReporter reporter)
+        public WorldHordeTracker(WorldEventReporter reporter)
         {
             reporter.OnWorldEventReport += Reporter_OnWorldEventReport;
 
@@ -91,17 +88,17 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 // Clear old snapshots after task is complete.
                 snapshots.Clear();
 
-                // Add clusters.
-                while(toAdd.TryDequeue(out HordeCluster cluster))
+                // Add hordes.
+                while(toAdd.TryDequeue(out WorldHorde cluster))
                 {
-                    clusters.Add(cluster);
+                    hordes.Add(cluster);
                 }
 
-                // Remove dead/merged clusters.
-                while(toRemove.TryDequeue(out HordeCluster cluster))
+                // Remove dead/merged hordes.
+                while(toRemove.TryDequeue(out WorldHorde cluster))
                 {
-                    clusters.Remove(cluster);
-                    Log.Out("Removed cluster");
+                    hordes.Remove(cluster);
+                    Log.Out("Removed horde");
                 }
 
                 int eventsProcessed = UpdateTask.Result;
@@ -110,15 +107,18 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     this.eventsToReport.RemoveRange(0, eventsProcessed);
 
                 // Update cluster snapshots and remove outdated ones.
-                
+
                 foreach(var key in clusterSnapshots.Keys)
                 {
                     clusterSnapshots[key].Clear();
                 }
 
-                foreach(var cluster in this.clusters)
+                foreach(var horde in this.hordes)
                 {
-                    clusterSnapshots[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), cluster.GetLocation(), cluster.GetDensity()));
+                    foreach (var cluster in horde.GetClusters())
+                    {
+                        clusterSnapshots[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), horde.GetLocation(), cluster.GetDensity()));
+                    }
                 }
             }
 
@@ -150,73 +150,73 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             await Task.Run(() =>
             {
-                Parallel.ForEach(this.clusters, cluster =>
+                Parallel.ForEach(this.hordes, horde =>
                 {
                     IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
                     {
-                        float distance = cluster.IsSpawned() ? VIEW_DISTANCE + 20 : VIEW_DISTANCE;
-                        return Vector3.Distance(player.location, cluster.GetLocation()) <= distance;
+                        float distance = horde.IsSpawned() ? VIEW_DISTANCE + 20 : VIEW_DISTANCE;
+                        return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
                     });
 
-                    if((nearby.Any() && !cluster.IsSpawned()) || !cluster.IsDensityMatchedWithEntityCount())
+                    if((nearby.Any() && !horde.IsSpawned()) || horde.HasClusterSpawnsWaiting())
                     {
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage));
 
-                        cluster.Spawn(group);
+                        horde.Spawn(group);
                     }
-                    else if(!nearby.Any() && cluster.IsSpawned())
+                    else if(!nearby.Any() && horde.IsSpawned())
                     {
-                        cluster.Despawn();
-                    }
-
-                    if(cluster.IsSpawned())
-                    {
-                        cluster.UpdatePosition();
+                        horde.Despawn();
                     }
 
-                    if(cluster.IsDead())
+                    if(horde.IsSpawned())
                     {
-                        toRemove.Enqueue(cluster);
+                        horde.UpdatePosition();
+                    }
+
+                    if(horde.IsDead())
+                    {
+                        toRemove.Enqueue(horde);
                     }
                     else
                     {
                         // Tick AI.
                         IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
                         {
-                            return Vector3.Distance(report.GetLocation(), cluster.GetLocation()) <= report.GetDistance() * cluster.GetHorde().GetSensitivity();
+                            return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * horde.GetSensitivity();
                         });
 
                         if(nearbyReports.Any())
                         {
                             // Interrupt AI to split off/target reported event.
                             WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
-                            cluster.Queue(true, new GoToTargetAICommand(nearbyEvent.GetLocation()));
+                            horde.Queue(true, new GoToTargetAICommand(nearbyEvent.GetLocation()));
                         }
 
-                        cluster.Update(dt);
+                        horde.Update(dt);
                     }
                 });
 
-                // Merge nearby clusters.
-                for(int index = 0; index < clusters.Count; index++)
+                // Merge nearby hordes.
+                for(int index = 0; index < this.hordes.Count; index++)
                 {
-                    HordeCluster cluster = clusters[index];
+                    WorldHorde horde = this.hordes[index];
 
-                    if (!cluster.IsDead())
+                    if (!horde.IsDead())
                     {
-                        for(int j = index + 1; j < clusters.Count; j++)
+                        for(int j = index + 1; j < this.hordes.Count; j++)
                         {
-                            HordeCluster otherCluster = clusters[j];
+                            WorldHorde otherHorde = this.hordes[j];
 
-                            if (!otherCluster.IsDead())
+                            if (!otherHorde.IsDead())
                             {
-                                int mergeDistance = cluster.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
-                                bool nearby = Vector3.Distance(cluster.GetLocation(), otherCluster.GetLocation()) <= mergeDistance;
+                                int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
+                                bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
 
-                                if (nearby && cluster.Merge(otherCluster))
+                                if (nearby && horde.Merge(otherHorde))
                                 {
-                                    toRemove.Enqueue(otherCluster);
+                                    toRemove.Enqueue(otherHorde);
                                 }
                             }
                         }
@@ -227,9 +227,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return eventReports.Count;
         }
 
-        public void Add(HordeCluster cluster)
+        public void Add(WorldHorde horde)
         {
-            toAdd.Enqueue(cluster);
+            toAdd.Enqueue(horde);
         }
     }
 }

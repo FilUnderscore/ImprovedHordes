@@ -8,20 +8,20 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.Horde.AI
 {
-    public sealed class HordeClusterAIExecutor
+    public sealed class HordeAIExecutor
     {
-        private readonly HordeCluster cluster;
+        private readonly WorldHorde horde;
         private readonly Dictionary<IAIAgent, AIAgentExecutor> executors;
 
-        private readonly AIAgentExecutor clusterExecutor;
+        private readonly AIAgentExecutor hordeExecutor;
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
 
-        public HordeClusterAIExecutor(HordeCluster cluster)
+        public HordeAIExecutor(WorldHorde horde)
         {
-            this.cluster = cluster;
+            this.horde = horde;
 
             this.executors = new Dictionary<IAIAgent, AIAgentExecutor>();
-            this.clusterExecutor = new AIAgentExecutor(cluster);
+            this.hordeExecutor = new AIAgentExecutor(horde);
 
             if(ImprovedHordesCore.TryGetInstance(out var instance))
             {
@@ -29,14 +29,14 @@ namespace ImprovedHordes.Source.Horde.AI
             }
         }
 
-        public void AddEntities(IEnumerable<HordeClusterEntity> entities) 
+        public void AddEntities(IEnumerable<HordeEntity> entities) 
         {
             foreach(var entity in entities)
             {
                 AIAgentExecutor executor;
                 this.executors.Add(entity, executor = new AIAgentExecutor(entity));
 
-                this.clusterExecutor.CopyTo(executor);
+                this.hordeExecutor.CopyTo(executor);
             }
         }
 
@@ -47,7 +47,7 @@ namespace ImprovedHordes.Source.Horde.AI
 
         public void Update(float dt)
         {
-            if(!this.cluster.IsSpawned())
+            if(!this.horde.IsSpawned())
             {
                 this.UpdateCluster(dt);
             }
@@ -71,15 +71,15 @@ namespace ImprovedHordes.Source.Horde.AI
 
         public int CalculateObjectiveScore()
         {
-            return this.clusterExecutor.CalculateObjectiveScore();
+            return this.hordeExecutor.CalculateObjectiveScore();
         }
 
         private sealed class EntityAIUpdateRequest : IMainThreadRequest
         {
             private readonly AIAgentExecutor executor;
-            private readonly HordeClusterAIExecutor hordeClusterExecutor;
+            private readonly HordeAIExecutor hordeClusterExecutor;
 
-            public EntityAIUpdateRequest(AIAgentExecutor executor, HordeClusterAIExecutor hordeClusterExecutor)
+            public EntityAIUpdateRequest(AIAgentExecutor executor, HordeAIExecutor hordeClusterExecutor)
             {
                 this.executor = executor;
                 this.hordeClusterExecutor = hordeClusterExecutor;
@@ -107,12 +107,12 @@ namespace ImprovedHordes.Source.Horde.AI
 
         private void UpdateCluster(float dt)
         {
-            this.clusterExecutor.Update(dt);
+            this.hordeExecutor.Update(dt);
         }
 
         public void Queue(bool interrupt = false, params AICommand[] commands)
         {
-            this.clusterExecutor.Queue(interrupt, commands);
+            this.hordeExecutor.Queue(interrupt, commands);
 
             foreach (var executor in this.executors.Values)
             {

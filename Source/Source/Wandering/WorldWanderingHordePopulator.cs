@@ -9,17 +9,17 @@ namespace ImprovedHordes.Source.Wandering
     public sealed class WorldWanderingHordePopulator
     {
         private readonly WorldPOIScanner worldPOIScanner;
-        private readonly WorldHordeClusterTracker hordeClusterTracker;
+        private readonly WorldHordeTracker hordeTracker;
         private readonly WorldHordeSpawner hordeSpawner;
 
         private double lastPopulationTime;
 
         private Task<WorldPOIScanner.Zone> PopulateCheckTask;
 
-        public WorldWanderingHordePopulator(WorldPOIScanner worldPOIScanner, WorldHordeClusterTracker hordeClusterTracker, WorldHordeSpawner hordeSpawner)
+        public WorldWanderingHordePopulator(WorldPOIScanner worldPOIScanner, WorldHordeTracker hordeTracker, WorldHordeSpawner hordeSpawner)
         { 
             this.worldPOIScanner = worldPOIScanner;
-            this.hordeClusterTracker = hordeClusterTracker;
+            this.hordeTracker = hordeTracker;
             this.hordeSpawner = hordeSpawner;
         }
 
@@ -48,7 +48,7 @@ namespace ImprovedHordes.Source.Wandering
                     WorldPOIScanner.Zone randomZone = worldPOIScanner.PickRandomZone();
                     bool nearby = false;
 
-                    Parallel.ForEach(hordeClusterTracker.GetClustersOf<WanderingHorde>(), cluster =>
+                    Parallel.ForEach(hordeTracker.GetClustersOf<WanderingHorde>(), cluster =>
                     {
                         if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                         {
@@ -63,7 +63,7 @@ namespace ImprovedHordes.Source.Wandering
 
         private bool CanPopulate()
         {
-            return this.hordeClusterTracker.GetClustersOf<WanderingHorde>().Count < this.worldPOIScanner.GetZoneCount() && 
+            return this.hordeTracker.GetClustersOf<WanderingHorde>().Count < this.worldPOIScanner.GetZoneCount() && 
                    Time.timeAsDouble - this.lastPopulationTime > 60.0;
         }
 

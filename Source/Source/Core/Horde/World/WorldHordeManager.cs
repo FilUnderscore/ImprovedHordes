@@ -6,13 +6,13 @@ namespace ImprovedHordes.Source.Horde
 {
     public sealed class WorldHordeManager
     {
-        private readonly WorldHordeClusterTracker clusterTracker;
+        private readonly WorldHordeTracker tracker;
         private readonly WorldHordeSpawner spawner;
 
         public WorldHordeManager(WorldEventReporter reporter)
         {
-            this.clusterTracker = new WorldHordeClusterTracker(reporter);
-            this.spawner = new WorldHordeSpawner(this.clusterTracker);
+            this.tracker = new WorldHordeTracker(reporter);
+            this.spawner = new WorldHordeSpawner(this.tracker);
         }
 
         public WorldHordeSpawner GetSpawner()
@@ -20,15 +20,14 @@ namespace ImprovedHordes.Source.Horde
             return this.spawner;
         }
 
-        public WorldHordeClusterTracker GetClusterTracker()
+        public WorldHordeTracker GetTracker()
         {
-            return this.clusterTracker;
+            return this.tracker;
         }
 
         public void Update(float dt)
         {
-            this.clusterTracker.Update(dt);
-            this.spawner.Update();
+            this.tracker.Update(dt);
         }
     }
 }

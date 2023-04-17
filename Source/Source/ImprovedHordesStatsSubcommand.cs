@@ -16,8 +16,8 @@ namespace ImprovedHordes.Command
                 int requestsCount = core.GetMainThreadRequestProcessor().GetRequestCount();
                 int totalCount = 0;
 
-                message = "WorldHordeClusterTracker: ";
-                foreach (var clusterEntry in core.GetHordeManager().GetClusterTracker().GetClusters())
+                message = "WorldHordeTracker Clusters: ";
+                foreach (var clusterEntry in core.GetHordeManager().GetTracker().GetClusters())
                 {
                     message += $"{clusterEntry.Key.Name} - ({clusterEntry.Value.Count}) ";
                     totalCount += clusterEntry.Value.Count;

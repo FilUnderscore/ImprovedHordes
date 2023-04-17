@@ -1,25 +1,17 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Horde.AI;
-using ImprovedHordes.Source.Scout;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 {
     public sealed class WorldHordeSpawner
     {
-        private readonly WorldHordeClusterTracker worldHordeClusterTracker;
+        private readonly WorldHordeTracker hordeTracker;
 
-        public WorldHordeSpawner(WorldHordeClusterTracker worldHordeClusterTracker)
+        public WorldHordeSpawner(WorldHordeTracker hordeTracker)
         {
-            this.worldHordeClusterTracker = worldHordeClusterTracker;
-        }
-
-        public void Update()
-        {
-            this.PopulateWorldHordes();
+            this.hordeTracker = hordeTracker;
         }
 
         public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, params AICommand[] commands) where Horde : IHorde where HordeSpawn : IHordeSpawn
@@ -35,17 +27,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.worldHordeClusterTracker.Add(new HordeCluster(horde, spawnLocation, density, commands));
-        }
-
-        private void PopulateWorldHordes() 
-        {
-            /*
-            if(this.worldHordeClusterTracker.GetClusterCount() < 200)
-            {
-                this.Spawn<ScoutHorde, RandomHordeSpawn>(new RandomHordeSpawn(), 1.0f);
-            }
-            */
+            this.hordeTracker.Add(new WorldHorde(spawnLocation, horde, density, commands));
         }
     }
 }

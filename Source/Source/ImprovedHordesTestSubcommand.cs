@@ -18,7 +18,7 @@ namespace ImprovedHordes.Command
             {
                 EntityPlayerLocal player = GameManager.Instance.World.GetPrimaryPlayer();
 
-                core.GetHordeManager().GetSpawner().Spawn<ScoutHorde, PlayerHordeSpawn>(new PlayerHordeSpawn(player, 150), new GoToTargetAICommand(player.position));
+                core.GetHordeManager().GetSpawner().Spawn<ScoutHorde, PlayerHordeSpawn>(new PlayerHordeSpawn(player, 100), new GoToTargetAICommand(player.position));
                 message = "Spawned test";
             }
             else
