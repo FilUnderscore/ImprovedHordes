@@ -158,7 +158,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
                     });
 
-                    if((nearby.Any() && !horde.IsSpawned()) || horde.HasClusterSpawnsWaiting())
+                    if(nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
                     {
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage));

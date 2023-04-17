@@ -102,6 +102,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
 
         public override void TickExecute()
         {
+            if (this.entities.Count == 0)
+            {
+                Log.Warning("Tried to despawn horde entities but no entities were spawned.");
+                return;
+            }
+
             HordeEntity entity = this.entities.Dequeue();
             GameManager.Instance.World.RemoveEntity(entity.GetEntity().entityId, EnumRemoveEntityReason.Killed);
         }

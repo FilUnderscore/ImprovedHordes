@@ -12,6 +12,7 @@ namespace ImprovedHordes.Source.Wandering
         private readonly WorldHordeTracker hordeTracker;
         private readonly WorldHordeSpawner hordeSpawner;
 
+        private bool initiallyPopulated;
         private double lastPopulationTime;
 
         private Task<WorldPOIScanner.Zone> PopulateCheckTask;
@@ -63,8 +64,14 @@ namespace ImprovedHordes.Source.Wandering
 
         private bool CanPopulate()
         {
+            if(!initiallyPopulated)
+            {
+                if (this.hordeTracker.GetClustersOf<WanderingHorde>().Count >= this.worldPOIScanner.GetZoneCount())
+                    initiallyPopulated = true;
+            }
+
             return this.hordeTracker.GetClustersOf<WanderingHorde>().Count < this.worldPOIScanner.GetZoneCount() && 
-                   Time.timeAsDouble - this.lastPopulationTime > 60.0;
+                   (Time.timeAsDouble - this.lastPopulationTime > 60.0 || !initiallyPopulated);
         }
 
         private void SpawnHordeAt(WorldPOIScanner.Zone zone)
