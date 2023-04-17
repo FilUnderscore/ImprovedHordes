@@ -21,11 +21,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             public readonly Vector3 location;
             public readonly int gamestage;
+            public readonly string biome;
 
-            public PlayerSnapshot(Vector3 location, int gamestage)
+            public PlayerSnapshot(Vector3 location, int gamestage, BiomeDefinition biome)
             {
                 this.location = location;
                 this.gamestage = gamestage;
+                this.biome = biome != null ? biome.m_sBiomeName : null;
             }
         }
 
@@ -126,7 +128,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             {
                 foreach(var player in GameManager.Instance.World.Players.list)
                 {
-                    snapshots.Add(new PlayerSnapshot(player.position, player.gameStage));
+                    snapshots.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
                 }
 
                 this.UpdateTask = Task.Run(async () =>
@@ -161,7 +163,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     if(nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
                     {
                         PlayerHordeGroup group = new PlayerHordeGroup();
-                        nearby.Do(player => group.AddPlayer(player.gamestage));
+                        nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
                         horde.Spawn(group);
                     }

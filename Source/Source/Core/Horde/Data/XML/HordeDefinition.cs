@@ -118,9 +118,48 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
                 }
             }
 
+            public enum TimeOfDay
+            {
+                Day,
+                Night,
+                Both
+            }
+
+            private static TimeOfDay TimeOfDayFromString(string str)
+            {
+                if(str.EqualsCaseInsensitive("day"))
+                {
+                    return TimeOfDay.Day;
+                }
+                else if(str.EqualsCaseInsensitive("night"))
+                {
+                    return TimeOfDay.Night;
+                }
+
+                return TimeOfDay.Both;
+            }
+
+            private static bool IsTimeOfDay(TimeOfDay timeOfDay)
+            {
+                bool isDay = GameManager.Instance.World.IsDaytime();
+
+                switch(timeOfDay)
+                {
+                    case TimeOfDay.Day:
+                        return isDay;
+                    case TimeOfDay.Night:
+                        return !isDay;
+                    case TimeOfDay.Both:
+                    default:
+                        return true;
+                }
+            }
+
             public sealed class Entity
             {
                 private readonly GS gs;
+                private readonly TimeOfDay time;
+                private readonly string[] biomes;
 
                 private readonly int entityClass;
                 private readonly string entityGroup;
@@ -132,6 +171,12 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
                 public Entity(GS gs, XmlEntry entry)
                 {
                     this.gs = gs;
+
+                    if(entry.GetAttribute("time", out string timeValue))
+                        this.time = TimeOfDayFromString(timeValue);
+
+                    if (entry.GetAttribute("biomes", out string biomesValue))
+                        this.biomes = biomesValue.Split(',');
 
                     if (entry.GetAttribute("name", out string nameValue))
                         this.entityClass = EntityClass.FromString(nameValue);
@@ -157,7 +202,9 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
 
                 public bool IsEligible(PlayerHordeGroup playerGroup)
                 {
-                    return this.gs == null || this.gs.IsEligible(playerGroup);
+                    return (this.gs == null || this.gs.IsEligible(playerGroup)) &&
+                        IsTimeOfDay(this.time) &&
+                        (this.biomes == null || this.biomes.Contains(playerGroup.GetBiome()));
                 }
 
                 public int GetEntityId(ref int lastEntityId)
