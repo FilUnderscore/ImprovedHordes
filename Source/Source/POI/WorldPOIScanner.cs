@@ -117,11 +117,6 @@ namespace ImprovedHordes.Source.POI
             }
         }
 
-        private float GetDensity(Zone zone)
-        {
-            return zone.GetCount() / this.highestDensity;
-        }
-
         public Zone PickRandomZone()
         {
             return zones.RandomObject();
@@ -145,6 +140,11 @@ namespace ImprovedHordes.Source.POI
         public int GetZoneCount()
         {
             return zones.Count;
+        }
+
+        public int GetZoneCountGTE(float density)
+        {
+            return zones.Where(zone => zone.GetDensity() >= density).Count();
         }
     }
 }

@@ -48,7 +48,7 @@
 
         public bool IsDead()
         {
-            return this.density < 0.1f;
+            return this.density <= float.Epsilon;
         }
 
         public void SetMaxEntityCount(int maxEntityCount)

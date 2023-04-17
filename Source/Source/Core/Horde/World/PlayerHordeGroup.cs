@@ -20,10 +20,13 @@ namespace ImprovedHordes.Source.Core.Horde.World
         {
             this.gamestageSum += gamestage;
 
-            if (!this.biomes.ContainsKey(biome))
-                this.biomes.Add(biome, 1);
-            else
-                this.biomes[biome]++;
+            if (biome != null)
+            {
+                if (!this.biomes.ContainsKey(biome))
+                    this.biomes.Add(biome, 1);
+                else
+                    this.biomes[biome]++;
+            }
 
             this.count += 1;
         }
@@ -38,6 +41,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         public string GetBiome()
         {
+            if (biomes.Count == 0)
+                return "pine_forest";
+
             return biomes.Aggregate((e1, e2) => e1.Value > e2.Value ? e1 : e2).Key;
         }
     }
