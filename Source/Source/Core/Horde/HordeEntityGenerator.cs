@@ -5,14 +5,18 @@ namespace ImprovedHordes.Source.Core.Horde
 {
     public abstract class HordeEntityGenerator
     {
-        public HordeEntityGenerator()
-        {
+        protected readonly PlayerHordeGroup playerGroup;
 
+        public HordeEntityGenerator(PlayerHordeGroup playerGroup)
+        {
+            this.playerGroup = playerGroup;
         }
+
+        public abstract int GetEntityId();
 
         public EntityAlive GenerateEntity(Vector3 spawnPosition)
         {
-            int entityId = EntityClass.FromString("zombieSpider"); // TODO
+            int entityId = GetEntityId();
             EntityAlive entity = EntityFactory.CreateEntity(entityId, spawnPosition) as EntityAlive;
 
             if(entity != null)
@@ -35,10 +39,6 @@ namespace ImprovedHordes.Source.Core.Horde
             return entity;
         }
 
-        public int DetermineEntityCount(PlayerHordeGroup playerGroup, float density)
-        {
-            Log.Out("Entity density: " + density);
-            return Mathf.CeilToInt(10 * density);
-        }
+        public abstract int DetermineEntityCount(float density);
     }
 }

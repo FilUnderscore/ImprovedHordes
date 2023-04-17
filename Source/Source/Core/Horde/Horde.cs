@@ -1,8 +1,10 @@
-﻿namespace ImprovedHordes.Source.Core.Horde
+﻿using ImprovedHordes.Source.Core.Horde.World;
+
+namespace ImprovedHordes.Source.Core.Horde
 {
     public interface IHorde
     {
-        HordeEntityGenerator GetEntityGenerator();
+        HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup);
 
         float GetSensitivity();
         float GetWalkSpeed();

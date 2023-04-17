@@ -1,14 +1,13 @@
 ﻿using ImprovedHordes.Source.Core.Horde;
+using ImprovedHordes.Source.Core.Horde.World;
 
 namespace ImprovedHordes.Source.Scout
 {
     public sealed class ScoutHorde : IHorde
     {
-        private static readonly HordeEntityGenerator GENERATOR = new ScoutHordeGenerator();
-
-        public HordeEntityGenerator GetEntityGenerator()
+        public HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup)
         {
-            return GENERATOR;
+            return new HordeDefinitionEntityGenerator(playerGroup, "screamer");
         }
 
         public float GetSensitivity()

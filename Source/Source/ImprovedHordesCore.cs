@@ -1,4 +1,6 @@
-﻿using ImprovedHordes.Source.Core.Horde.World.Event;
+﻿using ImprovedHordes.Source.Core;
+using ImprovedHordes.Source.Core.Horde.Data;
+using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde;
 using ImprovedHordes.Source.POI;
@@ -27,6 +29,8 @@ namespace ImprovedHordes.Source
             Instance = this;
 
             this.mainThreadRequestProcessor = new MainThreadRequestProcessor();
+
+            XPathPatcher.LoadAndPatchXMLFile(mod.Path, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
         }
 
         public static bool TryGetInstance(out ImprovedHordesCore instance)

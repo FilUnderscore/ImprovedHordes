@@ -61,12 +61,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Core\Command\CommandBase.cs" />
+    <Compile Include="Source\Core\Horde\Data\HordesFromXml.cs" />
+    <Compile Include="Source\Core\Horde\Data\XmlFileParser.cs" />
+    <Compile Include="Source\Core\Horde\Data\XML\HordeDefinition.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHorde.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\HordeCluster.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\HordeEntity.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHordeTracker.cs" />
     <Compile Include="Source\Core\Horde\World\Event\WorldEventReportEvent.cs" />
     <Compile Include="Source\Core\Horde\World\Event\WorldEventReporter.cs" />
+    <Compile Include="Source\Core\Horde\World\HordeDefinitionEntityGenerator.cs" />
     <Compile Include="Source\Core\Horde\World\PlayerHordeGroup.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeSpawnRequest.cs" />
@@ -76,6 +80,7 @@
     <Compile Include="Source\Core\Horde\World\Event\WorldEvent.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequest.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequestProcessor.cs" />
+    <Compile Include="Source\Core\XPathPatcher.cs" />
     <Compile Include="Source\ImprovedHordesStatsSubcommand.cs" />
     <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />
@@ -91,14 +96,10 @@
     <Compile Include="Source\ImprovedHordesMod.cs" />
     <Compile Include="Source\POI\WorldPOIScanner.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
-    <Compile Include="Source\Scout\ScoutHordeGenerator.cs" />
     <Compile Include="Source\Wandering\WanderingHorde.cs" />
-    <Compile Include="Source\Wandering\WanderingHordeGenerator.cs" />
     <Compile Include="Source\Wandering\WorldWanderingHordePopulator.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source\Core\Horde\Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>robocopy "$(TargetDir) " "C:\\Program Files (x86)\\Steam\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e

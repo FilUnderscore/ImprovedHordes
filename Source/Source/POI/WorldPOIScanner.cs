@@ -6,11 +6,9 @@ namespace ImprovedHordes.Source.POI
 {
     public sealed class WorldPOIScanner
     {
-        private const float CITY_DENSITY_THRESHOLD = 0.5f;
-
         private readonly List<Zone> zones = new List<Zone>();
 
-        private float highestDensity;
+        private int highestDensity;
 
         public WorldPOIScanner()
         {
@@ -52,12 +50,8 @@ namespace ImprovedHordes.Source.POI
                 for(int j = i + 1; j < zones.Count; j++)
                 {
                     var other = zones[j];
-                    /*
-                    float sqrDistance = zone.GetBounds().SqrDistance(other.GetBounds().center);
-                    float size = zone.GetBounds().size.sqrMagnitude * (other.GetBounds().size.sqrMagnitude / zone.GetBounds().size.sqrMagnitude);
-                    */
 
-                    if (zone.GetBounds().Intersects(other.GetBounds())/* || sqrDistance <= size*/)
+                    if (zone.GetBounds().Intersects(other.GetBounds()))
                     {
                         zones.RemoveAt(j--);
                         zone.Merge(other);
@@ -67,12 +61,18 @@ namespace ImprovedHordes.Source.POI
 
             highestDensity = zones.Max(zone => zone.GetCount());
             Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) - highest POI count in zones ({highestDensity})");
+
+            foreach(var zone in zones)
+            {
+                zone.UpdateDensity(this.highestDensity);
+            }
         }
 
         public sealed class Zone
         {
             private Bounds bounds;
             private readonly List<PrefabInstance> pois = new List<PrefabInstance>();
+            private float density;
 
             public Zone(PrefabInstance poi)
             {
@@ -105,9 +105,19 @@ namespace ImprovedHordes.Source.POI
                 // Recalculate bounds
                 this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
             }
+
+            public void UpdateDensity(int highestDensity)
+            {
+                this.density = this.GetCount() / (float)highestDensity;
+            }
+
+            public float GetDensity()
+            {
+                return this.density;
+            }
         }
 
-        public float GetDensity(Zone zone)
+        private float GetDensity(Zone zone)
         {
             return zone.GetCount() / this.highestDensity;
         }
@@ -115,6 +125,16 @@ namespace ImprovedHordes.Source.POI
         public Zone PickRandomZone()
         {
             return zones.RandomObject();
+        }
+
+        public Zone PickRandomZoneGTE(float density)
+        {
+            return zones.Where(zone => zone.GetDensity() >= density).ToList().RandomObject();
+        }
+
+        public Zone PickRandomZoneLTE(float density)
+        {
+            return zones.Where(zone => zone.GetDensity() <= density).ToList().RandomObject();
         }
 
         public bool HasScanCompleted()

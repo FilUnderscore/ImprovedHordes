@@ -1,15 +1,13 @@
 ﻿using ImprovedHordes.Source.Core.Horde;
-using System;
+using ImprovedHordes.Source.Core.Horde.World;
 
 namespace ImprovedHordes.Source.Wandering
 {
     public sealed class WanderingHorde : IHorde
     {
-        private static readonly HordeEntityGenerator GENERATOR = new WanderingHordeGenerator();
-
-        public HordeEntityGenerator GetEntityGenerator()
+        public HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup)
         {
-            return GENERATOR;
+            return new HordeDefinitionEntityGenerator(playerGroup, "wandering");
         }
 
         public float GetSensitivity()

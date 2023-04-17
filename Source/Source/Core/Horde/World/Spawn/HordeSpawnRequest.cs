@@ -18,9 +18,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             public ClusterSpawn(HordeCluster cluster, PlayerHordeGroup playerGroup)
             {
                 this.cluster = cluster;
-                this.generator = cluster.GetHorde().GetEntityGenerator();
+                this.generator = cluster.GetHorde().CreateEntityGenerator(playerGroup);
 
-                this.size = this.generator.DetermineEntityCount(playerGroup, cluster.GetDensity());
+                this.size = this.generator.DetermineEntityCount(cluster.GetDensity());
                 this.index = 0;
 
                 cluster.SetMaxEntityCount(this.size);
@@ -63,9 +63,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
                     continue;
                 }
 
-                if (GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, 40, 40, true, out Vector3 spawnLocation, false))
-                    this.entities[clusterSpawn.cluster].Add(clusterSpawn.generator.GenerateEntity(spawnLocation));
+                if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, 40, 40, true, out Vector3 spawnLocation, false))
+                    continue;
 
+                this.entities[clusterSpawn.cluster].Add(clusterSpawn.generator.GenerateEntity(spawnLocation));
                 clusterSpawn.index++;
             }
 

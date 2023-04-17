@@ -2,7 +2,7 @@
 <hordes>
 	<horde type="wandering"> <!-- Define wandering horde parameters -->
 		<parameters>
-			<parameter key="" value=""/>
+			<parameter key="city_zone_density" value="0.5"/>
 		</parameters>
 		<groups> <!-- Define possible groups for wandering hordes-->
 			<group name="Zombies">
