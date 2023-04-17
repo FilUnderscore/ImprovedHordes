@@ -18,7 +18,17 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             public ClusterSpawn(HordeCluster cluster, PlayerHordeGroup playerGroup)
             {
                 this.cluster = cluster;
-                this.generator = cluster.GetHorde().CreateEntityGenerator(playerGroup);
+                HordeEntityGenerator generator = cluster.GetPreviousHordeEntityGenerator();
+
+                if (generator == null || !generator.IsStillValidFor(playerGroup))
+                {
+                    this.generator = cluster.GetHorde().CreateEntityGenerator(playerGroup);
+                }
+                else // Try reuse the entity generator so we can keep hordes consistent if possible.
+                {
+                    generator.SetPlayerGroup(playerGroup);
+                    this.generator = generator;
+                }
 
                 this.size = this.generator.DetermineEntityCount(cluster.GetDensity());
                 this.index = 0;

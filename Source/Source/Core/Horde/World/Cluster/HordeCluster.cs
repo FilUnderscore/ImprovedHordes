@@ -3,6 +3,7 @@
     public sealed class HordeCluster
     {
         private readonly IHorde horde;
+        private HordeEntityGenerator previousHordeEntityGenerator;
 
         private float density;
         private float densityPerEntity;
@@ -18,6 +19,16 @@
         public IHorde GetHorde()
         {
             return this.horde;
+        }
+
+        public HordeEntityGenerator GetPreviousHordeEntityGenerator()
+        {
+            return this.previousHordeEntityGenerator;
+        }
+
+        public void SetPreviousHordeEntityGenerator(HordeEntityGenerator hordeEntityGenerator)
+        {
+            this.previousHordeEntityGenerator = hordeEntityGenerator;
         }
 
         public float GetDensity() 

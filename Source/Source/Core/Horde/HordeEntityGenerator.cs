@@ -5,12 +5,19 @@ namespace ImprovedHordes.Source.Core.Horde
 {
     public abstract class HordeEntityGenerator
     {
-        protected readonly PlayerHordeGroup playerGroup;
+        protected PlayerHordeGroup playerGroup;
 
         public HordeEntityGenerator(PlayerHordeGroup playerGroup)
         {
             this.playerGroup = playerGroup;
         }
+
+        public void SetPlayerGroup(PlayerHordeGroup playerGroup)
+        {
+            this.playerGroup = playerGroup;
+        }
+
+        public abstract bool IsStillValidFor(PlayerHordeGroup playerGroup);
 
         public abstract int GetEntityId();
 

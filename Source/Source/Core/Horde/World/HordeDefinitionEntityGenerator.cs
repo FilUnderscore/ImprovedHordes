@@ -1,10 +1,7 @@
 ﻿using ImprovedHordes.Source.Core.Horde.Data;
 using ImprovedHordes.Source.Core.Horde.Data.XML;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World
@@ -55,6 +52,11 @@ namespace ImprovedHordes.Source.Core.Horde.World
             HordeDefinition.Group.Entity randomEntity = GetRandomEntity();
 
             return randomEntity.GetEntityId(ref this.lastEntityId);
+        }
+
+        public override bool IsStillValidFor(PlayerHordeGroup playerGroup)
+        {
+            return this.group.IsEligible(playerGroup);
         }
     }
 }

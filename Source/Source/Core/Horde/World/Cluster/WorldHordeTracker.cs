@@ -215,10 +215,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                             {
                                 int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
                                 bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
+                                bool mergeChance = GameManager.Instance.World.GetGameRandom().RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
 
-                                if (nearby && horde.Merge(otherHorde))
+                                if (nearby && mergeChance)
                                 {
-                                    toRemove.Enqueue(otherHorde);
+                                    if (horde.Merge(otherHorde))
+                                    {
+                                        toRemove.Enqueue(otherHorde);
+                                    }
+                                    else if(otherHorde.Merge(horde))
+                                    {
+                                        toRemove.Enqueue(horde);
+                                        break;
+                                    }
                                 }
                             }
                         }
