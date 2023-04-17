@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
-    public class WorldHorde : IAIAgent
+    public sealed class WorldHorde : IAIAgent
     {
         private Vector3 location;
         private readonly List<HordeCluster> clusters = new List<HordeCluster>();
