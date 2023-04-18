@@ -21,6 +21,11 @@ namespace ImprovedHordes.Command
                 {
                     message += $"{clusterEntry.Key.Name} - ({clusterEntry.Value.Count}) ";
                     totalCount += clusterEntry.Value.Count;
+
+                    foreach(var cluster in clusterEntry.Value)
+                    {
+                        message += $" [density: {cluster.density}] ";
+                    }
                 }
 
                 message += $"\nTotal Count {totalCount}";

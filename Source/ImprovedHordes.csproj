@@ -78,6 +78,7 @@
     <Compile Include="Source\Core\Horde\World\Spawn\PlayerHordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\RandomHordeSpawn.cs" />
     <Compile Include="Source\Core\Horde\World\Event\WorldEvent.cs" />
+    <Compile Include="Source\Core\Horde\World\WorldHordePopulator.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequest.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequestProcessor.cs" />
     <Compile Include="Source\Core\XPathPatcher.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Source\ImprovedHordesCore.cs" />
     <Compile Include="Source\ImprovedHordesMod.cs" />
     <Compile Include="Source\POI\WorldPOIScanner.cs" />
+    <Compile Include="Source\POI\WorldZoneHordePopulator.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
     <Compile Include="Source\Wandering\WanderingHorde.cs" />
     <Compile Include="Source\Wandering\WorldWanderingHordePopulator.cs" />

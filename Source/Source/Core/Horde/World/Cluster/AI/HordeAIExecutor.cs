@@ -82,6 +82,8 @@ namespace ImprovedHordes.Source.Horde.AI
             {
                 this.executor = executor;
                 this.hordeClusterExecutor = hordeClusterExecutor;
+
+                Log.Out("Constructed update request");
             }
 
             public bool IsDone()

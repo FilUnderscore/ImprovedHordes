@@ -51,7 +51,7 @@ namespace ImprovedHordes.Source
             this.worldEventReporter = new WorldEventReporter(maxSize.x - minSize.x);
             this.hordeManager = new WorldHordeManager(this.worldEventReporter);
             this.poiScanner = new WorldPOIScanner();
-            this.wanderingHordePopulator = new WorldWanderingHordePopulator(this.poiScanner, this.hordeManager.GetTracker(), this.hordeManager.GetSpawner());
+            this.wanderingHordePopulator = new WorldWanderingHordePopulator(this.hordeManager.GetTracker(), this.hordeManager.GetSpawner(), this.poiScanner);
 
             this.initialized = true;
         }

@@ -17,7 +17,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private readonly int VIEW_DISTANCE = 90;
 
-        private readonly struct PlayerSnapshot
+        public readonly struct PlayerSnapshot
         {
             public readonly Vector3 location;
             public readonly int gamestage;
@@ -146,6 +146,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         public Dictionary<Type, List<ClusterSnapshot>> GetClusters()
         {
             return this.clusterSnapshots;
+        }
+
+        public List<PlayerSnapshot> GetPlayers()
+        {
+            return this.snapshots;
         }
 
         private async Task<int> UpdateAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)

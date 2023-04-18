@@ -66,6 +66,8 @@ namespace ImprovedHordes.Source.POI
             {
                 zone.UpdateDensity(this.highestDensity);
             }
+
+            Log.Out("Avg Zone Density: " + zones.Average(zone => zone.GetDensity()));
         }
 
         public sealed class Zone
