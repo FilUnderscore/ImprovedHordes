@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hordes>
 	<horde type="wandering"> <!-- Define wandering horde parameters -->
-		<parameters>
-			<parameter key="city_zone_density" value="0.5"/>
-		</parameters>
 		<groups> <!-- Define possible groups for wandering hordes-->
 			<group name="Zombies">
 				<gs min="0" max="165"> <!-- 3 zombies @ GS 0, 20 zombies @ GS 55 (1/3 of 165), 10 zombies @ GS 110 (2/3 of 165), 0 zombies @ GS 165+ -->
@@ -32,11 +29,11 @@
 				</gs>
 			</group>
 			
-			<group name="ZombieDogs" chance="0.05">
+			<group name="ZombieDogs" chance="0.2">
 				<entity biomes="wasteland" name="animalZombieDog" minCount="1" maxCount="10"/>
 			</group>
 			
-			<group name="Wolves" chance="0.05">
+			<group name="Wolves" chance="0.1">
 				<entity biomes="desert,snow" name="animalCoyote" minCount="1" maxCount="2"/>
 				<entity biomes="pine_forest,burnt_forest" name="animalWolf" minCount="2" maxCount="4"/>
 
@@ -44,7 +41,7 @@
 				<entity biomes="snow" name="animalMountainLion" minCount="1" maxCount="2"/>
 			</group>
 			
-			<group name="Bears" chance="0.01">
+			<group name="Bears" chance="0.05">
 				<entity biomes="pine_forest,snow" name="animalBear" minCount="1" maxCount="2"/>
 				
 				<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="2"/>
