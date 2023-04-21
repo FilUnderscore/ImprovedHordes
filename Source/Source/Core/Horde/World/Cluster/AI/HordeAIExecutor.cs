@@ -93,8 +93,6 @@ namespace ImprovedHordes.Source.Horde.AI
             {
                 this.executor = executor;
                 this.hordeClusterExecutor = hordeClusterExecutor;
-
-                Log.Out("Constructed update request");
             }
 
             public bool IsDone()
@@ -112,7 +110,6 @@ namespace ImprovedHordes.Source.Horde.AI
                 if (this.executor.agent.IsDead())
                 {
                     this.hordeClusterExecutor.executors.Remove(this.executor.agent);
-                    Log.Out("Dead agent, removing");
                 }
             }
         }
@@ -181,8 +178,9 @@ namespace ImprovedHordes.Source.Horde.AI
 
                 if (!nextCommand.IsComplete(this.agent))
                     return;
-
+#if DEBUG
                 Log.Out($"Completed interrupt command {nextCommand.GetType().Name}");
+#endif
                 interruptCommands.TryPop(out _);
 
                 while (interruptCommands.TryPeek(out AICommand nextNextCommand))
@@ -205,7 +203,9 @@ namespace ImprovedHordes.Source.Horde.AI
                 if (!nextCommand.IsComplete(this.agent))
                     return;
 
+#if DEBUG
                 Log.Out($"Completed command {nextCommand.GetType().Name}");
+#endif
                 commands.TryDequeue(out _);
 
                 while (commands.TryPeek(out AICommand nextNextCommand))
@@ -259,8 +259,7 @@ namespace ImprovedHordes.Source.Horde.AI
                     interruptScore /= interruptCount;
 
                 int score = commandScore - interruptScore;
-                Log.Out($"Computed objective score: {score} -- CS {commandScore} - IS {interruptScore}");
-
+                
                 return score;
             }
         }

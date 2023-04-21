@@ -106,7 +106,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 while(toRemove.TryDequeue(out WorldHorde cluster))
                 {
                     hordes.Remove(cluster);
-                    Log.Out("Removed horde");
                 }
 
                 int eventsProcessed = UpdateTask.Result;

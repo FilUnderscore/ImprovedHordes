@@ -56,7 +56,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, 40, -1, false, out Vector3 spawnLocation, false))
             {
-                Log.Warning("Bad spawn " + this.horde.GetLocation());
+                Log.Warning($"[Improved Hordes] Bad spawn request for horde at {this.horde.GetLocation()}");
                 return;
             }
 
@@ -100,7 +100,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if (this.entities.Count == 0)
             {
-                Log.Warning("Tried to despawn horde entities but no entities were spawned.");
+                Log.Warning("[Improved Hordes] Tried to despawn horde entities but no entities were spawned.");
                 return;
             }
 

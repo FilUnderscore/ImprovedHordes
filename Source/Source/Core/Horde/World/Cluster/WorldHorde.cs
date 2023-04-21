@@ -55,8 +55,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private void AddEntity(HordeClusterEntity entity)
         {
-            Log.Out("Add");
-
             entity.GetCluster().AddEntity(entity);
             this.AIExecutor.AddEntity(entity, true);
         }
