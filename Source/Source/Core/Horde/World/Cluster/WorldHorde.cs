@@ -14,9 +14,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private float walkSpeed = 0.0f;
         private float sensitivity = 0.0f;
 
-        private readonly List<HordeEntity> entities = new List<HordeEntity>();
-        private bool spawned;
-
         private HordeAIExecutor AIExecutor;
 
         public WorldHorde(Vector3 location, IHorde horde, float density, params AICommand[] commands) : this(location, new HordeCluster(horde, density), commands) { }
@@ -25,8 +22,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             this.location = location;
             this.AddCluster(cluster);
-
-            this.spawned = false;
 
             this.AIExecutor = new HordeAIExecutor(this);
             this.AIExecutor.Queue(false, commands);
@@ -37,28 +32,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.location;
         }
 
-        public void Spawn(PlayerHordeGroup group)
+        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(PlayerHordeGroup group)
         {
-            if (ImprovedHordesCore.TryGetInstance(out var instance))
+            foreach(var cluster in this.clusters)
             {
-                var request = new HordeSpawnRequest(this, this.clusters.Where(cluster => !cluster.IsSpawned()).ToList(), group);
-                instance.GetMainThreadRequestProcessor().RequestAndWait(request);
+                if (cluster.IsSpawned())
+                    continue;
 
-                List<HordeEntity> entitiesToAdd = new List<HordeEntity>();
-                foreach(var entry in request.GetEntities())
+                yield return new HordeClusterSpawnRequest(this, cluster, group, entity =>
                 {
-                    var cluster = entry.Key;
-                    
-                    foreach(var entity in entry.Value)
-                    {
-                        entitiesToAdd.Add(new HordeEntity(cluster, entity));
-                    }
-                }
+                    this.AddEntity(new HordeClusterEntity(cluster, entity));
+                });
 
-                this.AddEntities(entitiesToAdd);
-
-                clusters.ForEach(cluster => cluster.SetSpawned(true));
-                spawned = true;
+                cluster.SetSpawned(true);
             }
         }
 
@@ -67,12 +53,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.clusters.Any(cluster => !cluster.IsSpawned());
         }
 
-        private void AddEntities(List<HordeEntity> entities)
+        private void AddEntity(HordeClusterEntity entity)
         {
-            this.entities.AddRange(entities);
-            this.AIExecutor.AddEntities(entities);
+            Log.Out("Add");
 
-            this.AIExecutor.Notify(true);
+            entity.GetCluster().AddEntity(entity);
+            this.AIExecutor.AddEntity(entity, true);
         }
 
         private void AddCluster(HordeCluster cluster)
@@ -83,22 +69,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             sensitivity = clusters.Max(clusterEntry => clusterEntry.GetHorde().GetSensitivity());
         }
 
-        private void AddClusters(List<HordeCluster> clusters)
-        {
-            clusters.ForEach(cluster => AddCluster(cluster));
-        }
-
         public void Despawn()
         {
             if (ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                instance.GetMainThreadRequestProcessor().RequestAndWait(new HordeDespawnRequest(this.entities));
-                this.entities.Clear();
+                instance.GetMainThreadRequestProcessor().RequestAndWait(new HordeDespawnRequest(this));
 
-                spawned = false;
                 this.clusters.ForEach(cluster => cluster.SetSpawned(false));
-
-                this.AIExecutor.Notify(spawned);
+                this.AIExecutor.Notify(false);
             }
         }
 
@@ -106,13 +84,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             if (ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                var request = new HordeUpdateRequest(this.entities);
+                var request = new HordeUpdateRequest(this);
                 instance.GetMainThreadRequestProcessor().RequestAndWait(request);
 
                 this.location = request.GetPosition();
                 request.GetDead().ForEach(deadEntity =>
                 {
-                    this.entities.Remove(deadEntity);
+                    deadEntity.GetCluster().RemoveEntity(deadEntity);
                     deadEntity.GetCluster().NotifyDensityRemoved();
 
                     if (deadEntity.GetCluster().IsDead())
@@ -121,14 +99,22 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public bool IsSpawned()
-        {
-            return this.spawned;
-        }
-
         public bool IsDead()
         {
             return this.clusters.Count == 0;
+        }
+
+        public bool IsSpawned()
+        {
+            return this.clusters.Any(cluster => cluster.IsSpawned());
+        }
+
+        private void AddClusters(List<HordeCluster> clusters)
+        {
+            clusters.ForEach(cluster =>
+            {
+                this.AddCluster(cluster);
+            });
         }
 
         private bool merged;
@@ -141,10 +127,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.AddClusters(horde.clusters);
             horde.merged = true;
 
-            if(horde.spawned)
+            if(horde.IsSpawned())
             {
-                // Take control of horde entities.
-                this.AddEntities(horde.entities);
                 horde.AIExecutor.Notify(false);
             }
 

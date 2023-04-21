@@ -28,15 +28,21 @@ namespace ImprovedHordes.Source.Horde.AI
             }
         }
 
-        public void AddEntities(IEnumerable<HordeEntity> entities) 
+        public void AddEntities(IEnumerable<HordeClusterEntity> entities, bool loaded)
         {
             foreach(var entity in entities)
             {
-                AIAgentExecutor executor;
-                this.executors.Add(entity, executor = new AIAgentExecutor(entity));
-
-                this.hordeExecutor.CopyTo(executor);
+                AddEntity(entity, loaded);
             }
+        }
+
+        public void AddEntity(HordeClusterEntity entity, bool loaded)
+        {
+            AIAgentExecutor executor;
+            this.executors.Add(entity, executor = new AIAgentExecutor(entity));
+
+            this.hordeExecutor.CopyTo(executor);
+            this.NotifyEntity(executor, loaded);
         }
 
         public void Notify(bool loaded)
@@ -52,19 +58,24 @@ namespace ImprovedHordes.Source.Horde.AI
             }
         }
 
+        private void NotifyEntity(AIAgentExecutor executor, bool loaded)
+        {
+            if (loaded && !executor.loaded)
+            {
+                executor.loaded = true;
+                mainThreadRequestProcessor.Request(new EntityAIUpdateRequest(executor, this));
+            }
+            else if (!loaded && executor.loaded)
+            {
+                executor.loaded = false;
+            }
+        }
+
         private void NotifyEntities(bool loaded)
         {
             foreach(var executor in this.executors.Values)
             {
-                if(loaded && !executor.loaded)
-                {
-                    executor.loaded = true;
-                    mainThreadRequestProcessor.Request(new EntityAIUpdateRequest(executor, this));
-                }
-                else if(!loaded && executor.loaded)
-                {
-                    executor.loaded = false;
-                }
+                NotifyEntity(executor, loaded);   
             }
         }
 

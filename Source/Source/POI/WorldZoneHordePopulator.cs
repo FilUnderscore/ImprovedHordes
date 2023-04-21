@@ -39,7 +39,7 @@ namespace ImprovedHordes.Source.POI
             {
                 PopulateCheckTask = Task.Run(() =>
                 {
-                    WorldPOIScanner.Zone randomZone = this.scanner.PickRandomZoneGTE(0.3f);
+                    WorldPOIScanner.Zone randomZone = this.scanner.PickRandomZone();
                     bool nearby = false;
 
                     Parallel.ForEach(this.tracker.GetClustersOf<Horde>(), cluster =>
@@ -70,11 +70,12 @@ namespace ImprovedHordes.Source.POI
             Vector3 zoneCenter = zone.GetBounds().center;
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
 
-            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(zoneCenter, 0, maxRadius, -1, false, out Vector3 zoneSpawnLocation))
-                return;
+            Log.Out("Max radius: " + maxRadius);
 
-            float zoneSpawnDensity = Mathf.Max(1.0f, zone.GetDensity() * 2.0f);
-            this.spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(new Vector2(zoneSpawnLocation.x, zoneSpawnLocation.z)), zoneSpawnDensity/*, CreateHordeCommands(zone).ToArray()*/);
+            Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + GameManager.Instance.World.GetGameRandom().RandomInsideUnitCircle * maxRadius;
+
+            float zoneSpawnDensity = zone.GetDensity() * 4.0f;
+            this.spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(new Vector2(zoneSpawnLocation.x, zoneSpawnLocation.y)), zoneSpawnDensity/*, CreateHordeCommands(zone).ToArray()*/);
 
             Log.Out($"Spawned horde of density {zoneSpawnDensity} at {zoneSpawnLocation}.");
         }

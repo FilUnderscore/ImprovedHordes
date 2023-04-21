@@ -1,4 +1,6 @@
-﻿namespace ImprovedHordes.Source.Core.Horde.World.Cluster
+﻿using System.Collections.Generic;
+
+namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
     public sealed class HordeCluster
     {
@@ -8,6 +10,7 @@
         private float density;
         private float densityPerEntity;
 
+        private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
         private bool spawned;
 
         public HordeCluster(IHorde horde, float density)
@@ -51,12 +54,20 @@
             return this.density <= float.Epsilon;
         }
 
-        public void SetMaxEntityCount(int maxEntityCount)
+        public void AddEntity(HordeClusterEntity entity)
         {
-            if (maxEntityCount == 0)
-                return;
+            this.entities.Add(entity);
+            this.densityPerEntity = this.density / this.entities.Count;
+        }
 
-            this.densityPerEntity = this.density / maxEntityCount;
+        public void RemoveEntity(HordeClusterEntity entity) 
+        {
+            this.entities.Remove(entity);
+        }
+
+        public List<HordeClusterEntity> GetEntities()
+        {
+            return this.entities;
         }
 
         public void SetSpawned(bool spawned)

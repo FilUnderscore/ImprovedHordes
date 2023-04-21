@@ -46,5 +46,10 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
             return biomes.Aggregate((e1, e2) => e1.Value > e2.Value ? e1 : e2).Key;
         }
+
+        public override string ToString()
+        {
+            return $"[gamestage={this.GetGamestage()}, biome={this.GetBiome()}]";
+        }
     }
 }

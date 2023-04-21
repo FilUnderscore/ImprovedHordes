@@ -8,6 +8,8 @@ namespace ImprovedHordes.Source.Core.Horde.World
 {
     public sealed class HordeDefinitionEntityGenerator : HordeEntityGenerator
     {
+        private const string PLACEHOLDER_ENTITY_CLASS = "zombieSpider";
+
         private readonly HordeDefinition.Group group;
         private readonly Dictionary<HordeDefinition.Group.Entity, int> maxEntitiesToSpawn = new Dictionary<HordeDefinition.Group.Entity, int>();
 
@@ -17,12 +19,20 @@ namespace ImprovedHordes.Source.Core.Horde.World
         {
             this.group = HordesFromXml.GetHordeDefinition(type).GetEligibleRandomGroup(playerGroup);
 
-            this.CalculateEntitiesToSpawn();
+            if (this.group != null)
+                this.CalculateEntitiesToSpawn();
+            else
+                Log.Error($"[Improved Hordes] No eligible '{type}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
         }
 
         private void CalculateEntitiesToSpawn()
         {
-            foreach(var entity in group.GetEligible(this.playerGroup))
+            var eligibleGroupEntities = group.GetEligible(this.playerGroup);
+
+            if (eligibleGroupEntities == null)
+                return;
+
+            foreach(var entity in eligibleGroupEntities)
             {
                 maxEntitiesToSpawn.Add(entity, entity.GetCount(this.playerGroup.GetGamestage()));
             }
@@ -49,6 +59,9 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         public override int GetEntityId()
         {
+            if (this.group == null)
+                return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);
+
             HordeDefinition.Group.Entity randomEntity = GetRandomEntity();
 
             return randomEntity.GetEntityId(ref this.lastEntityId);

@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 {
-    public sealed class HordeEntity : IAIAgent
+    public sealed class HordeClusterEntity : IAIAgent
     {
         private readonly HordeCluster cluster;
         private readonly EntityAlive entity;
         
-        public HordeEntity(HordeCluster cluster, EntityAlive entity) 
+        public HordeClusterEntity(HordeCluster cluster, EntityAlive entity) 
         {
             this.cluster = cluster;
             this.entity = entity;

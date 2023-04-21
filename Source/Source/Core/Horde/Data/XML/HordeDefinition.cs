@@ -20,7 +20,12 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
 
         public Group GetEligibleRandomGroup(PlayerHordeGroup playerGroup)
         {
-            return groups.Where(group => group.IsEligible(playerGroup)).ToList().RandomObject();
+            IEnumerable<Group> eligibleGroups = groups.Where(group => group.IsEligible(playerGroup));
+
+            if (eligibleGroups.Count() == 0)
+                return null;
+
+            return eligibleGroups.ToList().RandomObject();
         }
 
         public sealed class Group

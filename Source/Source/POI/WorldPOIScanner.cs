@@ -8,7 +8,7 @@ namespace ImprovedHordes.Source.POI
     {
         private readonly List<Zone> zones = new List<Zone>();
 
-        private int highestDensity;
+        private int highestCount;
 
         public WorldPOIScanner()
         {
@@ -59,15 +59,14 @@ namespace ImprovedHordes.Source.POI
                 }
             }
 
-            highestDensity = zones.Max(zone => zone.GetCount());
-            Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) - highest POI count in zones ({highestDensity})");
+            highestCount = zones.Max(zone => zone.GetCount());
+            Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) - highest POI count in zones ({highestCount})");
 
             foreach(var zone in zones)
             {
-                zone.UpdateDensity(this.highestDensity);
+                zone.UpdateDensity(this.highestCount);
+                Log.Out("Zone density: " + zone.GetDensity() + " Count: " + zone.GetCount());
             }
-
-            Log.Out("Avg Zone Density: " + zones.Average(zone => zone.GetDensity()));
         }
 
         public sealed class Zone
@@ -108,9 +107,9 @@ namespace ImprovedHordes.Source.POI
                 this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
             }
 
-            public void UpdateDensity(int highestDensity)
+            public void UpdateDensity(int highestCount)
             {
-                this.density = this.GetCount() / (float)highestDensity;
+                this.density = (this.GetCount() - 1) / (float)(highestCount - 1);
             }
 
             public float GetDensity()
@@ -121,17 +120,7 @@ namespace ImprovedHordes.Source.POI
 
         public Zone PickRandomZone()
         {
-            return zones.RandomObject();
-        }
-
-        public Zone PickRandomZoneGTE(float density)
-        {
-            return zones.Where(zone => zone.GetDensity() >= density).ToList().RandomObject();
-        }
-
-        public Zone PickRandomZoneLTE(float density)
-        {
-            return zones.Where(zone => zone.GetDensity() <= density).ToList().RandomObject();
+            return zones.Where(zone => zone.GetDensity() > 0.0f).ToList().RandomObject();
         }
 
         public bool HasScanCompleted()
@@ -141,12 +130,7 @@ namespace ImprovedHordes.Source.POI
 
         public int GetZoneCount()
         {
-            return zones.Count;
-        }
-
-        public int GetZoneCountGTE(float density)
-        {
-            return zones.Where(zone => zone.GetDensity() >= density).Count();
+            return zones.Where(zone => zone.GetDensity() > 0.0f).Count();
         }
     }
 }

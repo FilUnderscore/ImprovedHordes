@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Event;
+using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI.Commands;
 using System;
 using System.Collections.Concurrent;
@@ -45,11 +46,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
+        private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
         private Task<int> UpdateTask;
 
         // Shared
         private readonly ConcurrentQueue<WorldHorde> toAdd = new ConcurrentQueue<WorldHorde>();
         private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
+
+        private readonly ConcurrentQueue<HordeClusterSpawnRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterSpawnRequest>();
 
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
@@ -59,8 +63,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
 
-        public WorldHordeTracker(WorldEventReporter reporter)
+        public WorldHordeTracker(MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter)
         {
+            this.mainThreadRequestProcessor = mainThreadRequestProcessor;
+
             reporter.OnWorldEventReport += Reporter_OnWorldEventReport;
 
             this.RegisterHordes();
@@ -170,7 +176,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
-                        horde.Spawn(group);
+                        foreach(var spawnRequest in horde.RequestSpawns(group))
+                        {
+                            this.clusterSpawnRequests.Enqueue(spawnRequest);
+                        }
                     }
                     else if(!nearby.Any() && horde.IsSpawned())
                     {
@@ -239,6 +248,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     }
                 }
             });
+
+            // Submit spawn requests.
+            while(this.clusterSpawnRequests.TryDequeue(out HordeClusterSpawnRequest request))
+            {
+                this.mainThreadRequestProcessor.Request(request);
+            }
 
             return eventReports.Count;
         }
