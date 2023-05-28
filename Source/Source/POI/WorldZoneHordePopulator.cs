@@ -4,6 +4,7 @@ using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -42,13 +43,26 @@ namespace ImprovedHordes.Source.POI
                     WorldPOIScanner.Zone randomZone = this.scanner.PickRandomZone();
                     bool nearby = false;
 
-                    Parallel.ForEach(this.tracker.GetClustersOf<Horde>(), cluster =>
+                    // Check for nearby players.
+                    Parallel.ForEach(this.tracker.GetPlayers(), player =>
                     {
-                        if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
+                        if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.magnitude)
                         {
-                            nearby = true;
+                            nearby |= true;
                         }
                     });
+
+                    if (!nearby)
+                    {
+                        // Check for nearby hordes.
+                        Parallel.ForEach(this.tracker.GetClustersOf<Horde>(), cluster =>
+                        {
+                            if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
+                            {
+                                nearby |= true;
+                            }
+                        });
+                    }
 
                     return !nearby ? randomZone : null;
                 });
@@ -75,7 +89,7 @@ namespace ImprovedHordes.Source.POI
             Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + GameManager.Instance.World.GetGameRandom().RandomInsideUnitCircle * maxRadius;
 
             float zoneSpawnDensity = zone.GetDensity() * 4.0f;
-            this.spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(new Vector2(zoneSpawnLocation.x, zoneSpawnLocation.y)), zoneSpawnDensity/*, CreateHordeCommands(zone).ToArray()*/);
+            this.spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(new Vector2(zoneSpawnLocation.x, zoneSpawnLocation.y)), zoneSpawnDensity, CreateHordeCommands(zone).ToArray());
 
             Log.Out($"Spawned horde of density {zoneSpawnDensity} at {zoneSpawnLocation}.");
         }

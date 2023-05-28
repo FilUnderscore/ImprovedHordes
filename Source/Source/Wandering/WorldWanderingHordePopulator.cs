@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Horde.AI;
+using ImprovedHordes.Source.Horde.AI.Commands;
 using ImprovedHordes.Source.POI;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace ImprovedHordes.Source.Wandering
 
         public override IEnumerable<AICommand> CreateHordeCommands(WorldPOIScanner.Zone zone)
         {
-            yield return null;
+            yield return new GoToTargetAICommand(GetRandomZone().GetBounds().center);
         }
 
         private Vector3[] ConstructRandomPathToDestination(Vector3 initialPath, Vector3 destination)
