@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using System;
 
 namespace ImprovedHordes.Source
 {

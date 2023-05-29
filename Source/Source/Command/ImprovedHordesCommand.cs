@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Command;
+using ImprovedHordes.Source;
 
 namespace ImprovedHordes
 {
@@ -8,6 +9,11 @@ namespace ImprovedHordes
         {
             RegisterSubcommand(new ImprovedHordesTestSubcommand());
             RegisterSubcommand(new ImprovedHordesStatsSubcommand());
+
+#if DEBUG
+            // Register debug related subcommands.
+            RegisterSubcommand(new ImprovedHordesDebugSubcommand());
+#endif
         }
 
         public override string GetDescription()

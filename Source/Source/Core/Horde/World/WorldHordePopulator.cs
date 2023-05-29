@@ -1,9 +1,10 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
+using ImprovedHordes.Source.Core.Threading;
 
 namespace ImprovedHordes.Source.Core.Horde.World
 {
-    public class WorldHordePopulator
+    public abstract class WorldHordePopulator<TaskReturnValue> : MainThreadSynchronizedTask<TaskReturnValue>
     {
         protected readonly WorldHordeTracker tracker;
         protected readonly WorldHordeSpawner spawner;
@@ -12,11 +13,6 @@ namespace ImprovedHordes.Source.Core.Horde.World
         {
             this.tracker = tracker;
             this.spawner = spawner;
-        }
-
-        public virtual void Update()
-        {
-
         }
     }
 }

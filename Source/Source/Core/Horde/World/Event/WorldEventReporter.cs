@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ImprovedHordes.Source.Core.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Event
 {
-    public sealed class WorldEventReporter
+    public sealed class WorldEventReporter : MainThreadSynchronizedTask
     {
         private const int EVENT_CHUNK_RADIUS = 3;
 
@@ -24,8 +25,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
 
         private readonly List<Vector2i> eventsToRemove = new List<Vector2i>();
 
-        private Task UpdateTask;
-
         public event EventHandler<WorldEventReportEvent> OnWorldEventReport;
 
         public WorldEventReporter(float mapSize)
@@ -36,60 +35,66 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
             AIDirectorChunkEventComponent_NotifyEvent_Patch.WorldEventReporter = this;
         }
 
-        public void Update()
+        public override void BeforeTaskRestart()
         {
-            if(UpdateTask != null && UpdateTask.IsCompleted)
+        }
+
+        public override void OnTaskFinish()
+        {
+            if (this.OnWorldEventReport != null)
             {
-                if (this.OnWorldEventReport != null)
+                foreach (var eventToReport in eventsToReport)
                 {
-                    foreach (var eventToReport in eventsToReport)
+                    this.OnWorldEventReport.Invoke(this, eventToReport);
+                }
+            }
+
+            eventsToReport.Clear();
+        }
+
+        public override async Task UpdateAsync()
+        {
+            await UpdateReportsAsync();
+        }
+
+        public async Task UpdateReportsAsync()
+        {
+            await Task.Run(() =>
+            {
+                while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
+                {
+                    if (eventHistory.ContainsKey(worldEvent.GetChunkLocation()))
                     {
-                        this.OnWorldEventReport.Invoke(this, eventToReport);
+                        eventHistory[worldEvent.GetChunkLocation()].Add(worldEvent);
+                    }
+                    else
+                    {
+                        eventHistory.Add(worldEvent.GetChunkLocation(), worldEvent);
                     }
                 }
 
-                eventsToReport.Clear();
-            }
-
-            if(UpdateTask == null || UpdateTask.IsCompleted)
-            {
-                this.UpdateTask = Task.Run(() =>
+                foreach (var worldEventEntry in eventHistory)
                 {
-                    while(eventsToStore.TryDequeue(out WorldEvent worldEvent))
+                    if (worldEventEntry.Value.HasLostInterest())
                     {
-                        if(eventHistory.ContainsKey(worldEvent.GetChunkLocation()))
-                        {
-                            eventHistory[worldEvent.GetChunkLocation()].Add(worldEvent);
-                        }
-                        else
-                        {
-                            eventHistory.Add(worldEvent.GetChunkLocation(), worldEvent);
-                        }
+                        eventsToRemove.Add(worldEventEntry.Key);
                     }
+                }
 
-                    foreach (var worldEventEntry in eventHistory)
-                    {
-                        if (worldEventEntry.Value.HasLostInterest())
-                        {
-                            eventsToRemove.Add(worldEventEntry.Key);
-                        }
-                    }
+                foreach (var eventToRemove in eventsToRemove)
+                {
+                    this.eventHistory.Remove(eventToRemove);
+                }
+                eventsToRemove.Clear();
 
-                    foreach (var eventToRemove in eventsToRemove)
-                    {
-                        this.eventHistory.Remove(eventToRemove);
-                    }
-                    eventsToRemove.Clear();
+                while (eventsToReportKeys.TryDequeue(out Vector3 key))
+                {
+                    WorldEvent worldEvent = eventHistory[global::World.toChunkXZ(key)];
+                    float interest = worldEvent.GetInterestLevel();
 
-                    while (eventsToReportKeys.TryDequeue(out Vector3 key))
-                    {
-                        WorldEvent worldEvent = eventHistory[global::World.toChunkXZ(key)];
-                        float interest = worldEvent.GetInterestLevel();
-
-                        eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
-                    }
-                });
-            }
+                    eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
+                }
+            });
         }
 
         public void Report(WorldEvent worldEvent)

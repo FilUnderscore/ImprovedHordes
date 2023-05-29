@@ -10,63 +10,67 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.POI
 {
-    public abstract class WorldZoneHordePopulator<Horde> : WorldHordePopulator where Horde: IHorde
+    public abstract class WorldZoneHordePopulator<Horde> : WorldHordePopulator<WorldPOIScanner.Zone> where Horde: IHorde
     {
         private readonly WorldPOIScanner scanner;
         
-        private Task<WorldPOIScanner.Zone> PopulateCheckTask;
-
         public WorldZoneHordePopulator(WorldHordeTracker tracker, WorldHordeSpawner spawner, WorldPOIScanner scanner) : base(tracker, spawner)
         {
             this.scanner = scanner;
         }
 
-        public override void Update()
+        public override bool CanRun()
         {
-            if (!this.scanner.HasScanCompleted() || this.GetHordesAlive() >= this.scanner.GetZoneCount())
-                return;
+            return this.scanner.HasScanCompleted() && this.GetHordesAlive() < this.scanner.GetZoneCount();
+        }
 
-            if(PopulateCheckTask != null && PopulateCheckTask.IsCompleted)
+        public override void BeforeTaskRestart()
+        {
+        }
+
+        public override void OnTaskFinish(WorldPOIScanner.Zone zone)
+        {
+            if (zone != null)
             {
-                WorldPOIScanner.Zone zone = PopulateCheckTask.Result;
-
-                if(zone != null)
-                {
-                    SpawnHordeAt(zone);
-                }
+                SpawnHordeAt(zone);
             }
+        }
 
-            if(PopulateCheckTask == null || PopulateCheckTask.IsCompleted)
+        public override async Task<WorldPOIScanner.Zone> UpdateAsync(float dt)
+        {
+            return await UpdatePopulateCheckAsync();
+        }
+
+        public async Task<WorldPOIScanner.Zone> UpdatePopulateCheckAsync()
+        {
+            return await Task.Run(() =>
             {
-                PopulateCheckTask = Task.Run(() =>
-                {
-                    WorldPOIScanner.Zone randomZone = this.scanner.PickRandomZone();
-                    bool nearby = false;
+                WorldPOIScanner.Zone randomZone = this.scanner.PickRandomZone();
+                bool nearby = false;
 
-                    // Check for nearby players.
-                    Parallel.ForEach(this.tracker.GetPlayers(), player =>
+                // Check for nearby players.
+                Parallel.ForEach(this.tracker.GetPlayers(), player =>
+                {
+                    if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.magnitude)
                     {
-                        if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.magnitude)
+                        nearby |= true;
+                    }
+                });
+
+                if (!nearby)
+                {
+                    // Check for nearby hordes.
+                    Parallel.ForEach(this.tracker.GetClustersOf<Horde>(), cluster =>
+                    {
+                        if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                         {
                             nearby |= true;
                         }
                     });
+                }
 
-                    if (!nearby)
-                    {
-                        // Check for nearby hordes.
-                        Parallel.ForEach(this.tracker.GetClustersOf<Horde>(), cluster =>
-                        {
-                            if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
-                            {
-                                nearby |= true;
-                            }
-                        });
-                    }
-
-                    return !nearby ? randomZone : null;
-                });
-            }
+                return !nearby ? randomZone : null;
+            });
         }
 
         protected WorldPOIScanner.Zone GetRandomZone()

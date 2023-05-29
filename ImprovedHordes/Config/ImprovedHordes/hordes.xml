@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hordes>
 	<horde type="wandering"> <!-- Define wandering horde parameters -->
+		<respawn_delay min="0" max="70000"/> <!-- Respawn delay in ticks (range) -->
+		
 		<groups> <!-- Define possible groups for wandering hordes-->
 			<group name="Zombies">
 				<gs min="0" max="165"> <!-- 3 zombies @ GS 0, 20 zombies @ GS 55 (1/3 of 165), 10 zombies @ GS 110 (2/3 of 165), 0 zombies @ GS 165+ -->
@@ -54,7 +56,10 @@
 			</group>
 		</groups>
 	</horde>
+	
 	<horde type="screamer">
+		<respawn_delay min="10000" max="30000"/>
+		
 		<groups>
 			<group name="Screamer">
 				<gs min="0" max="75">

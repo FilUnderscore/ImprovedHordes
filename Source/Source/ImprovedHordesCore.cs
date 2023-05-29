@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core;
+using ImprovedHordes.Source.Core.Debug;
 using ImprovedHordes.Source.Core.Horde.Data;
 using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source
 {
-    public class ImprovedHordesCore
+    public sealed class ImprovedHordesCore
     {
         private const ushort DATA_FILE_MAGIC = 0x4948;
         private const uint DATA_FILE_VERSION = 2;
@@ -23,6 +24,12 @@ namespace ImprovedHordes.Source
         private WorldEventReporter worldEventReporter;
         private WorldPOIScanner poiScanner;
         private WorldWanderingHordePopulator wanderingHordePopulator;
+
+#if DEBUG
+        private HordeViewerDebugServer debugServer;
+#endif
+
+        private int worldSize;
 
         public ImprovedHordesCore(Mod mod)
         {
@@ -48,7 +55,8 @@ namespace ImprovedHordes.Source
 
             Log.Out("[Improved Hordes] [Core] Initializing.");
 
-            this.worldEventReporter = new WorldEventReporter(maxSize.x - minSize.x);
+            this.worldSize = maxSize.x - minSize.x;
+            this.worldEventReporter = new WorldEventReporter(this.worldSize);
             this.hordeManager = new WorldHordeManager(this.mainThreadRequestProcessor, this.worldEventReporter);
             this.poiScanner = new WorldPOIScanner();
             this.wanderingHordePopulator = new WorldWanderingHordePopulator(this.hordeManager.GetTracker(), this.hordeManager.GetSpawner(), this.poiScanner);
@@ -75,13 +83,42 @@ namespace ImprovedHordes.Source
 
             this.mainThreadRequestProcessor.Update();
             this.hordeManager.Update(dt);
-            this.worldEventReporter.Update();
-            this.wanderingHordePopulator.Update();
+            this.worldEventReporter.Update(dt);
+            this.wanderingHordePopulator.Update(dt);
+
+#if DEBUG
+            if(this.debugServer != null)
+            {
+                this.debugServer.Update(dt);
+            }
+#endif
         }
 
         public void Shutdown()
         {
             this.initialized = false;
         }
+
+        public bool IsInitialized()
+        {
+            return this.initialized;
+        }
+
+        public int GetWorldSize()
+        {
+            return this.worldSize;
+        }
+
+#if DEBUG
+        internal void SetDebugServer(HordeViewerDebugServer debugServer)
+        {
+            this.debugServer = debugServer;
+        }
+
+        internal HordeViewerDebugServer GetDebugServer()
+        {
+            return this.debugServer;
+        }
+#endif
     }
 }

@@ -60,7 +60,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
     <Compile Include="Source\Core\Command\CommandBase.cs" />
+    <Compile Include="Source\Core\Horde\Debug\HordeViewerDebugServer.cs" />
     <Compile Include="Source\Core\Horde\Data\HordesFromXml.cs" />
     <Compile Include="Source\Core\Horde\Data\XmlFileParser.cs" />
     <Compile Include="Source\Core\Horde\Data\XML\HordeDefinition.cs" />
@@ -81,13 +83,15 @@
     <Compile Include="Source\Core\Horde\World\WorldHordePopulator.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequest.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequestProcessor.cs" />
+    <Compile Include="Source\Core\Threading\MainThreadSynchronizedTask.cs" />
     <Compile Include="Source\Core\XPathPatcher.cs" />
-    <Compile Include="Source\ImprovedHordesStatsSubcommand.cs" />
-    <Compile Include="Source\ImprovedHordesTestSubcommand.cs" />
+    <Compile Include="Source\Command\Debug\ImprovedHordesDebugSubcommand.cs" />
+    <Compile Include="Source\Command\ImprovedHordesStatsSubcommand.cs" />
+    <Compile Include="Source\Command\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Source\Core\Horde\HordeEntityGenerator.cs" />
     <Compile Include="Source\Core\Horde\World\WorldHordeManager.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\WorldHordeSpawner.cs" />
-    <Compile Include="Source\ImprovedHordesCommand.cs" />
+    <Compile Include="Source\Command\ImprovedHordesCommand.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\AIAgent.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\AICommand.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeAIExecutor.cs" />
