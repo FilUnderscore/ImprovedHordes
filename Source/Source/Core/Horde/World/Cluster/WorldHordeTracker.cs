@@ -135,9 +135,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public override async Task<int> UpdateAsync(float dt)
+        public override int UpdateAsync(float dt)
         {
-            return await UpdateTrackerAsync(snapshots, eventsToReport.ToList(), dt);
+            return UpdateTrackerAsync(snapshots, eventsToReport.ToList(), dt);
         }
 
         public List<ClusterSnapshot> GetClustersOf<Horde>() where Horde: IHorde
@@ -155,98 +155,95 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.snapshots;
         }
 
-        private async Task<int> UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
+        private int UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
         {
-            await Task.Run(() =>
+            Parallel.ForEach(this.hordes, horde =>
             {
-                Parallel.ForEach(this.hordes, horde =>
+                IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
                 {
-                    IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
-                    {
-                        float distance = horde.IsSpawned() ? VIEW_DISTANCE + 20 : VIEW_DISTANCE;
-                        return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
-                    });
-
-                    if(nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
-                    {
-                        PlayerHordeGroup group = new PlayerHordeGroup();
-                        nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
-
-                        foreach(var spawnRequest in horde.RequestSpawns(group))
-                        {
-                            this.clusterSpawnRequests.Enqueue(spawnRequest);
-                        }
-                    }
-                    else if(!nearby.Any() && horde.IsSpawned())
-                    {
-                        horde.Despawn();
-                    }
-
-                    if(horde.IsSpawned())
-                    {
-                        horde.UpdatePosition();
-                    }
-
-                    if(horde.IsDead())
-                    {
-                        toRemove.Enqueue(horde);
-                    }
-                    else
-                    {
-                        // Tick AI.
-                        IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
-                        {
-                            return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * horde.GetSensitivity();
-                        });
-
-                        if(nearbyReports.Any())
-                        {
-                            // Interrupt AI to split off/target reported event.
-                            WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
-                            horde.Queue(true, new GoToTargetAICommand(nearbyEvent.GetLocation()));
-                        }
-
-                        horde.Update(dt);
-                    }
+                    float distance = horde.IsSpawned() ? VIEW_DISTANCE + 20 : VIEW_DISTANCE;
+                    return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
                 });
 
-                // Merge nearby hordes.
-                for(int index = 0; index < this.hordes.Count; index++)
+                if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
                 {
-                    WorldHorde horde = this.hordes[index];
+                    PlayerHordeGroup group = new PlayerHordeGroup();
+                    nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
-                    if (!horde.IsDead())
+                    foreach (var spawnRequest in horde.RequestSpawns(group))
                     {
-                        for(int j = index + 1; j < this.hordes.Count; j++)
+                        this.clusterSpawnRequests.Enqueue(spawnRequest);
+                    }
+                }
+                else if (!nearby.Any() && horde.IsSpawned())
+                {
+                    horde.Despawn();
+                }
+
+                if (horde.IsSpawned())
+                {
+                    horde.UpdatePosition();
+                }
+
+                if (horde.IsDead())
+                {
+                    toRemove.Enqueue(horde);
+                }
+                else
+                {
+                    // Tick AI.
+                    IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
+                    {
+                        return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * horde.GetSensitivity();
+                    });
+
+                    if (nearbyReports.Any())
+                    {
+                        // Interrupt AI to split off/target reported event.
+                        WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
+                        horde.Queue(true, new GoToTargetAICommand(nearbyEvent.GetLocation()));
+                    }
+
+                    horde.Update(dt);
+                }
+            });
+
+            // Merge nearby hordes.
+            for (int index = 0; index < this.hordes.Count; index++)
+            {
+                WorldHorde horde = this.hordes[index];
+
+                if (!horde.IsDead())
+                {
+                    for (int j = index + 1; j < this.hordes.Count; j++)
+                    {
+                        WorldHorde otherHorde = this.hordes[j];
+
+                        if (!otherHorde.IsDead())
                         {
-                            WorldHorde otherHorde = this.hordes[j];
+                            int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
+                            bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
+                            bool mergeChance = GameManager.Instance.World.GetGameRandom().RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
 
-                            if (!otherHorde.IsDead())
+                            if (nearby && mergeChance)
                             {
-                                int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
-                                bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
-                                bool mergeChance = GameManager.Instance.World.GetGameRandom().RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
-
-                                if (nearby && mergeChance)
+                                if (horde.Merge(otherHorde))
                                 {
-                                    if (horde.Merge(otherHorde))
-                                    {
-                                        toRemove.Enqueue(otherHorde);
-                                    }
-                                    else if(otherHorde.Merge(horde))
-                                    {
-                                        toRemove.Enqueue(horde);
-                                        break;
-                                    }
+                                    toRemove.Enqueue(otherHorde);
+                                }
+                                else if (otherHorde.Merge(horde))
+                                {
+                                    toRemove.Enqueue(horde);
+                                    break;
                                 }
                             }
                         }
                     }
                 }
-            });
+            }
 
             // Submit spawn requests.
-            while(this.clusterSpawnRequests.TryDequeue(out HordeClusterSpawnRequest request))
+            while (this.clusterSpawnRequests.TryDequeue(out HordeClusterSpawnRequest request))
             {
                 this.mainThreadRequestProcessor.Request(request);
             }

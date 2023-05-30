@@ -29,10 +29,8 @@ namespace ImprovedHordes.Source.POI
                 for(int j = i + 1; j < pois.Count; j++)
                 {
                     var other = pois[j];
-                    float sqrDistance = zone.GetBounds().SqrDistance(other.GetAABB().center);
-                    float size = zone.GetBounds().size.sqrMagnitude * (other.GetAABB().size.sqrMagnitude / zone.GetBounds().size.sqrMagnitude);
-
-                    if(zone.GetBounds().Intersects(other.GetAABB()) || sqrDistance <= size)
+                    
+                    if(zone.GetBounds().Intersects(other.GetAABB()))
                     {
                         pois.RemoveAt(j--);
                         zone.Add(other);
@@ -47,12 +45,16 @@ namespace ImprovedHordes.Source.POI
             {
                 var zone = zones[i];
 
-                for(int j = i + 1; j < zones.Count; j++)
+                for(int j = 0; j < zones.Count; j++)
                 {
+                    if (j == i)
+                        continue;
+
                     var other = zones[j];
 
                     if (zone.GetBounds().Intersects(other.GetBounds()))
                     {
+                        i--;
                         zones.RemoveAt(j--);
                         zone.Merge(other);
                     }
@@ -131,6 +133,11 @@ namespace ImprovedHordes.Source.POI
         public int GetZoneCount()
         {
             return zones.Where(zone => zone.GetDensity() > 0.0f).Count();
+        }
+
+        public List<WorldPOIScanner.Zone> GetZones()
+        {
+            return this.zones;
         }
     }
 }

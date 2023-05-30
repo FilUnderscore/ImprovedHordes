@@ -11,13 +11,13 @@ namespace ImprovedHordes.Source.Core.Threading
 
         public abstract void OnTaskFinish();
 
-        public override async Task<object> UpdateAsync(float dt)
+        public override object UpdateAsync(float dt)
         {
-            await UpdateAsync();
+            UpdateAsync();
             return null;
         }
 
-        public abstract Task UpdateAsync();
+        public abstract void UpdateAsync();
     }
 
     public abstract class MainThreadSynchronizedTask<TaskReturnType>
@@ -43,9 +43,10 @@ namespace ImprovedHordes.Source.Core.Threading
             if (UpdateTask == null)
             {
                 this.BeforeTaskRestart();
-                this.UpdateTask = Task.Run(async () =>
+
+                this.UpdateTask = Task.Run(() =>
                 {
-                    return await UpdateAsync(dt);
+                    return UpdateAsync(dt);
                 });
             }
         }
@@ -56,6 +57,6 @@ namespace ImprovedHordes.Source.Core.Threading
         public abstract void BeforeTaskRestart();
         public abstract void OnTaskFinish(TaskReturnType returnValue);
 
-        public abstract Task<TaskReturnType> UpdateAsync(float dt);
+        public abstract TaskReturnType UpdateAsync(float dt);
     }
 }

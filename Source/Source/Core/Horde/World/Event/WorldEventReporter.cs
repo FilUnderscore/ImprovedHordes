@@ -52,49 +52,41 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
             eventsToReport.Clear();
         }
 
-        public override async Task UpdateAsync()
+        public override void UpdateAsync()
         {
-            await UpdateReportsAsync();
-        }
-
-        public async Task UpdateReportsAsync()
-        {
-            await Task.Run(() =>
+            while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
             {
-                while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
+                if (eventHistory.ContainsKey(worldEvent.GetChunkLocation()))
                 {
-                    if (eventHistory.ContainsKey(worldEvent.GetChunkLocation()))
-                    {
-                        eventHistory[worldEvent.GetChunkLocation()].Add(worldEvent);
-                    }
-                    else
-                    {
-                        eventHistory.Add(worldEvent.GetChunkLocation(), worldEvent);
-                    }
+                    eventHistory[worldEvent.GetChunkLocation()].Add(worldEvent);
                 }
-
-                foreach (var worldEventEntry in eventHistory)
+                else
                 {
-                    if (worldEventEntry.Value.HasLostInterest())
-                    {
-                        eventsToRemove.Add(worldEventEntry.Key);
-                    }
+                    eventHistory.Add(worldEvent.GetChunkLocation(), worldEvent);
                 }
+            }
 
-                foreach (var eventToRemove in eventsToRemove)
+            foreach (var worldEventEntry in eventHistory)
+            {
+                if (worldEventEntry.Value.HasLostInterest())
                 {
-                    this.eventHistory.Remove(eventToRemove);
+                    eventsToRemove.Add(worldEventEntry.Key);
                 }
-                eventsToRemove.Clear();
+            }
 
-                while (eventsToReportKeys.TryDequeue(out Vector3 key))
-                {
-                    WorldEvent worldEvent = eventHistory[global::World.toChunkXZ(key)];
-                    float interest = worldEvent.GetInterestLevel();
+            foreach (var eventToRemove in eventsToRemove)
+            {
+                this.eventHistory.Remove(eventToRemove);
+            }
+            eventsToRemove.Clear();
 
-                    eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
-                }
-            });
+            while (eventsToReportKeys.TryDequeue(out Vector3 key))
+            {
+                WorldEvent worldEvent = eventHistory[global::World.toChunkXZ(key)];
+                float interest = worldEvent.GetInterestLevel();
+
+                eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
+            }
         }
 
         public void Report(WorldEvent worldEvent)

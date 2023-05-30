@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 using ImprovedHordes.Source.Core.Horde.World.Cluster;
 using ImprovedHordes.Source.Core.Threading;
+using ImprovedHordes.Source.POI;
 using UnityEngine;
 using static ImprovedHordes.Source.Core.Horde.World.Cluster.WorldHordeTracker;
 
@@ -17,12 +19,14 @@ namespace ImprovedHordes.Source.Core.Debug
         private int worldSize;
         private List<PlayerSnapshot> players;
         private Dictionary<Type, List<ClusterSnapshot>> clusters;
+        private List<WorldPOIScanner.Zone> zones;
 
-        public WorldHordeState(int worldSize, WorldHordeTracker tracker)
+        public WorldHordeState(int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner)
         {
             this.worldSize = worldSize;
             this.players = tracker.GetPlayers();
             this.clusters = tracker.GetClusters();
+            this.zones = scanner.GetZones();
         }
 
         public void Encode(BinaryWriter writer)
@@ -39,11 +43,13 @@ namespace ImprovedHordes.Source.Core.Debug
                 writer.Write(location.z);
 
                 writer.Write(player.gamestage);
+                EncodeString(writer, player.biome);
             }
 
             writer.Write(this.clusters.Count);
             foreach(var entry in this.clusters)
             {
+                EncodeString(writer, entry.Key.Name);
                 writer.Write(entry.Value.Count);
 
                 foreach(var cluster in entry.Value)
@@ -57,6 +63,29 @@ namespace ImprovedHordes.Source.Core.Debug
                     writer.Write(cluster.density);
                 }
             }
+
+            writer.Write(this.zones.Count);
+            foreach(var zone in this.zones)
+            {
+                writer.Write((int)zone.GetBounds().min.x);
+                writer.Write((int)zone.GetBounds().min.z);
+
+                writer.Write((int)zone.GetBounds().size.x);
+                writer.Write((int)zone.GetBounds().size.z);
+            }
+        }
+
+        private void EncodeString(BinaryWriter writer, string str)
+        {
+            bool valid = str != null && str.Length > 0;
+
+            writer.Write(valid);
+
+            if (valid)
+            {
+                writer.Write(str.Length);
+                writer.Write(Encoding.UTF8.GetBytes(str));
+            }
         }
     }
 
@@ -66,20 +95,22 @@ namespace ImprovedHordes.Source.Core.Debug
 
         private readonly int worldSize;
         private readonly WorldHordeTracker tracker;
+        private readonly WorldPOIScanner scanner;
 
         private readonly TcpListener listener;
 
         private readonly List<TcpClient> clients = new List<TcpClient>();
         
-        public HordeViewerDebugServer(int worldSize, WorldHordeTracker tracker)
+        public HordeViewerDebugServer(int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner)
         {
             this.worldSize = worldSize;
             this.tracker = tracker;
+            this.scanner = scanner;
 
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
 
             this.listener.Start();
-            Task.Run(() =>
+            Task.Factory.StartNew(() =>
             {
                 Log.Out($"Started debug server listening on port {PORT}.");
 
@@ -97,7 +128,7 @@ namespace ImprovedHordes.Source.Core.Debug
                 }
 
                 Log.Out("Shutdown debug server.");
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         public override void BeforeTaskRestart()
@@ -107,27 +138,16 @@ namespace ImprovedHordes.Source.Core.Debug
 
         public override void OnTaskFinish(WorldHordeState worldHordeState)
         {
-            Task.Run(() =>
+            Parallel.ForEach(clients.ToArray(), client =>
             {
-                Parallel.ForEach(clients.ToArray(), client =>
-                {
-                    BinaryWriter writer = new BinaryWriter(client.GetStream());
-                    worldHordeState.Encode(writer);
-                });
+                BinaryWriter writer = new BinaryWriter(client.GetStream());
+                worldHordeState.Encode(writer);
             });
         }
 
-        public override async Task<WorldHordeState> UpdateAsync(float dt)
+        public override WorldHordeState UpdateAsync(float dt)
         {
-            return await UpdateStateAsync();
-        }
-
-        public async Task<WorldHordeState> UpdateStateAsync()
-        {
-            return await Task.Run(() =>
-            {
-                return new WorldHordeState(this.worldSize, this.tracker);
-            });
+            return new WorldHordeState(this.worldSize, this.tracker, this.scanner);
         }
     }
 }

@@ -119,6 +119,11 @@ namespace ImprovedHordes.Source
         {
             return this.debugServer;
         }
+
+        public WorldPOIScanner GetScanner()
+        {
+            return this.poiScanner;
+        }
 #endif
     }
 }
