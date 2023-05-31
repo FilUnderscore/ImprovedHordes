@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ namespace ImprovedHordes.Source.POI
             List<PrefabInstance> pois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
             
             // Merge POIs into sub-zones.
-            for(int i = 0; i < pois.Count; i++) 
+            for(int i = 0; i < pois.Count - 1; i++) 
             {
                 var poi = pois[i];
                 var zone = new Zone(poi);
@@ -41,24 +42,30 @@ namespace ImprovedHordes.Source.POI
             }
 
             // Merge nearby sub-zones into larger zones (e.g. cities)
-            for(int i = 0; i < zones.Count; i++)
+
+            while (true)
             {
-                var zone = zones[i];
+                bool merged = false;
 
-                for(int j = 0; j < zones.Count; j++)
+                for (int i = 0; i < zones.Count - 1; i++)
                 {
-                    if (j == i)
-                        continue;
+                    var zone = zones[i];
 
-                    var other = zones[j];
-
-                    if (zone.GetBounds().Intersects(other.GetBounds()))
+                    for (int j = i + 1; j < zones.Count; j++)
                     {
-                        i--;
-                        zones.RemoveAt(j--);
-                        zone.Merge(other);
+                        var other = zones[j];
+
+                        if (zone.GetBounds().Intersects(other.GetBounds()))
+                        {
+                            merged |= true;
+                            zones.RemoveAt(j--);
+                            zone.Merge(other);
+                        }
                     }
                 }
+
+                if (!merged)
+                    break;
             }
 
             highestCount = zones.Max(zone => zone.GetCount());
@@ -98,7 +105,8 @@ namespace ImprovedHordes.Source.POI
                 this.pois.Add(poi);
 
                 // Recalculate bounds.
-                this.bounds.SetMinMax(Vector3.Min(bounds.min, poi.GetAABB().min), Vector3.Max(bounds.max, poi.GetAABB().max));
+                //this.bounds.SetMinMax(Vector3.Min(bounds.min, poi.GetAABB().min), Vector3.Max(bounds.max, poi.GetAABB().max));
+                this.bounds.Encapsulate(poi.GetAABB());
             }
 
             public void Merge(Zone zone)
@@ -106,7 +114,8 @@ namespace ImprovedHordes.Source.POI
                 this.pois.AddRange(zone.pois);
 
                 // Recalculate bounds
-                this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
+                //this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
+                this.bounds.Encapsulate(zone.bounds);
             }
 
             public void UpdateDensity(int highestCount)

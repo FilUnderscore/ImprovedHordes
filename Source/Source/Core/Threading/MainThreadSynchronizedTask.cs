@@ -4,27 +4,27 @@ namespace ImprovedHordes.Source.Core.Threading
 {
     public abstract class MainThreadSynchronizedTask : MainThreadSynchronizedTask<object>
     {
-        public override void OnTaskFinish(object returnValue)
+        protected override void OnTaskFinish(object returnValue)
         {
             OnTaskFinish();
         }
 
-        public abstract void OnTaskFinish();
+        protected abstract void OnTaskFinish();
 
-        public override object UpdateAsync(float dt)
+        protected override object UpdateAsync(float dt)
         {
-            UpdateAsync();
+            UpdateAsyncVoid(dt);
             return null;
         }
 
-        public abstract void UpdateAsync();
+        protected abstract void UpdateAsyncVoid(float dt);
     }
 
     public abstract class MainThreadSynchronizedTask<TaskReturnType>
     {
         private Task<TaskReturnType> UpdateTask;
 
-        public virtual bool CanRun()
+        protected virtual bool CanRun()
         {
             return true;
         }
@@ -54,9 +54,9 @@ namespace ImprovedHordes.Source.Core.Threading
         /// <summary>
         /// Called before a task starts for the first time / restarts subsequently.
         /// </summary>
-        public abstract void BeforeTaskRestart();
-        public abstract void OnTaskFinish(TaskReturnType returnValue);
+        protected abstract void BeforeTaskRestart();
+        protected abstract void OnTaskFinish(TaskReturnType returnValue);
 
-        public abstract TaskReturnType UpdateAsync(float dt);
+        protected abstract TaskReturnType UpdateAsync(float dt);
     }
 }

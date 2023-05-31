@@ -131,12 +131,12 @@ namespace ImprovedHordes.Source.Core.Debug
             }, TaskCreationOptions.LongRunning);
         }
 
-        public override void BeforeTaskRestart()
+        protected override void BeforeTaskRestart()
         {
 
         }
 
-        public override void OnTaskFinish(WorldHordeState worldHordeState)
+        protected override void OnTaskFinish(WorldHordeState worldHordeState)
         {
             Parallel.ForEach(clients.ToArray(), client =>
             {
@@ -145,7 +145,7 @@ namespace ImprovedHordes.Source.Core.Debug
             });
         }
 
-        public override WorldHordeState UpdateAsync(float dt)
+        protected override WorldHordeState UpdateAsync(float dt)
         {
             return new WorldHordeState(this.worldSize, this.tracker, this.scanner);
         }

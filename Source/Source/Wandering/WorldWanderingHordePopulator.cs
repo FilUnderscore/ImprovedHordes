@@ -1,6 +1,4 @@
-﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
-using ImprovedHordes.Source.Core.Horde.World.Spawn;
-using ImprovedHordes.Source.Horde.AI;
+﻿using ImprovedHordes.Source.Horde.AI;
 using ImprovedHordes.Source.Horde.AI.Commands;
 using ImprovedHordes.Source.POI;
 using System.Collections.Generic;
@@ -12,7 +10,7 @@ namespace ImprovedHordes.Source.Wandering
     {
         private const int MAX_NUMBER_OF_STOPS = 6;
 
-        public WorldWanderingHordePopulator(WorldHordeTracker tracker, WorldHordeSpawner spawner, WorldPOIScanner scanner) : base(tracker, spawner, scanner)
+        public WorldWanderingHordePopulator(WorldPOIScanner scanner) : base(scanner)
         {
         }
 

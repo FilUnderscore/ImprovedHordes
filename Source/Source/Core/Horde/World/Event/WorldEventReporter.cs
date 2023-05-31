@@ -35,11 +35,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
             AIDirectorChunkEventComponent_NotifyEvent_Patch.WorldEventReporter = this;
         }
 
-        public override void BeforeTaskRestart()
+        protected override void BeforeTaskRestart()
         {
         }
 
-        public override void OnTaskFinish()
+        protected override void OnTaskFinish()
         {
             if (this.OnWorldEventReport != null)
             {
@@ -52,7 +52,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Event
             eventsToReport.Clear();
         }
 
-        public override void UpdateAsync()
+        protected override void UpdateAsyncVoid(float dt)
         {
             while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
             {

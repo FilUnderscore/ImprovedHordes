@@ -23,7 +23,6 @@ namespace ImprovedHordes.Source
         private MainThreadRequestProcessor mainThreadRequestProcessor;
         private WorldEventReporter worldEventReporter;
         private WorldPOIScanner poiScanner;
-        private WorldWanderingHordePopulator wanderingHordePopulator;
 
 #if DEBUG
         private HordeViewerDebugServer debugServer;
@@ -59,7 +58,8 @@ namespace ImprovedHordes.Source
             this.worldEventReporter = new WorldEventReporter(this.worldSize);
             this.hordeManager = new WorldHordeManager(this.mainThreadRequestProcessor, this.worldEventReporter);
             this.poiScanner = new WorldPOIScanner();
-            this.wanderingHordePopulator = new WorldWanderingHordePopulator(this.hordeManager.GetTracker(), this.hordeManager.GetSpawner(), this.poiScanner);
+
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldWanderingHordePopulator(this.poiScanner));
 
             this.initialized = true;
         }
@@ -84,7 +84,6 @@ namespace ImprovedHordes.Source
             this.mainThreadRequestProcessor.Update();
             this.hordeManager.Update(dt);
             this.worldEventReporter.Update(dt);
-            this.wanderingHordePopulator.Update(dt);
 
 #if DEBUG
             if(this.debugServer != null)

@@ -89,7 +89,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         }
 
 
-        public override void BeforeTaskRestart()
+        protected override void BeforeTaskRestart()
         {
             foreach (var player in GameManager.Instance.World.Players.list)
             {
@@ -97,7 +97,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public override void OnTaskFinish(int returnValue)
+        protected override void OnTaskFinish(int returnValue)
         {
             // Clear old snapshots after task is complete.
             snapshots.Clear();
@@ -135,7 +135,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public override int UpdateAsync(float dt)
+        protected override int UpdateAsync(float dt)
         {
             return UpdateTrackerAsync(snapshots, eventsToReport.ToList(), dt);
         }
