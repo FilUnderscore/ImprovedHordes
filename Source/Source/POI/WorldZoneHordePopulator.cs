@@ -40,7 +40,7 @@ namespace ImprovedHordes.Source.POI
             // Check for nearby players.
             Parallel.ForEach(tracker.GetPlayers(), player =>
             {
-                if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.magnitude)
+                if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                 {
                     nearby |= true;
                 }
