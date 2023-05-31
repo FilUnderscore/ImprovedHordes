@@ -5,6 +5,7 @@ using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde;
 using ImprovedHordes.Source.POI;
+using ImprovedHordes.Source.Scout;
 using ImprovedHordes.Source.Wandering;
 using System;
 using UnityEngine;
@@ -59,7 +60,8 @@ namespace ImprovedHordes.Source
             this.hordeManager = new WorldHordeManager(this.mainThreadRequestProcessor, this.worldEventReporter);
             this.poiScanner = new WorldPOIScanner();
 
-            this.hordeManager.GetPopulator().RegisterPopulator(new WorldWanderingHordePopulator(this.poiScanner));
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldZoneWanderingHordePopulator(this.poiScanner));
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldZoneScoutHordePopulator(this.poiScanner));
 
             this.initialized = true;
         }

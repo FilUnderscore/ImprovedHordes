@@ -1,5 +1,4 @@
-﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
-using ImprovedHordes.Source.Horde.AI;
+﻿using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;

@@ -6,17 +6,23 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.Wandering
 {
-    public sealed class WorldWanderingHordePopulator : WorldZoneHordePopulator<WanderingHorde>
+    public sealed class WorldZoneWanderingHordePopulator : WorldZoneHordePopulator<WanderingHorde>
     {
         private const int MAX_NUMBER_OF_STOPS = 6;
 
-        public WorldWanderingHordePopulator(WorldPOIScanner scanner) : base(scanner)
+        public WorldZoneWanderingHordePopulator(WorldPOIScanner scanner) : base(scanner)
         {
         }
 
         public override IEnumerable<AICommand> CreateHordeCommands(WorldPOIScanner.Zone zone)
         {
             yield return new GoToTargetAICommand(GetRandomZone().GetBounds().center);
+        }
+
+        protected override int CalculateHordeCount(WorldPOIScanner.Zone zone)
+        {
+            int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
+            return Mathf.CeilToInt(((float)maxRadius / zone.GetCount()) * zone.GetDensity());
         }
 
         private Vector3[] ConstructRandomPathToDestination(Vector3 initialPath, Vector3 destination)

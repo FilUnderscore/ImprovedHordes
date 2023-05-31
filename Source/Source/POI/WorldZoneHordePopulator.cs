@@ -67,6 +67,8 @@ namespace ImprovedHordes.Source.POI
             return this.scanner.PickRandomZone();
         }
 
+        protected abstract int CalculateHordeCount(WorldPOIScanner.Zone zone);
+
         private void SpawnHordesAt(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner)
         {
             Vector3 zoneCenter = zone.GetBounds().center;
@@ -74,7 +76,7 @@ namespace ImprovedHordes.Source.POI
 
             Log.Out("Max radius: " + maxRadius + " D : " + zone.GetDensity());
 
-            int hordeCount = Mathf.CeilToInt(((float)maxRadius / zone.GetCount()) * zone.GetDensity());
+            int hordeCount = CalculateHordeCount(zone);
             Log.Out("Spawning " + hordeCount + " hordes");
 
             for (int i = 0; i < hordeCount; i++)

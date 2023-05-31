@@ -103,8 +103,9 @@
     <Compile Include="Source\POI\WorldPOIScanner.cs" />
     <Compile Include="Source\POI\WorldZoneHordePopulator.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
+    <Compile Include="Source\Scout\WorldZoneScoutHordePopulator.cs" />
     <Compile Include="Source\Wandering\WanderingHorde.cs" />
-    <Compile Include="Source\Wandering\WorldWanderingHordePopulator.cs" />
+    <Compile Include="Source\Wandering\WorldZoneWanderingHordePopulator.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
