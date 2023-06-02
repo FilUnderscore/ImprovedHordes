@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ImprovedHordes.Source.Core.Horde.World.Cluster.Characteristics;
 using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI.Commands;
@@ -194,7 +195,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                     // Tick AI.
                     IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
                     {
-                        return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * horde.GetSensitivity();
+                        return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * horde.GetCharacteristics().GetCharacteristic<SensitivityHordeCharacteristic>().GetSensitivity();
                     });
 
                     if (nearbyReports.Any())

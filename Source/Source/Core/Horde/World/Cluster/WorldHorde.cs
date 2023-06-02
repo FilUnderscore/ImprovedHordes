@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Source.Horde.AI;
+﻿using ImprovedHordes.Source.Core.Horde.Characteristics;
+using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,9 +11,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private Vector3 location;
         private readonly List<HordeCluster> clusters = new List<HordeCluster>();
 
-        private float walkSpeed = 0.0f;
-        private float sensitivity = 0.0f;
-
+        private HordeCharacteristics characteristics = new HordeCharacteristics();
         private HordeAIExecutor AIExecutor;
 
         public WorldHorde(Vector3 location, IHorde horde, float density, params AICommand[] commands) : this(location, new HordeCluster(horde, density), commands) { }
@@ -62,8 +61,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             clusters.Add(cluster);
 
-            walkSpeed = clusters.Average(clusterEntry => clusterEntry.GetHorde().GetWalkSpeed());
-            sensitivity = clusters.Max(clusterEntry => clusterEntry.GetHorde().GetSensitivity());
+            this.characteristics.Merge(cluster.GetHorde().CreateCharacteristics());
         }
 
         public void Despawn()
@@ -151,7 +149,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void MoveTo(Vector3 location, float dt)
         {
-            float speed = this.walkSpeed * dt;
+            float speed = this.GetCharacteristics().GetCharacteristic<WalkSpeedHordeCharacteristic>().GetWalkSpeed() * dt;
             Vector3 direction = (location - this.location).normalized;
 
             this.location += direction * speed;
@@ -162,9 +160,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.AIExecutor.Queue(interrupt, commands);
         }
 
-        public float GetSensitivity()
+        public HordeCharacteristics GetCharacteristics()
         {
-            return this.sensitivity;
+            return this.characteristics;
         }
 
         public List<HordeCluster> GetClusters()

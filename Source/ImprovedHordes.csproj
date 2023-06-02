@@ -62,10 +62,14 @@
   <ItemGroup>
     <Compile Include="Source\Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
     <Compile Include="Source\Core\Command\CommandBase.cs" />
+    <Compile Include="Source\Core\Horde\Characteristics\WalkSpeedHordeCharacteristic.cs" />
     <Compile Include="Source\Core\Horde\Debug\HordeViewerDebugServer.cs" />
     <Compile Include="Source\Core\Horde\Data\HordesFromXml.cs" />
     <Compile Include="Source\Core\Horde\Data\XmlFileParser.cs" />
     <Compile Include="Source\Core\Horde\Data\XML\HordeDefinition.cs" />
+    <Compile Include="Source\Core\Horde\Characteristics\SensitivityHordeCharacteristic.cs" />
+    <Compile Include="Source\Core\Horde\HordeCharacteristic.cs" />
+    <Compile Include="Source\Core\Horde\HordeCharacteristics.cs" />
     <Compile Include="Source\Core\Horde\World\Populator\HordePopulator.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeClusterSpawnRequest.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHorde.cs" />
@@ -102,6 +106,7 @@
     <Compile Include="Source\ImprovedHordesMod.cs" />
     <Compile Include="Source\POI\WorldPOIScanner.cs" />
     <Compile Include="Source\POI\WorldZoneHordePopulator.cs" />
+    <Compile Include="Source\Scout\Commands\ZoneWanderAICommand.cs" />
     <Compile Include="Source\Scout\ScoutHorde.cs" />
     <Compile Include="Source\Scout\WorldZoneScoutHordePopulator.cs" />
     <Compile Include="Source\Wandering\WanderingHorde.cs" />
