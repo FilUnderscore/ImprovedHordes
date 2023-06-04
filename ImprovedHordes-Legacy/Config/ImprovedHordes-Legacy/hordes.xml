@@ -1,30 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Conditionals example - NOTE: Still WIP and all features may not work properly.
-	{} - To evaluate and return result within.
-	&lt; - Less than
-	&gt; - Greater than
-	&amp; - AND
-	e.g. {week=1?{weekDay<3?1:{weekDay}}:{week}}
-	
-	becomes
-	    If Week = 1:
-			SubValue = 0
-			
-			If WeekDay < 3:
-				SubValue = 1
-			Else:
-				SubValue = WeekDay
-			
-			Return SubValue
-		Else:
-			Return Week
-		
-	Conditional variables
-	week - Current in-game week.
-	weekDay - Current day in the week (1-7).
-	totalDay - Current day in the game (1-1000+). -->
-
 <!-- Define horde enemies for Improved Hordes. -->
 <hordes>
 	<horde type="wandering">

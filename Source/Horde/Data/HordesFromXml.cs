@@ -15,7 +15,7 @@ namespace ImprovedHordes.Horde.Data
             XmlElement documentElement = xmlFile.XmlDoc.DocumentElement;
 
             if (documentElement.ChildNodes.Count == 0)
-                throw new Exception("[Improved Hordes] No element <hordes> found.");
+                throw new Exception("[Improved Hordes Legacy] No element <hordes> found.");
             
             IEnumerator enumerator = documentElement.ChildNodes.GetEnumerator();
 
@@ -29,7 +29,7 @@ namespace ImprovedHordes.Horde.Data
                     {
                         XmlElement hordeElement = (XmlElement)current;
 
-                        string type = hordeElement.HasAttribute("type") ? hordeElement.GetAttribute("type") : throw new Exception("[Improved Hordes] Attribute 'type' missing on horde tag.");
+                        string type = hordeElement.HasAttribute("type") ? hordeElement.GetAttribute("type") : throw new Exception("[Improved Hordes Legacy] Attribute 'type' missing on horde tag.");
                         HordeGroupList hordeGroupList = new HordeGroupList(type);
                         HordesList.hordes.Add(type, hordeGroupList);
                         
@@ -40,7 +40,7 @@ namespace ImprovedHordes.Horde.Data
                                 XmlElement hordegroupElement = (XmlElement)childNode;
 
                                 string horde = hordegroupElement.HasAttribute("horde") ? hordegroupElement.GetAttribute("horde") : null;
-                                string hordegroupName = hordegroupElement.HasAttribute("name") ? hordegroupElement.GetAttribute("name") : throw new Exception("[Improved Hordes] Attribute 'name' missing on hordegroup tag.");
+                                string hordegroupName = hordegroupElement.HasAttribute("name") ? hordegroupElement.GetAttribute("name") : throw new Exception("[Improved Hordes Legacy] Attribute 'name' missing on hordegroup tag.");
 
                                 if (horde != null && HordesList.hordes.ContainsKey(horde) && HordesList.hordes[horde].hordes.ContainsKey(hordegroupName)) // To avoid repetition of hordes if needed.
                                 {
@@ -67,7 +67,7 @@ namespace ImprovedHordes.Horde.Data
 
                         if(hordeGroupList.hordes.Count == 0)
                         {
-                            throw new Exception(String.Format("[Improved Hordes] Empty hordes are not allowed. Horde type: {0}", type));
+                            throw new Exception(String.Format("[Improved Hordes Legacy] Empty hordes are not allowed. Horde type: {0}", type));
                         }
                     }
                 }
@@ -105,7 +105,7 @@ namespace ImprovedHordes.Horde.Data
             }
             catch(Exception )
             {
-                Error("[Improved Hordes] Failed to parse preferred week days: {0} - hordegroup will not spawn.", str);
+                Error("[Improved Hordes Legacy] Failed to parse preferred week days: {0} - hordegroup will not spawn.", str);
             }
 
             return weekDays;
@@ -138,7 +138,7 @@ namespace ImprovedHordes.Horde.Data
             string horde = entityElement.HasAttribute("horde") ? entityElement.GetAttribute("horde") : null;
 
             if (entityName != null && entityGroup != null)
-                throw new Exception(String.Format("[Improved Hordes] Horde group {0} has double defined entity with name {1} and group {2}, only one can be defined.", group.name, entityName, entityGroup));
+                throw new Exception(String.Format("[Improved Hordes Legacy] Horde group {0} has double defined entity with name {1} and group {2}, only one can be defined.", group.name, entityName, entityGroup));
 
             RuntimeEval.Value<HashSet<string>> biomes = ParseIfExists<HashSet<string>>(entityElement, "biomes", str => ParseBiomes(str));
             RuntimeEval.Value<float> chance = ParseIfExists<float>(entityElement, "chance");
@@ -182,7 +182,7 @@ namespace ImprovedHordes.Horde.Data
             }
             catch (Exception)
             {
-                Error("[Improved Hordes] Failed to parse biome: {0} - hordegroup will not spawn.", str);
+                Error("[Improved Hordes Legacy] Failed to parse biome: {0} - hordegroup will not spawn.", str);
             }
 
             return biomes;

@@ -135,12 +135,12 @@ namespace ImprovedHordes
 
             public static void Log(String format, params object[] objs)
             {
-                global::Log.Out(String.Format("[Improved Hordes] {0}", String.Format(format, objs)));
+                global::Log.Out(String.Format("[Improved Hordes Legacy] {0}", String.Format(format, objs)));
             }
 
             public static void Warning(String format, params object[] objs)
             {
-                global::Log.Warning(String.Format("[Improved Hordes] {0}", String.Format(format, objs)));
+                global::Log.Warning(String.Format("[Improved Hordes Legacy] {0}", String.Format(format, objs)));
             }
 
             public static void Warning(String message)
@@ -150,7 +150,7 @@ namespace ImprovedHordes
 
             public static void Error(String format, params object[] objs)
             {
-                global::Log.Error(String.Format("[Improved Hordes] {0}", String.Format(format, objs)));
+                global::Log.Error(String.Format("[Improved Hordes Legacy] {0}", String.Format(format, objs)));
             }
 
             public static void Error(String message)

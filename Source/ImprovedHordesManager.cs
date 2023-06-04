@@ -68,7 +68,7 @@ namespace ImprovedHordes
             HeatPatrolManager = new HordeHeatPatrolManager(this);
 
             ModPath = mod.Path;
-            XmlFilesDir = string.Format("{0}/Config/ImprovedHordes", mod.Path);
+            XmlFilesDir = string.Format("{0}/Config/ImprovedHordes-Legacy", mod.Path);
 
             this.LoadXml();
             this.LoadSettings(mod);
@@ -82,7 +82,7 @@ namespace ImprovedHordes
             this.WanderingHorde.schedule.SetGameVariables();
             
             // Reload data file location.
-            DataFile = string.Format("{0}/ImprovedHordes.bin", GameIO.GetSaveGameDir());
+            DataFile = string.Format("{0}/ImprovedHordes-Legacy.bin", GameIO.GetSaveGameDir());
 
             this.Load();
             this.HeatTracker.Init();
@@ -129,7 +129,7 @@ namespace ImprovedHordes
         {
             Log("Loading Xml Configs in {0}", XmlFilesDir);
 
-            XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
+            XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes-Legacy", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
 
             Log("Loaded all Xml configs.");
         }

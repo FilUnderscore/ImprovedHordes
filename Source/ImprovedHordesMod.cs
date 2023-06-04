@@ -25,7 +25,7 @@ namespace ImprovedHordes
 
         private void HarmonyPatch()
         {
-            var harmony = new Harmony("filunderscore.improvedhordes");
+            var harmony = new Harmony("filunderscore.improvedhordeslegacy");
             harmony.PatchAll();
         }
 
