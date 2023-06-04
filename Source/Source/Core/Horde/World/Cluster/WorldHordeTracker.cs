@@ -17,7 +17,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private const int MERGE_DISTANCE_LOADED = 10;
         private const int MERGE_DISTANCE_UNLOADED = 100;
 
-        private readonly int VIEW_DISTANCE = 90;
+        private int VIEW_DISTANCE
+        {
+            get
+            {
+                return GameStats.GetInt(EnumGameStats.AllowedViewDistance) * 16;
+            }
+        }
 
         public readonly struct PlayerSnapshot
         {

@@ -19,7 +19,12 @@ namespace ImprovedHordes.Source.Core.Horde.Characteristics
 
         public float GetWalkSpeed()
         {
-            return this.walkSpeed;
+            bool isDay = GameManager.Instance.World.IsDaytime();
+            
+            // TODO
+            //int moveSpeedSetting = GamePrefs.GetInt(EnumGamePrefs.ZombieMoveNight);
+
+            return this.walkSpeed * (isDay ? 1.0f : 2.0f);
         }
     }
 }

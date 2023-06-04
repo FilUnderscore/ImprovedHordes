@@ -18,7 +18,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.Characteristics
 
         public float GetSensitivity()
         {
-            return this.sensitivity;
+            bool isBloodMoon = GameManager.Instance.World.GetAIDirector().BloodMoonComponent.BloodMoonActive;
+
+            return isBloodMoon ? this.sensitivity : this.sensitivity * 5.0f;
         }
     }
 }
