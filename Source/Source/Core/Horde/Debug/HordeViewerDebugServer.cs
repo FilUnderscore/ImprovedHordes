@@ -16,10 +16,10 @@ namespace ImprovedHordes.Source.Core.Debug
 {
     internal struct WorldHordeState
     {
-        private int worldSize;
-        private List<PlayerSnapshot> players;
-        private Dictionary<Type, List<ClusterSnapshot>> clusters;
-        private List<WorldPOIScanner.Zone> zones;
+        private readonly int worldSize;
+        private readonly List<PlayerSnapshot> players;
+        private readonly Dictionary<Type, List<ClusterSnapshot>> clusters;
+        private readonly List<WorldPOIScanner.Zone> zones;
 
         public WorldHordeState(int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner)
         {
@@ -140,8 +140,16 @@ namespace ImprovedHordes.Source.Core.Debug
         {
             Parallel.ForEach(clients.ToArray(), client =>
             {
-                BinaryWriter writer = new BinaryWriter(client.GetStream());
-                worldHordeState.Encode(writer);
+                try
+                {
+                    BinaryWriter writer = new BinaryWriter(client.GetStream());
+                    worldHordeState.Encode(writer);
+                }
+                catch(Exception _)
+                {
+                    Log.Warning("Client disconnected.");
+                    this.clients.Remove(client);
+                }
             });
         }
 
