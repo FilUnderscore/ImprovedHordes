@@ -30,14 +30,13 @@ namespace ImprovedHordes.Source.Core.Horde
             {
                 GameManager.Instance.World.SpawnEntityInWorld(entity);
 
-                entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
+                entity.SetSpawnerSource(EnumSpawnerSource.StaticSpawner);
 
                 if (entity is EntityEnemy enemy)
                     enemy.IsHordeZombie = true;
 
                 entity.bIsChunkObserver = true;
                 entity.IsBloodMoon = false;
-
 #if DEBUG
                 entity.AddNavObject("ih_horde_zombie_debug", "");
 #endif
