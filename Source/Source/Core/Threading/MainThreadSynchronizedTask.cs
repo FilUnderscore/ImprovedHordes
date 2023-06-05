@@ -33,6 +33,7 @@ namespace ImprovedHordes.Source.Core.Threading
         {
             if (UpdateTask != null && UpdateTask.IsCompleted)
             {
+                Task.WaitAll(UpdateTask);
                 this.OnTaskFinish(UpdateTask.Result);
                 UpdateTask = null;
             }
