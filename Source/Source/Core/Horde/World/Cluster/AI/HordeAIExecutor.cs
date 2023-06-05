@@ -317,6 +317,8 @@ namespace ImprovedHordes.Source.Horde.AI
             // Called when a HordeEntityAIAgentExecutor completes the current command while the HordeAIAgentExecutor is not running.
             public void GenerateNewCommand()
             {
+                this.interruptCommands.Clear(); // Reset interrupts otherwise entities will keep coming back after despawning due to HordeAIAgentExecutor not having interrupts cleared, which is then copied onto the entities when spawned.
+
                 if (commandGenerator == null)
                     return;
 
