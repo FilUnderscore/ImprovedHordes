@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Source.Core.Threading;
+﻿using ImprovedHordes.Source.Core.Horde.World.Spawn;
+using ImprovedHordes.Source.Core.Threading;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
     public sealed class HordeClusterSpawnRequest : IMainThreadRequest
     {
         private readonly WorldHorde horde;
+        private readonly HordeSpawnData spawnData;
+
         private readonly HordeCluster cluster;
         private readonly HordeEntityGenerator generator;
 
@@ -16,9 +19,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private readonly Action<EntityAlive> onSpawnAction;
         
-        public HordeClusterSpawnRequest(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<EntityAlive> onSpawnAction)
+        public HordeClusterSpawnRequest(WorldHorde horde, HordeSpawnData spawnData, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<EntityAlive> onSpawnAction)
         {
             this.horde = horde;
+            this.spawnData = spawnData;
+
             this.cluster = cluster;
             this.generator = DetermineEntityGenerator(playerGroup);
 
@@ -54,7 +59,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void TickExecute(float dt)
         {
-            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, 40, -1, false, out Vector3 spawnLocation, false))
+            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, this.spawnData.SpreadDistanceLimit, -1, false, out Vector3 spawnLocation, false))
             {
                 Log.Warning($"[Improved Hordes] Bad spawn request for horde at {this.horde.GetLocation()}");
                 return;

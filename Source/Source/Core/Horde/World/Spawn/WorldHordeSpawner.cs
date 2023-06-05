@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
 using ImprovedHordes.Source.Horde.AI;
 using System;
 using UnityEngine;
@@ -14,12 +15,12 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             this.hordeTracker = hordeTracker;
         }
 
-        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, params AICommand[] commands) where Horde : IHorde where HordeSpawn : IHordeSpawn
+        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, IAICommandGenerator commandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
         {
-            this.Spawn<Horde, HordeSpawn>(spawn, 1.0f, commands);
+            this.Spawn<Horde, HordeSpawn>(spawn, spawnData, 1.0f, commandGenerator);
         }
 
-        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, float density, params AICommand[] commands) where Horde : IHorde where HordeSpawn : IHordeSpawn
+        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, float density, IAICommandGenerator commandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
         {
             Horde horde = Activator.CreateInstance<Horde>();
 
@@ -27,7 +28,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Spawn
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.hordeTracker.Add(new WorldHorde(spawnLocation, horde, density, commands));
+            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, commandGenerator));
         }
     }
 }

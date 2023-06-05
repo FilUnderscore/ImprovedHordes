@@ -2,6 +2,7 @@
 using ImprovedHordes.Source.Core.Debug;
 using ImprovedHordes.Source.Core.Horde.Data;
 using ImprovedHordes.Source.Core.Horde.World.Event;
+using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde;
 using ImprovedHordes.Source.POI;
@@ -60,8 +61,11 @@ namespace ImprovedHordes.Source
             this.hordeManager = new WorldHordeManager(this.mainThreadRequestProcessor, this.worldEventReporter);
             this.poiScanner = new WorldPOIScanner();
 
-            this.hordeManager.GetPopulator().RegisterPopulator(new WorldZoneWanderingHordePopulator(this.poiScanner));
-            this.hordeManager.GetPopulator().RegisterPopulator(new WorldZoneScoutHordePopulator(this.poiScanner));
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner));
+
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(this.worldSize, this.poiScanner, new HordeSpawnData(15)));
+            this.hordeManager.GetPopulator().RegisterPopulator(new WorldWildernessHordePopulator<WanderingAnimalHorde>(this.worldSize, this.poiScanner, new HordeSpawnData(15)));
 
             this.initialized = true;
         }

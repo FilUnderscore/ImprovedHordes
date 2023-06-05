@@ -7,8 +7,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
     {
         private readonly Dictionary<Type, IHordeCharacteristic> characteristics = new Dictionary<Type, IHordeCharacteristic>();
 
-        public HordeCharacteristics() { }
-
         public HordeCharacteristics(params IHordeCharacteristic[] characteristics) 
         {
             foreach(var characteristic in characteristics) 
@@ -24,7 +22,15 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public T GetCharacteristic<T>() where T : HordeCharacteristic<T>
         {
+            if (!HasCharacteristic<T>())
+                throw new InvalidOperationException("Horde characteristic " + typeof(T).Name + " could not be found.");
+
             return (T)characteristics[typeof(T)];
+        }
+
+        public bool HasCharacteristic<T>() where T : HordeCharacteristic<T>
+        {
+            return characteristics.ContainsKey(typeof(T));
         }
 
         public void Merge(HordeCharacteristics other)

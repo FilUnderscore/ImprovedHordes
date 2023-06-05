@@ -4,27 +4,28 @@ namespace ImprovedHordes.Source.Core.Horde.Characteristics
 {
     public sealed class WalkSpeedHordeCharacteristic : HordeCharacteristic<WalkSpeedHordeCharacteristic>
     {
-        private float walkSpeed;
+        private float dayWalkSpeed;
+        private float nightWalkSpeed;
 
-        public WalkSpeedHordeCharacteristic(float walkSpeed)
+        public WalkSpeedHordeCharacteristic(float dayWalkSpeed, float nightWalkSpeed)
         {
-            this.walkSpeed = walkSpeed;
+            this.dayWalkSpeed = dayWalkSpeed;
+            this.nightWalkSpeed = nightWalkSpeed;
         }
 
         public override void Merge(WalkSpeedHordeCharacteristic other)
         {
-            this.walkSpeed += other.walkSpeed;
-            this.walkSpeed /= 2;
+            this.dayWalkSpeed += other.dayWalkSpeed;
+            this.nightWalkSpeed += other.nightWalkSpeed;
+
+            this.dayWalkSpeed /= 2;
+            this.nightWalkSpeed /= 2;
         }
 
         public float GetWalkSpeed()
         {
             bool isDay = GameManager.Instance.World.IsDaytime();
-            
-            // TODO
-            //int moveSpeedSetting = GamePrefs.GetInt(EnumGamePrefs.ZombieMoveNight);
-
-            return this.walkSpeed * (isDay ? 1.0f : 2.0f);
+            return isDay ? this.dayWalkSpeed : this.nightWalkSpeed;
         }
     }
 }

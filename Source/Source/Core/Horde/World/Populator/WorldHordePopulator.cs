@@ -31,7 +31,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Populator
         {
             foreach(var populator in this.populators)
             {
-                if (!populator.CanRun())
+                if (!populator.CanRun(this.tracker))
                     continue;
 
                 populator.Populate(dt, this.tracker, this.spawner);

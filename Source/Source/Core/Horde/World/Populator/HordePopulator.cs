@@ -5,7 +5,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Populator
 {
     public abstract class HordePopulator
     {
-        public virtual bool CanRun()
+        public virtual bool CanRun(WorldHordeTracker tracker)
         {
             return true;
         }

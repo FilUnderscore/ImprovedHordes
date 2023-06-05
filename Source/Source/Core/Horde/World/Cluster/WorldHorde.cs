@@ -1,4 +1,6 @@
 ﻿using ImprovedHordes.Source.Core.Horde.Characteristics;
+using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
+using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +11,23 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
     public sealed class WorldHorde : IAIAgent
     {
         private Vector3 location;
+        private HordeSpawnData spawnData;
+
         private readonly List<HordeCluster> clusters = new List<HordeCluster>();
 
         private HordeCharacteristics characteristics = new HordeCharacteristics();
         private HordeAIExecutor AIExecutor;
 
-        public WorldHorde(Vector3 location, IHorde horde, float density, params AICommand[] commands) : this(location, new HordeCluster(horde, density), commands) { }
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IAICommandGenerator commandGenerator) : this(location, spawnData, new HordeCluster(horde, density), commandGenerator) { }
 
-        public WorldHorde(Vector3 location, HordeCluster cluster, params AICommand[] commands)
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IAICommandGenerator commandGenerator)
         {
             this.location = location;
+            this.spawnData = spawnData;
+
             this.AddCluster(cluster);
 
-            this.AIExecutor = new HordeAIExecutor(this);
-            this.AIExecutor.Queue(false, commands);
+            this.AIExecutor = new HordeAIExecutor(this, commandGenerator);
         }
 
         public Vector3 GetLocation()
@@ -37,7 +42,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 if (cluster.IsSpawned())
                     continue;
 
-                yield return new HordeClusterSpawnRequest(this, cluster, group, entity =>
+                yield return new HordeClusterSpawnRequest(this, this.spawnData, cluster, group, entity =>
                 {
                     this.AddEntity(new HordeClusterEntity(cluster, entity));
                 });
@@ -172,9 +177,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.location += direction * speed;
         }
 
-        public void Queue(bool interrupt = false, params AICommand[] commands)
+        public void Interrupt(params AICommand[] commands)
         {
-            this.AIExecutor.Queue(interrupt, commands);
+            this.AIExecutor.Interrupt(commands);
         }
 
         public HordeCharacteristics GetCharacteristics()

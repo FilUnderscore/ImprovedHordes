@@ -14,9 +14,12 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         private int lastEntityId;
 
+        private readonly bool screamer;
+
         public HordeDefinitionEntityGenerator(PlayerHordeGroup playerGroup, HordeDefinition definition) : base(playerGroup)
         {
             this.group = definition.GetEligibleRandomGroup(playerGroup);
+            this.screamer = definition.GetHordeType().EqualsCaseInsensitive("screamer");
 
             if (this.group != null)
                 this.CalculateEntitiesToSpawn();

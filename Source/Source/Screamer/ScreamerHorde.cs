@@ -5,15 +5,15 @@ using ImprovedHordes.Source.Core.Horde.World.Cluster.Characteristics;
 
 namespace ImprovedHordes.Source.Scout
 {
-    public sealed class ScoutHorde : HordeDefinitionHorde
+    public sealed class ScreamerHorde : HordeDefinitionHorde
     {
-        public ScoutHorde() : base("screamer")
+        public ScreamerHorde() : base("screamer")
         {
         }
 
         public override HordeCharacteristics CreateCharacteristics()
         {
-            return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(1.6f), new SensitivityHordeCharacteristic(10.0f));
+            return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(1.6f, 3.2f), new SensitivityHordeCharacteristic(4.0f));
         }
     }
 }

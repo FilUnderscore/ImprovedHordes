@@ -81,7 +81,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private void RegisterHordes()
         {
             var type = typeof(IHorde);
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract);
 
             foreach(var hordeType in types)
             {
@@ -199,16 +199,24 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 else
                 {
                     // Tick AI.
-                    IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
-                    {
-                        return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * horde.GetCharacteristics().GetCharacteristic<SensitivityHordeCharacteristic>().GetSensitivity();
-                    });
 
-                    if (nearbyReports.Any())
+                    HordeCharacteristics characteristics = horde.GetCharacteristics();
+
+                    if (characteristics.HasCharacteristic<SensitivityHordeCharacteristic>())
                     {
-                        // Interrupt AI to split off/target reported event.
-                        WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
-                        horde.Queue(true, new GoToTargetAICommand(nearbyEvent.GetLocation()));
+                        float sensitivity = characteristics.GetCharacteristic<SensitivityHordeCharacteristic>().GetSensitivity();
+
+                        IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
+                        {
+                            return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * sensitivity;
+                        });
+
+                        if (nearbyReports.Any())
+                        {
+                            // Interrupt AI to split off/target reported event.
+                            WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
+                            horde.Interrupt(new GoToTargetAICommand(nearbyEvent.GetLocation()));
+                        }
                     }
 
                     horde.Update(dt);

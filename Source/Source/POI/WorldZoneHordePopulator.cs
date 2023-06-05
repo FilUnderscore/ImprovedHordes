@@ -1,10 +1,9 @@
 ﻿using ImprovedHordes.Source.Core.Horde;
 using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
 using ImprovedHordes.Source.Core.Horde.World.Populator;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
-using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -15,14 +14,14 @@ namespace ImprovedHordes.Source.POI
         private const ulong RESPAWN_DELAY = 30000;
         private readonly Dictionary<WorldPOIScanner.Zone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.Zone, ulong>();
 
-        private readonly WorldPOIScanner scanner;
+        protected readonly WorldPOIScanner scanner;
         
         public WorldZoneHordePopulator(WorldPOIScanner scanner)
         {
             this.scanner = scanner;
         }
 
-        public override bool CanRun()
+        public override bool CanRun(WorldHordeTracker tracker)
         {
             return this.scanner.HasScanCompleted();
         }
@@ -120,11 +119,11 @@ namespace ImprovedHordes.Source.POI
         private void SpawnHordeAt(Vector2 location, WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, int hordeCount)
         {
             float zoneSpawnDensity = (zone.GetDensity() * 8.0f) / hordeCount;
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), zoneSpawnDensity, CreateHordeCommands(zone).ToArray());
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(40), zoneSpawnDensity, CreateHordeAICommandGenerator(zone));
 
             Log.Out($"Spawned horde of density {zoneSpawnDensity} at {location}.");
         }
 
-        public abstract IEnumerable<AICommand> CreateHordeCommands(WorldPOIScanner.Zone zone);
+        public abstract IAICommandGenerator CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone);
     }
 }

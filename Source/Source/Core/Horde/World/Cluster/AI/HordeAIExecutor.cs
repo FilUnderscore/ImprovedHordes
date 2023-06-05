@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster;
+using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
 using ImprovedHordes.Source.Core.Threading;
 using System;
 using System.Collections.Concurrent;
@@ -10,18 +11,18 @@ namespace ImprovedHordes.Source.Horde.AI
     public sealed class HordeAIExecutor
     {
         private readonly WorldHorde horde;
-        private readonly Dictionary<IAIAgent, AIAgentExecutor> executors;
+        private readonly Dictionary<IAIAgent, HordeEntityAIAgentExecutor> executors;
 
-        private readonly AIAgentExecutor hordeExecutor;
+        private readonly HordeAIAgentExecutor hordeExecutor;
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
 
-        public HordeAIExecutor(WorldHorde horde)
+        public HordeAIExecutor(WorldHorde horde, IAICommandGenerator commandGenerator)
         {
             this.horde = horde;
 
-            this.executors = new Dictionary<IAIAgent, AIAgentExecutor>();
-            this.hordeExecutor = new AIAgentExecutor(horde);
-
+            this.executors = new Dictionary<IAIAgent, HordeEntityAIAgentExecutor>();
+            this.hordeExecutor = new HordeAIAgentExecutor(horde, this, commandGenerator);
+            
             if(ImprovedHordesCore.TryGetInstance(out var instance))
             {
                 this.mainThreadRequestProcessor = instance.GetMainThreadRequestProcessor();
@@ -38,8 +39,8 @@ namespace ImprovedHordes.Source.Horde.AI
 
         public void AddEntity(HordeClusterEntity entity, bool loaded)
         {
-            AIAgentExecutor executor;
-            this.executors.Add(entity, executor = new AIAgentExecutor(entity));
+            HordeEntityAIAgentExecutor executor;
+            this.executors.Add(entity, executor = new HordeEntityAIAgentExecutor(entity, this.hordeExecutor));
 
             this.hordeExecutor.CopyTo(executor);
             this.NotifyEntity(executor, loaded);
@@ -119,48 +120,50 @@ namespace ImprovedHordes.Source.Horde.AI
             this.hordeExecutor.Update(dt);
         }
 
-        public void Queue(bool interrupt = false, params AICommand[] commands)
+        public void Interrupt(params AICommand[] commands)
         {
-            this.hordeExecutor.Queue(interrupt, commands);
+            this.hordeExecutor.Interrupt(commands);
+            this.hordeExecutor.GenerateNewCommand();
 
             foreach (var executor in this.executors.Values)
             {
-                executor.Queue(interrupt, commands);
+                executor.Interrupt(commands);
             }
         }
 
-        private sealed class AIAgentExecutor
+        public void NotifyEntities(AICommand command)
+        {
+            foreach(var executor in this.executors.Values)
+            {
+                executor.command = command;
+            }
+        }
+
+        private abstract class AIAgentExecutor
         {
             public readonly IAIAgent agent;
-            private readonly ConcurrentQueue<AICommand> commands;
-            private readonly ConcurrentStack<AICommand> interruptCommands;
             public bool loaded;
+
+            public AICommand command;
+            public readonly ConcurrentStack<AICommand> interruptCommands;
 
             public AIAgentExecutor(IAIAgent agent)
             {
                 this.agent = agent;
-                this.commands = new ConcurrentQueue<AICommand>();
                 this.interruptCommands = new ConcurrentStack<AICommand>();
             }
 
-            public void CopyTo(AIAgentExecutor executor)
+            public void Update(float dt)
             {
-                foreach (var command in commands.ToArray())
-                    executor.commands.Enqueue(command);
+                if (interruptCommands.Count > 0)
+                {
+                    if (agent.CanInterrupt() && this.UpdateInterruptCommands(dt))
+                    {
+                        return;
+                    }
+                }
 
-                foreach(var interruptCommand in interruptCommands.ToArray())
-                    executor.interruptCommands.Push(interruptCommand);
-            }
-
-            public void Update(float dt) 
-            {
-                if (commands.Count == 0 && interruptCommands.Count == 0)
-                    return;
-
-                if(agent.CanInterrupt() && this.UpdateInterruptCommands(dt))
-                    return;
-
-                this.UpdateCommands(dt);
+                this.UpdateCommand(dt);
             }
 
             private bool UpdateInterruptCommands(float dt)
@@ -189,46 +192,32 @@ namespace ImprovedHordes.Source.Horde.AI
                 return false;
             }
 
-            private void UpdateCommands(float dt)
+            protected virtual bool UpdateCommand(float dt)
             {
-                if (!commands.TryPeek(out AICommand nextCommand))
-                    return;
+                if (command == null)
+                    return false;
 
-                if (!nextCommand.CanExecute(this.agent))
-                    return;
+                if (!command.CanExecute(this.agent))
+                    return false;
 
-                nextCommand.Execute(this.agent, dt);
+                command.Execute(this.agent, dt);
 
-                if (!nextCommand.IsComplete(this.agent))
-                    return;
+                if (!command.IsComplete(this.agent))
+                    return false;
 
 #if DEBUG
-                Log.Out($"Completed command {nextCommand.GetType().Name}");
+                Log.Out($"Completed command {command.GetType().Name}");
 #endif
-                commands.TryDequeue(out _);
-
-                while (commands.TryPeek(out AICommand nextNextCommand))
-                {
-                    if (nextNextCommand.HasExpired())
-                        commands.TryDequeue(out _);
-                }
+                return true;
             }
 
-            public void Queue(bool interrupt, params AICommand[] commands)
+            public void Interrupt(params AICommand[] commands)
             {
                 if (commands == null)
                     throw new NullReferenceException("Cannot queue a null AICommand.");
 
-                if (interrupt)
-                {
-                    while (interruptCommands.TryPop(out _)) { }
-                    interruptCommands.PushRange(commands);
-                }
-                else
-                {
-                    foreach(var command in commands)
-                        this.commands.Enqueue(command);
-                }
+                while (interruptCommands.TryPop(out _)) { }
+                interruptCommands.PushRange(commands);
             }
 
             /// <summary>
@@ -237,29 +226,104 @@ namespace ImprovedHordes.Source.Horde.AI
             /// <returns></returns>
             public int CalculateObjectiveScore()
             {
-                int commandScore = 0, commandCount = 0;
-                foreach(var command in commands.ToArray())
-                {
-                    commandScore += command.GetObjectiveScore(this.agent);
-                    commandCount++;
-                }
+                int commandScore = 0;
 
-                if(commandCount > 0)
-                    commandScore /= commandCount;
+                if (command != null)
+                    commandScore = command.GetObjectiveScore(this.agent);
 
                 int interruptScore = 0, interruptCount = 0;
-                foreach(var interruptCommand in interruptCommands.ToArray())
+                foreach (var interruptCommand in interruptCommands.ToArray())
                 {
                     interruptScore += interruptCommand.GetObjectiveScore(this.agent);
                     interruptCount++;
                 }
 
-                if(interruptCount > 0)
+                if (interruptCount > 0)
                     interruptScore /= interruptCount;
 
                 int score = commandScore - interruptScore;
-                
+
                 return score;
+            }
+        }
+
+        private sealed class HordeEntityAIAgentExecutor : AIAgentExecutor
+        {
+            private readonly HordeAIAgentExecutor hordeAIAgentExecutor;
+            private readonly List<AICommand> extraCommands = new List<AICommand>();
+
+            public HordeEntityAIAgentExecutor(IAIAgent agent, HordeAIAgentExecutor hordeAIAgentExecutor, params IAICommandGenerator[] extraCommandGenerators) : base(agent)
+            {
+                this.hordeAIAgentExecutor = hordeAIAgentExecutor;
+
+                foreach (var commandGenerator in extraCommandGenerators)
+                {
+                    if (!commandGenerator.GenerateNextCommand(out AICommand command))
+                        continue;
+
+                    extraCommands.Add(command);
+                }
+            }
+
+            protected override bool UpdateCommand(float dt)
+            {
+                bool result = base.UpdateCommand(dt);
+
+                foreach(var command in extraCommands)
+                {
+                    if (command.CanExecute(agent))
+                        command.Execute(agent, dt);
+                }
+
+                if (!result)
+                {
+                    return false;
+                }
+
+                this.hordeAIAgentExecutor.GenerateNewCommand();
+                return true;
+            }
+        }
+
+        private sealed class HordeAIAgentExecutor : AIAgentExecutor
+        {
+            private readonly HordeAIExecutor executor;
+            private readonly IAICommandGenerator commandGenerator;
+
+            public HordeAIAgentExecutor(WorldHorde horde, HordeAIExecutor executor, IAICommandGenerator commandGenerator) : base(horde)
+            {
+                this.executor = executor;
+                this.commandGenerator = commandGenerator;
+            }
+
+            public void CopyTo(HordeEntityAIAgentExecutor executor)
+            {
+                executor.command = this.command;
+                
+                foreach(var interruptCommand in interruptCommands.ToArray())
+                    executor.interruptCommands.Push(interruptCommand);
+            }
+
+            protected override bool UpdateCommand(float dt)
+            {
+                if (command == null || command.IsComplete(this.agent) || command.HasExpired())
+                {
+                    GenerateNewCommand();
+                }
+
+                return base.UpdateCommand(dt);
+            }
+
+            // Called when a HordeEntityAIAgentExecutor completes the current command while the HordeAIAgentExecutor is not running.
+            public void GenerateNewCommand()
+            {
+                if (commandGenerator == null)
+                    return;
+
+                if (!this.commandGenerator.GenerateNextCommand(out command))
+                    return;
+
+                this.executor.NotifyEntities(command);
             }
         }
     }
