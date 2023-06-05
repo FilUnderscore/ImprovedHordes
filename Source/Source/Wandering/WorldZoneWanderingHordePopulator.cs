@@ -16,7 +16,7 @@ namespace ImprovedHordes.Source.Wandering
 
         public override IEnumerable<AICommand> CreateHordeCommands(WorldPOIScanner.Zone zone)
         {
-            yield return new GoToTargetAICommand(GetRandomZone().GetBounds().center);
+            yield return new GoToTargetAICommand(GetRandomZone(zone, 1000.0f).GetBounds().center);
         }
 
         protected override int CalculateHordeCount(WorldPOIScanner.Zone zone)

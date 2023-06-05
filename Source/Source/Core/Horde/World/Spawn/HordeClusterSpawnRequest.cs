@@ -52,7 +52,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
         }
 
-        public void TickExecute()
+        public void TickExecute(float dt)
         {
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, 40, -1, false, out Vector3 spawnLocation, false))
             {
@@ -96,7 +96,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.entities.Count == 0;
         }
 
-        public override void TickExecute()
+        public override void TickExecute(float dt)
         {
             if (this.entities.Count == 0)
             {
@@ -135,7 +135,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return true;
         }
 
-        public override void TickExecute()
+        public override void TickExecute(float dt)
         {
             if (this.entities.Count == 0)
                 return;

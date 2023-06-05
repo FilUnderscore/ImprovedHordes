@@ -100,9 +100,9 @@ namespace ImprovedHordes.Source.Horde.AI
                 return this.executor.agent.IsDead() || !this.executor.loaded;
             }
 
-            public void TickExecute()
+            public void TickExecute(float dt)
             {
-                this.executor.Update(Time.deltaTime);
+                this.executor.Update(dt);
             }
 
             public void OnCleanup()
@@ -157,27 +157,24 @@ namespace ImprovedHordes.Source.Horde.AI
                 if (commands.Count == 0 && interruptCommands.Count == 0)
                     return;
 
-                if(agent.CanInterrupt())
-                {
-                    this.UpdateInterruptCommands(dt);
+                if(agent.CanInterrupt() && this.UpdateInterruptCommands(dt))
                     return;
-                }
 
                 this.UpdateCommands(dt);
             }
 
-            private void UpdateInterruptCommands(float dt)
+            private bool UpdateInterruptCommands(float dt)
             {
                 if (!interruptCommands.TryPeek(out AICommand nextCommand))
-                    return;
+                    return false;
 
                 if (!nextCommand.CanExecute(this.agent))
-                    return;
+                    return false;
 
                 nextCommand.Execute(this.agent, dt);
 
                 if (!nextCommand.IsComplete(this.agent))
-                    return;
+                    return true;
 #if DEBUG
                 Log.Out($"Completed interrupt command {nextCommand.GetType().Name}");
 #endif
@@ -188,6 +185,8 @@ namespace ImprovedHordes.Source.Horde.AI
                     if (nextNextCommand.HasExpired())
                         interruptCommands.TryPop(out _);
                 }
+
+                return false;
             }
 
             private void UpdateCommands(float dt)

@@ -205,8 +205,10 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
                 {
                     this.gs = gs;
 
-                    if(entry.GetAttribute("time", out string timeValue))
+                    if (entry.GetAttribute("time", out string timeValue))
                         this.time = TimeOfDayFromString(timeValue);
+                    else
+                        this.time = TimeOfDay.Both;
 
                     if (entry.GetAttribute("biomes", out string biomesValue))
                         this.biomes = biomesValue.Split(',');

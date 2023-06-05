@@ -7,7 +7,7 @@ namespace ImprovedHordes.Source.Core.Threading
         /// <summary>
         /// Execute per tick on main thread.
         /// </summary>
-        void TickExecute();
+        void TickExecute(float dt);
 
         /// <summary>
         /// Is the request fulfilled? If so, notify waiting threads.
@@ -25,7 +25,7 @@ namespace ImprovedHordes.Source.Core.Threading
         /// <summary>
         /// Execute per tick on main thread.
         /// </summary>
-        public abstract void TickExecute();
+        public abstract void TickExecute(float dt);
 
         /// <summary>
         /// Is the request fulfilled? If so, notify waiting threads.

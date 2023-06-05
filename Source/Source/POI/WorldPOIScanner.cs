@@ -31,7 +31,9 @@ namespace ImprovedHordes.Source.POI
                 {
                     var other = pois[j];
                     
-                    if(zone.GetBounds().Intersects(other.GetAABB()))
+                    if(zone.GetBounds().Intersects(other.GetAABB()) ||
+                        zone.GetBounds().Contains(other.GetAABB().min) ||
+                        zone.GetBounds().Contains(other.GetAABB().max))
                     {
                         pois.RemoveAt(j--);
                         zone.Add(other);
@@ -55,11 +57,20 @@ namespace ImprovedHordes.Source.POI
                     {
                         var other = zones[j];
 
-                        if (zone.GetBounds().Intersects(other.GetBounds()))
+                        if (zone.GetBounds().Intersects(other.GetBounds()) ||
+                            zone.GetBounds().Contains(other.GetBounds().min) ||
+                            zone.GetBounds().Contains(other.GetBounds().max))
                         {
                             merged |= true;
+
                             zones.RemoveAt(j--);
                             zone.Merge(other);
+
+                            if (j >= i)
+                            {
+                                i--;
+                                break;
+                            }
                         }
                     }
                 }
@@ -132,6 +143,11 @@ namespace ImprovedHordes.Source.POI
         public Zone PickRandomZone()
         {
             return zones.Where(zone => zone.GetDensity() > 0.0f).ToList().RandomObject();
+        }
+
+        public Zone GetRandomZoneFrom(Zone zone, float distance)
+        {
+            return zones.Where(z => Vector3.Distance(zone.GetBounds().center, z.GetBounds().center) >= distance).ToList().RandomObject();
         }
 
         public bool HasScanCompleted()

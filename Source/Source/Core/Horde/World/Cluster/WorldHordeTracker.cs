@@ -17,7 +17,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private const int MERGE_DISTANCE_LOADED = 10;
         private const int MERGE_DISTANCE_UNLOADED = 100;
 
-        private int VIEW_DISTANCE
+        public static int MAX_VIEW_DISTANCE
         {
             get
             {
@@ -168,7 +168,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             {
                 IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
                 {
-                    float distance = horde.IsSpawned() ? VIEW_DISTANCE + 20 : VIEW_DISTANCE;
+                    float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
                     return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
                 });
 

@@ -12,7 +12,7 @@ namespace ImprovedHordes.Source.Core.Threading
         private readonly List<IMainThreadRequest> requestsBeingProcessed = new List<IMainThreadRequest>();
         private readonly List<IMainThreadRequest> requestsToRemove = new List<IMainThreadRequest>();
 
-        public void Update()
+        public void Update(float dt)
         {
             while (requests.TryDequeue(out IMainThreadRequest request))
             {
@@ -21,7 +21,7 @@ namespace ImprovedHordes.Source.Core.Threading
 
             foreach (var request in requestsBeingProcessed)
             {
-                request.TickExecute();
+                request.TickExecute(dt);
 
                 if(request.IsDone())
                 {

@@ -46,8 +46,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void MoveTo(Vector3 location, float dt)
         {
-            this.entity.SetInvestigatePosition(location, 6000, false);
-            AstarManager.Instance.AddLocationLine(this.GetLocation(), location, 64);
+            Vector3 directionWithinLoadDistance = (location - this.GetLocation()).normalized;
+            Vector3 locationWithinLoadDistance = (directionWithinLoadDistance * WorldHordeTracker.MAX_VIEW_DISTANCE) + this.GetLocation();
+
+            this.entity.SetInvestigatePosition(locationWithinLoadDistance, 6000, false);
+            AstarManager.Instance.AddLocationLine(this.GetLocation(), locationWithinLoadDistance, 64);
         }
     }
 }

@@ -83,7 +83,7 @@ namespace ImprovedHordes.Source
 
             float dt = Time.fixedDeltaTime;
 
-            this.mainThreadRequestProcessor.Update();
+            this.mainThreadRequestProcessor.Update(dt);
             this.hordeManager.Update(dt);
             this.worldEventReporter.Update(dt);
 
