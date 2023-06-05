@@ -119,6 +119,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             if (horde.merged || (horde.AIExecutor.CalculateObjectiveScore() < this.AIExecutor.CalculateObjectiveScore()))
                 return false;
 
+            if (!this.CanClustersMerge(horde))
+                return false;
+
             this.AddClusters(horde.clusters);
             horde.merged = true;
 
@@ -128,6 +131,20 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
 
             // Check when merging if both hordes have same objective.
+
+            return true;
+        }
+
+        private bool CanClustersMerge(WorldHorde other)
+        {
+            foreach(var otherCluster in other.clusters)
+            {
+                foreach (var cluster in this.clusters)
+                {
+                    if (!otherCluster.GetHorde().CanMergeWith(cluster.GetHorde()))
+                        return false;
+                }
+            }
 
             return true;
         }

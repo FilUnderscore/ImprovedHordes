@@ -1,5 +1,4 @@
-﻿using ImprovedHordes.Source.Core.Horde.Data;
-using ImprovedHordes.Source.Core.Horde.Data.XML;
+﻿using ImprovedHordes.Source.Core.Horde.Data.XML;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,14 +14,14 @@ namespace ImprovedHordes.Source.Core.Horde.World
 
         private int lastEntityId;
 
-        public HordeDefinitionEntityGenerator(PlayerHordeGroup playerGroup, string type) : base(playerGroup)
+        public HordeDefinitionEntityGenerator(PlayerHordeGroup playerGroup, HordeDefinition definition) : base(playerGroup)
         {
-            this.group = HordesFromXml.GetHordeDefinition(type).GetEligibleRandomGroup(playerGroup);
+            this.group = definition.GetEligibleRandomGroup(playerGroup);
 
             if (this.group != null)
                 this.CalculateEntitiesToSpawn();
             else
-                Log.Error($"[Improved Hordes] No eligible '{type}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
+                Log.Error($"[Improved Hordes] No eligible '{definition.GetHordeType()}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
         }
 
         private void CalculateEntitiesToSpawn()

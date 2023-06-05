@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Source.Wandering
 {
-    public sealed class WorldZoneWanderingHordePopulator : WorldZoneHordePopulator<WanderingHorde>
+    public sealed class WorldZoneWanderingHordePopulator : WorldZoneHordePopulator<WanderingEnemyHorde>
     {
         private const int MAX_NUMBER_OF_STOPS = 6;
 

@@ -8,14 +8,29 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
 {
     public sealed class HordeDefinition
     {
+        private readonly string type;
+
+        internal readonly List<HordeDefinition> merge = new List<HordeDefinition>();
         private readonly List<Group> groups = new List<Group>();
 
-        public HordeDefinition(XmlEntry entry)
+        public HordeDefinition(string type, XmlEntry entry)
         {
+            this.type = type;
+
             entry.GetEntries("groups")[0].GetEntries("group").ForEach(groupEntry =>
             {
                 this.groups.Add(new Group(groupEntry));
             });
+        }
+
+        public string GetHordeType()
+        {
+            return this.type;
+        }
+
+        public bool CanMergeWith(HordeDefinition other)
+        {
+            return merge.Contains(other);
         }
 
         public Group GetEligibleRandomGroup(PlayerHordeGroup playerGroup)

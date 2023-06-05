@@ -229,6 +229,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         if (!otherHorde.IsDead())
                         {
                             int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
+
                             bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
                             bool mergeChance = GameManager.Instance.World.GetGameRandom().RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
 

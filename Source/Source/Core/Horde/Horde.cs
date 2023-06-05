@@ -7,5 +7,7 @@ namespace ImprovedHordes.Source.Core.Horde
     {
         HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup);
         HordeCharacteristics CreateCharacteristics();
+
+        bool CanMergeWith(IHorde other);
     }
 }
