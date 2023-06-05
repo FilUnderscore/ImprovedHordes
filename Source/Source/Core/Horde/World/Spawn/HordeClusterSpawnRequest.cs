@@ -80,6 +80,30 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         }
     }
 
+    public sealed class HordeEntitySpawnRequest : BlockingMainThreadRequest
+    {
+        private readonly HordeClusterEntity entity;
+        private readonly bool spawn;
+
+        public HordeEntitySpawnRequest(HordeClusterEntity entity, bool spawn)
+        {
+            this.entity = entity;
+            this.spawn = spawn;
+        }
+
+        public override bool IsDone()
+        {
+            return this.entity.IsSpawned() == spawn;
+        }
+
+        public override void TickExecute(float dt)
+        {
+            if (this.spawn)
+                this.entity.Respawn();
+            else
+                this.entity.Despawn();
+        }
+    }
 
     public sealed class HordeDespawnRequest : BlockingMainThreadRequest
     {
@@ -110,7 +134,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
 
             HordeClusterEntity entity = this.entities.Dequeue();
-            GameManager.Instance.World.RemoveEntity(entity.GetEntity().entityId, EnumRemoveEntityReason.Killed);
+
+            if(entity.IsSpawned()) // Check if not already despawned.
+                GameManager.Instance.World.RemoveEntity(entity.GetEntity().entityId, EnumRemoveEntityReason.Killed);
+    
             entity.GetCluster().RemoveEntity(entity);
         }
     }

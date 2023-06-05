@@ -166,30 +166,59 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         {
             Parallel.ForEach(this.hordes, horde =>
             {
-                IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+                if(!horde.IsSpawned())
                 {
-                    float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
-                    return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
-                });
-
-                if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
-                {
-                    PlayerHordeGroup group = new PlayerHordeGroup();
-                    nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
-
-                    foreach (var spawnRequest in horde.RequestSpawns(group))
+                    IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
                     {
-                        this.clusterSpawnRequests.Enqueue(spawnRequest);
+                        float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                        return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
+                    });
+
+                    if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
+                    {
+                        PlayerHordeGroup group = new PlayerHordeGroup();
+                        nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
+
+                        foreach (var spawnRequest in horde.RequestSpawns(group))
+                        {
+                            this.clusterSpawnRequests.Enqueue(spawnRequest);
+                        }
                     }
                 }
-                else if (!nearby.Any() && horde.IsSpawned())
+                else
                 {
-                    horde.Despawn();
+                    bool anyNearby = false;
+
+                    foreach (var cluster in horde.GetClusters())
+                    {
+                        foreach (var entity in cluster.GetEntities())
+                        {
+                            IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+                            {
+                                float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                                return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
+                            });
+
+                            anyNearby |= nearby.Any();
+
+                            if(entity.IsSpawned() && !nearby.Any())
+                            {
+                                this.mainThreadRequestProcessor.RequestAndWait(new HordeEntitySpawnRequest(entity, false));
+                            }
+                            else if(!entity.IsSpawned() && nearby.Any())
+                            {
+                                this.mainThreadRequestProcessor.RequestAndWait(new HordeEntitySpawnRequest(entity, true));
+                            }
+                        }
+                    }
+
+                    if (!anyNearby)
+                        horde.Despawn(this.mainThreadRequestProcessor);
                 }
 
                 if (horde.IsSpawned())
                 {
-                    horde.UpdatePosition();
+                    horde.UpdatePosition(this.mainThreadRequestProcessor);
                 }
 
                 if (horde.IsDead())

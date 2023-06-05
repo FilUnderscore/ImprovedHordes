@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Source.Core.Horde.Characteristics;
 using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
+using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 yield return new HordeClusterSpawnRequest(this, this.spawnData, cluster, group, entity =>
                 {
-                    this.AddEntity(new HordeClusterEntity(cluster, entity));
+                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics));
                 });
 
                 cluster.SetSpawned(true);
@@ -69,34 +70,28 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.characteristics.Merge(cluster.GetHorde().CreateCharacteristics());
         }
 
-        public void Despawn()
+        public void Despawn(MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            if (ImprovedHordesCore.TryGetInstance(out var instance))
-            {
-                instance.GetMainThreadRequestProcessor().RequestAndWait(new HordeDespawnRequest(this));
+            mainThreadRequestProcessor.RequestAndWait(new HordeDespawnRequest(this));
 
-                this.clusters.ForEach(cluster => cluster.SetSpawned(false));
-                this.AIExecutor.Notify(false);
-            }
+            this.clusters.ForEach(cluster => cluster.SetSpawned(false));
+            this.AIExecutor.Notify(false);
         }
 
-        public void UpdatePosition()
+        public void UpdatePosition(MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            if (ImprovedHordesCore.TryGetInstance(out var instance))
+            var request = new HordeUpdateRequest(this);
+            mainThreadRequestProcessor.RequestAndWait(request);
+
+            this.location = request.GetPosition();
+            request.GetDead().ForEach(deadEntity =>
             {
-                var request = new HordeUpdateRequest(this);
-                instance.GetMainThreadRequestProcessor().RequestAndWait(request);
+                deadEntity.GetCluster().RemoveEntity(deadEntity);
+                deadEntity.GetCluster().NotifyDensityRemoved();
 
-                this.location = request.GetPosition();
-                request.GetDead().ForEach(deadEntity =>
-                {
-                    deadEntity.GetCluster().RemoveEntity(deadEntity);
-                    deadEntity.GetCluster().NotifyDensityRemoved();
-
-                    if (deadEntity.GetCluster().IsDead())
-                        clusters.Remove(deadEntity.GetCluster());
-                });
-            }
+                if (deadEntity.GetCluster().IsDead())
+                    clusters.Remove(deadEntity.GetCluster());
+            });
         }
 
         public bool IsDead()

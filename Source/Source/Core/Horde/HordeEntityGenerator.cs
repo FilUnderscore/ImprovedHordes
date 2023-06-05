@@ -23,10 +23,16 @@ namespace ImprovedHordes.Source.Core.Horde
 
         public EntityAlive GenerateEntity(Vector3 spawnPosition)
         {
-            int entityId = GetEntityId();
+            return GenerateEntity(GetEntityId(), spawnPosition);
+        }
+
+        public abstract int DetermineEntityCount(float density);
+
+        public static EntityAlive GenerateEntity(int entityId, Vector3 spawnPosition)
+        {
             EntityAlive entity = EntityFactory.CreateEntity(entityId, spawnPosition) as EntityAlive;
 
-            if(entity != null)
+            if (entity != null)
             {
                 GameManager.Instance.World.SpawnEntityInWorld(entity);
 
@@ -44,7 +50,5 @@ namespace ImprovedHordes.Source.Core.Horde
 
             return entity;
         }
-
-        public abstract int DetermineEntityCount(float density);
     }
 }
