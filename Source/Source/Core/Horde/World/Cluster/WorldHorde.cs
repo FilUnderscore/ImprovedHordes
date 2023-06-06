@@ -36,7 +36,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.location;
         }
 
-        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(PlayerHordeGroup group)
+        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             foreach(var cluster in this.clusters)
             {
@@ -45,7 +45,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                 yield return new HordeClusterSpawnRequest(this, this.spawnData, cluster, group, entity =>
                 {
-                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics));
+                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), mainThreadRequestProcessor);
                 });
 
                 cluster.SetSpawned(true);
@@ -57,10 +57,10 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.clusters.Any(cluster => !cluster.IsSpawned());
         }
 
-        private void AddEntity(HordeClusterEntity entity)
+        private void AddEntity(HordeClusterEntity entity, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             entity.GetCluster().AddEntity(entity);
-            this.AIExecutor.AddEntity(entity, true);
+            this.AIExecutor.AddEntity(entity, mainThreadRequestProcessor);
         }
 
         private void AddCluster(HordeCluster cluster)
@@ -75,7 +75,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             mainThreadRequestProcessor.Request(new HordeDespawnRequest(this));
 
             this.clusters.ForEach(cluster => cluster.SetSpawned(false));
-            this.AIExecutor.Notify(false);
+            this.AIExecutor.NotifyEntities(false, null);
         }
 
         private HordeUpdateRequest previousRequest;
@@ -135,7 +135,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
             if(horde.IsSpawned())
             {
-                horde.AIExecutor.Notify(false);
+                horde.AIExecutor.NotifyEntities(false, null);
             }
 
             // Check when merging if both hordes have same objective.

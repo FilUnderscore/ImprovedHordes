@@ -71,7 +71,10 @@
     <Compile Include="Source\Core\Horde\Characteristics\SensitivityHordeCharacteristic.cs" />
     <Compile Include="Source\Core\Horde\HordeCharacteristic.cs" />
     <Compile Include="Source\Core\Horde\HordeCharacteristics.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\AI\AICommandGenerator.cs" />
+    <Compile Include="Source\Core\AI\AIAgentExecutor.cs" />
+    <Compile Include="Source\Core\AI\AICommandGenerator.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeAIAgentExecutor.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeEntityAIAgentExecutor.cs" />
     <Compile Include="Source\Core\Horde\World\Populator\HordePopulator.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\HordeClusterSpawnRequest.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\WorldHorde.cs" />
@@ -100,8 +103,8 @@
     <Compile Include="Source\Core\Horde\World\WorldHordeManager.cs" />
     <Compile Include="Source\Core\Horde\World\Spawn\WorldHordeSpawner.cs" />
     <Compile Include="Source\Command\ImprovedHordesCommand.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\AI\AIAgent.cs" />
-    <Compile Include="Source\Core\Horde\World\Cluster\AI\AICommand.cs" />
+    <Compile Include="Source\Core\AI\AIAgent.cs" />
+    <Compile Include="Source\Core\AI\AICommand.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeAIExecutor.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\Commands\GoToTargetAICommand.cs" />
     <Compile Include="Source\Core\Horde\Horde.cs" />

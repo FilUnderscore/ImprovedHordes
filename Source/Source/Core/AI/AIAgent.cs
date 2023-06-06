@@ -4,11 +4,11 @@ namespace ImprovedHordes.Source.Horde.AI
 {
     public interface IAIAgent
     {
-        bool IsDead();
-        Vector3 GetLocation();
-
-        bool CanInterrupt();
-        EntityAlive GetTarget();
         void MoveTo(Vector3 location, float dt);
+
+        Vector3 GetLocation();
+        EntityAlive GetTarget();
+
+        bool IsDead();
     }
 }

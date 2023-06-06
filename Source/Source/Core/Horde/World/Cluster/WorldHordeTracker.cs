@@ -65,15 +65,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private readonly ConcurrentQueue<WorldHorde> toAdd = new ConcurrentQueue<WorldHorde>();
         private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
 
-        private readonly ConcurrentQueue<WorldEventReportEvent> eventsToReport = new ConcurrentQueue<WorldEventReportEvent>();
-
         private readonly ConcurrentQueue<HordeClusterSpawnRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterSpawnRequest>();
 
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
 
         private readonly List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
-        private readonly List<WorldEventReportEvent> events = new List<WorldEventReportEvent>();
+        private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
         private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
 
@@ -100,7 +98,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
         {
             Log.Out($"Pos {e.GetLocation()} Interest {e.GetInterest()} Dist {e.GetDistance()}");
-            this.eventsToReport.Enqueue(e);
+            this.eventsToReport.Add(e);
         }
 
 
@@ -109,11 +107,6 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             foreach (var player in GameManager.Instance.World.Players.list)
             {
                 snapshots.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
-            }
-
-            while(eventsToReport.TryDequeue(out var reportedEvent))
-            {
-                events.Add(reportedEvent);
             }
         }
 
@@ -137,7 +130,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             int eventsProcessed = returnValue;
 
             if (eventsProcessed > 0)
-                this.events.RemoveRange(0, eventsProcessed);
+                this.eventsToReport.RemoveRange(0, eventsProcessed);
 
             // Update cluster snapshots and remove outdated ones.
 
@@ -157,7 +150,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         protected override int UpdateAsync(float dt)
         {
-            return UpdateTrackerAsync(snapshots, this.events, dt);
+            return UpdateTrackerAsync(snapshots, this.eventsToReport.ToList(), dt);
         }
 
         public List<ClusterSnapshot> GetClustersOf<Horde>() where Horde: IHorde
@@ -189,15 +182,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                     if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
                     {
-                        Log.Out("Spawn start");
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
-                        foreach (var spawnRequest in horde.RequestSpawns(group))
+                        foreach (var spawnRequest in horde.RequestSpawns(group, mainThreadRequestProcessor))
                         {
                             this.clusterSpawnRequests.Enqueue(spawnRequest);
                         }
-                        Log.Out("Spawn end");
                     }
                 }
                 else
