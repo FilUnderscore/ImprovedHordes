@@ -17,6 +17,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private const int MERGE_DISTANCE_LOADED = 10;
         private const int MERGE_DISTANCE_UNLOADED = 100;
 
+        private const int HORDE_THREADS = 4;
+        private const int HORDE_CLUSTER_THREADS = 2;
+
         public static int MAX_VIEW_DISTANCE
         {
             get
@@ -24,6 +27,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 return GameStats.GetInt(EnumGameStats.AllowedViewDistance) * 16;
             }
         }
+
+        private readonly ParallelOptions ParallelHordeOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_THREADS };
+        private readonly ParallelOptions ParallelClusterOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_CLUSTER_THREADS };
 
         public readonly struct PlayerSnapshot
         {
@@ -171,7 +177,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         private int UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
         {
-            Parallel.ForEach(this.hordes, horde =>
+            Parallel.ForEach(this.hordes, ParallelHordeOptions, horde =>
             {
                 if(!horde.IsSpawned())
                 {
@@ -198,7 +204,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 {
                     bool anyNearby = false;
 
-                    Parallel.ForEach(horde.GetClusters(), cluster =>
+                    Parallel.ForEach(horde.GetClusters(), ParallelClusterOptions, cluster =>
                     {
                         foreach (var entity in cluster.GetEntities())
                         {
