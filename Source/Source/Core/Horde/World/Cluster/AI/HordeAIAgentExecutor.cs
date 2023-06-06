@@ -49,7 +49,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
             return base.GetCommand();
         }
 
-        public AICommand GetNextCommand()
+        public AICommand GetNextCommand(AICommand currentCommand)
         {
             // Try get next interrupt command first.
             if(this.interruptCommands.TryPop(out _))
@@ -59,6 +59,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
             }
 
             // Get next generated command.
+            if (this.command == currentCommand && this.commandGenerator != null)
+                this.commandGenerator.GenerateNextCommand(out this.command);
+
             return this.command;
         }
 

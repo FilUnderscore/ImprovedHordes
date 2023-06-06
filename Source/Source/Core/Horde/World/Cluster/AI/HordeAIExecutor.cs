@@ -65,7 +65,6 @@ namespace ImprovedHordes.Source.Horde.AI
 
         public void Interrupt(params AICommand[] commands)
         {
-            Log.Out("Interrupt received");
             this.hordeExecutor.Interrupt(commands);
         }
 

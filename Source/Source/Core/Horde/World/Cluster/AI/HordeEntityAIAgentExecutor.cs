@@ -17,7 +17,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
             if (this.UpdateCommand(dt))
                 return;
 
-            this.command = this.hordeAIAgentExecutor.GetNextCommand();
+            this.command = this.hordeAIAgentExecutor.GetNextCommand(this.command);
         }
 
         public bool IsLoaded()

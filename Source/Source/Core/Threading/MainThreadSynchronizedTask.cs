@@ -47,7 +47,7 @@ namespace ImprovedHordes.Source.Core.Threading
                 UpdateTask = null;
             }
 
-            if (!CanRun()) // Ensure we first cleanup after task finishes before and if starting the next one.
+            if (!CanRun() || GameManager.Instance.IsPaused()) // Ensure we first cleanup after task finishes before and if starting the next one.
                 return;
 
             if (UpdateTask == null)
