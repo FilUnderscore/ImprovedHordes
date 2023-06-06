@@ -11,7 +11,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private EntityAlive entity;
 
         private readonly int entityClassId;
-        private bool spawned, awaitingSpawnStateChange;
+        private bool spawned, awaitingSpawnStateChange, hordeDespawned;
         private Vector3 location;
 
         private readonly HordeCharacteristics characteristics;
@@ -134,6 +134,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.location = spawnLocation;
             this.spawned = true;
             this.awaitingSpawnStateChange = false;
+
+            if (this.hordeDespawned)
+                this.Despawn();
+        }
+
+        public void NotifyHordeDespawned()
+        {
+            this.hordeDespawned = true;
         }
     }
 }

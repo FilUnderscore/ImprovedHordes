@@ -18,7 +18,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private int index;
 
         private readonly Action<EntityAlive> onSpawnAction;
-        
+        private readonly GameRandom random;
+
         public HordeClusterSpawnRequest(WorldHorde horde, HordeSpawnData spawnData, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<EntityAlive> onSpawnAction)
         {
             this.horde = horde;
@@ -31,6 +32,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.index = 0;
 
             this.onSpawnAction = onSpawnAction;
+            this.random = GameRandomManager.Instance.CreateGameRandom(horde.GetHashCode()); // Allocate a random for consistent hordes using a predictable seed (hash code in this case).
         }
 
         private HordeEntityGenerator DetermineEntityGenerator(PlayerHordeGroup playerGroup)
@@ -55,6 +57,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void OnCleanup()
         {
+            GameRandomManager.Instance.FreeGameRandom(this.random);
         }
 
         public void TickExecute(float dt)
@@ -65,7 +68,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 return;
             }
 
-            this.onSpawnAction.Invoke(this.generator.GenerateEntity(spawnLocation));
+            this.onSpawnAction.Invoke(this.generator.GenerateEntity(spawnLocation, this.random));
             this.index++;
         }
 
@@ -145,7 +148,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
             if(entity.IsSpawned()) // Check if not already despawned.
                 GameManager.Instance.World.RemoveEntity(entity.GetEntity().entityId, EnumRemoveEntityReason.Killed);
-    
+
+            entity.NotifyHordeDespawned();
             entity.GetCluster().RemoveEntity(entity);
         }
     }

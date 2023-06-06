@@ -257,12 +257,12 @@ namespace ImprovedHordes.Source.Core.Horde.Data.XML
                         (this.biomes == null || this.biomes.Contains(playerGroup.GetBiome()));
                 }
 
-                public int GetEntityId(ref int lastEntityId)
+                public int GetEntityId(ref int lastEntityId, GameRandom random)
                 {
                     if (this.entityGroup == null)
                         return this.entityClass;
 
-                    return EntityGroups.GetRandomFromGroup(this.entityGroup, ref lastEntityId);
+                    return EntityGroups.GetRandomFromGroup(this.entityGroup, ref lastEntityId, random);
                 }
             }
         }

@@ -40,6 +40,7 @@ namespace ImprovedHordes.Source.POI
                     }
                 }
 
+                zone.GetBounds().Expand(zone.GetBounds().size.magnitude);
                 zones.Add(zone);
             }
 

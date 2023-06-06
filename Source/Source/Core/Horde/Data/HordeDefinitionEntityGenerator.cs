@@ -45,28 +45,29 @@ namespace ImprovedHordes.Source.Core.Horde.World
             return Mathf.RoundToInt(maxEntitiesToSpawn.Sum(entityDefinitionEntry => entityDefinitionEntry.Value) * density);
         }
 
-        private HordeDefinition.Group.Entity GetRandomEntity()
+        private HordeDefinition.Group.Entity GetRandomEntity(GameRandom random)
         {
-            HordeDefinition.Group.Entity randomEntity = maxEntitiesToSpawn.Keys.ToList().RandomObject();
+            var keys = maxEntitiesToSpawn.Keys.ToList();
+            HordeDefinition.Group.Entity randomEntity = keys[random.RandomRange(keys.Count)];
 
             if (maxEntitiesToSpawn[randomEntity] <= 0 && maxEntitiesToSpawn.Count > 1)
             {
                 maxEntitiesToSpawn.Remove(randomEntity);
-                return GetRandomEntity();
+                return GetRandomEntity(random);
             }
 
             maxEntitiesToSpawn[randomEntity]--;
             return randomEntity;
         }
 
-        public override int GetEntityId()
+        public override int GetEntityId(GameRandom random)
         {
             if (this.group == null)
                 return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);
 
-            HordeDefinition.Group.Entity randomEntity = GetRandomEntity();
+            HordeDefinition.Group.Entity randomEntity = GetRandomEntity(random);
 
-            return randomEntity.GetEntityId(ref this.lastEntityId);
+            return randomEntity.GetEntityId(ref this.lastEntityId, random);
         }
 
         public override bool IsStillValidFor(PlayerHordeGroup playerGroup)

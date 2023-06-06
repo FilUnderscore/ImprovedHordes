@@ -19,11 +19,11 @@ namespace ImprovedHordes.Source.Core.Horde
 
         public abstract bool IsStillValidFor(PlayerHordeGroup playerGroup);
 
-        public abstract int GetEntityId();
+        public abstract int GetEntityId(GameRandom random);
 
-        public EntityAlive GenerateEntity(Vector3 spawnPosition)
+        public EntityAlive GenerateEntity(Vector3 spawnPosition, GameRandom random)
         {
-            return GenerateEntity(GetEntityId(), spawnPosition);
+            return GenerateEntity(GetEntityId(random), spawnPosition);
         }
 
         public abstract int DetermineEntityCount(float density);
@@ -36,7 +36,7 @@ namespace ImprovedHordes.Source.Core.Horde
             {
                 GameManager.Instance.World.SpawnEntityInWorld(entity);
 
-                entity.SetSpawnerSource(EnumSpawnerSource.StaticSpawner);
+                entity.SetSpawnerSource(EnumSpawnerSource.Unknown);
 
                 if (entity is EntityEnemy enemy)
                     enemy.IsHordeZombie = true;
