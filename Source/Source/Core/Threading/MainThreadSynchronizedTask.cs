@@ -4,6 +4,8 @@ namespace ImprovedHordes.Source.Core.Threading
 {
     public abstract class MainThreadSynchronizedTask : MainThreadSynchronizedTask<object>
     {
+        public MainThreadSynchronizedTask() : base() { }
+
         protected override void OnTaskFinish(object returnValue)
         {
             OnTaskFinish();
@@ -22,8 +24,15 @@ namespace ImprovedHordes.Source.Core.Threading
 
     public abstract class MainThreadSynchronizedTask<TaskReturnType>
     {
+        protected readonly GameRandom Random;
         private Task<TaskReturnType> UpdateTask;
 
+        public MainThreadSynchronizedTask()
+        {
+            int gameSeed = GameManager.Instance.World.Seed;
+            this.Random = GameRandomManager.Instance.CreateGameRandom(gameSeed + this.GetType().FullName.GetHashCode());
+        }
+        
         protected virtual bool CanRun()
         {
             return true;

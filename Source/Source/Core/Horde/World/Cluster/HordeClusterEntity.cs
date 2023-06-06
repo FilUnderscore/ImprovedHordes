@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.Characteristics;
+using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private EntityAlive entity;
 
         private readonly int entityClassId;
-        private bool spawned;
+        private bool spawned, awaitingSpawnStateChange;
         private Vector3 location;
 
         private readonly HordeCharacteristics characteristics;
@@ -91,6 +92,23 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.spawned;
         }
 
+        public bool IsAwaitingSpawnStateChange()
+        {
+            return this.awaitingSpawnStateChange;
+        }
+
+        public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor)
+        {
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, false));
+            this.awaitingSpawnStateChange = true;
+        }
+
+        public void RequestSpawn(MainThreadRequestProcessor mainThreadRequestProcessor)
+        {
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, true));
+            this.awaitingSpawnStateChange = true;
+        }
+
         public void Despawn()
         {
             this.location = this.entity.position;
@@ -98,6 +116,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
             this.entity = null;
             this.spawned = false;
+            this.awaitingSpawnStateChange = false;
         }
 
         public void Respawn()
@@ -114,6 +133,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.entity = HordeEntityGenerator.GenerateEntity(this.entityClassId, spawnLocation);
             this.location = spawnLocation;
             this.spawned = true;
+            this.awaitingSpawnStateChange = false;
         }
     }
 }

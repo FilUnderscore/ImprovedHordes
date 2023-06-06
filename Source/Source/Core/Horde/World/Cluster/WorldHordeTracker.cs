@@ -59,13 +59,15 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private readonly ConcurrentQueue<WorldHorde> toAdd = new ConcurrentQueue<WorldHorde>();
         private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
 
+        private readonly ConcurrentQueue<WorldEventReportEvent> eventsToReport = new ConcurrentQueue<WorldEventReportEvent>();
+
         private readonly ConcurrentQueue<HordeClusterSpawnRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterSpawnRequest>();
 
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
 
         private readonly List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
-        private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
+        private readonly List<WorldEventReportEvent> events = new List<WorldEventReportEvent>();
 
         private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
 
@@ -92,7 +94,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
         {
             Log.Out($"Pos {e.GetLocation()} Interest {e.GetInterest()} Dist {e.GetDistance()}");
-            this.eventsToReport.Add(e);
+            this.eventsToReport.Enqueue(e);
         }
 
 
@@ -101,6 +103,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             foreach (var player in GameManager.Instance.World.Players.list)
             {
                 snapshots.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
+            }
+
+            while(eventsToReport.TryDequeue(out var reportedEvent))
+            {
+                events.Add(reportedEvent);
             }
         }
 
@@ -124,7 +131,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             int eventsProcessed = returnValue;
 
             if (eventsProcessed > 0)
-                this.eventsToReport.RemoveRange(0, eventsProcessed);
+                this.events.RemoveRange(0, eventsProcessed);
 
             // Update cluster snapshots and remove outdated ones.
 
@@ -144,7 +151,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         protected override int UpdateAsync(float dt)
         {
-            return UpdateTrackerAsync(snapshots, eventsToReport.ToList(), dt);
+            return UpdateTrackerAsync(snapshots, this.events, dt);
         }
 
         public List<ClusterSnapshot> GetClustersOf<Horde>() where Horde: IHorde
@@ -176,6 +183,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                     if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
                     {
+                        Log.Out("Spawn start");
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
@@ -183,34 +191,38 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         {
                             this.clusterSpawnRequests.Enqueue(spawnRequest);
                         }
+                        Log.Out("Spawn end");
                     }
                 }
                 else
                 {
                     bool anyNearby = false;
 
-                    foreach (var cluster in horde.GetClusters())
+                    Parallel.ForEach(horde.GetClusters(), cluster =>
                     {
                         foreach (var entity in cluster.GetEntities())
                         {
-                            IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+                            if (!entity.IsAwaitingSpawnStateChange())
                             {
-                                float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
-                                return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
-                            });
+                                IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+                                {
+                                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                                    return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
+                                });
 
-                            anyNearby |= nearby.Any();
+                                anyNearby |= nearby.Any();
 
-                            if(entity.IsSpawned() && !nearby.Any())
-                            {
-                                this.mainThreadRequestProcessor.RequestAndWait(new HordeEntitySpawnRequest(entity, false));
-                            }
-                            else if(!entity.IsSpawned() && nearby.Any())
-                            {
-                                this.mainThreadRequestProcessor.RequestAndWait(new HordeEntitySpawnRequest(entity, true));
+                                if (entity.IsSpawned() && !nearby.Any())
+                                {
+                                    entity.RequestDespawn(this.mainThreadRequestProcessor);
+                                }
+                                else if (!entity.IsSpawned() && nearby.Any())
+                                {
+                                    entity.RequestSpawn(this.mainThreadRequestProcessor);
+                                }
                             }
                         }
-                    }
+                    });
 
                     if (!anyNearby)
                         horde.Despawn(this.mainThreadRequestProcessor);
@@ -268,7 +280,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                             int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
 
                             bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
-                            bool mergeChance = GameManager.Instance.World.GetGameRandom().RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
+                            bool mergeChance = this.Random.RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
 
                             if (nearby && mergeChance)
                             {

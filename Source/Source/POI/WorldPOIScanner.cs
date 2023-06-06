@@ -82,10 +82,21 @@ namespace ImprovedHordes.Source.POI
             highestCount = zones.Max(zone => zone.GetCount());
             Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) - highest POI count in zones ({highestCount})");
 
+            List<WorldPOIScanner.Zone> toRemove = new List<Zone>();
             foreach(var zone in zones)
             {
                 zone.UpdateDensity(this.highestCount);
                 Log.Out("Zone density: " + zone.GetDensity() + " Count: " + zone.GetCount());
+
+                if(zone.GetDensity() <= 0.0f + float.Epsilon)
+                {
+                    toRemove.Add(zone);
+                }
+            }
+
+            foreach(var zoneToRemove in toRemove)
+            {
+                zones.Remove(zoneToRemove);
             }
         }
 
@@ -140,24 +151,9 @@ namespace ImprovedHordes.Source.POI
             }
         }
 
-        public Zone PickRandomZone()
-        {
-            return zones.Where(zone => zone.GetDensity() > 0.0f).ToList().RandomObject();
-        }
-
-        public Zone GetRandomZoneFrom(Zone zone, float distance)
-        {
-            return zones.Where(z => Vector3.Distance(zone.GetBounds().center, z.GetBounds().center) >= distance).ToList().RandomObject();
-        }
-
         public bool HasScanCompleted()
         {
             return zones.Count > 0;
-        }
-
-        public int GetZoneCount()
-        {
-            return zones.Where(zone => zone.GetDensity() > 0.0f).Count();
         }
 
         public List<WorldPOIScanner.Zone> GetZones()

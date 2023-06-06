@@ -80,7 +80,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         }
     }
 
-    public sealed class HordeEntitySpawnRequest : BlockingMainThreadRequest
+    public sealed class HordeEntitySpawnRequest : IMainThreadRequest
     {
         private readonly HordeClusterEntity entity;
         private readonly bool spawn;
@@ -91,12 +91,16 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.spawn = spawn;
         }
 
-        public override bool IsDone()
+        public bool IsDone()
         {
-            return this.entity.IsSpawned() == spawn;
+            return !this.entity.IsAwaitingSpawnStateChange() && this.entity.IsSpawned() == spawn;
         }
 
-        public override void TickExecute(float dt)
+        public void OnCleanup()
+        {
+        }
+
+        public void TickExecute(float dt)
         {
             if (this.spawn)
                 this.entity.Respawn();
@@ -105,7 +109,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         }
     }
 
-    public sealed class HordeDespawnRequest : BlockingMainThreadRequest
+    public sealed class HordeDespawnRequest : IMainThreadRequest
     {
         private readonly Queue<HordeClusterEntity> entities = new Queue<HordeClusterEntity>();
 
@@ -120,12 +124,16 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             }
         }
 
-        public override bool IsDone()
+        public bool IsDone()
         {
             return this.entities.Count == 0;
         }
 
-        public override void TickExecute(float dt)
+        public void OnCleanup()
+        {
+        }
+
+        public void TickExecute(float dt)
         {
             if (this.entities.Count == 0)
             {
@@ -142,7 +150,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         }
     }
 
-    public sealed class HordeUpdateRequest : BlockingMainThreadRequest
+    public sealed class HordeUpdateRequest : AsyncMainThreadRequest
     {
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
 

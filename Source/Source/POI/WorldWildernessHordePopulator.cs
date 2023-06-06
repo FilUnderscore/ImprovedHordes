@@ -31,10 +31,8 @@ namespace ImprovedHordes.Source.POI
             this.spawnData = spawnData;
         }
 
-        public override bool CanPopulate(float dt, out Vector2 pos, WorldHordeTracker tracker)
+        public override bool CanPopulate(float dt, out Vector2 pos, WorldHordeTracker tracker, GameRandom random)
         {
-            GameRandom random = GameManager.Instance.World.GetGameRandom();
-
             float randomX = random.RandomFloat * worldSize - worldSize / 2.0f;
             float randomY = random.RandomFloat * worldSize - worldSize / 2.0f;
 
@@ -86,9 +84,9 @@ namespace ImprovedHordes.Source.POI
             return !nearby;
         }
 
-        public override void Populate(Vector2 pos, WorldHordeSpawner spawner)
+        public override void Populate(Vector2 pos, WorldHordeSpawner spawner, GameRandom random)
         {
-            float density = GameManager.Instance.World.GetGameRandom().RandomFloat;
+            float density = random.RandomFloat;
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator());
         }
 

@@ -4,6 +4,7 @@ using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
 using ImprovedHordes.Source.Core.Horde.World.Populator;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -26,17 +27,23 @@ namespace ImprovedHordes.Source.POI
             return this.scanner.HasScanCompleted();
         }
 
-        public override void Populate(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner)
+        public override void Populate(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, GameRandom random)
         {
             if (zone != null)
             {
-                SpawnHordesAt(zone, spawner);
+                SpawnHordesAt(zone, spawner, random);
             }
         }
 
-        public override bool CanPopulate(float dt, out WorldPOIScanner.Zone zone, WorldHordeTracker tracker)
+        protected WorldPOIScanner.Zone GetRandomZone(GameRandom random)
         {
-            WorldPOIScanner.Zone randomZone = this.scanner.PickRandomZone();
+            var zones = this.scanner.GetZones();
+            return zones[random.RandomRange(zones.Count)];
+        }
+
+        public override bool CanPopulate(float dt, out WorldPOIScanner.Zone zone, WorldHordeTracker tracker, GameRandom random)
+        {
+            WorldPOIScanner.Zone randomZone = this.GetRandomZone(random);
 
             if (lastSpawned.TryGetValue(randomZone, out ulong spawnTime))
             {
@@ -76,19 +83,9 @@ namespace ImprovedHordes.Source.POI
             return !nearby;
         }
 
-        protected WorldPOIScanner.Zone GetRandomZone()
-        {
-            return this.scanner.PickRandomZone();
-        }
-
-        protected WorldPOIScanner.Zone GetRandomZone(WorldPOIScanner.Zone zone, float distance)
-        {
-            return this.scanner.GetRandomZoneFrom(zone, distance);
-        }
-
         protected abstract int CalculateHordeCount(WorldPOIScanner.Zone zone);
 
-        private void SpawnHordesAt(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner)
+        private void SpawnHordesAt(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, GameRandom random)
         {
             Vector3 zoneCenter = zone.GetBounds().center;
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
@@ -100,8 +97,8 @@ namespace ImprovedHordes.Source.POI
 
             for (int i = 0; i < hordeCount; i++)
             {
-                Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + GameManager.Instance.World.GetGameRandom().RandomInsideUnitCircle * maxRadius;
-                SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount);
+                Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
+                SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount, random);
             }
 
             ulong worldTime = GameManager.Instance.World.worldTime;
@@ -116,7 +113,7 @@ namespace ImprovedHordes.Source.POI
             }
         }
 
-        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, int hordeCount)
+        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, int hordeCount, GameRandom random)
         {
             float zoneSpawnDensity = (zone.GetDensity() * 8.0f) / hordeCount;
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(40), zoneSpawnDensity, CreateHordeAICommandGenerator(zone));

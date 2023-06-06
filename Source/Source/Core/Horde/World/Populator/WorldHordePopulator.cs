@@ -13,7 +13,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Populator
         // Relies on object boxing, try to use reference types (i.e. classes) to avoid performance penalty.
         private readonly List<HordePopulator> populators = new List<HordePopulator>();
 
-        public WorldHordePopulator(WorldHordeTracker tracker, WorldHordeSpawner spawner)
+        public WorldHordePopulator(WorldHordeTracker tracker, WorldHordeSpawner spawner) : base()
         {
             this.tracker = tracker;
             this.spawner = spawner;
@@ -34,7 +34,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Populator
                 if (!populator.CanRun(this.tracker))
                     continue;
 
-                populator.Populate(dt, this.tracker, this.spawner);
+                populator.Populate(dt, this.tracker, this.spawner, this.Random);
             }
         }
 
