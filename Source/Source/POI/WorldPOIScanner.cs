@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static LightingAround;
 
 namespace ImprovedHordes.Source.POI
 {
@@ -16,68 +17,42 @@ namespace ImprovedHordes.Source.POI
             this.Scan();
         }
 
+        private void GetNearby(DynamicPrefabDecorator dynamicPrefabDecorator, PrefabInstance prefab, List<PrefabInstance> nearby, List<PrefabInstance> allowedPois)
+        {
+            Dictionary<int, PrefabInstance> prefabs = new Dictionary<int, PrefabInstance>();
+            dynamicPrefabDecorator.GetPrefabsAround(prefab.boundingBoxPosition + prefab.boundingBoxSize * 0.5f, 64.0f, prefabs);
+
+            foreach(var p in prefabs.Values)
+            {
+                if (p == prefab || nearby.Contains(p) || !allowedPois.Contains(p))
+                    continue;
+
+                nearby.Add(p);
+                GetNearby(dynamicPrefabDecorator, p, nearby, allowedPois);
+            }
+        }
+
         private void Scan()
         {
             DynamicPrefabDecorator dynamicPrefabDecorator = GameManager.Instance.World.ChunkClusters[0].ChunkProvider.GetDynamicPrefabDecorator();
             List<PrefabInstance> pois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
-            
+            List<PrefabInstance> allowedPois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
+
             // Merge POIs into sub-zones.
-            for(int i = 0; i < pois.Count - 1; i++) 
+            for (int i = 0; i < pois.Count; i++) 
             {
                 var poi = pois[i];
-                var zone = new Zone(poi);
 
-                for(int j = i + 1; j < pois.Count; j++)
+                List<PrefabInstance> nearby = new List<PrefabInstance>();
+                GetNearby(dynamicPrefabDecorator, poi, nearby, allowedPois);
+
+                foreach(var near in nearby)
                 {
-                    var other = pois[j];
-                    
-                    if(zone.GetBounds().Intersects(other.GetAABB()) ||
-                        zone.GetBounds().Contains(other.GetAABB().min) ||
-                        zone.GetBounds().Contains(other.GetAABB().max))
-                    {
-                        pois.RemoveAt(j--);
-                        zone.Add(other);
-                    }
+                    pois.Remove(near);
                 }
-
-                zone.GetBounds().Expand(zone.GetBounds().size.magnitude);
-                zones.Add(zone);
-            }
-
-            // Merge nearby sub-zones into larger zones (e.g. cities)
-
-            while (true)
-            {
-                bool merged = false;
-
-                for (int i = 0; i < zones.Count - 1; i++)
-                {
-                    var zone = zones[i];
-
-                    for (int j = i + 1; j < zones.Count; j++)
-                    {
-                        var other = zones[j];
-
-                        if (zone.GetBounds().Intersects(other.GetBounds()) ||
-                            zone.GetBounds().Contains(other.GetBounds().min) ||
-                            zone.GetBounds().Contains(other.GetBounds().max))
-                        {
-                            merged |= true;
-
-                            zones.RemoveAt(j--);
-                            zone.Merge(other);
-
-                            if (j >= i)
-                            {
-                                i--;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!merged)
-                    break;
+                
+                nearby.Add(poi);
+                zones.Add(new Zone(nearby));
             }
 
             highestCount = zones.Max(zone => zone.GetCount());
@@ -87,7 +62,7 @@ namespace ImprovedHordes.Source.POI
             foreach(var zone in zones)
             {
                 zone.UpdateDensity(this.highestCount);
-                Log.Out("Zone density: " + zone.GetDensity() + " Count: " + zone.GetCount());
+                //Log.Out("Zone density: " + zone.GetDensity() + " Count: " + zone.GetCount());
 
                 if(zone.GetDensity() <= 0.0f + float.Epsilon)
                 {
@@ -107,10 +82,17 @@ namespace ImprovedHordes.Source.POI
             private readonly List<PrefabInstance> pois = new List<PrefabInstance>();
             private float density;
 
-            public Zone(PrefabInstance poi)
+            public Zone(List<PrefabInstance> pois)
             {
-                this.bounds = poi.GetAABB();
-                this.pois.Add(poi);
+                this.pois = pois;
+
+                Bounds newBounds = pois[0].GetAABB();
+                foreach (var poi in this.pois)
+                {
+                    newBounds.Encapsulate(poi.GetAABB());
+                }
+
+                this.bounds = newBounds;
             }
 
             public int GetCount()
@@ -121,24 +103,6 @@ namespace ImprovedHordes.Source.POI
             public Bounds GetBounds()
             {
                 return this.bounds;
-            }
-
-            public void Add(PrefabInstance poi)
-            {
-                this.pois.Add(poi);
-
-                // Recalculate bounds.
-                //this.bounds.SetMinMax(Vector3.Min(bounds.min, poi.GetAABB().min), Vector3.Max(bounds.max, poi.GetAABB().max));
-                this.bounds.Encapsulate(poi.GetAABB());
-            }
-
-            public void Merge(Zone zone)
-            {
-                this.pois.AddRange(zone.pois);
-
-                // Recalculate bounds
-                //this.bounds.SetMinMax(Vector3.Min(bounds.min, zone.bounds.min), Vector3.Max(bounds.max, zone.bounds.max));
-                this.bounds.Encapsulate(zone.bounds);
             }
 
             public void UpdateDensity(int highestCount)

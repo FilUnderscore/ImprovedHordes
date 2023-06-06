@@ -22,7 +22,7 @@ namespace ImprovedHordes.Source.Wandering
 
         protected override int CalculateHordeCount(WorldPOIScanner.Zone zone)
         {
-            int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
+            int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude / 2);
             return Mathf.CeilToInt(((float)maxRadius / zone.GetCount()) * zone.GetDensity());
         }
     }

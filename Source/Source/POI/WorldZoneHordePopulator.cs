@@ -90,11 +90,8 @@ namespace ImprovedHordes.Source.POI
             Vector3 zoneCenter = zone.GetBounds().center;
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
 
-            //Log.Out("Max radius: " + maxRadius + " D : " + zone.GetDensity());
-
             int hordeCount = CalculateHordeCount(zone);
-            //Log.Out("Spawning " + hordeCount + " hordes");
-
+            
             for (int i = 0; i < hordeCount; i++)
             {
                 Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
@@ -115,8 +112,8 @@ namespace ImprovedHordes.Source.POI
 
         private void SpawnHordeAt(Vector2 location, WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, int hordeCount, GameRandom random)
         {
-            float zoneSpawnDensity = (zone.GetDensity() * 8.0f) / hordeCount;
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(40), zoneSpawnDensity, CreateHordeAICommandGenerator(zone));
+            float zoneSpawnDensity = (zone.GetDensity() * 1.0f) / hordeCount;
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zoneSpawnDensity, CreateHordeAICommandGenerator(zone));
 
             //Log.Out($"Spawned horde of density {zoneSpawnDensity} at {location}.");
         }

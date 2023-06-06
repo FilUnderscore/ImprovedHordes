@@ -20,6 +20,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private const int HORDE_THREADS = 4;
         private const int HORDE_CLUSTER_THREADS = 2;
 
+        private const float MAX_HORDE_DENSITY = 10.0f;
+        private const float MAX_WORLD_DENSITY = 160.0f;
+
         public static int MAX_VIEW_DISTANCE
         {
             get
