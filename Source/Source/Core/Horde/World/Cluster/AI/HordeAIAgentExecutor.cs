@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Source.Horde.AI;
+﻿using ImprovedHordes.Source.Core.AI;
+using ImprovedHordes.Source.Horde.AI;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -41,21 +42,21 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
             }
         }
 
-        public override AICommand GetCommand()
+        public override GeneratedAICommand GetCommand()
         {
             if (this.interruptCommands.TryPeek(out AICommand currentInterruptCommand))
-                return currentInterruptCommand;
+                return new GeneratedAICommand(currentInterruptCommand);
 
             return base.GetCommand();
         }
 
-        public AICommand GetNextCommand(AICommand currentCommand)
+        public GeneratedAICommand GetNextCommand(GeneratedAICommand currentCommand)
         {
             // Try get next interrupt command first.
             if(this.interruptCommands.TryPop(out _))
             {
                 if (this.interruptCommands.TryPeek(out AICommand nextInterruptCommand))
-                    return nextInterruptCommand;
+                    return new GeneratedAICommand(nextInterruptCommand);
             }
 
             // Get next generated command.
@@ -111,8 +112,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
         {
             int commandScore = 0;
 
-            if (command != null)
-                commandScore = command.GetObjectiveScore(this.agent);
+            if (command != null && command.Command != null)
+                commandScore = command.Command.GetObjectiveScore(this.agent);
 
             int interruptScore = 0, interruptCount = 0;
             foreach (var interruptCommand in interruptCommands.ToArray())

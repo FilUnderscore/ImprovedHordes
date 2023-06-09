@@ -1,8 +1,5 @@
 ﻿using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
-using ImprovedHordes.Source.Horde.AI;
-using ImprovedHordes.Source.Horde.AI.Commands;
 using ImprovedHordes.Source.POI;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Wandering
@@ -17,7 +14,7 @@ namespace ImprovedHordes.Source.Wandering
 
         public override IAICommandGenerator CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone)
         {
-            return new GoToWorldZoneAICommandGenerator(this.scanner);
+            return new WorldZoneWanderingEnemyAICommandGenerator(this.scanner);
         }
 
         protected override int CalculateHordeCount(WorldPOIScanner.Zone zone)

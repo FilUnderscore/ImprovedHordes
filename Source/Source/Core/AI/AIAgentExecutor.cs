@@ -1,11 +1,12 @@
-﻿using ImprovedHordes.Source.Horde.AI;
+﻿using ImprovedHordes.Source.Core.AI;
+using ImprovedHordes.Source.Horde.AI;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
 {
     public abstract class AIAgentExecutor
     {
         protected readonly IAIAgent agent;
-        protected AICommand command;
+        protected GeneratedAICommand command;
 
         public AIAgentExecutor(IAIAgent agent)
         {
@@ -19,27 +20,33 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster.AI
 
         protected bool UpdateCommand(float dt)
         {
-            if (command == null || !command.CanExecute(this.agent))
+            if (command == null || command.Command == null || !command.Command.CanExecute(this.agent))
                 return false;
 
-            command.Execute(this.agent, dt);
+            this.command.Command.Execute(this.agent, dt);
 
-            if (!command.IsComplete(this.agent))
+            if (!this.command.Command.IsComplete(this.agent))
                 return true;
 
 #if DEBUG
-            Log.Out($"Agent completed command {command.GetType().Name}");
+            Log.Out($"Agent completed command {command.Command.GetType().Name}");
 #endif
+
+            if(this.command.OnComplete != null)
+                this.command.OnComplete.Invoke(this.command.Command);
 
             return false;
         }
 
-        public void SetCommand(AICommand command)
+        public void SetCommand(GeneratedAICommand command)
         {
+            if(this.command != null && this.command.OnInterrupt != null)
+                this.command.OnInterrupt.Invoke(this.command.Command);
+
             this.command = command;
         }
 
-        public virtual AICommand GetCommand()
+        public virtual GeneratedAICommand GetCommand()
         {
             return this.command;
         }

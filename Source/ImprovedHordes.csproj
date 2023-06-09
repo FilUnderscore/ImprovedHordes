@@ -61,6 +61,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
+    <Compile Include="Source\Core\AI\AIState.cs" />
+    <Compile Include="Source\Core\AI\AIStateCommandGenerator.cs" />
+    <Compile Include="Source\Core\AI\GeneratedAICommand.cs" />
     <Compile Include="Source\Core\Command\CommandBase.cs" />
     <Compile Include="Source\Core\Horde\Characteristics\WalkSpeedHordeCharacteristic.cs" />
     <Compile Include="Source\Core\Horde\Data\HordeDefinitionHorde.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="Source\Core\Horde\HordeCharacteristics.cs" />
     <Compile Include="Source\Core\AI\AIAgentExecutor.cs" />
     <Compile Include="Source\Core\AI\AICommandGenerator.cs" />
+    <Compile Include="Source\Core\Horde\World\Cluster\AI\Commands\WanderAICommand.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeAIAgentExecutor.cs" />
     <Compile Include="Source\Core\Horde\World\Cluster\AI\HordeEntityAIAgentExecutor.cs" />
     <Compile Include="Source\Core\Horde\World\Populator\HordePopulator.cs" />
@@ -118,11 +122,13 @@
     <Compile Include="Source\Screamer\Commands\ZoneWanderAICommand.cs" />
     <Compile Include="Source\Screamer\ScreamerHorde.cs" />
     <Compile Include="Source\Screamer\WorldZoneScreamerHordePopulator.cs" />
+    <Compile Include="Source\Wandering\Enemy\WanderingEnemyAIState.cs" />
     <Compile Include="Source\Wandering\WanderingAnimalEnemyHorde.cs" />
     <Compile Include="Source\Wandering\WanderingAnimalHorde.cs" />
-    <Compile Include="Source\Wandering\WanderingEnemyHorde.cs" />
-    <Compile Include="Source\Wandering\WorldWildernessWanderingEnemyHordePopulator.cs" />
-    <Compile Include="Source\Wandering\WorldZoneWanderingEnemyHordePopulator.cs" />
+    <Compile Include="Source\Wandering\Enemy\WanderingEnemyHorde.cs" />
+    <Compile Include="Source\Wandering\Enemy\WorldWildernessWanderingEnemyHordePopulator.cs" />
+    <Compile Include="Source\Wandering\Enemy\WorldZoneWanderingEnemyAICommandGenerator.cs" />
+    <Compile Include="Source\Wandering\Enemy\WorldZoneWanderingEnemyHordePopulator.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

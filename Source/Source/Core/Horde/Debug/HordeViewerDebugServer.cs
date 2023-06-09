@@ -145,7 +145,7 @@ namespace ImprovedHordes.Source.Core.Debug
                     BinaryWriter writer = new BinaryWriter(client.GetStream());
                     worldHordeState.Encode(writer);
                 }
-                catch(Exception _)
+                catch(Exception)
                 {
                     Log.Warning("Client disconnected.");
                     this.clients.Remove(client);

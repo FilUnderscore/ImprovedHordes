@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ImprovedHordes.Source.Core.AI;
+using UnityEngine;
 
 namespace ImprovedHordes.Source.Horde.AI
 {

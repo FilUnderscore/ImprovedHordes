@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static LightingAround;
 
 namespace ImprovedHordes.Source.POI
 {
@@ -17,7 +15,7 @@ namespace ImprovedHordes.Source.POI
             this.Scan();
         }
 
-        private void GetNearby(DynamicPrefabDecorator dynamicPrefabDecorator, PrefabInstance prefab, List<PrefabInstance> nearby, List<PrefabInstance> allowedPois)
+        private static void GetNearby(DynamicPrefabDecorator dynamicPrefabDecorator, PrefabInstance prefab, List<PrefabInstance> nearby, List<PrefabInstance> allowedPois)
         {
             Dictionary<int, PrefabInstance> prefabs = new Dictionary<int, PrefabInstance>();
             dynamicPrefabDecorator.GetPrefabsAround(prefab.boundingBoxPosition + prefab.boundingBoxSize * 0.5f, 64.0f, prefabs);
@@ -56,7 +54,6 @@ namespace ImprovedHordes.Source.POI
             }
 
             highestCount = zones.Max(zone => zone.GetCount());
-            Log.Out($"[Improved Hordes] [World POI Scanner] Zones ({zones.Count}) - highest POI count in zones ({highestCount})");
 
             List<WorldPOIScanner.Zone> toRemove = new List<Zone>();
             foreach(var zone in zones)
