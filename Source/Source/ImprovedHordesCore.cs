@@ -18,11 +18,11 @@ namespace ImprovedHordes.Source
         private const ushort DATA_FILE_MAGIC = 0x4948;
         private const uint DATA_FILE_VERSION = 2;
 
+        private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
         private static ImprovedHordesCore Instance;
 
         private bool initialized = false;
         private WorldHordeManager hordeManager;
-        private MainThreadRequestProcessor mainThreadRequestProcessor;
         private WorldEventReporter worldEventReporter;
         private WorldPOIScanner poiScanner;
 
