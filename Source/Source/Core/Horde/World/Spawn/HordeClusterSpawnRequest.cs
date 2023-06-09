@@ -32,7 +32,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.index = 0;
 
             this.onSpawnAction = onSpawnAction;
-            this.random = GameRandomManager.Instance.CreateGameRandom(horde.GetHashCode()); // Allocate a random for consistent hordes using a predictable seed (hash code in this case).
+            this.random = GameRandomManager.Instance.CreateGameRandom(GameManager.Instance.World.Seed + this.cluster.GetHashCode()); // Allocate a random for consistent hordes using a predictable seed (hash code in this case).
         }
 
         private HordeEntityGenerator DetermineEntityGenerator(PlayerHordeGroup playerGroup)

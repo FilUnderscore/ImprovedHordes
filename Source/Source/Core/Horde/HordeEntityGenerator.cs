@@ -36,7 +36,8 @@ namespace ImprovedHordes.Source.Core.Horde
             {
                 GameManager.Instance.World.SpawnEntityInWorld(entity);
 
-                entity.SetSpawnerSource(EnumSpawnerSource.Unknown);
+                entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
+                // TODO: Dynamic spawner needs despawn logic to be patched?
 
                 if (entity is EntityEnemy enemy)
                     enemy.IsHordeZombie = true;

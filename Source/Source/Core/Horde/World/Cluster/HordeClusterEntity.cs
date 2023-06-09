@@ -99,14 +99,14 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
         public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, false));
             this.awaitingSpawnStateChange = true;
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, false));
         }
 
         public void RequestSpawn(MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, true));
             this.awaitingSpawnStateChange = true;
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, true));
         }
 
         public void Despawn()
