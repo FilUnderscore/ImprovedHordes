@@ -95,6 +95,7 @@
     <Compile Include="Source\Core\Threading\MainThreadRequest.cs" />
     <Compile Include="Source\Core\Threading\MainThreadRequestProcessor.cs" />
     <Compile Include="Source\Core\Threading\MainThreadSynchronizedTask.cs" />
+    <Compile Include="Source\Core\Threading\MainThreaded.cs" />
     <Compile Include="Source\Core\XPathPatcher.cs" />
     <Compile Include="Source\Command\Debug\ImprovedHordesDebugSubcommand.cs" />
     <Compile Include="Source\Command\ImprovedHordesStatsSubcommand.cs" />

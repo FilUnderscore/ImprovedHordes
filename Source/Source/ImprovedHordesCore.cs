@@ -26,10 +26,6 @@ namespace ImprovedHordes.Source
         private WorldEventReporter worldEventReporter;
         private WorldPOIScanner poiScanner;
 
-#if DEBUG
-        private HordeViewerDebugServer debugServer;
-#endif
-
         private int worldSize;
 
         public ImprovedHordesCore(Mod mod)
@@ -86,17 +82,7 @@ namespace ImprovedHordes.Source
                 return;
 
             float dt = Time.fixedDeltaTime;
-
-            this.mainThreadRequestProcessor.Update(dt);
-            this.hordeManager.Update(dt);
-            this.worldEventReporter.Update(dt);
-
-#if DEBUG
-            if(this.debugServer != null)
-            {
-                this.debugServer.Update(dt);
-            }
-#endif
+            MainThreaded.UpdateAll(dt);
         }
 
         public void Shutdown()
@@ -114,21 +100,9 @@ namespace ImprovedHordes.Source
             return this.worldSize;
         }
 
-#if DEBUG
-        internal void SetDebugServer(HordeViewerDebugServer debugServer)
-        {
-            this.debugServer = debugServer;
-        }
-
-        internal HordeViewerDebugServer GetDebugServer()
-        {
-            return this.debugServer;
-        }
-
         public WorldPOIScanner GetScanner()
         {
             return this.poiScanner;
         }
-#endif
     }
 }

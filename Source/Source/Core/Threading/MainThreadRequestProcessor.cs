@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ImprovedHordes.Source.Core.Threading
 {
-    public sealed class MainThreadRequestProcessor
+    public sealed class MainThreadRequestProcessor : MainThreaded
     {
         // Shared
         private readonly ConcurrentQueue<IMainThreadRequest> requests = new ConcurrentQueue<IMainThreadRequest>();
@@ -12,7 +12,7 @@ namespace ImprovedHordes.Source.Core.Threading
         private readonly List<IMainThreadRequest> requestsBeingProcessed = new List<IMainThreadRequest>();
         private readonly List<IMainThreadRequest> requestsToRemove = new List<IMainThreadRequest>();
 
-        public void Update(float dt)
+        public override void Update(float dt)
         {
             while (requests.TryDequeue(out IMainThreadRequest request))
             {

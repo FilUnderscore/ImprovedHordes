@@ -7,6 +7,8 @@ namespace ImprovedHordes.Source.Command.Debug
 {
     internal sealed class ImprovedHordesDebugServerSubcommand : ExecutableSubcommandBase
     {
+        private static HordeViewerDebugServer debugServer;
+
         public ImprovedHordesDebugServerSubcommand() : base("server")
         {
         }
@@ -15,13 +17,13 @@ namespace ImprovedHordes.Source.Command.Debug
         {
             if (ImprovedHordesCore.TryGetInstance(out var instance))
             {
-                if (instance.GetDebugServer() != null)
+                if (debugServer != null)
                 {
                     message = "Debug server has already been started.";
                 }
                 else
                 {
-                    instance.SetDebugServer(new HordeViewerDebugServer(instance.GetWorldSize(), instance.GetHordeManager().GetTracker(), instance.GetScanner()));
+                    debugServer = new HordeViewerDebugServer(instance.GetWorldSize(), instance.GetHordeManager().GetTracker(), instance.GetScanner());
                     message = "Started debug server. Connect to 127.0.0.1 with IHDebugViewer to view World Horde state.";
                 }
             }

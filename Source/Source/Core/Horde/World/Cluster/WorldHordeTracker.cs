@@ -23,6 +23,8 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private const float MAX_HORDE_DENSITY = 10.0f;
         private const float MAX_WORLD_DENSITY = 160.0f;
 
+        private const int MAX_ENTITIES_SPAWNED_PER_PLAYER = 10;
+
         public static int MAX_VIEW_DISTANCE
         {
             get

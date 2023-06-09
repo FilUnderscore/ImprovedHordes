@@ -22,7 +22,7 @@ namespace ImprovedHordes.Source.Core.Threading
         protected abstract void UpdateAsyncVoid(float dt);
     }
 
-    public abstract class MainThreadSynchronizedTask<TaskReturnType>
+    public abstract class MainThreadSynchronizedTask<TaskReturnType> : MainThreaded
     {
         protected readonly GameRandom Random;
         private Task<TaskReturnType> UpdateTask;
@@ -38,7 +38,7 @@ namespace ImprovedHordes.Source.Core.Threading
             return true;
         }
 
-        public void Update(float dt)
+        public override void Update(float dt)
         {
             if (UpdateTask != null && UpdateTask.IsCompleted)
             {

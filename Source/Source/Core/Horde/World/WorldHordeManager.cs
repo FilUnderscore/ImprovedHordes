@@ -33,11 +33,5 @@ namespace ImprovedHordes.Source.Horde
         {
             return this.populator;
         }
-
-        public void Update(float dt)
-        {
-            this.tracker.Update(dt);
-            this.populator.Update(dt);
-        }
     }
 }
