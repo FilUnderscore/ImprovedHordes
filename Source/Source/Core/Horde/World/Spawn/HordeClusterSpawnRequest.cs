@@ -87,11 +87,13 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
     {
         private readonly HordeClusterEntity entity;
         private readonly bool spawn;
+        private readonly Action<Entity> onSpawn;
 
-        public HordeEntitySpawnRequest(HordeClusterEntity entity, bool spawn)
+        public HordeEntitySpawnRequest(HordeClusterEntity entity, bool spawn, Action<Entity> onSpawn)
         {
             this.entity = entity;
             this.spawn = spawn;
+            this.onSpawn = onSpawn;
         }
 
         public bool IsDone()
@@ -106,9 +108,19 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         public void TickExecute(float dt)
         {
             if (this.spawn)
+            {
                 this.entity.Respawn();
+
+                if(this.onSpawn != null)
+                    this.onSpawn(this.entity.GetEntity());
+            }
             else
+            {
+                if(this.onSpawn != null)
+                    this.onSpawn(this.entity.GetEntity());
+    
                 this.entity.Despawn();
+            }
         }
     }
 

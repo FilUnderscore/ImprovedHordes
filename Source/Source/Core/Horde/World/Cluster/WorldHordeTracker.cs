@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using ConcurrentCollections;
+using HarmonyLib;
 using ImprovedHordes.Source.Core.Horde.World.Cluster.Characteristics;
 using ImprovedHordes.Source.Core.Horde.World.Event;
 using ImprovedHordes.Source.Core.Threading;
@@ -71,6 +72,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
 
         private readonly ConcurrentQueue<HordeClusterSpawnRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterSpawnRequest>();
+        private readonly ConcurrentHashSet<int> entitiesTracked = new ConcurrentHashSet<int>();
 
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
@@ -87,6 +89,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             reporter.OnWorldEventReport += Reporter_OnWorldEventReport;
 
             this.RegisterHordes();
+            EntityAlive_canDespawn_Patch.Tracker = this;
         }
 
         private void RegisterHordes()
@@ -190,7 +193,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
-                        foreach (var spawnRequest in horde.RequestSpawns(group, mainThreadRequestProcessor))
+                        foreach (var spawnRequest in horde.RequestSpawns(group, mainThreadRequestProcessor, entity => entitiesTracked.Add(entity.entityId)))
                         {
                             this.clusterSpawnRequests.Enqueue(spawnRequest);
                         }
@@ -216,11 +219,15 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
 
                                 if (entity.IsSpawned() && !nearby.Any())
                                 {
-                                    entity.RequestDespawn(this.mainThreadRequestProcessor);
+                                    entity.RequestDespawn(this.mainThreadRequestProcessor, entityAlive =>
+                                    {
+                                        if (!entitiesTracked.TryRemove(entityAlive.entityId))
+                                            Log.Warning("Failed to untrack horde entity when despawning.");
+                                    });
                                 }
                                 else if (!entity.IsSpawned() && nearby.Any())
                                 {
-                                    entity.RequestSpawn(this.mainThreadRequestProcessor);
+                                    entity.RequestSpawn(this.mainThreadRequestProcessor, entityAlive => entitiesTracked.Add(entityAlive.entityId));
                                 }
                             }
                         }
@@ -313,6 +320,22 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
         public void Add(WorldHorde horde)
         {
             toAdd.Enqueue(horde);
+        }
+
+        [HarmonyPatch(typeof(EntityAlive))]
+        [HarmonyPatch("canDespawn")]
+        private sealed class EntityAlive_canDespawn_Patch
+        {
+            public static WorldHordeTracker Tracker;
+
+            static bool Prefix(EntityAlive __instance, ref bool __result)
+            {
+                if (!Tracker.entitiesTracked.Contains(__instance.entityId))
+                    return true;
+
+                __result = false;
+                return false;
+            }
         }
     }
 }

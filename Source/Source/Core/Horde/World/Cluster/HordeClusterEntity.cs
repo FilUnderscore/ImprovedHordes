@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Source.Core.Horde.Characteristics;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI;
+using System;
 using UnityEngine;
 
 namespace ImprovedHordes.Source.Core.Horde.World.Cluster
@@ -97,16 +98,16 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.awaitingSpawnStateChange;
         }
 
-        public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor)
+        public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor, Action<Entity> onDespawn)
         {
             this.awaitingSpawnStateChange = true;
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, false));
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, false, onDespawn));
         }
 
-        public void RequestSpawn(MainThreadRequestProcessor mainThreadRequestProcessor)
+        public void RequestSpawn(MainThreadRequestProcessor mainThreadRequestProcessor, Action<Entity> onSpawn)
         {
             this.awaitingSpawnStateChange = true;
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, true));
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, true, onSpawn));
         }
 
         public void Despawn()
@@ -133,10 +134,11 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             this.entity = HordeEntityGenerator.GenerateEntity(this.entityClassId, spawnLocation);
             this.location = spawnLocation;
             this.spawned = true;
-            this.awaitingSpawnStateChange = false;
-
+            
             if (this.hordeDespawned)
                 this.Despawn();
+            else
+                this.awaitingSpawnStateChange = false;
         }
 
         public void NotifyHordeDespawned()

@@ -3,6 +3,7 @@ using ImprovedHordes.Source.Core.Horde.World.Cluster.AI;
 using ImprovedHordes.Source.Core.Horde.World.Spawn;
 using ImprovedHordes.Source.Core.Threading;
 using ImprovedHordes.Source.Horde.AI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -36,7 +37,7 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
             return this.location;
         }
 
-        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor)
+        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<Entity> onSpawn)
         {
             foreach(var cluster in this.clusters)
             {
@@ -46,6 +47,9 @@ namespace ImprovedHordes.Source.Core.Horde.World.Cluster
                 yield return new HordeClusterSpawnRequest(this, this.spawnData, cluster, group, entity =>
                 {
                     this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), mainThreadRequestProcessor);
+
+                    if (onSpawn != null)
+                        onSpawn(entity);
                 });
 
                 cluster.SetSpawned(true);
