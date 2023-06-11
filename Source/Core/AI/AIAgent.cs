@@ -11,5 +11,10 @@ namespace ImprovedHordes.Core.AI
         IEntity GetTarget();
 
         bool IsDead();
+
+        void Sleep();
+        void WakeUp();
+
+        bool IsSleeping();
     }
 }

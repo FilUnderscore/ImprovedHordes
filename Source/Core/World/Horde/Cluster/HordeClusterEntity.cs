@@ -13,7 +13,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         private IEntity entity;
 
         private readonly int entityClassId, entityId;
-        private bool spawned, awaitingSpawnStateChange, hordeDespawned;
+        private bool spawned, awaitingSpawnStateChange, hordeDespawned, sleeping;
         private Vector3 location;
 
         private readonly HordeCharacteristics characteristics;
@@ -171,6 +171,27 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public bool IsPlayer()
         {
             return false;
+        }
+
+        public void Sleep()
+        {
+            if (this.entity != null)
+                this.entity.Sleep();
+            else
+                this.sleeping = true;
+        }
+
+        public void WakeUp()
+        {
+            if (this.entity != null)
+                this.entity.WakeUp();
+            else
+                this.sleeping = false;
+        }
+
+        public bool IsSleeping()
+        {
+            return this.entity != null ? this.entity.IsSleeping() : this.sleeping;
         }
     }
 }

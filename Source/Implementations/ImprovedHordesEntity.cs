@@ -63,5 +63,21 @@ namespace ImprovedHordes.Implementations
         {
             return this.entity is EntityPlayer;
         }
+
+        public void Sleep()
+        {
+            this.entity.SetSleeper();
+            this.entity.TriggerSleeperPose(0);
+        }
+
+        public void WakeUp()
+        {
+            this.entity.ConditionalTriggerSleeperWakeUp();
+        }
+
+        public bool IsSleeping()
+        {
+            return this.entity.IsSleeping;
+        }
     }
 }

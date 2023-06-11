@@ -132,7 +132,6 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                         Log.Error($"Socket exception occurred while listening for new clients. {ex.Message}");
                     }
                 }
-
                 Log.Out("Shutdown debug server.");
             }, TaskCreationOptions.LongRunning);
         }
@@ -167,7 +166,9 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         protected override void Shutdown()
         {
             base.Shutdown();
+
             this.running = false;
+            this.listener.Stop();
         }
     }
 }

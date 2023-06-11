@@ -26,7 +26,7 @@
                 return true;
 
 #if DEBUG
-            Log.Out($"Agent completed command {command.Command.GetType().Name}");
+            Log.Out($"{typeof(AgentType).Name} Agent completed command {command.Command.GetType().Name}");
 #endif
 
             if(this.command.OnComplete != null)

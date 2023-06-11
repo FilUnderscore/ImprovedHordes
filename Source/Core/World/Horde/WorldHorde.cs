@@ -23,6 +23,8 @@ namespace ImprovedHordes.Core.World.Horde
         private HordeCharacteristics characteristics = new HordeCharacteristics();
         private HordeAIExecutor AIExecutor;
 
+        private bool sleeping = false;
+
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density, entityCommandGenerator), commandGenerator) { }
 
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IAICommandGenerator<AICommand> commandGenerator)
@@ -195,6 +197,21 @@ namespace ImprovedHordes.Core.World.Horde
         public List<HordeCluster> GetClusters()
         {
             return this.clusters;
+        }
+
+        public void Sleep()
+        {
+            this.sleeping = true;
+        }
+
+        public void WakeUp()
+        {
+            this.sleeping = false;
+        }
+
+        public bool IsSleeping()
+        {
+            return this.sleeping;
         }
     }
 }
