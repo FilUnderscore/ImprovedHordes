@@ -126,9 +126,9 @@
     <Compile Include="Source\Wandering\WanderingAnimalEnemyHorde.cs" />
     <Compile Include="Source\Wandering\WanderingAnimalHorde.cs" />
     <Compile Include="Source\Wandering\Enemy\WanderingEnemyHorde.cs" />
-    <Compile Include="Source\Wandering\Enemy\WorldWildernessWanderingEnemyHordePopulator.cs" />
-    <Compile Include="Source\Wandering\Enemy\WorldZoneWanderingEnemyAICommandGenerator.cs" />
-    <Compile Include="Source\Wandering\Enemy\WorldZoneWanderingEnemyHordePopulator.cs" />
+    <Compile Include="Source\Wandering\Enemy\Wilderness\WorldWildernessWanderingEnemyHordePopulator.cs" />
+    <Compile Include="Source\Wandering\Enemy\Zone\WorldZoneWanderingEnemyAICommandGenerator.cs" />
+    <Compile Include="Source\Wandering\Enemy\Zone\WorldZoneWanderingEnemyHordePopulator.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
