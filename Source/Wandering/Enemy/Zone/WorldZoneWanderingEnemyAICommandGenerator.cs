@@ -5,7 +5,7 @@ using ImprovedHordes.Source.Wandering.Enemy;
 
 namespace ImprovedHordes.Wandering.Enemy.Zone
 {
-    public class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState>
+    public class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
         private readonly WorldPOIScanner scanner;
         private readonly GameRandom random;
@@ -16,7 +16,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
             this.random = GameManager.Instance.World.GetGameRandom();
         }
 
-        public override bool GenerateNextCommandFromState(WanderingEnemyAIState state, out GeneratedAICommand command)
+        public override bool GenerateNextCommandFromState(WanderingEnemyAIState state, out GeneratedAICommand<AICommand> command)
         {
             switch (state.GetWanderingState())
             {
@@ -35,7 +35,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
                 case WanderingEnemyAIState.WanderingState.WANDER:
                     // TODO wandering command. On interrupt, change to moving. On complete, change to idle.
 
-                    command = new GeneratedAICommand(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);
@@ -66,7 +66,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
                     var zone = state.GetTargetZone();
                     var zoneTargetCommand = new GoToTargetAICommand(zone.GetBounds().center);
 
-                    command = new GeneratedAICommand(zoneTargetCommand, (_) =>
+                    command = new GeneratedAICommand<AICommand>(zoneTargetCommand, (_) =>
                     {
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.WANDER);
                     });

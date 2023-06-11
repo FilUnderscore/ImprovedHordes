@@ -1,5 +1,4 @@
 ﻿using ImprovedHordes.Core.Abstractions;
-using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
@@ -8,7 +7,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.Cluster
 {
-    public sealed class HordeClusterEntity : IAIAgent
+    public sealed class HordeClusterEntity : IEntity
     {
         private readonly HordeCluster cluster;
         private IEntity entity;
@@ -41,11 +40,6 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public IEntity GetEntity()
         {
             return this.entity;
-        }
-
-        public bool CanInterrupt()
-        {
-            return this.GetTarget() == null || !(this.GetTarget() is EntityPlayer);
         }
 
         public Vector3 GetLocation()
@@ -147,6 +141,36 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public void NotifyHordeDespawned()
         {
             this.hordeDespawned = true;
+        }
+
+        public int GetEntityId()
+        {
+            return this.entityId;
+        }
+
+        public int GetEntityClassId()
+        {
+            return this.entityClassId;
+        }
+
+        public void PlaySound(string soundName)
+        {
+            this.entity.PlaySound(soundName);
+        }
+
+        public string GetAlertSound()
+        {
+            return this.entity.GetAlertSound();
+        }
+
+        public bool IsStunned()
+        {
+            return this.entity.IsStunned();
+        }
+
+        public bool IsPlayer()
+        {
+            return false;
         }
     }
 }

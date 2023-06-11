@@ -1,7 +1,7 @@
 ﻿namespace ImprovedHordes.Core.AI
 {
-    public interface IAICommandGenerator
+    public interface IAICommandGenerator<CommandType> where CommandType : AICommand
     {
-        bool GenerateNextCommand(out GeneratedAICommand command);
+        bool GenerateNextCommand(out GeneratedAICommand<CommandType> command);
     }
 }

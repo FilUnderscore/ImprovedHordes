@@ -4,14 +4,14 @@ using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.AI
 {
-    public sealed class HordeAIAgentExecutor : AIAgentExecutor
+    public sealed class HordeAIAgentExecutor : AIAgentExecutor<WorldHorde>
     {
-        private readonly IAICommandGenerator commandGenerator;
+        private readonly IAICommandGenerator<AICommand> commandGenerator;
         private readonly ConcurrentStack<AICommand> interruptCommands = new ConcurrentStack<AICommand>();
 
         private readonly List<HordeEntityAIAgentExecutor> entities = new List<HordeEntityAIAgentExecutor>();
 
-        public HordeAIAgentExecutor(WorldHorde horde, IAICommandGenerator commandGenerator) : base(horde)
+        public HordeAIAgentExecutor(WorldHorde horde, IAICommandGenerator<AICommand> commandGenerator) : base(horde)
         {
             this.commandGenerator = commandGenerator;
         }
@@ -41,21 +41,21 @@ namespace ImprovedHordes.Core.World.Horde.AI
             }
         }
 
-        public override GeneratedAICommand GetCommand()
+        public override GeneratedAICommand<AICommand> GetCommand()
         {
             if (this.interruptCommands.TryPeek(out AICommand currentInterruptCommand))
-                return new GeneratedAICommand(currentInterruptCommand);
+                return new GeneratedAICommand<AICommand>(currentInterruptCommand);
 
             return base.GetCommand();
         }
 
-        public GeneratedAICommand GetNextCommand(GeneratedAICommand currentCommand)
+        public GeneratedAICommand<AICommand> GetNextCommand(GeneratedAICommand<AICommand> currentCommand)
         {
             // Try get next interrupt command first.
             if(this.interruptCommands.TryPop(out _))
             {
                 if (this.interruptCommands.TryPeek(out AICommand nextInterruptCommand))
-                    return new GeneratedAICommand(nextInterruptCommand);
+                    return new GeneratedAICommand<AICommand>(nextInterruptCommand);
             }
 
             // Get next generated command.

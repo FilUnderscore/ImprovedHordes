@@ -23,9 +23,9 @@ namespace ImprovedHordes.Core.World.Horde
         private HordeCharacteristics characteristics = new HordeCharacteristics();
         private HordeAIExecutor AIExecutor;
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IAICommandGenerator commandGenerator) : this(location, spawnData, new HordeCluster(horde, density), commandGenerator) { }
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density, entityCommandGenerator), commandGenerator) { }
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IAICommandGenerator commandGenerator)
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IAICommandGenerator<AICommand> commandGenerator)
         {
             this.location = location;
             this.spawnData = spawnData;
@@ -49,7 +49,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                 yield return new HordeClusterSpawnRequest(spawner, this, this.spawnData, cluster, group, entity =>
                 {
-                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), mainThreadRequestProcessor);
+                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
 
                     if (onSpawn != null)
                         onSpawn(entity);
@@ -64,10 +64,10 @@ namespace ImprovedHordes.Core.World.Horde
             return this.clusters.Any(cluster => !cluster.IsSpawned());
         }
 
-        private void AddEntity(HordeClusterEntity entity, MainThreadRequestProcessor mainThreadRequestProcessor)
+        private void AddEntity(HordeClusterEntity entity, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             entity.GetCluster().AddEntity(entity);
-            this.AIExecutor.AddEntity(entity, mainThreadRequestProcessor);
+            this.AIExecutor.AddEntity(entity, entityCommandGenerator, mainThreadRequestProcessor);
         }
 
         private void AddCluster(HordeCluster cluster)
@@ -167,11 +167,6 @@ namespace ImprovedHordes.Core.World.Horde
         public void Update(float dt)
         {
             this.AIExecutor.Update(dt);
-        }
-
-        public bool CanInterrupt()
-        {
-            return true;
         }
 
         public IEntity GetTarget()

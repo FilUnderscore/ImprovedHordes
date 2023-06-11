@@ -11,5 +11,6 @@ namespace ImprovedHordes.Core.Abstractions
         string GetAlertSound();
 
         bool IsStunned();
+        bool IsPlayer();
     }
 }

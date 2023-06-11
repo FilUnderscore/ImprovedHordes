@@ -17,7 +17,7 @@ namespace ImprovedHordes.Command
             {
                 EntityPlayerLocal player = GameManager.Instance.World.GetPrimaryPlayer();
 
-                mod.GetCore().GetWorldHordeSpawner().Spawn<ScreamerHorde, PlayerHordeSpawn>(new PlayerHordeSpawn(player, 100), new HordeSpawnData(40), null);
+                mod.GetCore().GetWorldHordeSpawner().Spawn<ScreamerHorde, PlayerHordeSpawn>(new PlayerHordeSpawn(player, 100), new HordeSpawnData(40), null, null);
                 message = "Spawned test";
             }
             else

@@ -1,15 +1,24 @@
 ﻿using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.World.Event;
 using ImprovedHordes.POI;
 
 namespace ImprovedHordes.Screamer
 {
-    public class WorldZoneScreamerHordePopulator : WorldZoneHordePopulator<ScreamerHorde>
+    public sealed class WorldZoneScreamerHordePopulator : WorldZoneHordePopulator<ScreamerHorde>
     {
-        public WorldZoneScreamerHordePopulator(WorldPOIScanner scanner) : base(scanner)
+        private readonly WorldEventReporter worldEventReporter;
+
+        public WorldZoneScreamerHordePopulator(WorldPOIScanner scanner, WorldEventReporter worldEventReporter) : base(scanner)
         {
+            this.worldEventReporter = worldEventReporter;
         }
 
-        public override IAICommandGenerator CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone)
+        public override IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator()
+        {
+            return new ScreamerEntityAICommandGenerator(this.worldEventReporter);
+        }
+
+        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone)
         {
             return new GoToWorldZoneAICommandGenerator(this.scanner);
         }

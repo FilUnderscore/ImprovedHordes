@@ -54,7 +54,7 @@ namespace ImprovedHordes
             this.poiScanner = new WorldPOIScanner();
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner, core.GetWorldEventReporter()));
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessHordePopulator<WanderingAnimalHorde>(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));

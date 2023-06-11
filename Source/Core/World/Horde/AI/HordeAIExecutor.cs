@@ -12,7 +12,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
         private readonly HordeAIAgentExecutor hordeExecutor;
         private readonly Dictionary<IAIAgent, HordeEntityAIAgentExecutor> executors;
 
-        public HordeAIExecutor(WorldHorde horde, IAICommandGenerator commandGenerator)
+        public HordeAIExecutor(WorldHorde horde, IAICommandGenerator<AICommand> commandGenerator)
         {
             this.horde = horde;
             
@@ -20,10 +20,10 @@ namespace ImprovedHordes.Core.World.Horde.AI
             this.executors = new Dictionary<IAIAgent, HordeEntityAIAgentExecutor>();
         }
 
-        public void AddEntity(HordeClusterEntity entity, MainThreadRequestProcessor mainThreadRequestProcessor)
+        public void AddEntity(HordeClusterEntity entity, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             HordeEntityAIAgentExecutor executor;
-            this.executors.Add(entity, executor = new HordeEntityAIAgentExecutor(entity, this.hordeExecutor));
+            this.executors.Add(entity, executor = new HordeEntityAIAgentExecutor(entity, this.hordeExecutor, entityCommandGenerator));
 
             this.NotifyEntity(executor, true, mainThreadRequestProcessor);
         }

@@ -1,6 +1,6 @@
 ﻿namespace ImprovedHordes.Core.AI
 {
-    public abstract class AIStateCommandGenerator<AIState> : IAICommandGenerator where AIState : IAIState
+    public abstract class AIStateCommandGenerator<AIState, CommandType> : IAICommandGenerator<CommandType> where AIState : IAIState where CommandType : AICommand
     {
         private readonly AIState state;
 
@@ -9,11 +9,11 @@
             this.state = initialState;
         }
 
-        public bool GenerateNextCommand(out GeneratedAICommand command)
+        public bool GenerateNextCommand(out GeneratedAICommand<CommandType> command)
         {
             return GenerateNextCommandFromState(this.state, out command);
         }
 
-        public abstract bool GenerateNextCommandFromState(AIState state, out GeneratedAICommand command);
+        public abstract bool GenerateNextCommandFromState(AIState state, out GeneratedAICommand<CommandType> command);
     }
 }

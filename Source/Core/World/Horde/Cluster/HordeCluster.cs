@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ImprovedHordes.Core.AI;
+using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.Cluster
 {
@@ -10,13 +11,15 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         private float density;
         private float densityPerEntity;
 
+        private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
         private bool spawned;
 
-        public HordeCluster(IHorde horde, float density)
+        public HordeCluster(IHorde horde, float density, IAICommandGenerator<EntityAICommand> entityCommandGenerator)
         {
             this.horde = horde;
             this.density = density;
+            this.entityCommandGenerator = entityCommandGenerator;
         }
 
         public IHorde GetHorde()
@@ -78,6 +81,11 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public bool IsSpawned()
         {
             return this.spawned;
+        }
+
+        public IAICommandGenerator<EntityAICommand> GetEntityCommandGenerator()
+        {
+            return this.entityCommandGenerator;
         }
     }
 }

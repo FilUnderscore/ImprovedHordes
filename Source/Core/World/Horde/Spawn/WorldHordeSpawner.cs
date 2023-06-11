@@ -13,12 +13,12 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             this.hordeTracker = hordeTracker;
         }
 
-        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, IAICommandGenerator commandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
+        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
         {
-            this.Spawn<Horde, HordeSpawn>(spawn, spawnData, 1.0f, commandGenerator);
+            this.Spawn<Horde, HordeSpawn>(spawn, spawnData, 1.0f, commandGenerator, entityCommandGenerator);
         }
 
-        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, float density, IAICommandGenerator commandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
+        public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, float density, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
         {
             Horde horde = Activator.CreateInstance<Horde>();
 
@@ -26,7 +26,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, commandGenerator));
+            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, commandGenerator, entityCommandGenerator));
         }
     }
 }

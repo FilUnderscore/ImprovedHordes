@@ -18,7 +18,7 @@ namespace ImprovedHordes.POI
         private static void GetNearby(DynamicPrefabDecorator dynamicPrefabDecorator, PrefabInstance prefab, List<PrefabInstance> nearby, List<PrefabInstance> allowedPois)
         {
             Dictionary<int, PrefabInstance> prefabs = new Dictionary<int, PrefabInstance>();
-            dynamicPrefabDecorator.GetPrefabsAround(prefab.boundingBoxPosition + prefab.boundingBoxSize * 0.5f, 64.0f, prefabs);
+            dynamicPrefabDecorator.GetPrefabsAround(prefab.boundingBoxPosition + prefab.boundingBoxSize * 0.5f, prefab.GetAABB().size.magnitude * 2.0f, prefabs);
 
             foreach(var p in prefabs.Values)
             {
@@ -59,8 +59,7 @@ namespace ImprovedHordes.POI
             foreach(var zone in zones)
             {
                 zone.UpdateDensity(this.highestCount);
-                //Log.Out("Zone density: " + zone.GetDensity() + " Count: " + zone.GetCount());
-
+                
                 if(zone.GetDensity() <= 0.0f + float.Epsilon)
                 {
                     toRemove.Add(zone);

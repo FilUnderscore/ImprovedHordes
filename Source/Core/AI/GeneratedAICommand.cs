@@ -2,22 +2,22 @@
 
 namespace ImprovedHordes.Core.AI
 {
-    public sealed class GeneratedAICommand
+    public sealed class GeneratedAICommand<CommandType> where CommandType : AICommand
     {
-        public readonly AICommand Command;
+        public readonly CommandType Command;
 
-        public readonly Action<AICommand> OnComplete;
-        public readonly Action<AICommand> OnInterrupt;
+        public readonly Action<CommandType> OnComplete;
+        public readonly Action<CommandType> OnInterrupt;
 
-        public GeneratedAICommand(AICommand command, Action<AICommand> onComplete, Action<AICommand> onInterrupt)
+        public GeneratedAICommand(CommandType command, Action<CommandType> onComplete, Action<CommandType> onInterrupt)
         {
             this.Command = command;
             this.OnComplete = onComplete;
             this.OnInterrupt = onInterrupt;
         }
 
-        public GeneratedAICommand(AICommand command, Action<AICommand> onComplete) : this(command, onComplete, null) { }
+        public GeneratedAICommand(CommandType command, Action<CommandType> onComplete) : this(command, onComplete, null) { }
         
-        public GeneratedAICommand(AICommand command) : this(command, null) { }
+        public GeneratedAICommand(CommandType command) : this(command, null) { }
     }
 }

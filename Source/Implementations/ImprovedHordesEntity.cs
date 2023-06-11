@@ -33,9 +33,9 @@ namespace ImprovedHordes.Implementations
             return this.entity.position;
         }
 
-        public EntityAlive GetTarget()
+        public IEntity GetTarget()
         {
-            return this.entity.GetAttackTarget();
+            return new ImprovedHordesEntity(this.entity.GetAttackTarget());
         }
 
         public bool IsDead()
@@ -45,7 +45,7 @@ namespace ImprovedHordes.Implementations
 
         public bool IsStunned()
         {
-            return this.entity.bodyDamage.CurrentStun == EnumEntityStunType.None;
+            return this.entity.bodyDamage.CurrentStun != EnumEntityStunType.None;
         }
 
         public void PlaySound(string soundName)
@@ -59,9 +59,9 @@ namespace ImprovedHordes.Implementations
             AstarManager.Instance.AddLocationLine(this.GetLocation(), location, 64);
         }
 
-        IEntity IAIAgent.GetTarget()
+        public bool IsPlayer()
         {
-            return new ImprovedHordesEntity(this.entity.GetAttackTarget());
+            return this.entity is EntityPlayer;
         }
     }
 }

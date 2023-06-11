@@ -86,10 +86,15 @@ namespace ImprovedHordes.POI
         public override void Populate(Vector2 pos, WorldHordeSpawner spawner, GameRandom random)
         {
             float density = random.RandomFloat;
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator());
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(), CreateEntityAICommandGenerator());
         }
 
-        public virtual IAICommandGenerator CreateHordeAICommandGenerator()
+        public virtual IAICommandGenerator<AICommand> CreateHordeAICommandGenerator()
+        {
+            return null;
+        }
+
+        public virtual IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator()
         {
             return null;
         }

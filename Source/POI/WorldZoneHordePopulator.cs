@@ -111,11 +111,12 @@ namespace ImprovedHordes.POI
         private void SpawnHordeAt(Vector2 location, WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, int hordeCount, GameRandom random)
         {
             float zoneSpawnDensity = (zone.GetDensity() * 1.0f);
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zoneSpawnDensity, CreateHordeAICommandGenerator(zone));
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zoneSpawnDensity, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
 
             //Log.Out($"Spawned horde of density {zoneSpawnDensity} at {location}.");
         }
 
-        public abstract IAICommandGenerator CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone);
+        public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone);
+        public abstract IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator();
     }
 }

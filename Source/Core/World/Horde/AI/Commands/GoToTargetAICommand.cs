@@ -20,7 +20,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override bool CanExecute(IAIAgent agent)
         {
-            return agent.GetTarget() == null || !(agent.GetTarget() is EntityPlayer);
+            return agent.GetTarget() == null || !agent.GetTarget().IsPlayer();
         }
 
         public override void Execute(IAIAgent agent, float dt)
@@ -30,12 +30,17 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override int GetObjectiveScore(IAIAgent agent)
         {
-            return Mathf.FloorToInt(Vector3.Distance(agent.GetLocation(), this.target));
+            return Mathf.FloorToInt(Vector2.Distance(ToXZ(agent.GetLocation()), ToXZ(this.target)));
         }
 
         public override bool IsComplete(IAIAgent agent)
         {
-            return Vector3.Distance(agent.GetLocation(), this.target) < MIN_DISTANCE_TO_TARGET;
+            return Vector2.Distance(ToXZ(agent.GetLocation()), ToXZ(this.target)) < MIN_DISTANCE_TO_TARGET;
+        }
+
+        private Vector2 ToXZ(Vector3 v)
+        {
+            return new Vector2(v.x, v.z);
         }
     }
 }

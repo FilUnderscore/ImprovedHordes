@@ -1,11 +1,11 @@
 ﻿namespace ImprovedHordes.Core.AI
 {
-    public abstract class AIAgentExecutor
+    public abstract class AIAgentExecutor<AgentType> where AgentType : IAIAgent
     {
-        protected readonly IAIAgent agent;
-        protected GeneratedAICommand command;
+        protected readonly AgentType agent;
+        protected GeneratedAICommand<AICommand> command;
 
-        public AIAgentExecutor(IAIAgent agent)
+        public AIAgentExecutor(AgentType agent)
         {
             this.agent = agent;
         }
@@ -35,7 +35,7 @@
             return false;
         }
 
-        public void SetCommand(GeneratedAICommand command)
+        public void SetCommand(GeneratedAICommand<AICommand> command)
         {
             if(this.command != null && this.command.OnInterrupt != null)
                 this.command.OnInterrupt.Invoke(this.command.Command);
@@ -43,7 +43,7 @@
             this.command = command;
         }
 
-        public virtual GeneratedAICommand GetCommand()
+        public virtual GeneratedAICommand<AICommand> GetCommand()
         {
             return this.command;
         }
