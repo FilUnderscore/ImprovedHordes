@@ -10,7 +10,7 @@ namespace ImprovedHordes.POI
 {
     public abstract class WorldZoneHordePopulator<Horde> : HordePopulator<WorldPOIScanner.Zone> where Horde: IHorde
     {
-        private const ulong RESPAWN_DELAY = 30000;
+        private const ulong RESPAWN_DELAY = 24000 * 3;
         private readonly Dictionary<WorldPOIScanner.Zone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.Zone, ulong>();
 
         protected readonly WorldPOIScanner scanner;
