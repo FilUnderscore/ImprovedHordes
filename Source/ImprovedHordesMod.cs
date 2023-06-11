@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Audio;
+using HarmonyLib;
 using ImprovedHordes.Core;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Data.XML;
@@ -79,6 +80,19 @@ namespace ImprovedHordes
 
             Instance.core.Shutdown();
             Instance.core = null;
+        }
+
+        [HarmonyPatch(typeof(World))]
+        [HarmonyPatch("Cleanup")]
+        private sealed class World_Cleanup_Patch
+        {
+            private static void Prefix() // Clean up on client world exit
+            {
+                //if (!IsHost())
+                //    return;
+
+                GameShutdown();
+            }
         }
     }
 }

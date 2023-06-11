@@ -81,6 +81,8 @@ namespace ImprovedHordes.Core
 
         public void Shutdown()
         {
+            Log.Out("[Improved Hordes] [Core] Shutting down.");
+
             MainThreaded.ShutdownAll();
         }
     }
