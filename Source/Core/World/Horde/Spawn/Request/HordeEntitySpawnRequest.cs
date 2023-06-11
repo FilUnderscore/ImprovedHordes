@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Threading.Request;
+﻿using ImprovedHordes.Core.Abstractions;
+using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System;
 
@@ -6,12 +7,14 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
     public sealed class HordeEntitySpawnRequest : IMainThreadRequest
     {
+        private readonly IEntitySpawner spawner;
         private readonly HordeClusterEntity entity;
         private readonly bool spawn;
-        private readonly Action<Entity> onSpawn;
+        private readonly Action<IEntity> onSpawn;
 
-        public HordeEntitySpawnRequest(HordeClusterEntity entity, bool spawn, Action<Entity> onSpawn)
+        public HordeEntitySpawnRequest(IEntitySpawner spawner, HordeClusterEntity entity, bool spawn, Action<IEntity> onSpawn)
         {
+            this.spawner = spawner;
             this.entity = entity;
             this.spawn = spawn;
             this.onSpawn = onSpawn;
@@ -30,7 +33,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             if (this.spawn)
             {
-                this.entity.Respawn();
+                this.entity.Respawn(this.spawner);
 
                 if (this.onSpawn != null)
                     this.onSpawn(this.entity.GetEntity());

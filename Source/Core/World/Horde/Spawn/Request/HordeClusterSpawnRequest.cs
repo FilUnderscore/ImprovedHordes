@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Threading.Request;
+﻿using ImprovedHordes.Core.Abstractions;
+using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System;
 using UnityEngine;
@@ -7,6 +8,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
     public sealed class HordeClusterSpawnRequest : IMainThreadRequest
     {
+        private readonly IEntitySpawner spawner;
+
         private readonly WorldHorde horde;
         private readonly HordeSpawnData spawnData;
 
@@ -16,11 +19,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly int size;
         private int index;
 
-        private readonly Action<EntityAlive> onSpawnAction;
+        private readonly Action<IEntity> onSpawnAction;
         private readonly GameRandom random;
 
-        public HordeClusterSpawnRequest(WorldHorde horde, HordeSpawnData spawnData, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<EntityAlive> onSpawnAction)
+        public HordeClusterSpawnRequest(IEntitySpawner spawner, WorldHorde horde, HordeSpawnData spawnData, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<IEntity> onSpawnAction)
         {
+            this.spawner = spawner;
+
             this.horde = horde;
             this.spawnData = spawnData;
 
@@ -67,7 +72,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 return;
             }
 
-            this.onSpawnAction.Invoke(this.generator.GenerateEntity(spawnLocation, this.random));
+            this.onSpawnAction.Invoke(spawner.SpawnAt(this.generator.GetEntityClassId(this.random), spawnLocation));
             this.index++;
         }
 

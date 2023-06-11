@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-
-namespace ImprovedHordes.Core.World.Horde
+﻿namespace ImprovedHordes.Core.World.Horde
 {
     public abstract class HordeEntityGenerator
     {
         protected PlayerHordeGroup playerGroup;
-
+        
         public HordeEntityGenerator(PlayerHordeGroup playerGroup)
         {
             this.playerGroup = playerGroup;
@@ -18,37 +16,8 @@ namespace ImprovedHordes.Core.World.Horde
 
         public abstract bool IsStillValidFor(PlayerHordeGroup playerGroup);
 
-        public abstract int GetEntityId(GameRandom random);
-
-        public EntityAlive GenerateEntity(Vector3 spawnPosition, GameRandom random)
-        {
-            return GenerateEntity(GetEntityId(random), spawnPosition);
-        }
+        public abstract int GetEntityClassId(GameRandom random);
 
         public abstract int DetermineEntityCount(float density);
-
-        public static EntityAlive GenerateEntity(int entityId, Vector3 spawnPosition)
-        {
-            EntityAlive entity = EntityFactory.CreateEntity(entityId, spawnPosition) as EntityAlive;
-
-            if (entity != null)
-            {
-                GameManager.Instance.World.SpawnEntityInWorld(entity);
-
-                entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
-                // TODO: Dynamic spawner needs despawn logic to be patched?
-
-                if (entity is EntityEnemy enemy)
-                    enemy.IsHordeZombie = true;
-
-                entity.bIsChunkObserver = true;
-                entity.IsBloodMoon = false;
-#if DEBUG
-                entity.AddNavObject("ih_horde_zombie_debug", "");
-#endif
-            }
-
-            return entity;
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.AI;
 using ImprovedHordes.Core.World.Horde.Characteristics;
@@ -39,14 +40,14 @@ namespace ImprovedHordes.Core.World.Horde
             return this.location;
         }
 
-        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<Entity> onSpawn)
+        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(IEntitySpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
         {
             foreach(var cluster in this.clusters)
             {
                 if (cluster.IsSpawned())
                     continue;
 
-                yield return new HordeClusterSpawnRequest(this, this.spawnData, cluster, group, entity =>
+                yield return new HordeClusterSpawnRequest(spawner, this, this.spawnData, cluster, group, entity =>
                 {
                     this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), mainThreadRequestProcessor);
 
@@ -173,7 +174,7 @@ namespace ImprovedHordes.Core.World.Horde
             return true;
         }
 
-        public EntityAlive GetTarget()
+        public IEntity GetTarget()
         {
             return null;
         }

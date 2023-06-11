@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
@@ -10,22 +11,24 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
     public sealed class HordeClusterEntity : IAIAgent
     {
         private readonly HordeCluster cluster;
-        private EntityAlive entity;
+        private IEntity entity;
 
-        private readonly int entityClassId;
+        private readonly int entityClassId, entityId;
         private bool spawned, awaitingSpawnStateChange, hordeDespawned;
         private Vector3 location;
 
         private readonly HordeCharacteristics characteristics;
 
-        public HordeClusterEntity(HordeCluster cluster, EntityAlive entity, HordeCharacteristics characteristics)
+        public HordeClusterEntity(HordeCluster cluster, IEntity entity, HordeCharacteristics characteristics)
         {
             this.cluster = cluster;
             this.entity = entity;
 
             this.spawned = true;
-            this.entityClassId = entity.entityClass;
-            this.location = entity.position;
+
+            this.entityClassId = entity.GetEntityClassId();
+            this.entityId = entity.GetEntityId();
+            this.location = entity.GetLocation();
 
             this.characteristics = characteristics;
         }
@@ -35,7 +38,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.cluster;
         }
 
-        public EntityAlive GetEntity()
+        public IEntity GetEntity()
         {
             return this.entity;
         }
@@ -47,12 +50,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public Vector3 GetLocation()
         {
-            return this.spawned ? this.entity.position : this.location;
+            return this.spawned ? this.entity.GetLocation() : this.location;
         }
 
-        public EntityAlive GetTarget()
+        public IEntity GetTarget()
         {
-            return this.spawned ? this.entity.GetAttackTarget() : null;
+            return this.spawned ? this.entity.GetTarget() : null;
         }
 
         public bool IsDead()
@@ -77,8 +80,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             Vector3 directionWithinLoadDistance = (location - this.GetLocation()).normalized;
             Vector3 locationWithinLoadDistance = (directionWithinLoadDistance * WorldHordeTracker.MAX_VIEW_DISTANCE) + this.GetLocation();
 
-            this.entity.SetInvestigatePosition(locationWithinLoadDistance, 6000, false);
-            AstarManager.Instance.AddLocationLine(this.GetLocation(), locationWithinLoadDistance, 64);
+            this.entity.MoveTo(locationWithinLoadDistance, 0);
         }
 
         private void MoveToDespawned(Vector3 location, float dt)
@@ -99,29 +101,29 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.awaitingSpawnStateChange;
         }
 
-        public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor, Action<Entity> onDespawn)
+        public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onDespawn)
         {
             this.awaitingSpawnStateChange = true;
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, false, onDespawn));
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(null, this, false, onDespawn));
         }
 
-        public void RequestSpawn(MainThreadRequestProcessor mainThreadRequestProcessor, Action<Entity> onSpawn)
+        public void RequestSpawn(IEntitySpawner spawner, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
         {
             this.awaitingSpawnStateChange = true;
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(this, true, onSpawn));
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(spawner, this, true, onSpawn));
         }
 
         public void Despawn()
         {
-            this.location = this.entity.position;
-            GameManager.Instance.World.RemoveEntity(this.entity.entityId, EnumRemoveEntityReason.Killed);
+            this.location = this.entity.GetLocation();
+            GameManager.Instance.World.RemoveEntity(this.entity.GetEntityId(), EnumRemoveEntityReason.Killed);
 
             this.entity = null;
             this.spawned = false;
             this.awaitingSpawnStateChange = false;
         }
 
-        public void Respawn()
+        public void Respawn(IEntitySpawner spawner)
         {
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(this.location.x, this.location.z) + 1.0f;
             this.location.y = surfaceSpawnHeight;
@@ -132,7 +134,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
                 return;
             }
 
-            this.entity = HordeEntityGenerator.GenerateEntity(this.entityClassId, spawnLocation);
+            this.entity = spawner.SpawnAt(this.entityClassId, this.entityId, spawnLocation);
             this.location = spawnLocation;
             this.spawned = true;
             

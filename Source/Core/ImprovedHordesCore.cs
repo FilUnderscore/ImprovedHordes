@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Threading;
+﻿using ImprovedHordes.Core.Abstractions;
+using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
 using ImprovedHordes.Core.World.Horde;
@@ -24,7 +25,7 @@ namespace ImprovedHordes.Core
         
         private readonly int worldSize;
 
-        public ImprovedHordesCore(global::World world)
+        public ImprovedHordesCore(IEntitySpawner entitySpawner, global::World world)
         {
             this.mainThreadRequestProcessor = new MainThreadRequestProcessor();
 
@@ -38,7 +39,7 @@ namespace ImprovedHordes.Core
             this.worldSize = maxSize.x - minSize.x;
             this.worldEventReporter = new WorldEventReporter(this.worldSize);
 
-            this.tracker = new WorldHordeTracker(this.mainThreadRequestProcessor, this.worldEventReporter);
+            this.tracker = new WorldHordeTracker(entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
             this.spawner = new WorldHordeSpawner(this.tracker);
             this.populator = new WorldHordePopulator(this.tracker, this.spawner);
         }

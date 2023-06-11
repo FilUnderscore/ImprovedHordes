@@ -39,7 +39,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             HordeClusterEntity entity = this.entities.Dequeue();
 
             if (entity.IsSpawned()) // Check if not already despawned.
-                GameManager.Instance.World.RemoveEntity(entity.GetEntity().entityId, EnumRemoveEntityReason.Killed);
+                GameManager.Instance.World.RemoveEntity(entity.GetEntity().GetEntityId(), EnumRemoveEntityReason.Killed);
 
             entity.NotifyHordeDespawned();
             entity.GetCluster().RemoveEntity(entity);

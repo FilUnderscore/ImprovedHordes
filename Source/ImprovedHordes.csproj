@@ -61,6 +61,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
+    <Compile Include="Core\Abstractions\Entity.cs" />
+    <Compile Include="Core\Abstractions\EntitySpawner.cs" />
     <Compile Include="Core\AI\AIState.cs" />
     <Compile Include="Core\AI\AIStateCommandGenerator.cs" />
     <Compile Include="Core\AI\GeneratedAICommand.cs" />
@@ -118,11 +120,14 @@
     <Compile Include="Core\World\Horde\AI\Commands\GoToTargetAICommand.cs" />
     <Compile Include="Core\World\Horde\Horde.cs" />
     <Compile Include="Core\ImprovedHordesCore.cs" />
+    <Compile Include="Implementations\ImprovedHordesEntity.cs" />
+    <Compile Include="Implementations\ImprovedHordesEntitySpawner.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
     <Compile Include="POI\GoToWorldZoneAICommandGenerator.cs" />
     <Compile Include="POI\WorldPOIScanner.cs" />
     <Compile Include="POI\WorldWildernessHordePopulator.cs" />
     <Compile Include="POI\WorldZoneHordePopulator.cs" />
+    <Compile Include="Screamer\Commands\ScreamerAICommand.cs" />
     <Compile Include="Screamer\Commands\ZoneWanderAICommand.cs" />
     <Compile Include="Screamer\ScreamerHorde.cs" />
     <Compile Include="Screamer\WorldZoneScreamerHordePopulator.cs" />

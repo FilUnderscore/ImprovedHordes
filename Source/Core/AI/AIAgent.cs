@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ImprovedHordes.Core.Abstractions;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.AI
 {
@@ -7,7 +8,7 @@ namespace ImprovedHordes.Core.AI
         void MoveTo(Vector3 location, float dt);
 
         Vector3 GetLocation();
-        EntityAlive GetTarget();
+        IEntity GetTarget();
 
         bool IsDead();
     }

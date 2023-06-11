@@ -58,7 +58,7 @@ namespace ImprovedHordes.Data
             return randomEntity;
         }
 
-        public override int GetEntityId(GameRandom random)
+        public override int GetEntityClassId(GameRandom random)
         {
             if (this.group == null)
                 return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);
