@@ -114,16 +114,22 @@ namespace ImprovedHordes.Core.World.Horde
 
         protected override void BeforeTaskRestart()
         {
-            foreach (var player in GameManager.Instance.World.Players.list)
+            lock (snapshots)
             {
-                snapshots.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
+                foreach (var player in GameManager.Instance.World.Players.list)
+                {
+                    snapshots.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
+                }
             }
         }
 
         protected override void OnTaskFinish(int returnValue)
         {
-            // Clear old snapshots after task is complete.
-            snapshots.Clear();
+            lock (snapshots)
+            {
+                // Clear old snapshots after task is complete.
+                snapshots.Clear();
+            }
 
             // Add hordes.
             while (toAdd.TryDequeue(out WorldHorde cluster))
@@ -144,16 +150,19 @@ namespace ImprovedHordes.Core.World.Horde
 
             // Update cluster snapshots and remove outdated ones.
 
-            foreach (var key in clusterSnapshots.Keys)
+            lock (clusterSnapshots)
             {
-                clusterSnapshots[key].Clear();
-            }
-
-            foreach (var horde in this.hordes)
-            {
-                foreach (var cluster in horde.GetClusters())
+                foreach (var key in clusterSnapshots.Keys)
                 {
-                    clusterSnapshots[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), horde.GetLocation(), cluster.GetDensity()));
+                    clusterSnapshots[key].Clear();
+                }
+
+                foreach (var horde in this.hordes)
+                {
+                    foreach (var cluster in horde.GetClusters())
+                    {
+                        clusterSnapshots[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), horde.GetLocation(), cluster.GetDensity()));
+                    }
                 }
             }
         }

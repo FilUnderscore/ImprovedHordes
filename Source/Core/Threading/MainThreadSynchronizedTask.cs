@@ -25,7 +25,7 @@ namespace ImprovedHordes.Core.Threading
     public abstract class MainThreadSynchronizedTask<TaskReturnType> : MainThreaded
     {
         protected readonly GameRandom Random;
-        private Task<TaskReturnType> UpdateTask;
+        private Task UpdateTask;
         private bool shutdown = false;
 
         public MainThreadSynchronizedTask()
@@ -43,8 +43,6 @@ namespace ImprovedHordes.Core.Threading
         {
             if (UpdateTask != null && UpdateTask.IsCompleted)
             {
-                Task.WaitAll(UpdateTask);
-                this.OnTaskFinish(UpdateTask.Result);
                 UpdateTask = null;
             }
 
@@ -53,11 +51,13 @@ namespace ImprovedHordes.Core.Threading
 
             if (UpdateTask == null)
             {
-                this.BeforeTaskRestart();
-
                 this.UpdateTask = Task.Run(() =>
                 {
-                    return UpdateAsync(dt);
+                    this.BeforeTaskRestart();
+
+                    TaskReturnType returnType = UpdateAsync(dt);
+
+                    this.OnTaskFinish(returnType);
                 });
             }
         }

@@ -32,34 +32,40 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             writer.Write(this.worldSize);
 
-            writer.Write(this.players.Count);
-            foreach(var player in this.players)
+            lock (this.players)
             {
-                Vector3 location = player.location;
-
-                writer.Write(location.x);
-                writer.Write(location.y);
-                writer.Write(location.z);
-
-                writer.Write(player.gamestage);
-                EncodeString(writer, player.biome);
-            }
-
-            writer.Write(this.clusters.Count);
-            foreach(var entry in this.clusters)
-            {
-                EncodeString(writer, entry.Key.Name);
-                writer.Write(entry.Value.Count);
-
-                foreach(var cluster in entry.Value)
+                writer.Write(this.players.Count);
+                foreach (var player in this.players)
                 {
-                    Vector3 location = cluster.location;
+                    Vector3 location = player.location;
 
                     writer.Write(location.x);
                     writer.Write(location.y);
                     writer.Write(location.z);
 
-                    writer.Write(cluster.density);
+                    writer.Write(player.gamestage);
+                    EncodeString(writer, player.biome);
+                }
+            }
+
+            lock (this.clusters)
+            {
+                writer.Write(this.clusters.Count);
+                foreach (var entry in this.clusters)
+                {
+                    EncodeString(writer, entry.Key.Name);
+                    writer.Write(entry.Value.Count);
+
+                    foreach (var cluster in entry.Value)
+                    {
+                        Vector3 location = cluster.location;
+
+                        writer.Write(location.x);
+                        writer.Write(location.y);
+                        writer.Write(location.z);
+
+                        writer.Write(cluster.density);
+                    }
                 }
             }
 
