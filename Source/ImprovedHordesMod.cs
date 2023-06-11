@@ -1,5 +1,4 @@
-﻿using Audio;
-using HarmonyLib;
+﻿using HarmonyLib;
 using ImprovedHordes.Core;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Data.XML;
@@ -11,7 +10,7 @@ using ImprovedHordes.Wandering.Enemy.Zone;
 
 namespace ImprovedHordes
 {
-    public class ImprovedHordesMod : IModApi
+    public sealed class ImprovedHordesMod : IModApi
     {
         private static ImprovedHordesMod Instance;
 
