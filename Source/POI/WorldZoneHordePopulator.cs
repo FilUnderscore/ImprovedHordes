@@ -43,6 +43,12 @@ namespace ImprovedHordes.POI
         {
             WorldPOIScanner.Zone randomZone = this.GetRandomZone(random);
 
+            if(randomZone.GetDensity() < this.GetMinimumDensity())
+            {
+                zone = null;
+                return false;
+            }    
+
             if (lastSpawned.TryGetValue(randomZone, out ulong spawnTime))
             {
                 ulong worldTime = GameManager.Instance.World.worldTime;
@@ -82,6 +88,11 @@ namespace ImprovedHordes.POI
         }
 
         protected abstract int CalculateHordeCount(WorldPOIScanner.Zone zone);
+
+        protected virtual float GetMinimumDensity()
+        {
+            return 0.0f;
+        }
 
         private void SpawnHordesAt(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, GameRandom random)
         {
