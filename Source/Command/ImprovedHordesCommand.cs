@@ -1,4 +1,6 @@
-﻿using ImprovedHordes.Command.Debug;
+﻿#if DEBUG
+using ImprovedHordes.Command.Debug;
+#endif
 using ImprovedHordes.Core.Command;
 
 namespace ImprovedHordes.Command

@@ -29,6 +29,10 @@ namespace ImprovedHordes
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
             ModEvents.GameUpdate.RegisterHandler(GameUpdate);
             ModEvents.GameShutdown.RegisterHandler(GameShutdown);
+
+#if EXPERIMENTAL
+            new IHExperimentalManager(_modInstance);
+#endif
         }
 
         public static bool TryGetInstance(out ImprovedHordesMod instance)

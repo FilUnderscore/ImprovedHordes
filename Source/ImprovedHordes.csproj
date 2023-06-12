@@ -35,6 +35,10 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Experimental|AnyCPU'">
+    <DefineConstants>EXPERIMENTAL</DefineConstants>
+    <OutputPath>..\ImprovedHordes\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\0Harmony.dll</HintPath>
@@ -122,6 +126,7 @@
     <Compile Include="Core\World\Horde\AI\Commands\GoToTargetAICommand.cs" />
     <Compile Include="Core\World\Horde\Horde.cs" />
     <Compile Include="Core\ImprovedHordesCore.cs" />
+    <Compile Include="IHExperimentalManager.cs" />
     <Compile Include="Implementations\ImprovedHordesEntity.cs" />
     <Compile Include="Implementations\ImprovedHordesEntitySpawner.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
