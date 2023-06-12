@@ -77,6 +77,8 @@ namespace ImprovedHordes.Core.World.Horde.Debug
 
                 writer.Write((int)zone.GetBounds().size.x);
                 writer.Write((int)zone.GetBounds().size.z);
+
+                writer.Write(zone.GetDensity());
             }
         }
 

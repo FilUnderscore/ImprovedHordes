@@ -30,7 +30,7 @@ namespace ImprovedHordes.Screamer
 
         protected override float GetMinimumDensity()
         {
-            return 0.5f;
+            return 0.2f;
         }
     }
 }

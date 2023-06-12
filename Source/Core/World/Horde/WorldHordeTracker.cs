@@ -110,7 +110,10 @@ namespace ImprovedHordes.Core.World.Horde
 
         private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
         {
-            Log.Out($"Pos {e.GetLocation()} Interest {e.GetInterest()} Dist {e.GetDistance()}");
+#if DEBUG
+            Log.Out($"World Event Reported: Pos {e.GetLocation()} Location Interest {e.GetInterest()} Location Interest Distance {e.GetDistance()}");
+#endif
+
             this.eventsToReport.Add(e);
         }
 

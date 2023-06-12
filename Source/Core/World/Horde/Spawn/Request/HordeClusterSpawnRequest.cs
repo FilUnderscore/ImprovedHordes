@@ -69,6 +69,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, this.spawnData.SpreadDistanceLimit, -1, false, out Vector3 spawnLocation, false))
             {
                 Log.Warning($"[Improved Hordes] Bad spawn request for horde at {this.horde.GetLocation()}");
+                //TODO cancel spawn if player is too far?
+
                 return;
             }
 
