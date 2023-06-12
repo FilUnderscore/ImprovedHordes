@@ -20,7 +20,7 @@ namespace ImprovedHordes
             ModEvents.PlayerSpawnedInWorld.UnregisterHandler(PlayerSpawnedInWorld);
 
             GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"{VERSION} Experimental Build.", "Improved Hordes", false, null);
-            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"Please report any bugs/performance issues at - \n{ISSUE_REPORT_URL}", "Improved Hordes", false, null);
+            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"Please report any bugs/performance issues at - {ISSUE_REPORT_URL}", "Improved Hordes", false, null);
         }
     }
 }
