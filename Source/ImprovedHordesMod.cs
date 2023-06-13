@@ -21,7 +21,7 @@ namespace ImprovedHordes
         public void InitMod(Mod _modInstance)
         {
             Instance = this;
-            XPathPatcher.LoadAndPatchXMLFile(_modInstance.Path, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
+            XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
 
             Harmony harmony = new Harmony("filunderscore.improvedhordes");
             harmony.PatchAll();

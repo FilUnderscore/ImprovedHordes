@@ -26,7 +26,7 @@ namespace ImprovedHordes.Implementations
                 entity.bIsChunkObserver = true;
                 entity.IsBloodMoon = false;
 #if DEBUG
-                entity.AddNavObject("ih_horde_zombie_debug", "");
+                entity.AddNavObject("ih_horde_zombie_debug", "", "");
 #endif
             }
 

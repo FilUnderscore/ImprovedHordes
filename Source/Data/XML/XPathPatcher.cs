@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ImprovedHordes.Data.XML
 {
     public class XPathPatcher
     {
-        public static void LoadAndPatchXMLFile(string modPath, string directory, string fileName, Action<XmlFile> callback)
+        public static void LoadAndPatchXMLFile(Mod modInstance, string directory, string fileName, Action<XmlFile> callback)
         {
-            ThreadManager.RunCoroutineSync(LoadAndPatchFile(modPath, directory, fileName, callback));
+            ThreadManager.RunCoroutineSync(LoadAndPatchFile(modInstance, directory, fileName, callback));
         }
 
-        private static IEnumerator LoadAndPatchFile(string modPath, string directory, string fileName, Action<XmlFile> callback)
+        private static IEnumerator LoadAndPatchFile(Mod modInstance, string directory, string fileName, Action<XmlFile> callback)
         {
+            string modPath = modInstance.Path;
             Exception xmlLoadException = null;
 
             XmlFile file = new XmlFile(String.Format("{0}/{1}", modPath, directory), fileName, ex =>
@@ -36,7 +38,7 @@ namespace ImprovedHordes.Data.XML
                 MicroStopwatch msw = new MicroStopwatch(true);
                 foreach (Mod loadedMod in ModManager.GetLoadedMods())
                 {
-                    if (loadedMod.ApiInstance is ImprovedHordesMod)
+                    if (loadedMod == modInstance)
                         continue;
 
                     string path = loadedMod.Path + "/" + directory + "/" + fileName;
@@ -54,17 +56,17 @@ namespace ImprovedHordes.Data.XML
                             }
                             catch (Exception ex)
                             {
-                                Log.Error($"Loading XML patch file {file.Directory}/{file.Filename} from mod {loadedMod.ModInfo.Name} failed: {ex}");
+                                Log.Error($"Loading XML patch file {file.Directory}/{file.Filename} from mod {loadedMod.Name} failed: {ex}");
                                 continue;
                             }
 
-                            XmlPatcher.PatchXml(file, patchXml, loadedMod.ModInfo.Name.ToString());
+                            XmlPatcher.PatchXml(file, patchXml, loadedMod.Name);
 
-                            Log.Out("Patched XML from mod " + loadedMod.ModInfo.Name);
+                            Log.Out("Patched XML from mod " + loadedMod.Name);
                         }
                         catch (Exception ex)
                         {
-                            Log.Error($"Patching {file.Directory}/{file.Filename} from mod {loadedMod.ModInfo.Name?.ToString()} failed: {ex}");
+                            Log.Error($"Patching {file.Directory}/{file.Filename} from mod {loadedMod.Name} failed: {ex}");
                         }
 
                         if (msw.ElapsedMicroseconds > 50L)
