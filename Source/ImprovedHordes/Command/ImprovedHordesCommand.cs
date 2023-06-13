@@ -11,6 +11,7 @@ namespace ImprovedHordes.Command
         {
             RegisterSubcommand(new ImprovedHordesTestSubcommand());
             RegisterSubcommand(new ImprovedHordesStatsSubcommand());
+            RegisterSubcommand(new ImprovedHordesVerboseSubcommand());
 
 #if DEBUG
             // Register debug related subcommands.

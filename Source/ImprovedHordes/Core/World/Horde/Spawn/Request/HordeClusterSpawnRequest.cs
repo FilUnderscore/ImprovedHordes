@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System;
@@ -8,6 +9,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
     public sealed class HordeClusterSpawnRequest : IMainThreadRequest
     {
+        private readonly Abstractions.Logging.ILogger logger;
         private readonly IEntitySpawner spawner;
 
         private readonly WorldHorde horde;
@@ -22,8 +24,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly Action<IEntity> onSpawnAction;
         private readonly GameRandom random;
 
-        public HordeClusterSpawnRequest(IEntitySpawner spawner, WorldHorde horde, HordeSpawnData spawnData, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<IEntity> onSpawnAction)
+        public HordeClusterSpawnRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, WorldHorde horde, HordeSpawnData spawnData, HordeCluster cluster, PlayerHordeGroup playerGroup, Action<IEntity> onSpawnAction)
         {
+            this.logger = loggerFactory.Create(typeof(HordeClusterSpawnRequest));
             this.spawner = spawner;
 
             this.horde = horde;
@@ -68,7 +71,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.horde.GetLocation(), 0, this.spawnData.SpreadDistanceLimit, -1, false, out Vector3 spawnLocation, false))
             {
-                Log.Warning($"[Improved Hordes] Bad spawn request for horde at {this.horde.GetLocation()}");
+                this.logger.Warn($"Bad spawn request for horde at {this.horde.GetLocation()}");
                 //TODO cancel spawn if player is too far?
 
                 return;

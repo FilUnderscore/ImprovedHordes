@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Threading;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         // Relies on object boxing, try to use reference types (i.e. classes) to avoid performance penalty.
         private readonly List<HordePopulator> populators = new List<HordePopulator>();
 
-        public WorldHordePopulator(WorldHordeTracker tracker, WorldHordeSpawner spawner) : base()
+        public WorldHordePopulator(ILoggerFactory loggerFactory, WorldHordeTracker tracker, WorldHordeSpawner spawner) : base(loggerFactory)
         {
             this.tracker = tracker;
             this.spawner = spawner;

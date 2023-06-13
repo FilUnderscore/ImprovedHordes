@@ -1,8 +1,7 @@
-﻿using ImprovedHordes.Core.Abstractions;
-using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World;
 using UnityEngine;
 
-namespace ImprovedHordes.Implementations
+namespace ImprovedHordes.Implementations.World
 {
     public sealed class ImprovedHordesEntity : IEntity
     {

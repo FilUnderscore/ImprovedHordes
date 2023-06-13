@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
@@ -15,6 +16,9 @@ namespace ImprovedHordes.Core
         private const ushort DATA_FILE_MAGIC = 0x4948;
         private const uint DATA_FILE_VERSION = 2;
 
+        private readonly ILoggerFactory loggerFactory;
+        private readonly Abstractions.Logging.ILogger logger;
+
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
 
         private readonly WorldHordeTracker tracker;
@@ -25,11 +29,14 @@ namespace ImprovedHordes.Core
         
         private readonly int worldSize;
 
-        public ImprovedHordesCore(IEntitySpawner entitySpawner, global::World world)
+        public ImprovedHordesCore(ILoggerFactory loggerFactory, IEntitySpawner entitySpawner, global::World world)
         {
+            this.loggerFactory = loggerFactory;
+            this.logger = loggerFactory.Create(typeof(ImprovedHordesCore));
+
             this.mainThreadRequestProcessor = new MainThreadRequestProcessor();
 
-            Log.Out("[Improved Hordes] [Core] Initializing.");
+            this.logger.Info("Initializing.");
 
             if (!world.GetWorldExtent(out Vector3i minSize, out Vector3i maxSize))
             {
@@ -37,11 +44,16 @@ namespace ImprovedHordes.Core
             }
 
             this.worldSize = maxSize.x - minSize.x;
-            this.worldEventReporter = new WorldEventReporter(this.worldSize);
+            this.worldEventReporter = new WorldEventReporter(loggerFactory, this.worldSize);
 
-            this.tracker = new WorldHordeTracker(entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
+            this.tracker = new WorldHordeTracker(loggerFactory, entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
             this.spawner = new WorldHordeSpawner(this.tracker);
-            this.populator = new WorldHordePopulator(this.tracker, this.spawner);
+            this.populator = new WorldHordePopulator(loggerFactory, this.tracker, this.spawner);
+        }
+
+        public ILoggerFactory GetLoggerFactory()
+        {
+            return this.loggerFactory;
         }
 
         public WorldHordePopulator GetWorldHordePopulator()
@@ -82,7 +94,7 @@ namespace ImprovedHordes.Core
 
         public void Shutdown()
         {
-            Log.Out("[Improved Hordes] [Core] Shutting down.");
+            this.logger.Info("Shutting down.");
 
             MainThreaded.ShutdownAll();
         }

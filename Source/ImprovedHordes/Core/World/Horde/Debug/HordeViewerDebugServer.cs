@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.POI;
 using UnityEngine;
@@ -109,7 +110,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly List<TcpClient> clients = new List<TcpClient>();
         private bool running = true;
 
-        public HordeViewerDebugServer(int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner)
+        public HordeViewerDebugServer(ILoggerFactory loggerFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory)
         {
             this.worldSize = worldSize;
             this.tracker = tracker;
@@ -120,21 +121,21 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.listener.Start();
             Task.Factory.StartNew(() =>
             {
-                Log.Out($"Started debug server listening on port {PORT}.");
+                this.Logger.Info($"Started debug server listening on port {PORT}.");
 
                 while (this.running)
                 {
                     try
                     {
                         this.clients.Add(this.listener.AcceptTcpClient());
-                        Log.Out("New client connected.");
+                        this.Logger.Info("New client connected.");
                     }
                     catch(SocketException ex)
                     {
-                        Log.Error($"Socket exception occurred while listening for new clients. {ex.Message}");
+                        this.Logger.Error($"Socket exception occurred while listening for new clients. {ex.Message}");
                     }
                 }
-                Log.Out("Shutdown debug server.");
+                this.Logger.Info("Shutdown debug server.");
             }, TaskCreationOptions.LongRunning);
         }
 
@@ -154,7 +155,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                 }
                 catch(Exception)
                 {
-                    Log.Warning("Client disconnected.");
+                    this.Logger.Warn("Client disconnected.");
                     this.clients.Remove(client);
                 }
             });

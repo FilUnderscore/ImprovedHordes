@@ -1,6 +1,7 @@
 ﻿using ConcurrentCollections;
 using HarmonyLib;
-using ImprovedHordes.Core.Abstractions;
+using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
@@ -86,7 +87,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
 
-        public WorldHordeTracker(IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter)
+        public WorldHordeTracker(ILoggerFactory loggerFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
         {
             this.entitySpawner = entitySpawner;
             this.mainThreadRequestProcessor = mainThreadRequestProcessor;
@@ -110,9 +111,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
         {
-#if DEBUG
-            Log.Out($"World Event Reported: Pos {e.GetLocation()} Location Interest {e.GetInterest()} Location Interest Distance {e.GetDistance()}");
-#endif
+            this.Logger.Verbose($"World Event Reported: Pos {e.GetLocation()} Location Interest {e.GetInterest()} Location Interest Distance {e.GetDistance()}"); this.Logger.Info($"World Event Reported: At {e.GetLocation()} - New Location Interest Level {e.GetInterest()} - New Location Interest Distance {e.GetDistance()}");
 
             this.eventsToReport.Add(e);
         }
@@ -210,7 +209,7 @@ namespace ImprovedHordes.Core.World.Horde
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.gamestage, player.biome));
 
-                        foreach (var spawnRequest in horde.RequestSpawns(this.entitySpawner, group, mainThreadRequestProcessor, entity => entitiesTracked.Add(entity.GetEntityId())))
+                        foreach (var spawnRequest in horde.RequestSpawns(this.LoggerFactory, this.entitySpawner, group, mainThreadRequestProcessor, entity => entitiesTracked.Add(entity.GetEntityId())))
                         {
                             this.clusterSpawnRequests.Enqueue(spawnRequest);
                         }
@@ -239,7 +238,7 @@ namespace ImprovedHordes.Core.World.Horde
                                     entity.RequestDespawn(this.mainThreadRequestProcessor, entityAlive =>
                                     {
                                         if (!entitiesTracked.TryRemove(entityAlive.GetEntityId()))
-                                            Log.Warning("Failed to untrack horde entity when despawning.");
+                                            this.Logger.Warn("Failed to untrack horde entity when despawning.");
                                     });
                                 }
                                 else if (!entity.IsSpawned() && nearby.Any())
@@ -251,7 +250,7 @@ namespace ImprovedHordes.Core.World.Horde
                     });
 
                     if (!anyNearby)
-                        horde.Despawn(this.mainThreadRequestProcessor);
+                        horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
                 }
 
                 if (horde.IsSpawned())
@@ -291,7 +290,7 @@ namespace ImprovedHordes.Core.World.Horde
             });
 
             // Merge nearby hordes.
-            for (int index = 0; index < this.hordes.Count; index++)
+            for (int index = 0; index < this.hordes.Count - 1; index++)
             {
                 WorldHorde horde = this.hordes[index];
 

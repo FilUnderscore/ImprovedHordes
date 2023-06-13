@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Threading.Request;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System.Collections.Generic;
 
@@ -6,10 +7,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
     public sealed class HordeDespawnRequest : IMainThreadRequest
     {
+        private readonly ILogger logger;
         private readonly Queue<HordeClusterEntity> entities = new Queue<HordeClusterEntity>();
 
-        public HordeDespawnRequest(WorldHorde horde)
+        public HordeDespawnRequest(ILoggerFactory loggerFactory, WorldHorde horde)
         {
+            this.logger = loggerFactory.Create(typeof(HordeDespawnRequest));
+
             foreach (var cluster in horde.GetClusters())
             {
                 foreach (var entity in cluster.GetEntities())
@@ -32,7 +36,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             if (this.entities.Count == 0)
             {
-                Log.Warning("[Improved Hordes] Tried to despawn horde entities but no entities were spawned.");
+                this.logger.Warn("Tried to despawn horde entities but no entities were spawned.");
                 return;
             }
 

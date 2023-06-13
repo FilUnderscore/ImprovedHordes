@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Data.XML;
+using ImprovedHordes.Implementations.Logging;
 
 namespace ImprovedHordes.Data
 {
@@ -28,7 +29,10 @@ namespace ImprovedHordes.Data
 
         public HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup)
         {
-            return new HordeDefinitionEntityGenerator(playerGroup, this.definition);
+            if(ImprovedHordesLoggerFactory.TryGetInstance(out var loggerFactory))
+                return new HordeDefinitionEntityGenerator(loggerFactory, playerGroup, this.definition);
+
+            return null;
         }
     }
 }

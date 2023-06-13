@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.World.Horde;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Data.XML;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,19 +11,22 @@ namespace ImprovedHordes.Data
     {
         private const string PLACEHOLDER_ENTITY_CLASS = "zombieSpider";
 
+        private readonly Core.Abstractions.Logging.ILogger logger;
+
         private readonly HordeDefinition.Group group;
         private readonly Dictionary<HordeDefinition.Group.Entity, int> maxEntitiesToSpawn = new Dictionary<HordeDefinition.Group.Entity, int>();
 
         private int lastEntityId;
 
-        public HordeDefinitionEntityGenerator(PlayerHordeGroup playerGroup, HordeDefinition definition) : base(playerGroup)
+        public HordeDefinitionEntityGenerator(ILoggerFactory loggerFactory, PlayerHordeGroup playerGroup, HordeDefinition definition) : base(playerGroup)
         {
+            this.logger = loggerFactory.Create(typeof(HordeDefinitionEntityGenerator));
             this.group = definition.GetEligibleRandomGroup(playerGroup);
             
             if (this.group != null)
                 this.CalculateEntitiesToSpawn();
             else
-                Log.Error($"[Improved Hordes] No eligible '{definition.GetHordeType()}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
+                this.logger.Error($"No eligible '{definition.GetHordeType()}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
         }
 
         private void CalculateEntitiesToSpawn()

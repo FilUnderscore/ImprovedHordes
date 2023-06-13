@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Threading;
 using System;
 using System.Collections.Concurrent;
@@ -27,7 +28,7 @@ namespace ImprovedHordes.Core.World.Event
 
         public event EventHandler<WorldEventReportEvent> OnWorldEventReport;
 
-        public WorldEventReporter(float mapSize)
+        public WorldEventReporter(ILoggerFactory loggerFactory, float mapSize) : base(loggerFactory)
         {
             this.MAP_SIZE_LOG_N = Math.Log(mapSize);
             this.MAP_SIZE_POW_2_LOG_N = Math.Pow(2, MAP_SIZE_LOG_N);

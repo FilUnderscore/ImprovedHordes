@@ -1,4 +1,4 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System;

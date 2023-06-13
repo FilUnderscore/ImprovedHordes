@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
@@ -9,6 +10,8 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 {
     public sealed class HordeClusterEntity : IEntity
     {
+        private readonly Abstractions.Logging.ILogger logger;
+
         private readonly HordeCluster cluster;
         private IEntity entity;
 
@@ -18,8 +21,10 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         private readonly HordeCharacteristics characteristics;
 
-        public HordeClusterEntity(HordeCluster cluster, IEntity entity, HordeCharacteristics characteristics)
+        public HordeClusterEntity(ILoggerFactory loggerFactory, HordeCluster cluster, IEntity entity, HordeCharacteristics characteristics)
         {
+            this.logger = loggerFactory.Create(typeof(HordeClusterEntity));
+
             this.cluster = cluster;
             this.entity = entity;
 
@@ -124,7 +129,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
             if(!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.location, 0, 10, -1, false, out Vector3 spawnLocation, false))
             {
-                Log.Warning($"Failed to respawn HordeClusterEntity at {this.location}");
+                this.logger.Warn($"Failed to respawn HordeClusterEntity at {this.location}");
                 return;
             }
 

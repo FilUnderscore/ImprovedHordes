@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace ImprovedHordes.Core.Abstractions
+namespace ImprovedHordes.Core.Abstractions.World
 {
     public interface IEntitySpawner
     {

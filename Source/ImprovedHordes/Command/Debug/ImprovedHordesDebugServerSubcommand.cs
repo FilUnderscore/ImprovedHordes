@@ -23,7 +23,7 @@ namespace ImprovedHordes.Command.Debug
                 }
                 else
                 {
-                    debugServer = new HordeViewerDebugServer(instance.GetCore().GetWorldSize(), instance.GetCore().GetWorldHordeTracker(), instance.GetPOIScanner());
+                    debugServer = new HordeViewerDebugServer(instance.GetCore().GetLoggerFactory(), instance.GetCore().GetWorldSize(), instance.GetCore().GetWorldHordeTracker(), instance.GetPOIScanner());
                     message = "Started debug server. Connect to 127.0.0.1 with IHDebugViewer to view World Horde state.";
                 }
             }

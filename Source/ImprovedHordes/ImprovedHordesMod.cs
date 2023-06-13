@@ -2,7 +2,8 @@
 using ImprovedHordes.Core;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Data.XML;
-using ImprovedHordes.Implementations;
+using ImprovedHordes.Implementations.Logging;
+using ImprovedHordes.Implementations.World;
 using ImprovedHordes.POI;
 using ImprovedHordes.Screamer;
 using ImprovedHordes.Wandering.Animal;
@@ -54,7 +55,7 @@ namespace ImprovedHordes
 
         private void InitializeCore(World world)
         {
-            core = new ImprovedHordesCore(new ImprovedHordesEntitySpawner(), world);
+            core = new ImprovedHordesCore(new ImprovedHordesLoggerFactory(), new ImprovedHordesEntitySpawner(), world);
             this.poiScanner = new WorldPOIScanner();
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));

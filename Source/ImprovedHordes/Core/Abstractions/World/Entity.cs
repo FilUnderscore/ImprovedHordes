@@ -1,6 +1,6 @@
 ﻿using ImprovedHordes.Core.AI;
 
-namespace ImprovedHordes.Core.Abstractions
+namespace ImprovedHordes.Core.Abstractions.World
 {
     public interface IEntity : IAIAgent
     {

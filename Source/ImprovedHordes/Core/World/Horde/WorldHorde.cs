@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.AI;
@@ -42,16 +43,16 @@ namespace ImprovedHordes.Core.World.Horde
             return this.location;
         }
 
-        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(IEntitySpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
+        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(ILoggerFactory loggerFactory, IEntitySpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
         {
             foreach(var cluster in this.clusters)
             {
                 if (cluster.IsSpawned())
                     continue;
 
-                yield return new HordeClusterSpawnRequest(spawner, this, this.spawnData, cluster, group, entity =>
+                yield return new HordeClusterSpawnRequest(loggerFactory, spawner, this, this.spawnData, cluster, group, entity =>
                 {
-                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
+                    this.AddEntity(new HordeClusterEntity(loggerFactory, cluster, entity, this.characteristics), cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
 
                     if (onSpawn != null)
                         onSpawn(entity);
@@ -79,9 +80,9 @@ namespace ImprovedHordes.Core.World.Horde
             this.characteristics.Merge(cluster.GetHorde().CreateCharacteristics());
         }
 
-        public void Despawn(MainThreadRequestProcessor mainThreadRequestProcessor)
+        public void Despawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            mainThreadRequestProcessor.Request(new HordeDespawnRequest(this));
+            mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this));
 
             this.clusters.ForEach(cluster => cluster.SetSpawned(false));
             this.AIExecutor.NotifyEntities(false, null);

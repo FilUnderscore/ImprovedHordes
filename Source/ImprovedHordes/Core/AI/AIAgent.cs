@@ -1,4 +1,4 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.World;
 using UnityEngine;
 
 namespace ImprovedHordes.Core.AI

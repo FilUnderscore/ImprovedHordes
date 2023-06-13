@@ -1,4 +1,4 @@
-﻿using ImprovedHordes.Core.Abstractions;
+﻿using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Event;
 

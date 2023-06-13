@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace ImprovedHordes.Core.Threading
 {
     public abstract class MainThreadSynchronizedTask : MainThreadSynchronizedTask<object>
     {
-        public MainThreadSynchronizedTask() : base() { }
+        public MainThreadSynchronizedTask(ILoggerFactory loggerFactory) : base(loggerFactory) { }
 
         protected override void OnTaskFinish(object returnValue)
         {
@@ -25,13 +27,21 @@ namespace ImprovedHordes.Core.Threading
     public abstract class MainThreadSynchronizedTask<TaskReturnType> : MainThreaded
     {
         protected readonly GameRandom Random;
+
+        protected readonly ILoggerFactory LoggerFactory;
+        protected readonly ILogger Logger;
+
         private Task UpdateTask;
         private bool shutdown = false;
 
-        public MainThreadSynchronizedTask()
+        public MainThreadSynchronizedTask(ILoggerFactory loggerFactory)
         {
+            this.LoggerFactory = loggerFactory;
+
             int gameSeed = GameManager.Instance.World.Seed;
             this.Random = GameRandomManager.Instance.CreateGameRandom(gameSeed + this.GetType().FullName.GetHashCode());
+
+            this.Logger = loggerFactory.Create(this.GetType());
         }
         
         protected virtual bool CanRun()
@@ -59,6 +69,17 @@ namespace ImprovedHordes.Core.Threading
 
                     this.OnTaskFinish(returnType);
                 });
+
+                this.UpdateTask.ContinueWith(t => 
+                {
+                    AggregateException e = t.Exception.Flatten();
+
+                    int exIndex = 0;
+                    foreach(var ex in e.InnerExceptions)
+                    {
+                        this.Logger.Error($"#{++exIndex} - An exception occurred during {nameof(UpdateTask)}: {ex.Message} \nStacktrace: \n{ex.StackTrace}");
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
             }
         }
 
