@@ -21,11 +21,11 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
         private readonly List<WorldPOIScanner.Zone> zones;
 
-        public WorldHordeState(int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner)
+        public WorldHordeState(int worldSize, WorldPOIScanner scanner, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
         {
             this.worldSize = worldSize;
-            this.players = tracker.GetPlayersSubscription().Subscribe();
-            this.clusters = tracker.GetClustersSubscription().Subscribe();
+            this.players = players;
+            this.clusters = clusters;
             this.zones = scanner.GetZones();
         }
 
@@ -118,11 +118,17 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly List<TcpClient> clients = new List<TcpClient>();
         private bool running = true;
 
+        private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
+        private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
+
         public HordeViewerDebugServer(ILoggerFactory loggerFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory)
         {
             this.worldSize = worldSize;
             this.tracker = tracker;
             this.scanner = scanner;
+
+            this.players = tracker.GetPlayersSubscription().Subscribe();
+            this.clusters = tracker.GetClustersSubscription().Subscribe();
 
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
 
@@ -171,7 +177,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
 
         protected override WorldHordeState UpdateAsync(float dt)
         {
-            return new WorldHordeState(this.worldSize, this.tracker, this.scanner);
+            return new WorldHordeState(this.worldSize, this.scanner, this.players, this.clusters);
         }
 
         protected override void Shutdown()
