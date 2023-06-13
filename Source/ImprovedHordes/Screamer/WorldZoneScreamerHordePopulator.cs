@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Event;
+using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.POI;
 
 namespace ImprovedHordes.Screamer
@@ -8,7 +9,7 @@ namespace ImprovedHordes.Screamer
     {
         private readonly WorldEventReporter worldEventReporter;
 
-        public WorldZoneScreamerHordePopulator(WorldPOIScanner scanner, WorldEventReporter worldEventReporter) : base(scanner)
+        public WorldZoneScreamerHordePopulator(WorldHordeTracker tracker, WorldPOIScanner scanner, WorldEventReporter worldEventReporter) : base(tracker, scanner)
         {
             this.worldEventReporter = worldEventReporter;
         }

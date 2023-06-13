@@ -1,10 +1,15 @@
 ﻿using ImprovedHordes.Core.Command;
+using ImprovedHordes.Core.Threading;
+using System;
 using System.Collections.Generic;
+using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Command
 {
     internal class ImprovedHordesStatsSubcommand : ExecutableSubcommandBase
     {
+        private ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
+
         public ImprovedHordesStatsSubcommand() : base("stats")
         {
         }
@@ -17,10 +22,17 @@ namespace ImprovedHordes.Command
                 int totalCount = 0;
 
                 message = "WorldHordeTracker Clusters: ";
-                foreach (var clusterEntry in mod.GetCore().GetWorldHordeTracker().GetClusters())
+
+                if (this.clusters == null)
+                    this.clusters = mod.GetCore().GetWorldHordeTracker().GetClustersSubscription().Subscribe();
+
+                if (this.clusters.TryGet(out var clusters))
                 {
-                    message += $"{clusterEntry.Key.Name} - ({clusterEntry.Value.Count}) ";
-                    totalCount += clusterEntry.Value.Count;
+                    foreach (var clusterEntry in clusters)
+                    {
+                        message += $"{clusterEntry.Key.Name} - ({clusterEntry.Value.Count}) ";
+                        totalCount += clusterEntry.Value.Count;
+                    }
                 }
 
                 message += $"\nTotal Count {totalCount}";

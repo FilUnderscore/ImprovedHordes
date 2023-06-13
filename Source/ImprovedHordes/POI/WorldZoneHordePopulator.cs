@@ -15,7 +15,7 @@ namespace ImprovedHordes.POI
 
         protected readonly WorldPOIScanner scanner;
         
-        public WorldZoneHordePopulator(WorldPOIScanner scanner)
+        public WorldZoneHordePopulator(WorldHordeTracker tracker, WorldPOIScanner scanner) : base(tracker)
         {
             this.scanner = scanner;
         }
@@ -62,8 +62,14 @@ namespace ImprovedHordes.POI
 
             bool nearby = false;
 
+            if(!this.Players.TryGet(out var players))
+            {
+                zone = null;
+                return false;
+            }
+
             // Check for nearby players.
-            Parallel.ForEach(tracker.GetPlayers(), player =>
+            Parallel.ForEach(players, player =>
             {
                 if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                 {
@@ -73,8 +79,14 @@ namespace ImprovedHordes.POI
 
             if (!nearby)
             {
+                if(!this.Clusters.TryGet(out var clusters))
+                {
+                    zone = null;
+                    return false;
+                }
+
                 // Check for nearby hordes.
-                Parallel.ForEach(tracker.GetClustersOf<Horde>(), cluster =>
+                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
                     if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                     {

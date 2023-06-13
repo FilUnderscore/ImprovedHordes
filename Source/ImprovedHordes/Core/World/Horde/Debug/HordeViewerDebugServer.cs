@@ -17,15 +17,15 @@ namespace ImprovedHordes.Core.World.Horde.Debug
     internal readonly struct WorldHordeState
     {
         private readonly int worldSize;
-        private readonly List<PlayerSnapshot> players;
-        private readonly Dictionary<Type, List<ClusterSnapshot>> clusters;
+        private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
+        private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
         private readonly List<WorldPOIScanner.Zone> zones;
 
         public WorldHordeState(int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner)
         {
             this.worldSize = worldSize;
-            this.players = tracker.GetPlayers();
-            this.clusters = tracker.GetClusters();
+            this.players = tracker.GetPlayersSubscription().Subscribe();
+            this.clusters = tracker.GetClustersSubscription().Subscribe();
             this.zones = scanner.GetZones();
         }
 
@@ -33,10 +33,10 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             writer.Write(this.worldSize);
 
-            lock (this.players)
+            if (this.players.TryGet(out var players))
             {
-                writer.Write(this.players.Count);
-                foreach (var player in this.players)
+                writer.Write(players.Count);
+                foreach (var player in players)
                 {
                     Vector3 location = player.location;
 
@@ -48,11 +48,15 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                     EncodeString(writer, player.biome);
                 }
             }
-
-            lock (this.clusters)
+            else
             {
-                writer.Write(this.clusters.Count);
-                foreach (var entry in this.clusters)
+                writer.Write(0);
+            }
+
+            if (this.clusters.TryGet(out var clusters))
+            {
+                writer.Write(clusters.Count);
+                foreach (var entry in clusters)
                 {
                     EncodeString(writer, entry.Key.Name);
                     writer.Write(entry.Value.Count);
@@ -68,6 +72,10 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                         writer.Write(cluster.density);
                     }
                 }
+            }
+            else
+            {
+                writer.Write(0);
             }
 
             writer.Write(this.zones.Count);

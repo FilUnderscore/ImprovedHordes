@@ -78,6 +78,7 @@
     <Compile Include="Core\Command\CommandBase.cs" />
     <Compile Include="Core\Threading\Request\AsyncMainThreadRequest.cs" />
     <Compile Include="Core\Threading\Request\BlockingMainThreadRequest.cs" />
+    <Compile Include="Core\Threading\ThreadSubscription.cs" />
     <Compile Include="Core\World\Horde\AI\Commands\SleepingAICommand.cs" />
     <Compile Include="Core\World\Horde\Characteristics\WalkSpeedHordeCharacteristic.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeDespawnRequest.cs" />

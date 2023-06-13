@@ -22,7 +22,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData)
+        public WorldWildernessHordePopulator(WorldHordeTracker tracker, float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(tracker)
         {
             this.worldSize = worldSize;
             this.scanner = scanner;
@@ -55,7 +55,14 @@ namespace ImprovedHordes.POI
             bool nearby = false;
 
             // Check for nearby players.
-            Parallel.ForEach(tracker.GetPlayers(), player =>
+            
+            if(!this.Players.TryGet(out var players))
+            {
+                pos = Vector3.zero;
+                return false;
+            }    
+
+            Parallel.ForEach(players, player =>
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
@@ -67,8 +74,14 @@ namespace ImprovedHordes.POI
 
             if (!nearby)
             {
+                if(!this.Clusters.TryGet(out var clusters))
+                {
+                    pos = Vector3.zero;
+                    return false;
+                }
+
                 // Check for nearby hordes.
-                Parallel.ForEach(tracker.GetClustersOf<Horde>(), cluster =>
+                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 

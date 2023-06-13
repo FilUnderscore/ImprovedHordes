@@ -1,11 +1,12 @@
 ﻿using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.POI;
 
 namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyHordePopulator : WorldZoneHordePopulator<WanderingEnemyHorde>
     {
-        public WorldZoneWanderingEnemyHordePopulator(WorldPOIScanner scanner) : base(scanner)
+        public WorldZoneWanderingEnemyHordePopulator(WorldHordeTracker tracker, WorldPOIScanner scanner) : base(tracker, scanner)
         {
         }
 

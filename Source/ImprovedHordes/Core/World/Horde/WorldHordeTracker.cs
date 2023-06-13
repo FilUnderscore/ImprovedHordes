@@ -82,10 +82,13 @@ namespace ImprovedHordes.Core.World.Horde
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
 
-        private readonly List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
+        private readonly List<PlayerSnapshot> snapshotsList = new List<PlayerSnapshot>();
+        private readonly ThreadSubscription<List<PlayerSnapshot>> snapshots = new ThreadSubscription<List<PlayerSnapshot>>();
+
         private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
-        private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshots = new Dictionary<Type, List<ClusterSnapshot>>();
+        private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshotsDict = new Dictionary<Type, List<ClusterSnapshot>>();
+        private readonly ThreadSubscription<Dictionary<Type, List<ClusterSnapshot>>> clusterSnapshots = new ThreadSubscription<Dictionary<Type, List<ClusterSnapshot>>>();
 
         public WorldHordeTracker(ILoggerFactory loggerFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
         {
@@ -105,7 +108,7 @@ namespace ImprovedHordes.Core.World.Horde
 
             foreach(var hordeType in types)
             {
-                clusterSnapshots.Add(hordeType, new List<ClusterSnapshot>());
+                clusterSnapshotsDict.Add(hordeType, new List<ClusterSnapshot>());
             }
         }
 
@@ -119,22 +122,18 @@ namespace ImprovedHordes.Core.World.Horde
 
         protected override void BeforeTaskRestart()
         {
-            lock (snapshots)
+            foreach (var player in GameManager.Instance.World.Players.list)
             {
-                foreach (var player in GameManager.Instance.World.Players.list)
-                {
-                    snapshots.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
-                }
+                snapshotsList.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
             }
+
+            snapshots.Update(this.snapshotsList.ToList());
         }
 
         protected override void OnTaskFinish(int returnValue)
         {
-            lock (snapshots)
-            {
-                // Clear old snapshots after task is complete.
-                snapshots.Clear();
-            }
+            // Clear old snapshots after task is complete.
+            snapshotsList.Clear();
 
             // Add hordes.
             while (toAdd.TryDequeue(out WorldHorde cluster))
@@ -155,39 +154,33 @@ namespace ImprovedHordes.Core.World.Horde
 
             // Update cluster snapshots and remove outdated ones.
 
-            lock (clusterSnapshots)
+            foreach (var key in clusterSnapshotsDict.Keys)
             {
-                foreach (var key in clusterSnapshots.Keys)
-                {
-                    clusterSnapshots[key].Clear();
-                }
+                clusterSnapshotsDict[key].Clear();
+            }
 
-                foreach (var horde in this.hordes)
+            foreach (var horde in this.hordes)
+            {
+                foreach (var cluster in horde.GetClusters())
                 {
-                    foreach (var cluster in horde.GetClusters())
-                    {
-                        clusterSnapshots[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), horde.GetLocation(), cluster.GetDensity()));
-                    }
+                    clusterSnapshotsDict[cluster.GetHorde().GetType()].Add(new ClusterSnapshot(cluster.GetHorde(), horde.GetLocation(), cluster.GetDensity()));
                 }
             }
+
+            clusterSnapshots.Update(this.clusterSnapshotsDict.ToDictionary(k => k.Key, v => v.Value.ToList()));
         }
 
         protected override int UpdateAsync(float dt)
         {
-            return UpdateTrackerAsync(snapshots, this.eventsToReport.ToList(), dt);
+            return UpdateTrackerAsync(snapshotsList, this.eventsToReport.ToList(), dt);
         }
 
-        public List<ClusterSnapshot> GetClustersOf<Horde>() where Horde: IHorde
-        {
-            return this.clusterSnapshots[typeof(Horde)];
-        }
-
-        public Dictionary<Type, List<ClusterSnapshot>> GetClusters()
+        public ThreadSubscription<Dictionary<Type, List<ClusterSnapshot>>> GetClustersSubscription()
         {
             return this.clusterSnapshots;
         }
 
-        public List<PlayerSnapshot> GetPlayers()
+        public ThreadSubscription<List<PlayerSnapshot>> GetPlayersSubscription()
         {
             return this.snapshots;
         }

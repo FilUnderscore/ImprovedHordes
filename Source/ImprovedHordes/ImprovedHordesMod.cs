@@ -58,11 +58,11 @@ namespace ImprovedHordes
             core = new ImprovedHordesCore(new ImprovedHordesLoggerFactory(), new ImprovedHordesEntitySpawner(), world);
             this.poiScanner = new WorldPOIScanner();
 
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner, core.GetWorldEventReporter()));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(core.GetWorldHordeTracker(), this.poiScanner));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(core.GetWorldHordeTracker(), this.poiScanner, core.GetWorldEventReporter()));
 
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessHordePopulator<WanderingAnimalHorde>(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldHordeTracker(), core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessHordePopulator<WanderingAnimalHorde>(core.GetWorldHordeTracker(), core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
         }
 
         private static void GameStartDone()
