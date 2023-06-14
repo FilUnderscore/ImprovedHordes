@@ -1,16 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ImprovedHordes.POI
 {
     public sealed class WorldPOIScanner
     {
+        private readonly Core.Abstractions.Logging.ILogger logger;
+
         private readonly List<POI> pois = new List<POI>();
         private readonly List<POIZone> zones = new List<POIZone>();
 
-        public WorldPOIScanner()
+        public WorldPOIScanner(ILoggerFactory loggerFactory)
         {
+            this.logger = loggerFactory.Create(typeof(WorldPOIScanner));
             this.ScanZones();
         }
 
@@ -78,7 +81,7 @@ namespace ImprovedHordes.POI
                         if (distance <= tolerance)
                         {
                             zone.Merge(other);
-                            Log.Out($"ITERATION {iteration} : {j} merged into {i} - new count " + zone.GetCount());
+                            this.logger.Verbose($"ITERATION {iteration} : {j} merged into {i} - new count " + zone.GetCount());
                         }
                     }
                 }
@@ -92,14 +95,12 @@ namespace ImprovedHordes.POI
                     if (zone.GetPOIs()[i].GetWeight() < zone.GetAverageWeight())
                     {
                         zone.GetPOIs().RemoveAt(i--);
-                        Log.Out("Removed");
                     }
                 }
 
                 if (zone.GetCount() <= 1)
                 {
                     poiZones.RemoveAt(z--);
-                    Log.Out("Zone removed");
                 }
             }
 
@@ -197,7 +198,7 @@ namespace ImprovedHordes.POI
 
             public float GetDensity()
             {
-                return 0.0f;
+                return this.GetAverageWeight() * this.GetCount();
             }
         }
 

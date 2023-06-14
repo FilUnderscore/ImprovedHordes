@@ -9,6 +9,7 @@ using ImprovedHordes.Screamer;
 using ImprovedHordes.Wandering.Animal;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
 using ImprovedHordes.Wandering.Enemy.POIZone;
+using ImprovedHordes.Core.Abstractions.Logging;
 
 namespace ImprovedHordes
 {
@@ -16,8 +17,14 @@ namespace ImprovedHordes
     {
         private static ImprovedHordesMod Instance;
 
+        private readonly ILoggerFactory loggerFactory;
         private ImprovedHordesCore core;
         private WorldPOIScanner poiScanner;
+
+        public ImprovedHordesMod()
+        {
+            this.loggerFactory = new ImprovedHordesLoggerFactory();
+        }
 
         public void InitMod(Mod _modInstance)
         {
@@ -55,8 +62,8 @@ namespace ImprovedHordes
 
         private void InitializeCore(World world)
         {
-            core = new ImprovedHordesCore(new ImprovedHordesLoggerFactory(), new ImprovedHordesEntitySpawner(), world);
-            this.poiScanner = new WorldPOIScanner();
+            core = new ImprovedHordesCore(this.loggerFactory, new ImprovedHordesEntitySpawner(), world);
+            this.poiScanner = new WorldPOIScanner(this.loggerFactory);
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(core.GetWorldHordeTracker(), this.poiScanner));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(core.GetWorldHordeTracker(), this.poiScanner, core.GetWorldEventReporter()));
