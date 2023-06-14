@@ -7,21 +7,24 @@ namespace ImprovedHordes.Core.Threading
     public sealed class ThreadSubscription<T>
     {
         private readonly ConcurrentBag<ThreadSubscriber<T>> subscriptions = new ConcurrentBag<ThreadSubscriber<T>>();
-        
-        public ThreadSubscription()
-        {
-        }
+        private T recent;
 
         public ThreadSubscriber<T> Subscribe()
         {
             ThreadSubscriber<T> subscription = new ThreadSubscriber<T>();
             subscriptions.Add(subscription);
 
+            // Add on first subscription the most recent copy.
+            if(this.recent != null)
+                subscription.Add(this.recent);
+
             return subscription;
         }
 
         public void Update(T recent)
         {
+            this.recent = recent;
+
             foreach(var subscription in subscriptions)
             {
                 subscription.Add(recent);

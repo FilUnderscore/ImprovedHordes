@@ -1,10 +1,13 @@
 ﻿using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.POI
 {
@@ -15,12 +18,12 @@ namespace ImprovedHordes.POI
 
         protected readonly WorldPOIScanner scanner;
         
-        public WorldZoneHordePopulator(WorldHordeTracker tracker, WorldPOIScanner scanner) : base(tracker)
+        public WorldZoneHordePopulator(WorldPOIScanner scanner)
         {
             this.scanner = scanner;
         }
 
-        public override bool CanRun(WorldHordeTracker tracker)
+        public override bool CanRun(ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
         {
             return this.scanner.HasScanCompleted();
         }
@@ -39,7 +42,7 @@ namespace ImprovedHordes.POI
             return zones[random.RandomRange(zones.Count)];
         }
 
-        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, WorldHordeTracker tracker, GameRandom random)
+        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters, GameRandom random)
         {
             WorldPOIScanner.POIZone randomZone = this.GetRandomZone(random);
 
@@ -62,14 +65,14 @@ namespace ImprovedHordes.POI
 
             bool nearby = false;
 
-            if(!this.Players.TryGet(out var players))
+            if(!players.TryGet(out var playersList))
             {
                 zone = null;
                 return false;
             }
 
             // Check for nearby players.
-            Parallel.ForEach(players, player =>
+            Parallel.ForEach(playersList, player =>
             {
                 if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                 {
@@ -79,14 +82,14 @@ namespace ImprovedHordes.POI
 
             if (!nearby)
             {
-                if(!this.Clusters.TryGet(out var clusters))
+                if(!clusters.TryGet(out var clustersDict))
                 {
                     zone = null;
                     return false;
                 }
 
                 // Check for nearby hordes.
-                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
+                Parallel.ForEach(clustersDict[typeof(Horde)], cluster =>
                 {
                     if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                     {

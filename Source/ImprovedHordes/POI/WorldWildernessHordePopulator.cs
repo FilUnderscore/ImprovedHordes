@@ -1,9 +1,13 @@
 ﻿using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.POI
 {
@@ -22,7 +26,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldWildernessHordePopulator(WorldHordeTracker tracker, float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(tracker)
+        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData)
         {
             this.worldSize = worldSize;
             this.scanner = scanner;
@@ -30,7 +34,7 @@ namespace ImprovedHordes.POI
             this.spawnData = spawnData;
         }
 
-        public override bool CanPopulate(float dt, out Vector2 pos, WorldHordeTracker tracker, GameRandom random)
+        public override bool CanPopulate(float dt, out Vector2 pos, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters, GameRandom random)
         {
             float randomX = random.RandomFloat * worldSize - worldSize / 2.0f;
             float randomY = random.RandomFloat * worldSize - worldSize / 2.0f;
@@ -56,13 +60,13 @@ namespace ImprovedHordes.POI
 
             // Check for nearby players.
             
-            if(!this.Players.TryGet(out var players))
+            if(!players.TryGet(out var playersList))
             {
                 pos = Vector3.zero;
                 return false;
             }    
 
-            Parallel.ForEach(players, player =>
+            Parallel.ForEach(playersList, player =>
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
@@ -74,14 +78,14 @@ namespace ImprovedHordes.POI
 
             if (!nearby)
             {
-                if(!this.Clusters.TryGet(out var clusters))
+                if(!clusters.TryGet(out var clustersDict))
                 {
                     pos = Vector3.zero;
                     return false;
                 }
 
                 // Check for nearby hordes.
-                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
+                Parallel.ForEach(clustersDict[typeof(Horde)], cluster =>
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
