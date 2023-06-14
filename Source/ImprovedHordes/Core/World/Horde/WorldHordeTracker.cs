@@ -119,7 +119,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private void Reporter_OnWorldEventReport(object sender, WorldEventReportEvent e)
         {
-            this.Logger.Verbose($"World Event Reported: Pos {e.GetLocation()} Location Interest {e.GetInterest()} Location Interest Distance {e.GetDistance()}"); this.Logger.Info($"World Event Reported: At {e.GetLocation()} - New Location Interest Level {e.GetInterest()} - New Location Interest Distance {e.GetDistance()}");
+            this.Logger.Verbose($"World Event Reported: Pos {e.GetLocation()} Location Interest {e.GetInterest()} Location Interest Distance {e.GetDistance()}");
 
             this.eventsToReport.Add(e);
         }
