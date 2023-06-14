@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace ImprovedHordes.Core.Threading
 {
@@ -30,7 +29,7 @@ namespace ImprovedHordes.Core.Threading
         }
     }
 
-    public class ThreadSubscriber<T>
+    public sealed class ThreadSubscriber<T>
     {
         private ConcurrentQueue<T> history = new ConcurrentQueue<T>();
         

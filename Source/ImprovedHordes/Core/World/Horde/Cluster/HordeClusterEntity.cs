@@ -15,7 +15,8 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         private readonly HordeCluster cluster;
         private IEntity entity;
 
-        private readonly int entityClassId, entityId;
+        private readonly int entityClassId;
+        private int entityId; // Entity ID can always change as another entity can take the ID when despawned.
         private bool spawned, awaitingSpawnStateChange, hordeDespawned, sleeping;
         private Vector3 location;
 
@@ -134,6 +135,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             }
 
             this.entity = spawner.SpawnAt(this.entityClassId, this.entityId, spawnLocation);
+            this.entityId = this.entity.GetEntityId();
             this.location = spawnLocation;
             this.spawned = true;
             

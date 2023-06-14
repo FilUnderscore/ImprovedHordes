@@ -72,6 +72,8 @@ namespace ImprovedHordes.Core.Threading
 
                 this.UpdateTask.ContinueWith(t => 
                 {
+                    this.Logger.Error($"{nameof(UpdateTask)} was terminated due to a fault.");
+
                     AggregateException e = t.Exception.Flatten();
 
                     int exIndex = 0;

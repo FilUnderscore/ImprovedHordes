@@ -12,6 +12,9 @@ namespace ImprovedHordes.Implementations.World
 
         public IEntity SpawnAt(int entityClassId, int entityId, Vector3 location)
         {
+            if (GameManager.Instance.World.GetEntity(entityId) != null)
+                entityId = EntityFactory.nextEntityID++;
+
             EntityAlive entity = EntityFactory.CreateEntity(entityClassId, entityId, location, Vector3.zero) as EntityAlive;
 
             if(entity != null)
