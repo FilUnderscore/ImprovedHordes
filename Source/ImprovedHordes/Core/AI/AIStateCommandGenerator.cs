@@ -14,6 +14,6 @@
             return GenerateNextCommandFromState(this.state, out command);
         }
 
-        public abstract bool GenerateNextCommandFromState(AIState state, out GeneratedAICommand<CommandType> command);
+        protected abstract bool GenerateNextCommandFromState(AIState state, out GeneratedAICommand<CommandType> command);
     }
 }

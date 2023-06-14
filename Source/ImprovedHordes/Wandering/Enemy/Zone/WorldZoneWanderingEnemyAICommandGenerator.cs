@@ -16,7 +16,7 @@ namespace ImprovedHordes.Wandering.Enemy.POIZone
             this.random = GameManager.Instance.World.GetGameRandom();
         }
 
-        public override bool GenerateNextCommandFromState(WanderingEnemyAIState state, out GeneratedAICommand<AICommand> command)
+        protected override bool GenerateNextCommandFromState(WanderingEnemyAIState state, out GeneratedAICommand<AICommand> command)
         {
             switch (state.GetWanderingState())
             {
