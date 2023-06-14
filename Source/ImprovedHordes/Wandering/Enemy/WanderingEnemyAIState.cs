@@ -5,7 +5,7 @@ namespace ImprovedHordes.Source.Wandering.Enemy
 {
     public sealed class WanderingEnemyAIState : IAIState
     {
-        private WorldPOIScanner.Zone targetZone;
+        private WorldPOIScanner.POIZone targetZone;
         private WanderingState wanderingState;
         private float remainingWanderTime;
 
@@ -22,7 +22,7 @@ namespace ImprovedHordes.Source.Wandering.Enemy
             IDLE
         }
 
-        public void SetTargetZone(WorldPOIScanner.Zone targetZone)
+        public void SetTargetZone(WorldPOIScanner.POIZone targetZone)
         {
             this.targetZone = targetZone;
         }
@@ -32,7 +32,7 @@ namespace ImprovedHordes.Source.Wandering.Enemy
             this.wanderingState = wanderingState;
         }
 
-        public WorldPOIScanner.Zone GetTargetZone()
+        public WorldPOIScanner.POIZone GetTargetZone()
         {
             return this.targetZone;
         }

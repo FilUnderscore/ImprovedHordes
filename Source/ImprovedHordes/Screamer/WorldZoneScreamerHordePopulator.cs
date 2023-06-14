@@ -19,12 +19,12 @@ namespace ImprovedHordes.Screamer
             return new ScreamerEntityAICommandGenerator(this.worldEventReporter);
         }
 
-        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone)
+        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone)
         {
             return new GoToWorldZoneAICommandGenerator(this.scanner);
         }
 
-        protected override int CalculateHordeCount(WorldPOIScanner.Zone zone)
+        protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
         {
             return 1;
         }

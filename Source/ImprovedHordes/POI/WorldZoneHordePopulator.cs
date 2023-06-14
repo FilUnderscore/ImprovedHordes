@@ -8,10 +8,10 @@ using UnityEngine;
 
 namespace ImprovedHordes.POI
 {
-    public abstract class WorldZoneHordePopulator<Horde> : HordePopulator<WorldPOIScanner.Zone> where Horde: IHorde
+    public abstract class WorldZoneHordePopulator<Horde> : HordePopulator<WorldPOIScanner.POIZone> where Horde: IHorde
     {
         private const ulong RESPAWN_DELAY = 24000 * 3;
-        private readonly Dictionary<WorldPOIScanner.Zone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.Zone, ulong>();
+        private readonly Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.POIZone, ulong>();
 
         protected readonly WorldPOIScanner scanner;
         
@@ -25,7 +25,7 @@ namespace ImprovedHordes.POI
             return this.scanner.HasScanCompleted();
         }
 
-        public override void Populate(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, GameRandom random)
+        public override void Populate(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, GameRandom random)
         {
             if (zone != null)
             {
@@ -33,15 +33,15 @@ namespace ImprovedHordes.POI
             }
         }
 
-        protected WorldPOIScanner.Zone GetRandomZone(GameRandom random)
+        protected WorldPOIScanner.POIZone GetRandomZone(GameRandom random)
         {
             var zones = this.scanner.GetZones();
             return zones[random.RandomRange(zones.Count)];
         }
 
-        public override bool CanPopulate(float dt, out WorldPOIScanner.Zone zone, WorldHordeTracker tracker, GameRandom random)
+        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, WorldHordeTracker tracker, GameRandom random)
         {
-            WorldPOIScanner.Zone randomZone = this.GetRandomZone(random);
+            WorldPOIScanner.POIZone randomZone = this.GetRandomZone(random);
 
             if(randomZone.GetDensity() < this.GetMinimumDensity())
             {
@@ -99,14 +99,14 @@ namespace ImprovedHordes.POI
             return !nearby;
         }
 
-        protected abstract int CalculateHordeCount(WorldPOIScanner.Zone zone);
+        protected abstract int CalculateHordeCount(WorldPOIScanner.POIZone zone);
 
         protected virtual float GetMinimumDensity()
         {
             return 0.0f;
         }
 
-        private void SpawnHordesAt(WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, GameRandom random)
+        private void SpawnHordesAt(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, GameRandom random)
         {
             Vector3 zoneCenter = zone.GetBounds().center;
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
@@ -131,7 +131,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.Zone zone, WorldHordeSpawner spawner, int hordeCount, GameRandom random)
+        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount, GameRandom random)
         {
             float zoneSpawnDensity = (zone.GetDensity() * 1.0f);
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zoneSpawnDensity, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
@@ -139,7 +139,7 @@ namespace ImprovedHordes.POI
             //Log.Out($"Spawned horde of density {zoneSpawnDensity} at {location}.");
         }
 
-        public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone);
+        public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone);
         public abstract IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator();
     }
 }

@@ -6,197 +6,163 @@ namespace ImprovedHordes.POI
 {
     public sealed class WorldPOIScanner
     {
-        private static readonly string[] valid_zones =
-        {
-            "commercial",
-            "commercial,downtown",
-            "commercial,downtown,residential",
-            "residential,downtown",
-            "industrial,downtown",
-            "downtown",
-            "countrytown",
-
-            "residential,culdesac",
-            "residential,countryresidential,culdesac",
-        };
-
-        private static readonly string[] invalid_zones =
-        {
-            "rural"
-        };
-
-        private readonly List<Zone> zones = new List<Zone>();
-
-        private int highestCount;
+        private readonly List<POI> pois = new List<POI>();
+        private readonly List<POIZone> zones = new List<POIZone>();
 
         public WorldPOIScanner()
         {
-            this.Scan();
+            this.ScanZones();
         }
 
-        private static void GetNearby(DynamicPrefabDecorator dynamicPrefabDecorator, PrefabInstance prefab, List<PrefabInstance> nearby, List<PrefabInstance> allowedPois)
+        public bool HasScanCompleted()
         {
-            Dictionary<int, PrefabInstance> prefabs = new Dictionary<int, PrefabInstance>();
-
-            dynamicPrefabDecorator.GetPrefabsAround(prefab.boundingBoxPosition + prefab.boundingBoxSize * 0.5f, 128.0f, prefabs);
-
-            foreach (var p in prefabs.Values)
-            {
-                if (p == prefab || nearby.Contains(p) || !allowedPois.Contains(p) || !IsValid(p))
-                    continue;
-
-                nearby.Add(p);
-                GetNearby(dynamicPrefabDecorator, p, nearby, allowedPois);
-            }
+            return this.zones.Count > 0;
         }
 
-        private static bool IsValid(PrefabInstance poi)
-        {
-            foreach(var tag in invalid_zones)
-            {
-                POITags test = POITags.Parse(tag);
-
-                if (poi.prefab.Tags.Test_AnySet(test))
-                    return false;
-            }
-
-            foreach(var tag in valid_zones)
-            {
-                POITags test = POITags.Parse(tag);
-
-                if (poi.prefab.Tags.Test_AllSet(test))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private void Scan()
+        private void ScanZones()
         {
             DynamicPrefabDecorator dynamicPrefabDecorator = GameManager.Instance.World.ChunkClusters[0].ChunkProvider.GetDynamicPrefabDecorator();
-            List<PrefabInstance> pois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
-            List<PrefabInstance> allowedPois = dynamicPrefabDecorator.GetPOIPrefabs().ToList();
+            List<PrefabInstance> prefabs = dynamicPrefabDecorator.GetPOIPrefabs();
 
-            // Merge POIs into sub-zones.
-            for (int i = 0; i < pois.Count; i++) 
+            foreach(var prefab in prefabs)
             {
-                var poi = pois[i];
-
-                List<PrefabInstance> nearby = new List<PrefabInstance>();
-                GetNearby(dynamicPrefabDecorator, poi, nearby, allowedPois);
-
-                foreach(var near in nearby)
-                {
-                    pois.Remove(near);
-                }
-
-                nearby.Add(poi);
-
-                for (int j = 0; j < nearby.Count; j++)
-                {
-                    if (!IsValid(nearby[j]))
-                        nearby.RemoveAt(j--);
-                }
-
-                if (nearby.Count > 0)
-                    zones.Add(new Zone(nearby));
+                this.pois.Add(new POI(prefab));
             }
 
-            // Eliminate overlaps.
+            List<POI> toZone = new List<POI>(this.pois);
+            List<POIZone> poiZones = new List<POIZone>();
 
-            for(int i = 0; i < zones.Count - 1; i++)
+            for(int i = 0; i < toZone.Count - 1; i++)
             {
-                var zone = zones[i];
+                var poi = toZone[i];
+                var zone = new POIZone(poi);
+                bool valid = false;
 
-                for(int j = i + 1; j < zones.Count; j++)
+                for(int j = i + 1; j < toZone.Count; j++)
                 {
-                    var other = zones[j];
+                    var other = toZone[j];
+                    float distance = Vector2.Distance(poi.GetLocation(), other.GetLocation());
+                    bool zoned = distance <= 72.0f;
 
-                    if(zone.GetBounds().Intersects(other.GetBounds()))
+                    if (zoned)
                     {
-                        zone.Merge(other);
-                        zones.RemoveAt(j--);
+                        zone.Add(other);
+                        toZone.RemoveAt(j--);
+                    }
+                }
+
+                valid = zone.GetCount() > 1;
+
+                if (valid)
+                    poiZones.Add(zone);
+            }
+
+            // Iterate and merge zones. average
+
+            const int ITERATIONS = 20;
+            int iteration = 0;
+
+            while(iteration++ < ITERATIONS)
+            { 
+                for(int i = 0; i < poiZones.Count - 1; i++)
+                {
+                    var zone = poiZones[i];
+
+                    for(int j = i + 1; j < poiZones.Count; j++)
+                    {
+                        var other = poiZones[j];
+                        float distance = Vector2.Distance(zone.GetCenter(), other.GetCenter());
+
+                        float tolerance = (zone.GetAverageDistanceBetweenZones() + other.GetAverageDistanceBetweenZones()) / (2.0f * other.GetCount());
+
+                        if (distance <= tolerance)
+                        {
+                            zone.Merge(other);
+                            Log.Out($"ITERATION {iteration} : {j} merged into {i} - new count " + zone.GetCount());
+                        }
                     }
                 }
             }
 
-            // Eliminate non-downtown.
-
-            for(int i = 0; i < zones.Count; i++)
+            for(int z = 0; z < poiZones.Count; z++)
             {
-                var zone = zones[i];
-
-                bool any = false;
-
-                POITags test = POITags.Parse("downtown,countrytown");
-
-                foreach(var p in zone.GetPOIs())
+                var zone = poiZones[z];
+                for (int i = 0; i < zone.GetPOIs().Count; i++)
                 {
-                    if(p.prefab.Tags.Test_AnySet(test))
+                    if (zone.GetPOIs()[i].GetWeight() < zone.GetAverageWeight())
                     {
-                        any = true;
-                        break;
+                        zone.GetPOIs().RemoveAt(i--);
+                        Log.Out("Removed");
                     }
                 }
 
-                if (!any)
+                if (zone.GetCount() <= 1)
                 {
-                    zones.RemoveAt(i--);
+                    poiZones.RemoveAt(z--);
+                    Log.Out("Zone removed");
                 }
             }
 
-            highestCount = zones.Max(zone => zone.GetCount());
-
-            List<WorldPOIScanner.Zone> toRemove = new List<Zone>();
-            foreach(var zone in zones)
-            {
-                zone.UpdateDensity(this.highestCount);
-                
-                if(zone.GetDensity() <= 0.0f + float.Epsilon)
-                {
-                    toRemove.Add(zone);
-                }
-            }
-
-            foreach(var zoneToRemove in toRemove)
-            {
-                zones.Remove(zoneToRemove);
-            }
+            zones.AddRange(poiZones);
         }
 
-        public sealed class Zone
+        public List<POIZone> GetZones()
         {
-            private Bounds bounds;
-            private readonly List<PrefabInstance> pois = new List<PrefabInstance>();
-            private float density;
+            return this.zones;
+        }
 
-            public Zone(List<PrefabInstance> pois)
+        public sealed class POIZone
+        {
+            private List<POI> pois = new List<POI>();
+            private float averageDistanceBetweenZones = 64.0f;
+
+            public POIZone(POI poi)
             {
-                this.pois = pois;
-                this.RecalculateBounds();
+                this.pois.Add(poi);
             }
 
-            private void RecalculateBounds()
+            public void Add(POI poi)
             {
-                Bounds newBounds = pois[0].GetAABB();
-                foreach (var poi in this.pois)
-                {
-                    newBounds.Encapsulate(poi.GetAABB());
-                }
-
-                newBounds.Expand(newBounds.size * -0.5f);
-                this.bounds = newBounds;
+                this.pois.Add(poi);
+                poi.MarkZoned();
             }
 
-            public List<PrefabInstance> GetPOIs()
+            public List<POI> GetPOIs()
             {
                 return this.pois;
             }
 
-            public void Merge(Zone other)
+            public void Merge(params POIZone[] other)
             {
-                this.pois.AddRange(other.pois);
-                this.RecalculateBounds();
+                averageDistanceBetweenZones = 0.0f;
+
+                foreach(var zone in other)
+                {
+                    float distance = Vector2.Distance(zone.GetCenter(), this.GetCenter());
+                    averageDistanceBetweenZones += distance;
+
+                    this.pois.AddRange(zone.pois);
+                }
+
+                averageDistanceBetweenZones /= other.Length;
+            }
+
+            public float GetAverageDistanceBetweenZones()
+            {
+                return this.averageDistanceBetweenZones;
+            }
+
+            public float GetAverageWeight()
+            {
+                float weight = 0.0f;
+
+                foreach(var poi in this.pois)
+                {
+                    weight += poi.GetWeight();
+                }
+
+                weight /= this.pois.Count;
+                return weight;
             }
 
             public int GetCount()
@@ -204,30 +170,67 @@ namespace ImprovedHordes.POI
                 return this.pois.Count;
             }
 
-            public Bounds GetBounds()
+            public Vector2 GetCenter()
             {
-                return this.bounds;
+                Vector2 center = this.pois[0].GetLocation();
+
+                for (int i = 1; i < this.pois.Count; i++)
+                {
+                    center += this.pois[i].GetLocation();
+                }
+
+                center /= this.pois.Count;
+                return center;
             }
 
-            public void UpdateDensity(int highestCount)
+            public Bounds GetBounds()
             {
-                this.density = (this.GetCount() - 1) / (float)(highestCount - 1);
+                Bounds bounds = this.pois[0].GetBounds();
+
+                for(int i = 1; i < this.pois.Count; i++)
+                {
+                    bounds.Encapsulate(this.pois[1].GetBounds());
+                }
+
+                return bounds;
             }
 
             public float GetDensity()
             {
-                return this.density;
+                return 0.0f;
             }
         }
 
-        public bool HasScanCompleted()
+        public sealed class POI
         {
-            return zones.Count > 0;
-        }
+            private PrefabInstance prefab;
+            private float weight;
 
-        public List<WorldPOIScanner.Zone> GetZones()
-        {
-            return this.zones;
+            public POI(PrefabInstance prefab)
+            {
+                this.prefab = prefab;
+                this.weight = 0.0f;
+            }
+
+            public void MarkZoned()
+            {
+                this.weight += 1.0f;
+            }
+
+            public float GetWeight()
+            {
+                return this.weight;
+            }
+
+            public Vector2 GetLocation()
+            {
+                return this.prefab.GetCenterXZ();
+            }
+
+            public Bounds GetBounds()
+            {
+                return this.prefab.GetAABB();
+            }
         }
     }
 }

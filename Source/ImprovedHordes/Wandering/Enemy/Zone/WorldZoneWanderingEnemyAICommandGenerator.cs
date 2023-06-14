@@ -3,7 +3,7 @@ using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
 using ImprovedHordes.Source.Wandering.Enemy;
 
-namespace ImprovedHordes.Wandering.Enemy.Zone
+namespace ImprovedHordes.Wandering.Enemy.POIZone
 {
     public class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {

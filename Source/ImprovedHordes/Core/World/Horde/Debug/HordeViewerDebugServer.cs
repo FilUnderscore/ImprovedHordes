@@ -19,7 +19,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly int worldSize;
         private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
-        private readonly List<WorldPOIScanner.Zone> zones;
+        private readonly List<WorldPOIScanner.POIZone> zones;
 
         public WorldHordeState(int worldSize, WorldPOIScanner scanner, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
         {
@@ -88,6 +88,9 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                 writer.Write((int)zone.GetBounds().size.z);
 
                 writer.Write(zone.GetDensity());
+                writer.Write(zone.GetCount());
+                writer.Write(zone.GetAverageDistanceBetweenZones());
+                writer.Write(zone.GetAverageWeight());
             }
         }
 

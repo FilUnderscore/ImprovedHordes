@@ -2,7 +2,7 @@
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.POI;
 
-namespace ImprovedHordes.Wandering.Enemy.Zone
+namespace ImprovedHordes.Wandering.Enemy.POIZone
 {
     public sealed class WorldZoneWanderingEnemyHordePopulator : WorldZoneHordePopulator<WanderingEnemyHorde>
     {
@@ -15,12 +15,12 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
             return null;
         }
 
-        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.Zone zone)
+        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone)
         {
             return new WorldZoneWanderingEnemyAICommandGenerator(this.scanner);
         }
 
-        protected override int CalculateHordeCount(WorldPOIScanner.Zone zone)
+        protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
         {
             //int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude / 4);
             //return Mathf.CeilToInt(((float)maxRadius / zone.GetCount()) * zone.GetDensity());

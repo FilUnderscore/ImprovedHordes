@@ -8,7 +8,7 @@ using ImprovedHordes.POI;
 using ImprovedHordes.Screamer;
 using ImprovedHordes.Wandering.Animal;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
-using ImprovedHordes.Wandering.Enemy.Zone;
+using ImprovedHordes.Wandering.Enemy.POIZone;
 
 namespace ImprovedHordes
 {
