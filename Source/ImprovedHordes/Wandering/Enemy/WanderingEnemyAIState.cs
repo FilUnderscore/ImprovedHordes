@@ -1,7 +1,7 @@
 ﻿using ImprovedHordes.Core.AI;
 using ImprovedHordes.POI;
 
-namespace ImprovedHordes.Source.Wandering.Enemy
+namespace ImprovedHordes.Wandering.Enemy
 {
     public sealed class WanderingEnemyAIState : IAIState
     {

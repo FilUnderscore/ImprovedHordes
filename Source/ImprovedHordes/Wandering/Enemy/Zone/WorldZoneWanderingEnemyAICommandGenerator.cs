@@ -1,7 +1,6 @@
 ﻿using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
-using ImprovedHordes.Source.Wandering.Enemy;
 
 namespace ImprovedHordes.Wandering.Enemy.POIZone
 {
