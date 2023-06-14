@@ -146,7 +146,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnTargetLocation, 0, this.spawnData.SpreadDistanceLimit, -1, false, out Vector3 spawnLocation, false))
             {
-                this.logger.Warn($"Bad spawn request for horde at {spawnLocation}");
+                this.logger.Warn($"Bad spawn request for horde at {spawnTargetLocation}");
 
                 this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, true));
 
