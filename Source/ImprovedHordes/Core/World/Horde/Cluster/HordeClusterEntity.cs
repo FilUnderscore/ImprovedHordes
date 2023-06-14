@@ -10,8 +10,6 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 {
     public sealed class HordeClusterEntity : IEntity
     {
-        private readonly Abstractions.Logging.ILogger logger;
-
         private readonly HordeCluster cluster;
         private IEntity entity;
 
@@ -22,10 +20,8 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         private readonly HordeCharacteristics characteristics;
 
-        public HordeClusterEntity(ILoggerFactory loggerFactory, HordeCluster cluster, IEntity entity, HordeCharacteristics characteristics)
+        public HordeClusterEntity(HordeCluster cluster, IEntity entity, HordeCharacteristics characteristics)
         {
-            this.logger = loggerFactory.Create(typeof(HordeClusterEntity));
-
             this.cluster = cluster;
             this.entity = entity;
 
@@ -101,16 +97,16 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.awaitingSpawnStateChange;
         }
 
-        public void RequestDespawn(MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onDespawn)
+        public void RequestDespawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onDespawn)
         {
             this.awaitingSpawnStateChange = true;
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(null, this, false, onDespawn));
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(loggerFactory, null, this, false, onDespawn));
         }
 
-        public void RequestSpawn(IEntitySpawner spawner, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
+        public void RequestSpawn(ILoggerFactory loggerFactory, IEntitySpawner spawner, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
         {
             this.awaitingSpawnStateChange = true;
-            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(spawner, this, true, onSpawn));
+            mainThreadRequestProcessor.Request(new HordeEntitySpawnRequest(loggerFactory, spawner, this, true, onSpawn));
         }
 
         public void Despawn()
@@ -123,14 +119,14 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             this.awaitingSpawnStateChange = false;
         }
 
-        public void Respawn(IEntitySpawner spawner)
+        public void Respawn(Abstractions.Logging.ILogger logger, IEntitySpawner spawner)
         {
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(this.location.x, this.location.z) + 1.0f;
             this.location.y = surfaceSpawnHeight;
 
             if(!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.location, 0, 10, -1, false, out Vector3 spawnLocation, false))
             {
-                this.logger.Warn($"Failed to respawn HordeClusterEntity at {this.location}");
+                logger.Warn($"Failed to respawn HordeClusterEntity at {this.location}");
                 return;
             }
 

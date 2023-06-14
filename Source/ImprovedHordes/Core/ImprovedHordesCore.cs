@@ -47,7 +47,7 @@ namespace ImprovedHordes.Core
             this.worldEventReporter = new WorldEventReporter(loggerFactory, this.worldSize);
 
             this.tracker = new WorldHordeTracker(loggerFactory, entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
-            this.spawner = new WorldHordeSpawner(this.tracker);
+            this.spawner = new WorldHordeSpawner(loggerFactory, entitySpawner, this.tracker, this.mainThreadRequestProcessor);
             this.populator = new WorldHordePopulator(loggerFactory, this.tracker, this.spawner);
         }
 

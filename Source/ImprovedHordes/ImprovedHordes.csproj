@@ -81,6 +81,8 @@
     <Compile Include="Core\Threading\ThreadSubscription.cs" />
     <Compile Include="Core\World\Horde\AI\Commands\SleepingAICommand.cs" />
     <Compile Include="Core\World\Horde\Characteristics\WalkSpeedHordeCharacteristic.cs" />
+    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
+    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnState.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeDespawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeEntitySpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeUpdateRequest.cs" />
@@ -98,7 +100,7 @@
     <Compile Include="Core\World\Horde\AI\HordeAIAgentExecutor.cs" />
     <Compile Include="Core\World\Horde\AI\HordeEntityAIAgentExecutor.cs" />
     <Compile Include="Core\World\Horde\Populator\HordePopulator.cs" />
-    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
+    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnMainThreadRequest.cs" />
     <Compile Include="Core\World\Horde\WorldHorde.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeCluster.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeClusterEntity.cs" />
@@ -154,7 +156,9 @@
     <Compile Include="Wandering\Enemy\Zone\WorldZoneWanderingEnemyAICommandGenerator.cs" />
     <Compile Include="Wandering\Enemy\Zone\WorldZoneWanderingEnemyHordePopulator.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Core\World\Horde\Spawn\Request2\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>robocopy "$(TargetDir) " "C:\\Program Files (x86)\\Steam\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e

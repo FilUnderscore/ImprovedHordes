@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
 {
     public sealed class PlayerHordeGroup
     {
+        private List<Vector3> locations = new List<Vector3>();
+        
         private int gamestageSum;
         private Dictionary<string, int> biomes = new Dictionary<string, int>();
 
@@ -16,7 +19,7 @@ namespace ImprovedHordes.Core.World.Horde
             this.count = 0;
         }
 
-        public void AddPlayer(int gamestage, string biome)
+        public void AddPlayer(int gamestage, string biome, Vector3 pos)
         {
             this.gamestageSum += gamestage;
 
@@ -29,6 +32,12 @@ namespace ImprovedHordes.Core.World.Horde
             }
 
             this.count += 1;
+            this.locations.Add(pos);
+        }
+
+        public List<Vector3> GetLocations()
+        {
+            return this.locations;
         }
 
         public int GetGamestage()

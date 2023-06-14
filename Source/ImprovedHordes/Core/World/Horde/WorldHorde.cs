@@ -43,20 +43,20 @@ namespace ImprovedHordes.Core.World.Horde
             return this.location;
         }
 
-        public IEnumerable<HordeClusterSpawnRequest> RequestSpawns(ILoggerFactory loggerFactory, IEntitySpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
+        public void RequestSpawns(WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
         {
             foreach(var cluster in this.clusters)
             {
                 if (cluster.IsSpawned())
                     continue;
 
-                yield return new HordeClusterSpawnRequest(loggerFactory, spawner, this, this.spawnData, cluster, group, entity =>
+                cluster.SetSpawnRequest(spawner.RequestSpawn(this, cluster, group, this.spawnData, entity =>
                 {
-                    this.AddEntity(new HordeClusterEntity(loggerFactory, cluster, entity, this.characteristics), cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
+                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
 
                     if (onSpawn != null)
                         onSpawn(entity);
-                });
+                }));
 
                 cluster.SetSpawned(true);
             }

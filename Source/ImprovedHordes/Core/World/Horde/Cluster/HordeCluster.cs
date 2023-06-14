@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.World.Horde.Spawn.Request;
 using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.Cluster
@@ -10,6 +11,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         private float density;
         private float densityPerEntity;
+        private HordeClusterSpawnRequest spawnRequest; // Used to keep track of spawning.
 
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
@@ -35,6 +37,16 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public void SetPreviousHordeEntityGenerator(HordeEntityGenerator hordeEntityGenerator)
         {
             this.previousHordeEntityGenerator = hordeEntityGenerator;
+        }
+
+        public void SetSpawnRequest(HordeClusterSpawnRequest hordeClusterSpawnRequest)
+        {
+            this.spawnRequest = hordeClusterSpawnRequest;
+        }
+
+        public HordeClusterSpawnRequest GetSpawnRequest()
+        {
+            return this.spawnRequest;
         }
 
         public float GetDensity() 
