@@ -95,6 +95,19 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.spawned;
         }
 
+        public int GetEntitiesSpawned()
+        {
+            int entitiesSpawned = 0;
+
+            foreach(var entity in this.entities)
+            {
+                if (entity.IsSpawned())
+                    entitiesSpawned++;
+            }
+
+            return entitiesSpawned;
+        }
+
         public IAICommandGenerator<EntityAICommand> GetEntityCommandGenerator()
         {
             return this.entityCommandGenerator;

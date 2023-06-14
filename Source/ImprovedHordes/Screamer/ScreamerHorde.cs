@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.World.Horde.Characteristics;
+﻿using ImprovedHordes.Core.World.Horde;
+using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Data;
 
 namespace ImprovedHordes.Screamer
@@ -12,6 +13,11 @@ namespace ImprovedHordes.Screamer
         public override HordeCharacteristics CreateCharacteristics()
         {
             return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(1.6f, 3.2f), new SensitivityHordeCharacteristic(4.0f));
+        }
+
+        public override HordeType GetHordeType()
+        {
+            return HordeType.ENEMY;
         }
     }
 }

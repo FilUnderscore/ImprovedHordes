@@ -6,7 +6,7 @@ namespace ImprovedHordes.Core.World.Horde
 {
     public sealed class PlayerHordeGroup
     {
-        private List<Vector3> locations = new List<Vector3>();
+        private List<EntityPlayer> players = new List<EntityPlayer>();
         
         private int gamestageSum;
         private Dictionary<string, int> biomes = new Dictionary<string, int>();
@@ -19,8 +19,9 @@ namespace ImprovedHordes.Core.World.Horde
             this.count = 0;
         }
 
-        public void AddPlayer(int gamestage, string biome, Vector3 pos)
+        public void AddPlayer(EntityPlayer player, int gamestage, string biome)
         {
+            this.players.Add(player);
             this.gamestageSum += gamestage;
 
             if (biome != null)
@@ -32,12 +33,18 @@ namespace ImprovedHordes.Core.World.Horde
             }
 
             this.count += 1;
-            this.locations.Add(pos);
         }
 
         public List<Vector3> GetLocations()
         {
-            return this.locations;
+            List<Vector3> locations = new List<Vector3>();
+
+            foreach(var player in this.players) 
+            {
+                locations.Add(player.position);
+            }
+
+            return locations;
         }
 
         public int GetGamestage()

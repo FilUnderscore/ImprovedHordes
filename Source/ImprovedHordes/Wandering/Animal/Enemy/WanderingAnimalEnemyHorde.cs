@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.World.Horde.Characteristics;
+﻿using ImprovedHordes.Core.World.Horde;
+using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Data;
 
 namespace ImprovedHordes.Wandering.Animal.Enemy
@@ -10,6 +11,11 @@ namespace ImprovedHordes.Wandering.Animal.Enemy
         public override HordeCharacteristics CreateCharacteristics()
         {
             return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(1.6f, 2.0f));
+        }
+
+        public override HordeType GetHordeType()
+        {
+            return HordeType.ANIMAL;
         }
     }
 }

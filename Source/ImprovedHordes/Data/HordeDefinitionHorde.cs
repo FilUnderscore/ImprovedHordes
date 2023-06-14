@@ -34,5 +34,7 @@ namespace ImprovedHordes.Data
 
             return null;
         }
+
+        public abstract HordeType GetHordeType();
     }
 }

@@ -29,7 +29,7 @@ namespace ImprovedHordes.Core.World.Horde
         private const float MAX_HORDE_DENSITY = 10.0f;
         private const float MAX_WORLD_DENSITY = 160.0f;
 
-        private const int MAX_ENTITIES_SPAWNED_PER_PLAYER = 10;
+        private const int MAX_ENTITIES_SPAWNED_PER_PLAYER = 20;
 
         public static int MAX_VIEW_DISTANCE
         {
@@ -44,12 +44,14 @@ namespace ImprovedHordes.Core.World.Horde
 
         public readonly struct PlayerSnapshot
         {
+            public readonly EntityPlayer player;
             public readonly Vector3 location;
             public readonly int gamestage;
             public readonly string biome;
 
-            public PlayerSnapshot(Vector3 location, int gamestage, BiomeDefinition biome)
+            public PlayerSnapshot(EntityPlayer player, Vector3 location, int gamestage, BiomeDefinition biome)
             {
+                this.player = player;
                 this.location = location;
                 this.gamestage = gamestage;
                 this.biome = biome != null ? biome.m_sBiomeName : null;
@@ -127,7 +129,7 @@ namespace ImprovedHordes.Core.World.Horde
         {
             foreach (var player in GameManager.Instance.World.Players.list)
             {
-                snapshotsList.Add(new PlayerSnapshot(player.position, player.gameStage, player.biomeStandingOn));
+                snapshotsList.Add(new PlayerSnapshot(player, player.position, player.gameStage, player.biomeStandingOn));
             }
 
             snapshots.Update(this.snapshotsList.ToList());
@@ -208,7 +210,7 @@ namespace ImprovedHordes.Core.World.Horde
                     if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
                     {
                         PlayerHordeGroup group = new PlayerHordeGroup();
-                        nearby.Do(player => group.AddPlayer(player.gamestage, player.biome, player.location));
+                        nearby.Do(player => group.AddPlayer(player.player, player.gamestage, player.biome));
 
                         horde.RequestSpawns(this.spawner, group, mainThreadRequestProcessor, entity => entitiesTracked.Add(entity.GetEntityId()));
                     }

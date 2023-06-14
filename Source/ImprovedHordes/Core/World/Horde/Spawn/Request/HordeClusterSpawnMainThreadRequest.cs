@@ -72,6 +72,32 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             }
         }
 
+        private int GetWorldEntitiesAlive()
+        {
+            switch(this.cluster.GetHorde().GetHordeType())
+            {
+                case HordeType.ANIMAL:
+                    return GameStats.GetInt(EnumGameStats.AnimalCount);
+                case HordeType.ENEMY:
+                    return GameStats.GetInt(EnumGameStats.EnemyCount);
+                default:
+                    return 0;
+            }
+        }
+
+        private int GetMaxAllowedWorldEntitiesAlive()
+        {
+            switch(this.cluster.GetHorde().GetHordeType())
+            {
+                case HordeType.ANIMAL:
+                    return GamePrefs.GetInt(EnumGamePrefs.MaxSpawnedAnimals);
+                case HordeType.ENEMY:
+                    return GamePrefs.GetInt(EnumGamePrefs.MaxSpawnedZombies);
+                default:
+                    return 0;
+            }
+        }
+
         public bool IsDone()
         {
             return this.index >= this.size;
@@ -84,6 +110,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         public void TickExecute(float dt)
         {
+            if (GetWorldEntitiesAlive() >= GetMaxAllowedWorldEntitiesAlive()) // World is currently overpopulated, so skip this update.
+                return;
+
+            // TODO make setting.
+            if (cluster.GetEntitiesSpawned() > 20) // Cannot exceed the max number of entities per player for performance reasons.
+                return;
+
             Vector3 spawnTargetLocation = this.hordeLocation;
             bool playersNearby;
 

@@ -8,5 +8,6 @@ namespace ImprovedHordes.Core.World.Horde
         HordeCharacteristics CreateCharacteristics();
 
         bool CanMergeWith(IHorde other);
+        HordeType GetHordeType();
     }
 }
