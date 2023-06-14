@@ -29,20 +29,6 @@
 					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="40"/>
 				</gs>
 			</group>
-			
-			<group name="ZombieDogs" chance="0.2">
-				<entity biomes="wasteland" name="animalZombieDog" minCount="1" maxCount="10"/>
-			</group>
-			
-			<group name="Bears" chance="0.05">
-				<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="2"/>
-			</group>
-			
-			<group name="Vultures" chance="0.2">
-				<entity biomes="wasteland,desert,burnt_forest" name="animalZombieVulture" minCount="1" maxCount="6"/>
-				
-				<entity biomes="wasteland" name="animalZombieVultureRadiated" minCount="1" maxCount="2"/>
-			</group>
 		</groups>
 	</horde>
 	
@@ -83,6 +69,17 @@
 				<entity biomes="pine_forest,snow" name="animalBear" minCount="1" maxCount="2"/>
 					
 				<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="2"/>
+			</group>
+			
+						
+			<group name="ZombieDogs" chance="0.2">
+				<entity biomes="wasteland" name="animalZombieDog" minCount="1" maxCount="10"/>
+			</group>
+			
+			<group name="Vultures" chance="0.2">
+				<entity biomes="wasteland,desert,burnt_forest" name="animalZombieVulture" minCount="1" maxCount="6"/>
+				
+				<entity biomes="wasteland" name="animalZombieVultureRadiated" minCount="1" maxCount="2"/>
 			</group>
 		</groups>
 	</horde>
