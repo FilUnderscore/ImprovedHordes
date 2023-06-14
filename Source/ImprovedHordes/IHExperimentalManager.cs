@@ -9,7 +9,7 @@ namespace ImprovedHordes
 
         public IHExperimentalManager(Mod _modInstance)
         {
-            VERSION = _modInstance.ModInfo.Version.Value;
+            VERSION = _modInstance.Version.ToString();
 
             ModEvents.PlayerSpawnedInWorld.RegisterHandler(PlayerSpawnedInWorld);
         }

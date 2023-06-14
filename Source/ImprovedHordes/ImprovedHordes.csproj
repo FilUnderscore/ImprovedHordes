@@ -157,9 +157,7 @@
     <Compile Include="Wandering\Enemy\Zone\WorldZoneWanderingEnemyAICommandGenerator.cs" />
     <Compile Include="Wandering\Enemy\Zone\WorldZoneWanderingEnemyHordePopulator.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\World\Horde\Spawn\Request2\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>robocopy "$(TargetDir) " "C:\\Program Files (x86)\\Steam\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e
