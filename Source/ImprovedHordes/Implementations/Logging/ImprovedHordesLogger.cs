@@ -30,7 +30,7 @@ namespace ImprovedHordes.Implementations.Logging
             StackTrace trace = new StackTrace();
             string methodSignature;
 
-            for(int i = 2; i < trace.FrameCount; i++)
+            for(int i = 4; i < trace.FrameCount; i++)
             {
                 StackFrame frame = trace.GetFrame(i);
                 methodSignature = GetMethodSignature(frame.GetMethod());
@@ -38,7 +38,7 @@ namespace ImprovedHordes.Implementations.Logging
                 builder.AppendLine($"Called by [{frame.GetMethod().DeclaringType.FullName}] {methodSignature}");
             }
 
-            methodSignature = GetMethodSignature(trace.GetFrame(1).GetMethod());
+            methodSignature = GetMethodSignature(trace.GetFrame(3).GetMethod());
 
             return $"[Improved Hordes] [{type.Name}] {methodSignature}: {message} \nDetailed stacktrace: \n{builder.ToString()}";
         }
@@ -48,7 +48,7 @@ namespace ImprovedHordes.Implementations.Logging
             if (VERBOSE)
                 return FormatMessageVerbose(message);
 
-            string methodSignature = GetMethodSignature(new StackFrame(1).GetMethod());
+            string methodSignature = GetMethodSignature(new StackFrame(2).GetMethod());
 
             return $"[Improved Hordes] [{type.Name}] {methodSignature}: {message}";
         }
