@@ -1,5 +1,11 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.Threading.Request;
+using ImprovedHordes.Core.World.Horde.AI;
+using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
+using System;
 using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.Cluster
@@ -11,7 +17,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         private float density;
         private float densityPerEntity;
-        private HordeClusterSpawnRequest spawnRequest; // Used to keep track of spawning.
+        private HordeClusterSpawnRequest? spawnRequest; // Used to keep track of spawning.
 
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
@@ -39,14 +45,35 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             this.previousHordeEntityGenerator = hordeEntityGenerator;
         }
 
-        public void SetSpawnRequest(HordeClusterSpawnRequest hordeClusterSpawnRequest)
+        public void RequestSpawn(WorldHorde horde, HordeSpawnData spawnData, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
         {
-            this.spawnRequest = hordeClusterSpawnRequest;
+            if (this.IsSpawned())
+                return;
+
+            this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnData, entity =>
+            {
+                HordeClusterEntity clusterEntity = new HordeClusterEntity(this, entity, horde.GetCharacteristics());
+                this.AddEntity(clusterEntity);
+
+                aiExecutor.AddEntity(clusterEntity, worldRandom, this.entityCommandGenerator, mainThreadRequestProcessor);
+
+                if (onSpawn != null)
+                    onSpawn(entity);
+            });
+
+            this.SetSpawned(true);
         }
 
-        public HordeClusterSpawnRequest GetSpawnRequest()
+        public bool TryGetSpawnRequest(out HordeClusterSpawnRequest spawnRequest)
         {
-            return this.spawnRequest;
+            if(this.spawnRequest == null)
+            {
+                spawnRequest = default;
+                return false;
+            }
+
+            spawnRequest = this.spawnRequest.Value;
+            return true;
         }
 
         public float GetDensity() 

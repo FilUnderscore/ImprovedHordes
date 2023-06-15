@@ -200,24 +200,36 @@ namespace ImprovedHordes.Core.World.Horde
             this.spawner = spawner;
         }
 
+        private PlayerHordeGroup GetPlayerHordeGroupNear(List<PlayerSnapshot> players, WorldHorde horde)
+        {
+            IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+            {
+                float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
+            });
+
+            if (nearby.Any())
+            {
+                PlayerHordeGroup group = new PlayerHordeGroup();
+                nearby.Do(player => group.AddPlayer(player.player, player.gamestage, player.biome));
+
+                return group;
+            }
+
+            return null;
+        }
+
         private int UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
         {
             Parallel.ForEach(this.hordes, ParallelHordeOptions, horde =>
             {
                 if(!horde.IsSpawned())
                 {
-                    IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+                    PlayerHordeGroup playerHordeGroup = GetPlayerHordeGroupNear(players, horde);
+                    
+                    if(playerHordeGroup != null)
                     {
-                        float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
-                        return Vector3.Distance(player.location, horde.GetLocation()) <= distance;
-                    });
-
-                    if (nearby.Any() && (!horde.IsSpawned() || horde.HasClusterSpawnsWaiting()))
-                    {
-                        PlayerHordeGroup group = new PlayerHordeGroup();
-                        nearby.Do(player => group.AddPlayer(player.player, player.gamestage, player.biome));
-
-                        horde.RequestSpawns(this.spawner, group, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity => entitiesTracked.Add(entity.GetEntityId()));
+                        horde.RequestSpawns(this.spawner, playerHordeGroup, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity => entitiesTracked.Add(entity.GetEntityId()));
                     }
                 }
                 else
@@ -226,12 +238,24 @@ namespace ImprovedHordes.Core.World.Horde
 
                     Parallel.ForEach(horde.GetClusters(), ParallelClusterOptions, cluster =>
                     {
-                        if(cluster.GetSpawnRequest().State.TryGet(out var spawnState))
+                        if (cluster.TryGetSpawnRequest(out var spawnRequest))
                         {
-                            if(spawnState.complete && spawnState.spawned == 0) // Failed to spawn, despawn the horde and try again.
+                            if (spawnRequest.State.TryGet(out var spawnState))
                             {
-                                horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
-                                return;
+                                if (spawnState.complete && spawnState.spawned == 0) // Failed to spawn, despawn the horde and try again.
+                                {
+                                    this.Logger.Warn("Failed to spawn horde cluster, retrying.");
+
+                                    PlayerHordeGroup playerHordeGroup = GetPlayerHordeGroupNear(players, horde);
+
+                                    if (playerHordeGroup != null)
+                                    {
+                                        cluster.SetSpawned(false);
+                                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity => entitiesTracked.Add(entity.GetEntityId()));
+                                    }
+
+                                    return;
+                                }
                             }
                         }
 

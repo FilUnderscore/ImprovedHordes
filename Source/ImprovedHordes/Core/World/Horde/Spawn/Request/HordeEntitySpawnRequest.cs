@@ -44,7 +44,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             else
             {
                 if (this.onSpawn != null)
-                    this.onSpawn(this.entity.GetEntity());
+                    this.onSpawn(this.entity);
 
                 this.entity.Despawn();
             }

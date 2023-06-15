@@ -58,6 +58,11 @@ namespace ImprovedHordes.Implementations.Logging
             Log.Error(this.FormatMessage(message));
         }
 
+        public void Exception(Exception e)
+        {
+            Log.Exception(e);
+        }
+
         public void Info(string message)
         {
             Log.Out(this.FormatMessage(message));

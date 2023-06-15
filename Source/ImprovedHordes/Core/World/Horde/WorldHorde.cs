@@ -51,30 +51,18 @@ namespace ImprovedHordes.Core.World.Horde
         {
             foreach(var cluster in this.clusters)
             {
-                if (cluster.IsSpawned())
-                    continue;
-
-                cluster.SetSpawnRequest(spawner.RequestSpawn(this, cluster, group, this.spawnData, entity =>
-                {
-                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), worldRandom, cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
-
-                    if (onSpawn != null)
-                        onSpawn(entity);
-                }));
-
-                cluster.SetSpawned(true);
+                RequestSpawn(cluster, spawner, group, mainThreadRequestProcessor, worldRandom, onSpawn);
             }
+        }
+
+        public void RequestSpawn(HordeCluster cluster, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, Action<IEntity> onSpawn)
+        {
+            cluster.RequestSpawn(this, this.spawnData, spawner, group, mainThreadRequestProcessor, worldRandom, this.AIExecutor, onSpawn);
         }
 
         public bool HasClusterSpawnsWaiting()
         {
             return this.clusters.Any(cluster => !cluster.IsSpawned());
-        }
-
-        private void AddEntity(HordeClusterEntity entity, IWorldRandom worldRandom, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
-        {
-            entity.GetCluster().AddEntity(entity);
-            this.AIExecutor.AddEntity(entity, worldRandom, entityCommandGenerator, mainThreadRequestProcessor);
         }
 
         private void AddCluster(HordeCluster cluster)
