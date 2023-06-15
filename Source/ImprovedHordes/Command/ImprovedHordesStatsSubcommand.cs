@@ -60,7 +60,7 @@ namespace ImprovedHordes.Command
 
         public override (string name, bool optional)[] GetArgs()
         {
-            return new (string name, bool optional)[] { ("horde type", true) };
+            return null;
         }
 
         public override string GetDescription()
