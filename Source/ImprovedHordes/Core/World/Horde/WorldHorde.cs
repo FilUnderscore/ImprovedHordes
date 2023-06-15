@@ -60,11 +60,6 @@ namespace ImprovedHordes.Core.World.Horde
             cluster.RequestSpawn(this, this.spawnData, spawner, group, mainThreadRequestProcessor, worldRandom, this.AIExecutor, onSpawn);
         }
 
-        public bool HasClusterSpawnsWaiting()
-        {
-            return this.clusters.Any(cluster => !cluster.IsSpawned());
-        }
-
         private void AddCluster(HordeCluster cluster)
         {
             clusters.Add(cluster);

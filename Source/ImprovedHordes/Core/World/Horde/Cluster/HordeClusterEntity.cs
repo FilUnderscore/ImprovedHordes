@@ -119,7 +119,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             this.awaitingSpawnStateChange = false;
         }
 
-        public void Respawn(Abstractions.Logging.ILogger logger, IEntitySpawner spawner)
+        public bool Respawn(Abstractions.Logging.ILogger logger, IEntitySpawner spawner)
         {
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(this.location.x, this.location.z) + 1.0f;
             this.location.y = surfaceSpawnHeight;
@@ -127,18 +127,25 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             if(!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.location, 0, 10, -1, false, out Vector3 spawnLocation, false))
             {
                 logger.Warn($"Failed to respawn HordeClusterEntity at {this.location}");
-                return;
+                this.awaitingSpawnStateChange = false;
+
+                return false;
             }
 
             this.entity = spawner.SpawnAt(this.entityClassId, this.entityId, spawnLocation);
             this.entityId = this.entity.GetEntityId();
             this.location = spawnLocation;
             this.spawned = true;
-            
+
             if (this.hordeDespawned)
+            {
                 this.Despawn();
+                return false;
+            }
             else
                 this.awaitingSpawnStateChange = false;
+
+            return true;
         }
 
         public void NotifyHordeDespawned()

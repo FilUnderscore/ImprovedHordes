@@ -229,7 +229,13 @@ namespace ImprovedHordes.Core.World.Horde
                     
                     if(playerHordeGroup != null)
                     {
-                        horde.RequestSpawns(this.spawner, playerHordeGroup, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity => entitiesTracked.Add(entity.GetEntityId()));
+                        horde.RequestSpawns(this.spawner, playerHordeGroup, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
+                        {
+                            if (entity != null)
+                                entitiesTracked.Add(entity.GetEntityId());
+                            else
+                                this.Logger.Warn("Failed to track horde entity when spawning.");
+                        });
                     }
                 }
                 else
@@ -251,7 +257,13 @@ namespace ImprovedHordes.Core.World.Horde
                                     if (playerHordeGroup != null)
                                     {
                                         cluster.SetSpawned(false);
-                                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity => entitiesTracked.Add(entity.GetEntityId()));
+                                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
+                                        {
+                                            if (entity != null)
+                                                entitiesTracked.Add(entity.GetEntityId());
+                                            else
+                                                this.Logger.Warn("Failed to track horde entity when spawning.");
+                                        });
                                     }
 
                                     return;
@@ -275,13 +287,19 @@ namespace ImprovedHordes.Core.World.Horde
                                 {
                                     entity.RequestDespawn(this.LoggerFactory, this.mainThreadRequestProcessor, entityAlive =>
                                     {
-                                        if (!entitiesTracked.TryRemove(entityAlive.GetEntityId()))
+                                        if (entityAlive == null || !entitiesTracked.TryRemove(entityAlive.GetEntityId()))
                                             this.Logger.Warn("Failed to untrack horde entity when despawning.");
                                     });
                                 }
                                 else if (!entity.IsSpawned() && nearby.Any())
                                 {
-                                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive => entitiesTracked.Add(entityAlive.GetEntityId()));
+                                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive =>
+                                    {
+                                        if (entityAlive != null)
+                                            entitiesTracked.Add(entityAlive.GetEntityId());
+                                        else
+                                            this.Logger.Warn("Failed to track horde entity when spawning.");
+                                    });
                                 }
                             }
                         }

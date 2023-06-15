@@ -14,6 +14,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly bool spawn;
         private readonly Action<IEntity> onSpawn;
 
+        private bool done = false;
+
         public HordeEntitySpawnRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, HordeClusterEntity entity, bool spawn, Action<IEntity> onSpawn)
         {
             this.logger = loggerFactory.Create(typeof(HordeEntitySpawnRequest));
@@ -25,7 +27,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         public bool IsDone()
         {
-            return !this.entity.IsAwaitingSpawnStateChange() && this.entity.IsSpawned() == spawn;
+            return done || (!this.entity.IsAwaitingSpawnStateChange() && this.entity.IsSpawned() == spawn);
         }
 
         public void OnCleanup()
@@ -36,15 +38,20 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             if (this.spawn)
             {
-                this.entity.Respawn(this.logger, this.spawner);
-
-                if (this.onSpawn != null)
-                    this.onSpawn(this.entity.GetEntity());
+                if (this.entity.Respawn(this.logger, this.spawner))
+                {
+                    if (this.onSpawn != null)
+                        this.onSpawn(this.entity.GetEntity());
+                }
+                else
+                {
+                    done = true; // Skip the spawn request since it's a bad entity spawn.
+                }
             }
             else
             {
                 if (this.onSpawn != null)
-                    this.onSpawn(this.entity);
+                    this.onSpawn(this.entity.GetEntity());
 
                 this.entity.Despawn();
             }
