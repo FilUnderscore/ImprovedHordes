@@ -127,7 +127,6 @@
     <Compile Include="Data\XML\XPathPatcher.cs" />
     <Compile Include="Command\Debug\ImprovedHordesDebugSubcommand.cs" />
     <Compile Include="Command\ImprovedHordesStatsSubcommand.cs" />
-    <Compile Include="Command\ImprovedHordesTestSubcommand.cs" />
     <Compile Include="Core\World\Horde\HordeEntityGenerator.cs" />
     <Compile Include="Core\World\Horde\Spawn\WorldHordeSpawner.cs" />
     <Compile Include="Command\ImprovedHordesCommand.cs" />

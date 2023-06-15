@@ -20,8 +20,9 @@ namespace ImprovedHordes.Command
             {
                 int requestsCount = mod.GetCore().GetMainThreadRequestProcessor().GetRequestCount();
                 int totalCount = 0;
+                float totalDensity = 0.0f;
 
-                message = "WorldHordeTracker Clusters: ";
+                message = "World Horde Clusters: ";
 
                 if (this.clusters == null)
                     this.clusters = mod.GetCore().GetWorldHordeTracker().GetClustersSubscription().Subscribe();
@@ -30,14 +31,24 @@ namespace ImprovedHordes.Command
                 {
                     foreach (var clusterEntry in clusters)
                     {
-                        message += $"{clusterEntry.Key.Name} - ({clusterEntry.Value.Count}) ";
+                        float totalClusterTypeDensity = 0.0f;
+
+                        message += $"\n    {clusterEntry.Key.Name}: {clusterEntry.Value.Count}";
                         totalCount += clusterEntry.Value.Count;
+
+                        foreach(var cluster in clusterEntry.Value)
+                        {
+                            totalClusterTypeDensity += cluster.density;
+                        }
+
+                        message += $" (Total Density: {totalClusterTypeDensity})";
+                        totalDensity += totalClusterTypeDensity;
                     }
                 }
 
-                message += $"\nTotal Count {totalCount}";
+                message += $"\nTotal Count: {totalCount} (Total Density: {totalDensity})";
 
-                message += $"\nMainThreadRequestProcessor: Main thread requests being processed {requestsCount}";
+                message += $"\nMainThreadRequestProcessor - Main thread requests being processed: {requestsCount}";
             }
             else
             {

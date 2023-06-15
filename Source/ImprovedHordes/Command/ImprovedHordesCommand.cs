@@ -9,7 +9,6 @@ namespace ImprovedHordes.Command
     {
         public ImprovedHordesCommand() : base("improvedhordes", "[Improved Hordes]", "ih")
         {
-            RegisterSubcommand(new ImprovedHordesTestSubcommand());
             RegisterSubcommand(new ImprovedHordesStatsSubcommand());
             RegisterSubcommand(new ImprovedHordesVerboseSubcommand());
 
