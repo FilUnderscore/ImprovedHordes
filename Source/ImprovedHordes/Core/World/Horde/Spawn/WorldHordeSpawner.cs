@@ -1,5 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
@@ -13,13 +15,15 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
     public sealed class WorldHordeSpawner
     {
         private readonly ILoggerFactory loggerFactory;
+        private readonly IRandomFactory<IWorldRandom> randomFactory;
         private readonly IEntitySpawner entitySpawner;
         private readonly WorldHordeTracker hordeTracker;
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
 
-        public WorldHordeSpawner(ILoggerFactory loggerFactory, IEntitySpawner entitySpawner, WorldHordeTracker hordeTracker, MainThreadRequestProcessor mainThreadRequestProcessor)
+        public WorldHordeSpawner(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, WorldHordeTracker hordeTracker, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             this.loggerFactory = loggerFactory;
+            this.randomFactory = randomFactory;
             this.entitySpawner = entitySpawner;
             this.hordeTracker = hordeTracker;
             this.mainThreadRequestProcessor = mainThreadRequestProcessor;
@@ -40,7 +44,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, commandGenerator, entityCommandGenerator));
+            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, this.randomFactory, commandGenerator, entityCommandGenerator));
         }
 
         public HordeClusterSpawnRequest RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData hordeSpawnData, Action<IEntity> onEntitySpawn)

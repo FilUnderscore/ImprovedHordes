@@ -67,10 +67,13 @@
   <ItemGroup>
     <Compile Include="Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
     <Compile Include="Command\ImprovedHordesVerboseSubcommand.cs" />
+    <Compile Include="Core\Abstractions\Random\Random.cs" />
+    <Compile Include="Core\Abstractions\Random\RandomFactory.cs" />
     <Compile Include="Core\Abstractions\World\Entity.cs" />
     <Compile Include="Core\Abstractions\World\EntitySpawner.cs" />
     <Compile Include="Core\Abstractions\Logging\Logger.cs" />
     <Compile Include="Core\Abstractions\Logging\LoggerFactory.cs" />
+    <Compile Include="Core\Abstractions\World\Random\WorldRandom.cs" />
     <Compile Include="Core\AI\AIState.cs" />
     <Compile Include="Core\AI\AIStateCommandGenerator.cs" />
     <Compile Include="Core\AI\Entity\EntityAICommand.cs" />
@@ -139,6 +142,8 @@
     <Compile Include="Implementations\World\ImprovedHordesEntity.cs" />
     <Compile Include="Implementations\World\ImprovedHordesEntitySpawner.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLoggerFactory.cs" />
+    <Compile Include="Implementations\World\Random\ImprovedHordesWorldRandom.cs" />
+    <Compile Include="Implementations\World\Random\ImprovedHordesWorldRandomFactory.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
     <Compile Include="POI\GoToWorldZoneAICommandGenerator.cs" />
     <Compile Include="POI\WorldPOIScanner.cs" />
@@ -149,6 +154,9 @@
     <Compile Include="Screamer\ScreamerEntityAICommandGenerator.cs" />
     <Compile Include="Screamer\ScreamerHorde.cs" />
     <Compile Include="Screamer\WorldZoneScreamerHordePopulator.cs" />
+    <Compile Include="Wandering\Animal\WanderingAnimalAIState.cs" />
+    <Compile Include="Wandering\Animal\WorldWildernessWanderingAnimalAICommandGenerator.cs" />
+    <Compile Include="Wandering\Animal\WorldWildernessWanderingAnimalHordePopulator.cs" />
     <Compile Include="Wandering\Enemy\WanderingEnemyAIState.cs" />
     <Compile Include="Wandering\Animal\Enemy\WanderingAnimalEnemyHorde.cs" />
     <Compile Include="Wandering\Animal\WanderingAnimalHorde.cs" />

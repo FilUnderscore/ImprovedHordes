@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.AI;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -11,7 +12,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         private readonly List<HordeEntityAIAgentExecutor> entities = new List<HordeEntityAIAgentExecutor>();
 
-        public HordeAIAgentExecutor(WorldHorde horde, IAICommandGenerator<AICommand> commandGenerator) : base(horde)
+        public HordeAIAgentExecutor(WorldHorde horde, IWorldRandom worldRandom, IAICommandGenerator<AICommand> commandGenerator) : base(horde, worldRandom)
         {
             this.commandGenerator = commandGenerator;
         }
@@ -33,7 +34,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
             this.interruptCommands.PushRange(commands);
 
             if(this.commandGenerator != null)
-                this.commandGenerator.GenerateNextCommand(out this.command);
+                this.commandGenerator.GenerateNextCommand(this.Random, out this.Command);
 
             foreach (var entity in this.entities)
             {
@@ -49,7 +50,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
             return base.GetCommand();
         }
 
-        public GeneratedAICommand<AICommand> GetNextCommand(GeneratedAICommand<AICommand> currentCommand)
+        public GeneratedAICommand<AICommand> GetNextCommand(IWorldRandom random, GeneratedAICommand<AICommand> currentCommand)
         {
             // Try get next interrupt command first.
             if(this.interruptCommands.TryPop(out _))
@@ -59,10 +60,10 @@ namespace ImprovedHordes.Core.World.Horde.AI
             }
 
             // Get next generated command.
-            if (this.command == currentCommand && this.commandGenerator != null)
-                this.commandGenerator.GenerateNextCommand(out this.command);
+            if (this.Command == currentCommand && this.commandGenerator != null)
+                this.commandGenerator.GenerateNextCommand(random, out this.Command);
 
-            return this.command;
+            return this.Command;
         }
 
         private bool UpdateInterrupts(float dt)
@@ -70,12 +71,12 @@ namespace ImprovedHordes.Core.World.Horde.AI
             if (!this.interruptCommands.TryPeek(out AICommand currentInterruptCommand))
                 return false;
 
-            if (!currentInterruptCommand.CanExecute(this.agent))
+            if (!currentInterruptCommand.CanExecute(this.Agent))
                 return false;
 
-            currentInterruptCommand.Execute(this.agent, dt);
+            currentInterruptCommand.Execute(this.Agent, dt);
 
-            if (!currentInterruptCommand.IsComplete(this.agent))
+            if (!currentInterruptCommand.IsComplete(this.Agent))
                 return true;
 
 #if DEBUG
@@ -100,7 +101,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
             if (this.UpdateCommand(dt) || this.commandGenerator == null)
                 return;
 
-            this.commandGenerator.GenerateNextCommand(out this.command);
+            this.commandGenerator.GenerateNextCommand(this.Random, out this.Command);
         }
         
         /// <summary>
@@ -111,13 +112,13 @@ namespace ImprovedHordes.Core.World.Horde.AI
         {
             int commandScore = 0;
 
-            if (command != null && command.Command != null)
-                commandScore = command.Command.GetObjectiveScore(this.agent);
+            if (this.Command != null && this.Command.Command != null)
+                commandScore = this.Command.Command.GetObjectiveScore(this.Agent);
 
             int interruptScore = 0, interruptCount = 0;
             foreach (var interruptCommand in interruptCommands.ToArray())
             {
-                interruptScore += interruptCommand.GetObjectiveScore(this.agent);
+                interruptScore += interruptCommand.GetObjectiveScore(this.Agent);
                 interruptCount++;
             }
 

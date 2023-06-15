@@ -10,6 +10,8 @@ using ImprovedHordes.Wandering.Animal;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
 using ImprovedHordes.Wandering.Enemy.POIZone;
 using ImprovedHordes.Core.Abstractions.Logging;
+using System;
+using ImprovedHordes.Implementations.World.Random;
 
 namespace ImprovedHordes
 {
@@ -60,16 +62,28 @@ namespace ImprovedHordes
             return this.poiScanner;
         }
 
+        private static int GetWorldSize(World world)
+        {
+            if (!world.GetWorldExtent(out Vector3i minSize, out Vector3i maxSize))
+            {
+                throw new InvalidOperationException("Could not determine world size.");
+            }
+
+            return maxSize.x - minSize.x;
+        }
+
         private void InitializeCore(World world)
         {
-            core = new ImprovedHordesCore(this.loggerFactory, new ImprovedHordesEntitySpawner(), world);
+            int worldSize = GetWorldSize(world);
+
+            core = new ImprovedHordesCore(worldSize, this.loggerFactory, new ImprovedHordesWorldRandomFactory(worldSize, world), new ImprovedHordesEntitySpawner(), world);
             this.poiScanner = new WorldPOIScanner(this.loggerFactory);
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner, core.GetWorldEventReporter()));
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessHordePopulator<WanderingAnimalHorde>(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
         }
 
         private static void GameStartDone()

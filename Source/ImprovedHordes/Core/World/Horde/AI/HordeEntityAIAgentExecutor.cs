@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 
 namespace ImprovedHordes.Core.World.Horde.AI
@@ -12,7 +13,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
         private GeneratedAICommand<EntityAICommand> entityCommand;
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
 
-        public HordeEntityAIAgentExecutor(IEntity agent, HordeAIAgentExecutor hordeAIAgentExecutor, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : base(agent)
+        public HordeEntityAIAgentExecutor(IEntity agent, IWorldRandom random, HordeAIAgentExecutor hordeAIAgentExecutor, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : base(agent, random)
         {
             this.hordeAIAgentExecutor = hordeAIAgentExecutor;
             this.entityCommandGenerator = entityCommandGenerator;
@@ -20,12 +21,12 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         private bool UpdateEntityCommand(float dt)
         {
-            if (this.entityCommand == null || this.entityCommand.Command == null || !this.entityCommand.Command.CanExecute(this.agent))
+            if (this.entityCommand == null || this.entityCommand.Command == null || !this.entityCommand.Command.CanExecute(this.Agent))
                 return false;
 
-            this.entityCommand.Command.Execute(this.agent, dt);
+            this.entityCommand.Command.Execute(this.Agent, dt);
 
-            if (!this.entityCommand.Command.IsComplete(this.agent))
+            if (!this.entityCommand.Command.IsComplete(this.Agent))
                 return true;
 
 #if DEBUG
@@ -44,14 +45,14 @@ namespace ImprovedHordes.Core.World.Horde.AI
             {
                 if(!this.UpdateEntityCommand(dt)) // Can only be generated.
                 {
-                    this.entityCommandGenerator.GenerateNextCommand(out this.entityCommand);
+                    this.entityCommandGenerator.GenerateNextCommand(this.Random, out this.entityCommand);
                 }
             }
 
             if (this.UpdateCommand(dt))
                 return;
 
-            this.command = this.hordeAIAgentExecutor.GetNextCommand(this.command);
+            this.Command = this.hordeAIAgentExecutor.GetNextCommand(this.Random, this.Command);
         }
 
         public bool IsLoaded()

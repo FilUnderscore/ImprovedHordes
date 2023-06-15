@@ -1,13 +1,17 @@
-﻿namespace ImprovedHordes.Core.AI
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+
+namespace ImprovedHordes.Core.AI
 {
     public abstract class AIAgentExecutor<AgentType> where AgentType : IAIAgent
     {
-        protected readonly AgentType agent;
-        protected GeneratedAICommand<AICommand> command;
+        protected readonly AgentType Agent;
+        protected readonly IWorldRandom Random;
+        protected GeneratedAICommand<AICommand> Command;
 
-        public AIAgentExecutor(AgentType agent)
+        public AIAgentExecutor(AgentType agent, IWorldRandom worldRandom)
         {
-            this.agent = agent;
+            this.Agent = agent;
+            this.Random = worldRandom;
         }
 
         public virtual void Update(float dt)
@@ -17,40 +21,40 @@
 
         protected bool UpdateCommand(float dt)
         {
-            if (command == null || command.Command == null || !command.Command.CanExecute(this.agent))
+            if (Command == null || Command.Command == null || !Command.Command.CanExecute(this.Agent))
                 return false;
 
-            this.command.Command.Execute(this.agent, dt);
+            this.Command.Command.Execute(this.Agent, dt);
 
-            if (!this.command.Command.IsComplete(this.agent))
+            if (!this.Command.Command.IsComplete(this.Agent))
                 return true;
 
 #if DEBUG
-            Log.Out($"{typeof(AgentType).Name} Agent completed command {command.Command.GetType().Name}");
+            Log.Out($"{typeof(AgentType).Name} Agent completed command {Command.Command.GetType().Name}");
 #endif
 
-            if(this.command.OnComplete != null)
-                this.command.OnComplete.Invoke(this.command.Command);
+            if(this.Command.OnComplete != null)
+                this.Command.OnComplete.Invoke(this.Command.Command);
 
             return false;
         }
 
         public void SetCommand(GeneratedAICommand<AICommand> command)
         {
-            if(this.command != null && this.command.OnInterrupt != null)
-                this.command.OnInterrupt.Invoke(this.command.Command);
+            if(this.Command != null && this.Command.OnInterrupt != null)
+                this.Command.OnInterrupt.Invoke(this.Command.Command);
 
-            this.command = command;
+            this.Command = command;
         }
 
         public virtual GeneratedAICommand<AICommand> GetCommand()
         {
-            return this.command;
+            return this.Command;
         }
 
         public IAIAgent GetAgent()
         {
-            return this.agent;
+            return this.Agent;
         }
     }
 }

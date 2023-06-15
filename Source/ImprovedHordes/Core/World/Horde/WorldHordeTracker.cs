@@ -1,7 +1,9 @@
 ﻿using ConcurrentCollections;
 using HarmonyLib;
 using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
@@ -72,6 +74,7 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
+        private readonly IRandomFactory<IWorldRandom> randomFactory;
         private readonly IEntitySpawner entitySpawner;
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
         
@@ -95,8 +98,9 @@ namespace ImprovedHordes.Core.World.Horde
 
         private WorldHordeSpawner spawner;
 
-        public WorldHordeTracker(ILoggerFactory loggerFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
+        public WorldHordeTracker(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
         {
+            this.randomFactory = randomFactory;
             this.entitySpawner = entitySpawner;
             this.mainThreadRequestProcessor = mainThreadRequestProcessor;
 
@@ -149,6 +153,7 @@ namespace ImprovedHordes.Core.World.Horde
             // Remove dead/merged hordes.
             while (toRemove.TryDequeue(out WorldHorde cluster))
             {
+                cluster.Cleanup(this.randomFactory);
                 hordes.Remove(cluster);
             }
 
@@ -212,7 +217,7 @@ namespace ImprovedHordes.Core.World.Horde
                         PlayerHordeGroup group = new PlayerHordeGroup();
                         nearby.Do(player => group.AddPlayer(player.player, player.gamestage, player.biome));
 
-                        horde.RequestSpawns(this.spawner, group, mainThreadRequestProcessor, entity => entitiesTracked.Add(entity.GetEntityId()));
+                        horde.RequestSpawns(this.spawner, group, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity => entitiesTracked.Add(entity.GetEntityId()));
                     }
                 }
                 else

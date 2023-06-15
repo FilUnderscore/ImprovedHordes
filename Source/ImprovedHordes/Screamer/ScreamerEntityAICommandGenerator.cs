@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Event;
 using ImprovedHordes.Screamer.Commands;
 
@@ -13,7 +14,7 @@ namespace ImprovedHordes.Screamer
             this.worldEventReporter = worldEventReporter;
         }
 
-        public bool GenerateNextCommand(out GeneratedAICommand<EntityAICommand> command)
+        public bool GenerateNextCommand(IWorldRandom worldRandom, out GeneratedAICommand<EntityAICommand> command)
         {
             command = new GeneratedAICommand<EntityAICommand>(new ScreamerEntityAICommand(this.worldEventReporter));
             return true;

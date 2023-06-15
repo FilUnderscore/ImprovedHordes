@@ -1,5 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.AI;
@@ -20,22 +22,24 @@ namespace ImprovedHordes.Core.World.Horde
         private HordeSpawnData spawnData;
 
         private readonly List<HordeCluster> clusters = new List<HordeCluster>();
+        private readonly IWorldRandom worldRandom;
 
         private HordeCharacteristics characteristics = new HordeCharacteristics();
         private HordeAIExecutor AIExecutor;
 
         private bool sleeping = false;
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density, entityCommandGenerator), commandGenerator) { }
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density, entityCommandGenerator), randomFactory, commandGenerator) { }
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IAICommandGenerator<AICommand> commandGenerator)
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator)
         {
             this.location = location;
             this.spawnData = spawnData;
 
             this.AddCluster(cluster);
 
-            this.AIExecutor = new HordeAIExecutor(this, commandGenerator);
+            this.worldRandom = randomFactory.CreateRandom(this.GetHashCode());
+            this.AIExecutor = new HordeAIExecutor(this, this.worldRandom, commandGenerator);
         }
 
         public Vector3 GetLocation()
@@ -43,7 +47,7 @@ namespace ImprovedHordes.Core.World.Horde
             return this.location;
         }
 
-        public void RequestSpawns(WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, Action<IEntity> onSpawn)
+        public void RequestSpawns(WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, Action<IEntity> onSpawn)
         {
             foreach(var cluster in this.clusters)
             {
@@ -52,7 +56,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                 cluster.SetSpawnRequest(spawner.RequestSpawn(this, cluster, group, this.spawnData, entity =>
                 {
-                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
+                    this.AddEntity(new HordeClusterEntity(cluster, entity, this.characteristics), worldRandom, cluster.GetEntityCommandGenerator(), mainThreadRequestProcessor);
 
                     if (onSpawn != null)
                         onSpawn(entity);
@@ -67,10 +71,10 @@ namespace ImprovedHordes.Core.World.Horde
             return this.clusters.Any(cluster => !cluster.IsSpawned());
         }
 
-        private void AddEntity(HordeClusterEntity entity, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
+        private void AddEntity(HordeClusterEntity entity, IWorldRandom worldRandom, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             entity.GetCluster().AddEntity(entity);
-            this.AIExecutor.AddEntity(entity, entityCommandGenerator, mainThreadRequestProcessor);
+            this.AIExecutor.AddEntity(entity, worldRandom, entityCommandGenerator, mainThreadRequestProcessor);
         }
 
         private void AddCluster(HordeCluster cluster)
@@ -213,6 +217,11 @@ namespace ImprovedHordes.Core.World.Horde
         public bool IsSleeping()
         {
             return this.sleeping;
+        }
+
+        public void Cleanup(IRandomFactory<IWorldRandom> randomFactory)
+        {
+            randomFactory.FreeRandom(this.worldRandom);
         }
     }
 }

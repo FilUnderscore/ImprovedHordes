@@ -1,5 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
@@ -29,7 +31,7 @@ namespace ImprovedHordes.Core
         
         private readonly int worldSize;
 
-        public ImprovedHordesCore(ILoggerFactory loggerFactory, IEntitySpawner entitySpawner, global::World world)
+        public ImprovedHordesCore(int worldSize, ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, global::World world)
         {
             this.loggerFactory = loggerFactory;
             this.logger = loggerFactory.Create(typeof(ImprovedHordesCore));
@@ -38,16 +40,11 @@ namespace ImprovedHordes.Core
 
             this.logger.Info("Initializing.");
 
-            if (!world.GetWorldExtent(out Vector3i minSize, out Vector3i maxSize))
-            {
-                throw new InvalidOperationException("Could not determine world size.");
-            }
-
-            this.worldSize = maxSize.x - minSize.x;
+            this.worldSize = worldSize;
             this.worldEventReporter = new WorldEventReporter(loggerFactory, this.worldSize);
 
-            this.tracker = new WorldHordeTracker(loggerFactory, entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
-            this.spawner = new WorldHordeSpawner(loggerFactory, entitySpawner, this.tracker, this.mainThreadRequestProcessor);
+            this.tracker = new WorldHordeTracker(loggerFactory, randomFactory, entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
+            this.spawner = new WorldHordeSpawner(loggerFactory, randomFactory, entitySpawner, this.tracker, this.mainThreadRequestProcessor);
             this.populator = new WorldHordePopulator(loggerFactory, this.tracker, this.spawner);
         }
 

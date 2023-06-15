@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System.Collections.Generic;
@@ -12,18 +13,18 @@ namespace ImprovedHordes.Core.World.Horde.AI
         private readonly HordeAIAgentExecutor hordeExecutor;
         private readonly Dictionary<IAIAgent, HordeEntityAIAgentExecutor> executors;
 
-        public HordeAIExecutor(WorldHorde horde, IAICommandGenerator<AICommand> commandGenerator)
+        public HordeAIExecutor(WorldHorde horde, IWorldRandom worldRandom, IAICommandGenerator<AICommand> commandGenerator)
         {
             this.horde = horde;
             
-            this.hordeExecutor = new HordeAIAgentExecutor(horde, commandGenerator);
+            this.hordeExecutor = new HordeAIAgentExecutor(horde, worldRandom, commandGenerator);
             this.executors = new Dictionary<IAIAgent, HordeEntityAIAgentExecutor>();
         }
 
-        public void AddEntity(HordeClusterEntity entity, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
+        public void AddEntity(HordeClusterEntity entity, IWorldRandom worldRandom, IAICommandGenerator<EntityAICommand> entityCommandGenerator, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             HordeEntityAIAgentExecutor executor;
-            this.executors.Add(entity, executor = new HordeEntityAIAgentExecutor(entity, this.hordeExecutor, entityCommandGenerator));
+            this.executors.Add(entity, executor = new HordeEntityAIAgentExecutor(entity, worldRandom, this.hordeExecutor, entityCommandGenerator));
 
             this.NotifyEntity(executor, true, mainThreadRequestProcessor);
         }

@@ -1,27 +1,27 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
 
 namespace ImprovedHordes.Wandering.Enemy.POIZone
 {
-    public class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
+    public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
         private readonly WorldPOIScanner scanner;
-        private readonly GameRandom random;
-
+        
         public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner) : base(new WanderingEnemyAIState())
         {
             this.scanner = scanner;
-            this.random = GameManager.Instance.World.GetGameRandom();
         }
 
-        protected override bool GenerateNextCommandFromState(WanderingEnemyAIState state, out GeneratedAICommand<AICommand> command)
+        protected override bool GenerateNextCommandFromState(WanderingEnemyAIState state, IWorldRandom worldRandom, out GeneratedAICommand<AICommand> command)
         {
             switch (state.GetWanderingState())
             {
                 case WanderingEnemyAIState.WanderingState.IDLE:
+                    // Set next zone target and begin moving.
                     var zones = this.scanner.GetZones();
-                    var zone = zones[random.RandomRange(zones.Count)];
+                    var zone = worldRandom.Random(zones);
 
                     state.SetTargetZone(zone);
                     state.SetWanderingState(WanderingEnemyAIState.WanderingState.MOVING);
@@ -32,8 +32,6 @@ namespace ImprovedHordes.Wandering.Enemy.POIZone
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
-                    // TODO wandering command. On interrupt, change to moving. On complete, change to idle.
-
                     command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
                     {
                         // On complete, change to idle.

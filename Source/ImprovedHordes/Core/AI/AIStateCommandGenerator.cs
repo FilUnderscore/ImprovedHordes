@@ -1,4 +1,6 @@
-﻿namespace ImprovedHordes.Core.AI
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+
+namespace ImprovedHordes.Core.AI
 {
     public abstract class AIStateCommandGenerator<AIState, CommandType> : IAICommandGenerator<CommandType> where AIState : IAIState where CommandType : AICommand
     {
@@ -9,11 +11,11 @@
             this.state = initialState;
         }
 
-        public bool GenerateNextCommand(out GeneratedAICommand<CommandType> command)
+        public bool GenerateNextCommand(IWorldRandom worldRandom, out GeneratedAICommand<CommandType> command)
         {
-            return GenerateNextCommandFromState(this.state, out command);
+            return GenerateNextCommandFromState(this.state, worldRandom, out command);
         }
 
-        protected abstract bool GenerateNextCommandFromState(AIState state, out GeneratedAICommand<CommandType> command);
+        protected abstract bool GenerateNextCommandFromState(AIState state, IWorldRandom worldRandom, out GeneratedAICommand<CommandType> command);
     }
 }
