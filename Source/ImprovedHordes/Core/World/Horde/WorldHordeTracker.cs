@@ -32,7 +32,7 @@ namespace ImprovedHordes.Core.World.Horde
         private readonly Setting<float> MAX_HORDE_DENSITY = new Setting<float>("max_horde_density", 10.0f);
         private readonly Setting<float> MAX_WORLD_DENSITY = new Setting<float>("max_world_density", 160.0f);
 
-        private readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 20);
+        public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 20);
 
         public static int MAX_VIEW_DISTANCE
         {
@@ -141,7 +141,6 @@ namespace ImprovedHordes.Core.World.Horde
 
             this.eventsToReport.Add(e);
         }
-
 
         protected override void BeforeTaskRestart()
         {

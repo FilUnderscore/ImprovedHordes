@@ -55,6 +55,11 @@ namespace ImprovedHordes.Core.World.Horde
             return this.gamestageSum / this.count;
         }
 
+        public int GetCount()
+        {
+            return this.players.Count;
+        }
+
         public string GetBiome()
         {
             if (biomes.Count == 0)

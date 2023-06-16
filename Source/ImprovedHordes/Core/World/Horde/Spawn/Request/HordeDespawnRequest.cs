@@ -11,6 +11,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly ILogger logger;
         private readonly Queue<HordeClusterEntity> entities = new Queue<HordeClusterEntity>();
 
+        private readonly WorldHorde horde;
         private readonly Action onDespawnedAction;
 
         public HordeDespawnRequest(ILoggerFactory loggerFactory, WorldHorde horde, Action onDespawned)
@@ -25,6 +26,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 }
             }
 
+            this.horde = horde;
             this.onDespawnedAction = onDespawned;
         }
 
@@ -53,7 +55,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 GameManager.Instance.World.RemoveEntity(entity.GetEntity().GetEntityId(), EnumRemoveEntityReason.Killed);
 
             entity.NotifyHordeDespawned();
-            entity.GetCluster().RemoveEntity(entity);
+            entity.GetCluster().RemoveEntity(horde, entity);
         }
     }
 }

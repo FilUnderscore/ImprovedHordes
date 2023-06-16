@@ -27,6 +27,7 @@ namespace ImprovedHordes.Core.World.Horde
         private HordeCharacteristics characteristics = new HordeCharacteristics();
         private HordeAIExecutor AIExecutor;
 
+        private int entityCount = 0; // Shared by main thread requests.
         private bool sleeping = false;
 
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density, entityCommandGenerator), randomFactory, commandGenerator) { }
@@ -88,7 +89,7 @@ namespace ImprovedHordes.Core.World.Horde
                 this.location = previousRequest.GetPosition();
                 previousRequest.GetDead().ForEach(deadEntity =>
                 {
-                    deadEntity.GetCluster().RemoveEntity(deadEntity);
+                    deadEntity.GetCluster().RemoveEntity(this, deadEntity);
                     deadEntity.GetCluster().NotifyDensityRemoved();
 
                     if (deadEntity.GetCluster().IsDead())
@@ -201,6 +202,16 @@ namespace ImprovedHordes.Core.World.Horde
         public bool IsSleeping()
         {
             return this.sleeping;
+        }
+
+        public int GetSpawnedHordeEntityCount()
+        {
+            return this.entityCount;
+        }
+
+        public void SetSpawnedHordeEntityCount(int entityCount)
+        {
+            this.entityCount = entityCount;
         }
 
         public void Cleanup(IRandomFactory<IWorldRandom> randomFactory)

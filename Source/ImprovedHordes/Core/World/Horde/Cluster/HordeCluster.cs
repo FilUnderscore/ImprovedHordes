@@ -67,7 +67,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnData, entity =>
             {
                 HordeClusterEntity clusterEntity = new HordeClusterEntity(this, entity, horde.GetCharacteristics());
-                this.AddEntity(clusterEntity);
+                this.AddEntity(horde, clusterEntity);
 
                 aiExecutor.AddEntity(clusterEntity, worldRandom, this.entityCommandGenerator, mainThreadRequestProcessor);
 
@@ -113,14 +113,18 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.density <= float.Epsilon;
         }
 
-        public void AddEntity(HordeClusterEntity entity)
+        public void AddEntity(WorldHorde worldHorde, HordeClusterEntity entity)
         {
+            worldHorde.SetSpawnedHordeEntityCount(worldHorde.GetSpawnedHordeEntityCount() + 1);
+
             this.entities.Add(entity);
             this.densityPerEntity = this.density / this.entities.Count;
         }
 
-        public void RemoveEntity(HordeClusterEntity entity) 
+        public void RemoveEntity(WorldHorde worldHorde, HordeClusterEntity entity) 
         {
+            worldHorde.SetSpawnedHordeEntityCount(worldHorde.GetSpawnedHordeEntityCount() - 1);
+
             this.entities.Remove(entity);
         }
 
