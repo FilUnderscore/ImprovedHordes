@@ -153,6 +153,12 @@ namespace ImprovedHordes.Core.World.Horde
                 }
             }
 
+            float otherHordeDensity = other.clusters.Sum(cluster => cluster.GetDensity());
+            float hordeDensity = this.clusters.Sum(cluster => cluster.GetDensity());
+
+            if (otherHordeDensity + hordeDensity > WorldHordeTracker.MAX_HORDE_DENSITY.Value)
+                return false;
+
             return true;
         }
 
