@@ -31,6 +31,11 @@ namespace ImprovedHordes.Command
                 {
                     foreach (var clusterEntry in clusters)
                     {
+#if !DEBUG
+                        if (clusterEntry.Value.Count == 0)
+                            continue;
+#endif
+
                         float totalClusterTypeDensity = 0.0f;
 
                         message += $"\n    {clusterEntry.Key.Name}: {clusterEntry.Value.Count}";
