@@ -34,7 +34,7 @@ namespace ImprovedHordes.POI
             this.spawnData = spawnData;
         }
 
-        public override bool CanPopulate(float dt, out Vector2 pos, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters, GameRandom random)
+        public override bool CanPopulate(float dt, out Vector2 pos, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, GameRandom random)
         {
             float randomX = random.RandomFloat * worldSize - worldSize / 2.0f;
             float randomY = random.RandomFloat * worldSize - worldSize / 2.0f;
@@ -60,13 +60,7 @@ namespace ImprovedHordes.POI
 
             // Check for nearby players.
             
-            if(!players.TryGet(out var playersList))
-            {
-                pos = Vector3.zero;
-                return false;
-            }    
-
-            Parallel.ForEach(playersList, player =>
+            Parallel.ForEach(players, player =>
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
@@ -78,14 +72,8 @@ namespace ImprovedHordes.POI
 
             if (!nearby)
             {
-                if(!clusters.TryGet(out var clustersDict))
-                {
-                    pos = Vector3.zero;
-                    return false;
-                }
-
                 // Check for nearby hordes.
-                Parallel.ForEach(clustersDict[typeof(Horde)], cluster =>
+                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 

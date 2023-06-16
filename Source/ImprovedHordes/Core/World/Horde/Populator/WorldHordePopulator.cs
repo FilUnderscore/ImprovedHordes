@@ -3,6 +3,7 @@ using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Populator
@@ -32,14 +33,33 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         {
         }
 
+        private float GetWorldHordeDensity(Dictionary<Type, List<ClusterSnapshot>> clusters)
+        {
+            float worldHordeDensity = 0.0f;
+
+            foreach(var clusterList in clusters.Values)
+            {
+                float clusterTypeWorldHordeDensity = clusterList.Sum(cluster => cluster.density);
+                worldHordeDensity += clusterTypeWorldHordeDensity;
+            }
+
+            return worldHordeDensity;
+        }
+
         protected override void UpdateAsyncVoid(float dt)
         {
+            if(!this.players.TryGet(out var players) || !this.clusters.TryGet(out var clusters))
+                return;
+
+            if (GetWorldHordeDensity(clusters) >= WorldHordeTracker.MAX_WORLD_DENSITY.Value)
+                return;
+
             foreach(var populator in this.populators)
             {
-                if (!populator.CanRun(this.players, this.clusters))
+                if (!populator.CanRun(players, clusters))
                     continue;
 
-                populator.Populate(dt, this.players, this.clusters, this.spawner, this.Random);
+                populator.Populate(dt, players, clusters, this.spawner, this.Random);
             }
         }
 

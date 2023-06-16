@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.AI;
 using ImprovedHordes.POI;
+using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy.POIZone
 {
@@ -23,7 +24,7 @@ namespace ImprovedHordes.Wandering.Enemy.POIZone
         {
             //int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude / 4);
             //return Mathf.CeilToInt(((float)maxRadius / zone.GetCount()) * zone.GetDensity());
-            return zone.GetCount();
+            return Mathf.CeilToInt(zone.GetCount() / zone.GetDensity());
         }
     }
 }

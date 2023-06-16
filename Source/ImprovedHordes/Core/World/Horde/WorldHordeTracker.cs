@@ -30,7 +30,7 @@ namespace ImprovedHordes.Core.World.Horde
         private readonly Setting<int> HORDE_CLUSTER_THREADS = new Setting<int>("max_cluster_threads", 2);
 
         public static readonly Setting<float> MAX_HORDE_DENSITY = new Setting<float>("max_horde_density", 10.0f);
-        private readonly Setting<float> MAX_WORLD_DENSITY = new Setting<float>("max_world_density", 160.0f);
+        public static readonly Setting<float> MAX_WORLD_DENSITY = new Setting<float>("max_world_density", 160.0f);
 
         public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 20);
 

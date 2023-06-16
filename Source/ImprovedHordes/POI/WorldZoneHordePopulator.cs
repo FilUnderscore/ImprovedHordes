@@ -23,7 +23,7 @@ namespace ImprovedHordes.POI
             this.scanner = scanner;
         }
 
-        public override bool CanRun(ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
+        public override bool CanRun(List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters)
         {
             return this.scanner.HasScanCompleted();
         }
@@ -42,7 +42,7 @@ namespace ImprovedHordes.POI
             return zones[random.RandomRange(zones.Count)];
         }
 
-        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters, GameRandom random)
+        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, GameRandom random)
         {
             WorldPOIScanner.POIZone randomZone = this.GetRandomZone(random);
 
@@ -65,14 +65,8 @@ namespace ImprovedHordes.POI
 
             bool nearby = false;
 
-            if(!players.TryGet(out var playersList))
-            {
-                zone = null;
-                return false;
-            }
-
             // Check for nearby players.
-            Parallel.ForEach(playersList, player =>
+            Parallel.ForEach(players, player =>
             {
                 if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                 {
@@ -82,14 +76,8 @@ namespace ImprovedHordes.POI
 
             if (!nearby)
             {
-                if(!clusters.TryGet(out var clustersDict))
-                {
-                    zone = null;
-                    return false;
-                }
-
                 // Check for nearby hordes.
-                Parallel.ForEach(clustersDict[typeof(Horde)], cluster =>
+                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
                     if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
                     {
