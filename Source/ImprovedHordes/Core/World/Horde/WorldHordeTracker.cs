@@ -219,130 +219,135 @@ namespace ImprovedHordes.Core.World.Horde
             return null;
         }
 
-        private int UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
+        private void UpdateHorde(WorldHorde horde, float dt, List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports)
         {
-            Parallel.ForEach(this.hordes, ParallelHordeOptions, horde =>
+            if (!horde.IsSpawned())
             {
-                if(!horde.IsSpawned())
+                PlayerHordeGroup playerHordeGroup = GetPlayerHordeGroupNear(players, horde);
+
+                if (playerHordeGroup != null)
                 {
-                    PlayerHordeGroup playerHordeGroup = GetPlayerHordeGroupNear(players, horde);
-                    
-                    if(playerHordeGroup != null)
+                    horde.RequestSpawns(this.spawner, playerHordeGroup, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
                     {
-                        horde.RequestSpawns(this.spawner, playerHordeGroup, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
-                        {
-                            if (entity != null)
-                                entitiesTracked.Add(entity.GetEntityId());
-                            else
-                                this.Logger.Warn("Failed to track horde entity when spawning.");
-                        });
-                    }
+                        if (entity != null)
+                            entitiesTracked.Add(entity.GetEntityId());
+                        else
+                            this.Logger.Warn("Failed to track horde entity when spawning.");
+                    });
                 }
-                else
+            }
+            else
+            {
+                bool anyNearby = false;
+
+                Parallel.ForEach(horde.GetClusters(), ParallelClusterOptions, cluster =>
                 {
-                    bool anyNearby = false;
-
-                    Parallel.ForEach(horde.GetClusters(), ParallelClusterOptions, cluster =>
+                    if (cluster.TryGetSpawnRequest(out var spawnRequest))
                     {
-                        if (cluster.TryGetSpawnRequest(out var spawnRequest))
+                        if (spawnRequest.State.TryGet(out var spawnState))
                         {
-                            if (spawnRequest.State.TryGet(out var spawnState))
+                            if (spawnState.complete && spawnState.spawned == 0) // Failed to spawn, despawn the horde and try again.
                             {
-                                if (spawnState.complete && spawnState.spawned == 0) // Failed to spawn, despawn the horde and try again.
+                                this.Logger.Warn("Failed to spawn horde cluster, retrying.");
+
+                                PlayerHordeGroup playerHordeGroup = GetPlayerHordeGroupNear(players, horde);
+
+                                if (playerHordeGroup != null)
                                 {
-                                    this.Logger.Warn("Failed to spawn horde cluster, retrying.");
-
-                                    PlayerHordeGroup playerHordeGroup = GetPlayerHordeGroupNear(players, horde);
-
-                                    if (playerHordeGroup != null)
+                                    cluster.SetSpawned(false);
+                                    horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
                                     {
-                                        cluster.SetSpawned(false);
-                                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
-                                        {
-                                            if (entity != null)
-                                                entitiesTracked.Add(entity.GetEntityId());
-                                            else
-                                                this.Logger.Warn("Failed to track horde entity when spawning.");
-                                        });
-                                    }
-
-                                    return;
-                                }
-                            }
-                        }
-
-                        foreach (var entity in cluster.GetEntities())
-                        {
-                            if (!entity.IsAwaitingSpawnStateChange())
-                            {
-                                IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
-                                {
-                                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
-                                    return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
-                                });
-
-                                anyNearby |= nearby.Any();
-
-                                if (entity.IsSpawned() && !nearby.Any())
-                                {
-                                    entity.RequestDespawn(this.LoggerFactory, this.mainThreadRequestProcessor, entityAlive =>
-                                    {
-                                        if (entityAlive == null || !entitiesTracked.TryRemove(entityAlive.GetEntityId()))
-                                            this.Logger.Warn("Failed to untrack horde entity when despawning.");
-                                    });
-                                }
-                                else if (!entity.IsSpawned() && nearby.Any())
-                                {
-                                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive =>
-                                    {
-                                        if (entityAlive != null)
-                                            entitiesTracked.Add(entityAlive.GetEntityId());
+                                        if (entity != null)
+                                            entitiesTracked.Add(entity.GetEntityId());
                                         else
                                             this.Logger.Warn("Failed to track horde entity when spawning.");
                                     });
                                 }
+
+                                return;
                             }
-                        }
-                    });
-
-                    if (!anyNearby)
-                        horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
-                }
-
-                if (horde.IsSpawned())
-                {
-                    horde.UpdatePosition(this.mainThreadRequestProcessor);
-                }
-
-                if (horde.IsDead())
-                {
-                    toRemove.Enqueue(horde);
-                }
-                else
-                {
-                    // Tick AI.
-
-                    HordeCharacteristics characteristics = horde.GetCharacteristics();
-
-                    if (characteristics.HasCharacteristic<SensitivityHordeCharacteristic>())
-                    {
-                        float sensitivity = characteristics.GetCharacteristic<SensitivityHordeCharacteristic>().GetSensitivity();
-
-                        IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
-                        {
-                            return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * sensitivity;
-                        });
-
-                        if (nearbyReports.Any())
-                        {
-                            // Interrupt AI to split off/target reported event.
-                            WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
-                            horde.Interrupt(new GoToTargetAICommand(nearbyEvent.GetLocation()));
                         }
                     }
 
-                    horde.Update(dt);
+                    foreach (var entity in cluster.GetEntities())
+                    {
+                        if (!entity.IsAwaitingSpawnStateChange())
+                        {
+                            IEnumerable<PlayerSnapshot> nearby = players.Where(player =>
+                            {
+                                float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                                return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
+                            });
+
+                            anyNearby |= nearby.Any();
+
+                            if (entity.IsSpawned() && !nearby.Any())
+                            {
+                                entity.RequestDespawn(this.LoggerFactory, this.mainThreadRequestProcessor, entityAlive =>
+                                {
+                                    if (entityAlive == null || !entitiesTracked.TryRemove(entityAlive.GetEntityId()))
+                                        this.Logger.Warn("Failed to untrack horde entity when despawning.");
+                                });
+                            }
+                            else if (!entity.IsSpawned() && nearby.Any())
+                            {
+                                entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive =>
+                                {
+                                    if (entityAlive != null)
+                                        entitiesTracked.Add(entityAlive.GetEntityId());
+                                    else
+                                        this.Logger.Warn("Failed to track horde entity when spawning.");
+                                });
+                            }
+                        }
+                    }
+                });
+
+                if (!anyNearby)
+                    horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
+            }
+
+            if (horde.IsSpawned())
+            {
+                horde.UpdatePosition(this.mainThreadRequestProcessor);
+            }
+
+            if (horde.IsDead())
+            {
+                toRemove.Enqueue(horde);
+            }
+            else
+            {
+                // Tick AI.
+
+                HordeCharacteristics characteristics = horde.GetCharacteristics();
+
+                if (characteristics.HasCharacteristic<SensitivityHordeCharacteristic>())
+                {
+                    float sensitivity = characteristics.GetCharacteristic<SensitivityHordeCharacteristic>().GetSensitivity();
+
+                    IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
+                    {
+                        return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * sensitivity;
+                    });
+
+                    if (nearbyReports.Any())
+                    {
+                        // Interrupt AI to split off/target reported event.
+                        WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
+                        horde.Interrupt(new GoToTargetAICommand(nearbyEvent.GetLocation()));
+                    }
                 }
+
+                horde.Update(dt);
+            }
+        }
+
+        private int UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
+        {
+            Parallel.ForEach(this.hordes, ParallelHordeOptions, horde =>
+            {
+                UpdateHorde(horde, dt, players, eventReports);
             });
 
             // Merge nearby hordes.
