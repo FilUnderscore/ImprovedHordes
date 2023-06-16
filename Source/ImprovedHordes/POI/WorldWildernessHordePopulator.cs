@@ -77,7 +77,7 @@ namespace ImprovedHordes.POI
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
-                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * 16)
+                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * 32)
                     {
                         nearby |= true;
                     }

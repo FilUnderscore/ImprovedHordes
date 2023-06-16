@@ -27,7 +27,7 @@ namespace ImprovedHordes.Wandering.Enemy.POIZone
                     state.SetWanderingState(WanderingEnemyAIState.WanderingState.MOVING);
 
                     // Set wander time once per zone.
-                    float wanderTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f;
+                    float wanderTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f + worldRandom.RandomRange(48) * 100.0f;
                     state.SetRemainingWanderTime(wanderTime);
 
                     break;

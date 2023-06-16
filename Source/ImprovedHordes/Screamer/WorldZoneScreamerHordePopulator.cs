@@ -20,7 +20,7 @@ namespace ImprovedHordes.Screamer
 
         public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone)
         {
-            return new GoToWorldZoneAICommandGenerator(this.scanner);
+            return new WorldZoneScreamerAICommandGenerator(zone);
         }
 
         protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
@@ -30,7 +30,7 @@ namespace ImprovedHordes.Screamer
 
         protected override float GetMinimumDensity()
         {
-            return 0.2f;
+            return 1.0f;
         }
     }
 }

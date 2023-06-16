@@ -1,39 +1,21 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
-using System;
 using UnityEngine;
 
 namespace ImprovedHordes.Screamer.Commands
 {
-    public sealed class ZoneWanderAICommand : AICommand
+    public sealed class ZoneWanderAICommand : GoToTargetAICommand
     {
-        private readonly WorldPOIScanner.POIZone zone;
-        private readonly Vector2 targetPos;
-
-        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone)
+        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone) : base(GetTarget(zone))
         {
-            this.zone = zone;
-            this.targetPos = this.zone.GetCenter() + this.zone.GetBounds().size.magnitude * GameManager.Instance.World.GetGameRandom().RandomInsideUnitCircle;
         }
 
-        public override bool CanExecute(IAIAgent agent)
+        private static Vector3 GetTarget(WorldPOIScanner.POIZone zone)
         {
-            return agent.GetTarget() == null || !(agent.GetTarget() is EntityPlayer);
-        }
+            Vector2 targetPos2 = zone.GetCenter() + zone.GetBounds().size.magnitude * GameManager.Instance.World.GetGameRandom().RandomOnUnitCircle;
+            float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y);
 
-        public override void Execute(IAIAgent agent, float dt)
-        {
-
-        }
-
-        public override int GetObjectiveScore(IAIAgent agent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsComplete(IAIAgent agent)
-        {
-            throw new NotImplementedException();
+            return new Vector3(targetPos2.x, y, targetPos2.y);
         }
     }
 }

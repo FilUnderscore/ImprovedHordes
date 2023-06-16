@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.AI.Commands
 {
-    public sealed class GoToTargetAICommand : AICommand
+    public class GoToTargetAICommand : AICommand
     {
         private const int MIN_DISTANCE_TO_TARGET = 10;
         private Vector3 target;
