@@ -12,6 +12,9 @@ using ImprovedHordes.Wandering.Enemy.POIZone;
 using ImprovedHordes.Core.Abstractions.Logging;
 using System;
 using ImprovedHordes.Implementations.World.Random;
+using ImprovedHordes.Core.Abstractions.Settings;
+using ImprovedHordes.Implementations.Settings;
+using ImprovedHordes.Implementations.Settings.Parsers;
 
 namespace ImprovedHordes
 {
@@ -20,6 +23,8 @@ namespace ImprovedHordes
         private static ImprovedHordesMod Instance;
 
         private readonly ILoggerFactory loggerFactory;
+        private ISettingLoader settingLoader;
+
         private ImprovedHordesCore core;
         private WorldPOIScanner poiScanner;
 
@@ -32,6 +37,10 @@ namespace ImprovedHordes
         {
             Instance = this;
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
+            XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile));
+
+            this.settingLoader.RegisterTypeParser<int>(new ImprovedHordesSettingTypeParserInt());
+            this.settingLoader.RegisterTypeParser<float>(new ImprovedHordesSettingTypeParserFloat());
 
             Harmony harmony = new Harmony("filunderscore.improvedhordes");
             harmony.PatchAll();
@@ -84,6 +93,8 @@ namespace ImprovedHordes
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
+
+            this.settingLoader.LoadSettings();
         }
 
         private static void GameStartDone()

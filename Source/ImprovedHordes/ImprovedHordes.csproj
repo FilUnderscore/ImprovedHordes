@@ -69,6 +69,10 @@
     <Compile Include="Command\ImprovedHordesVerboseSubcommand.cs" />
     <Compile Include="Core\Abstractions\Random\Random.cs" />
     <Compile Include="Core\Abstractions\Random\RandomFactory.cs" />
+    <Compile Include="Core\Abstractions\Settings\Setting.cs" />
+    <Compile Include="Core\Abstractions\Settings\SettingLoader.cs" />
+    <Compile Include="Core\Abstractions\Settings\SettingTypeParser.cs" />
+    <Compile Include="Core\Abstractions\Settings\SettingUpdatedEvent.cs" />
     <Compile Include="Core\Abstractions\World\Entity.cs" />
     <Compile Include="Core\Abstractions\World\EntitySpawner.cs" />
     <Compile Include="Core\Abstractions\Logging\Logger.cs" />
@@ -138,6 +142,9 @@
     <Compile Include="Core\ImprovedHordesCore.cs" />
     <Compile Include="IHExperimentalManager.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLogger.cs" />
+    <Compile Include="Implementations\Settings\ImprovedHordesSettingLoader.cs" />
+    <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserFloat.cs" />
+    <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserInt.cs" />
     <Compile Include="Implementations\World\ImprovedHordesEntity.cs" />
     <Compile Include="Implementations\World\ImprovedHordesEntitySpawner.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLoggerFactory.cs" />

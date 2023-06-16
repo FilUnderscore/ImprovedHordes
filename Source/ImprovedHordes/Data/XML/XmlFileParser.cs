@@ -47,5 +47,10 @@ namespace ImprovedHordes.Data.XML
             attributeValue = null;
             return false;
         }
+
+        public string GetValueAsString()
+        {
+            return this.self.Value;
+        }
     }
 }

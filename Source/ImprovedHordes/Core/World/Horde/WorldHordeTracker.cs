@@ -2,6 +2,7 @@
 using HarmonyLib;
 using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
@@ -22,16 +23,16 @@ namespace ImprovedHordes.Core.World.Horde
 {
     public sealed class WorldHordeTracker : MainThreadSynchronizedTask<int>
     {
-        private const int MERGE_DISTANCE_LOADED = 10;
-        private const int MERGE_DISTANCE_UNLOADED = 100;
+        private readonly Setting<int> MERGE_DISTANCE_LOADED = new Setting<int>("loaded_merge_distance", 10);
+        private readonly Setting<int> MERGE_DISTANCE_UNLOADED = new Setting<int>("unloaded_merge_distance", 100);
 
-        private const int HORDE_THREADS = 4;
-        private const int HORDE_CLUSTER_THREADS = 2;
+        private readonly Setting<int> HORDE_THREADS = new Setting<int>("max_horde_threads", 4);
+        private readonly Setting<int> HORDE_CLUSTER_THREADS = new Setting<int>("max_cluster_threads", 2);
 
-        private const float MAX_HORDE_DENSITY = 10.0f;
-        private const float MAX_WORLD_DENSITY = 160.0f;
+        private readonly Setting<float> MAX_HORDE_DENSITY = new Setting<float>("max_horde_density", 10.0f);
+        private readonly Setting<float> MAX_WORLD_DENSITY = new Setting<float>("max_world_density", 160.0f);
 
-        private const int MAX_ENTITIES_SPAWNED_PER_PLAYER = 20;
+        private readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 20);
 
         public static int MAX_VIEW_DISTANCE
         {
@@ -41,8 +42,8 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
-        private readonly ParallelOptions ParallelHordeOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_THREADS };
-        private readonly ParallelOptions ParallelClusterOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_CLUSTER_THREADS };
+        private ParallelOptions ParallelHordeOptions;
+        private ParallelOptions ParallelClusterOptions;
 
         public readonly struct PlayerSnapshot
         {
@@ -108,6 +109,19 @@ namespace ImprovedHordes.Core.World.Horde
 
             this.RegisterHordes();
             EntityAlive_canDespawn_Patch.Tracker = this;
+
+            HORDE_THREADS.OnSettingUpdated += HORDE_THREADS_OnSettingUpdated;
+            HORDE_CLUSTER_THREADS.OnSettingUpdated += HORDE_CLUSTER_THREADS_OnSettingUpdated;
+        }
+
+        private void HORDE_THREADS_OnSettingUpdated(object sender, EventArgs e)
+        {
+            ParallelHordeOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_THREADS.Value };
+        }
+
+        private void HORDE_CLUSTER_THREADS_OnSettingUpdated(object sender, EventArgs e)
+        {
+            ParallelClusterOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_CLUSTER_THREADS.Value };
         }
 
         private void RegisterHordes()
@@ -363,7 +377,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                         if (!otherHorde.IsDead())
                         {
-                            int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED : MERGE_DISTANCE_UNLOADED;
+                            int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED.Value : MERGE_DISTANCE_UNLOADED.Value;
 
                             bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
                             bool mergeChance = this.Random.RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
