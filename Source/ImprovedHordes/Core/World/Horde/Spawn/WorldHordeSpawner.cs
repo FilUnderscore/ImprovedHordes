@@ -47,9 +47,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, this.randomFactory, commandGenerator, entityCommandGenerator));
         }
 
-        public HordeClusterSpawnRequest RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData hordeSpawnData, Action<IEntity> onEntitySpawn)
+        public HordeClusterSpawnRequest RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData hordeSpawnData, Action<IEntity> onEntitySpawn, Action onSpawned)
         {
-            HordeClusterSpawnMainThreadRequest mainThreadRequest = new HordeClusterSpawnMainThreadRequest(this.loggerFactory, this.entitySpawner, horde, cluster, playerGroup, hordeSpawnData, onEntitySpawn);
+            HordeClusterSpawnMainThreadRequest mainThreadRequest = new HordeClusterSpawnMainThreadRequest(this.loggerFactory, this.entitySpawner, horde, cluster, playerGroup, hordeSpawnData, onEntitySpawn, onSpawned);
             this.mainThreadRequestProcessor.Request(mainThreadRequest);
 
             return mainThreadRequest.GetSpawnRequest();

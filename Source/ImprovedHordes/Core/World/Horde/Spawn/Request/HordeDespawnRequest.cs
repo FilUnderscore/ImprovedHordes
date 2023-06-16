@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
+using System;
 using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.Spawn.Request
@@ -10,7 +11,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly ILogger logger;
         private readonly Queue<HordeClusterEntity> entities = new Queue<HordeClusterEntity>();
 
-        public HordeDespawnRequest(ILoggerFactory loggerFactory, WorldHorde horde)
+        private readonly Action onDespawnedAction;
+
+        public HordeDespawnRequest(ILoggerFactory loggerFactory, WorldHorde horde, Action onDespawned)
         {
             this.logger = loggerFactory.Create(typeof(HordeDespawnRequest));
 
@@ -21,6 +24,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                     entities.Enqueue(entity);
                 }
             }
+
+            this.onDespawnedAction = onDespawned;
         }
 
         public bool IsDone()
@@ -30,6 +35,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         public void OnCleanup()
         {
+            if (this.onDespawnedAction != null)
+                this.onDespawnedAction.Invoke();
         }
 
         public void TickExecute(float dt)

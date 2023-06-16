@@ -268,7 +268,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                                 if (playerHordeGroup != null)
                                 {
-                                    cluster.SetSpawned(false);
+                                    cluster.SetSpawnState(Cluster.HordeCluster.SpawnState.DESPAWNED);
                                     horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
                                     {
                                         if (entity != null)

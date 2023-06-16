@@ -24,12 +24,14 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private int index;
 
         private readonly Action<IEntity> onSpawnAction;
+        private readonly Action onSpawnedAction;
+
         private readonly GameRandom random;
 
         private readonly ThreadSubscription<HordeClusterSpawnState> spawnState;
         private Vector3 hordeLocation;
 
-        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData spawnData, Action<IEntity> onSpawnAction)
+        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
         {
             this.logger = loggerFactory.Create(typeof(HordeClusterSpawnMainThreadRequest));
             this.spawner = spawner;
@@ -47,6 +49,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             this.index = 0;
 
             this.onSpawnAction = onSpawnAction;
+            this.onSpawnedAction = onSpawned;
+
             this.random = GameRandomManager.Instance.CreateGameRandom(GameManager.Instance.World.Seed + cluster.GetHashCode()); // Allocate a random for consistent hordes using a predictable seed (hash code in this case).
 
             this.spawnState = new ThreadSubscription<HordeClusterSpawnState>();
@@ -106,6 +110,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         public void OnCleanup()
         {
             GameRandomManager.Instance.FreeGameRandom(this.random);
+
+            if (this.onSpawnedAction != null)
+                this.onSpawnedAction.Invoke();
         }
 
         public void TickExecute(float dt)

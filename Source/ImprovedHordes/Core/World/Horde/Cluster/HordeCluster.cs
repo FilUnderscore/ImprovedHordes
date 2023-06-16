@@ -12,6 +12,13 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 {
     public sealed class HordeCluster
     {
+        public enum SpawnState
+        {
+            SPAWNED,
+            SPAWNING,
+            DESPAWNED
+        }
+
         private readonly IHorde horde;
         private HordeEntityGenerator previousHordeEntityGenerator;
 
@@ -21,7 +28,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
-        private bool spawned;
+        private SpawnState spawnState = SpawnState.DESPAWNED;
 
         public HordeCluster(IHorde horde, float density, IAICommandGenerator<EntityAICommand> entityCommandGenerator)
         {
@@ -47,8 +54,15 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public void RequestSpawn(WorldHorde horde, HordeSpawnData spawnData, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
         {
-            if (this.IsSpawned())
+            if (this.spawnState != SpawnState.DESPAWNED)
+            {
+                if(this.spawnState == SpawnState.SPAWNING)
+                {
+                    throw new InvalidOperationException("Cannot request horde cluster spawn when already spawning.");
+                }
+
                 return;
+            }
 
             this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnData, entity =>
             {
@@ -59,9 +73,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
                 if (onSpawn != null)
                     onSpawn(entity);
+            }, () =>
+            {
+                this.spawnState = SpawnState.SPAWNED;
             });
 
-            this.SetSpawned(true);
+            this.spawnState = SpawnState.SPAWNING;
         }
 
         public bool TryGetSpawnRequest(out HordeClusterSpawnRequest spawnRequest)
@@ -112,14 +129,14 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.entities;
         }
 
-        public void SetSpawned(bool spawned)
+        public void SetSpawnState(SpawnState spawnState)
         {
-            this.spawned = spawned;
+            this.spawnState = spawnState;
         }
 
-        public bool IsSpawned()
+        public SpawnState GetSpawnState()
         {
-            return this.spawned;
+            return this.spawnState;
         }
 
         public int GetEntitiesSpawned()

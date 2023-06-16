@@ -69,10 +69,11 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void Despawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this));
-
-            this.clusters.ForEach(cluster => cluster.SetSpawned(false));
-            this.AIExecutor.NotifyEntities(false, null);
+            mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this, () =>
+            {
+                this.clusters.ForEach(cluster => cluster.SetSpawnState(HordeCluster.SpawnState.DESPAWNED));
+                this.AIExecutor.NotifyEntities(false, null);
+            }));
         }
 
         private HordeUpdateRequest previousRequest;
@@ -106,7 +107,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         public bool IsSpawned()
         {
-            return this.clusters.Any(cluster => cluster.IsSpawned());
+            return this.clusters.Any(cluster => cluster.GetSpawnState() != HordeCluster.SpawnState.DESPAWNED);
         }
 
         private void AddClusters(List<HordeCluster> clusters)
