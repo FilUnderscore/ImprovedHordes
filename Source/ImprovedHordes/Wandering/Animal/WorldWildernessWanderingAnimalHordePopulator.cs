@@ -6,7 +6,7 @@ namespace ImprovedHordes.Wandering.Animal
 {
     public sealed class WorldWildernessWanderingAnimalHordePopulator : WorldWildernessHordePopulator<WanderingAnimalHorde>
     {
-        public WorldWildernessWanderingAnimalHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, 32)
+        public WorldWildernessWanderingAnimalHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, 64)
         {
         }
 
