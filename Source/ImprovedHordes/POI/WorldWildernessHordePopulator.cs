@@ -1,5 +1,4 @@
 ﻿using ImprovedHordes.Core.AI;
-using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
@@ -13,10 +12,15 @@ namespace ImprovedHordes.POI
 {
     public class WorldWildernessHordePopulator<Horde> : HordePopulator<Vector2> where Horde : IHorde
     {
+        private const ulong RESPAWN_DELAY = 24000 * 7;
+
         private readonly float worldSize;
         protected readonly WorldPOIScanner scanner;
 
         private readonly HordeSpawnData spawnData;
+        private readonly int sparsityFactor;
+
+        private readonly Dictionary<Vector2i, ulong> lastSpawned = new Dictionary<Vector2i, ulong>();
 
         private int MAX_VIEW_DISTANCE_SQUARED
         {
@@ -26,12 +30,21 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData)
+        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData, int sparsityFactor)
         {
             this.worldSize = worldSize;
             this.scanner = scanner;
 
             this.spawnData = spawnData;
+            this.sparsityFactor = sparsityFactor;
+        }
+
+        private Vector2i GetRegionFromPosition(Vector2 pos)
+        {
+            int regionX = Mathf.FloorToInt(pos.x / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 8)));
+            int regionY = Mathf.FloorToInt(pos.y / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 8)));
+
+            return new Vector2i(regionX, regionY);
         }
 
         public override bool CanPopulate(float dt, out Vector2 pos, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, GameRandom random)
@@ -40,6 +53,18 @@ namespace ImprovedHordes.POI
             float randomY = random.RandomFloat * worldSize - worldSize / 2.0f;
 
             Vector2 randomWorldPos = new Vector2(randomX, randomY);
+
+            // Check if any hordes spawned in this area recently.
+            if (lastSpawned.TryGetValue(GetRegionFromPosition(randomWorldPos), out ulong spawnTime))
+            {
+                ulong worldTime = GameManager.Instance.World.worldTime;
+
+                if (worldTime - spawnTime < RESPAWN_DELAY)
+                {
+                    pos = Vector2.zero;
+                    return false;
+                }
+            }
 
             bool inZone = false;
             Parallel.ForEach(this.scanner.GetZones(), zone =>
@@ -64,7 +89,7 @@ namespace ImprovedHordes.POI
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
-                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
+                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * (sparsityFactor / 2))
                 {
                     nearby |= true;
                 }
@@ -77,7 +102,7 @@ namespace ImprovedHordes.POI
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
-                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * 32)
+                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * sparsityFactor)
                     {
                         nearby |= true;
                     }
@@ -92,6 +117,20 @@ namespace ImprovedHordes.POI
         {
             float density = random.RandomFloat;
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(), CreateEntityAICommandGenerator());
+
+            // Respawn delay for this region.
+            ulong worldTime = GameManager.Instance.World.worldTime;
+
+            Vector2i region = GetRegionFromPosition(pos);
+
+            if (!lastSpawned.ContainsKey(region))
+            {
+                lastSpawned.Add(region, worldTime);
+            }
+            else
+            {
+                lastSpawned[region] = worldTime;
+            }
         }
 
         public virtual IAICommandGenerator<AICommand> CreateHordeAICommandGenerator()
