@@ -23,6 +23,8 @@ namespace ImprovedHordes
     {
         private static ImprovedHordesMod Instance;
 
+        private Mod modInstance;
+
         private readonly Harmony harmony;
         private readonly ILoggerFactory loggerFactory;
         private ISettingLoader settingLoader;
@@ -39,6 +41,7 @@ namespace ImprovedHordes
         public void InitMod(Mod _modInstance)
         {
             Instance = this;
+            Instance.modInstance = _modInstance;
 
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile));
@@ -86,7 +89,7 @@ namespace ImprovedHordes
                 ModEvents.GameShutdown.RegisterHandler(GameShutdown);
 
 #if EXPERIMENTAL
-            new IHExperimentalManager(_modInstance);
+            new IHExperimentalManager(this.modInstance);
 #endif
             }
             else
