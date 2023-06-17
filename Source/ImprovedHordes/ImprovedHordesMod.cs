@@ -23,6 +23,7 @@ namespace ImprovedHordes
     {
         private static ImprovedHordesMod Instance;
 
+        private readonly Harmony harmony;
         private readonly ILoggerFactory loggerFactory;
         private ISettingLoader settingLoader;
 
@@ -31,28 +32,21 @@ namespace ImprovedHordes
 
         public ImprovedHordesMod()
         {
+            this.harmony = new Harmony("filunderscore.improvedhordes");
             this.loggerFactory = new ImprovedHordesLoggerFactory();
         }
 
         public void InitMod(Mod _modInstance)
         {
             Instance = this;
+
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile));
 
             this.settingLoader.RegisterTypeParser<int>(new ImprovedHordesSettingTypeParserInt());
             this.settingLoader.RegisterTypeParser<float>(new ImprovedHordesSettingTypeParserFloat());
 
-            Harmony harmony = new Harmony("filunderscore.improvedhordes");
-            harmony.PatchAll();
-
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
-            ModEvents.GameUpdate.RegisterHandler(GameUpdate);
-            ModEvents.GameShutdown.RegisterHandler(GameShutdown);
-
-#if EXPERIMENTAL
-            new IHExperimentalManager(_modInstance);
-#endif
         }
 
         public static bool TryGetInstance(out ImprovedHordesMod instance)
@@ -82,8 +76,36 @@ namespace ImprovedHordes
             return maxSize.x - minSize.x;
         }
 
+        private void Patch(bool patch)
+        {
+            if(patch)
+            {
+                harmony.PatchAll();
+
+                ModEvents.GameUpdate.RegisterHandler(GameUpdate);
+                ModEvents.GameShutdown.RegisterHandler(GameShutdown);
+
+#if EXPERIMENTAL
+            new IHExperimentalManager(_modInstance);
+#endif
+            }
+            else
+            {
+                harmony.UnpatchSelf();
+
+                ModEvents.GameUpdate.UnregisterHandler(GameUpdate);
+                ModEvents.GameShutdown.UnregisterHandler(GameShutdown);
+            }
+        }
+
         private void InitializeCore(World world)
         {
+            if (!SingletonMonoBehaviour<ConnectionManager>.Instance.IsServer)
+                return;
+
+            // Patch patches / register game event handlers.
+            this.Patch(true);
+
             int worldSize = GetWorldSize(world);
 
             core = new ImprovedHordesCore(worldSize, this.loggerFactory, new ImprovedHordesWorldRandomFactory(worldSize, world), new ImprovedHordesEntitySpawner(), world);
@@ -119,6 +141,9 @@ namespace ImprovedHordes
 
             Instance.core.Shutdown();
             Instance.core = null;
+
+            // Unpatch all patches / unregister all game event handlers.
+            Instance.Patch(false);
         }
 
         [HarmonyPatch(typeof(World))]
