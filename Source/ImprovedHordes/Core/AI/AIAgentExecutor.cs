@@ -33,6 +33,8 @@ namespace ImprovedHordes.Core.AI
             Log.Out($"{typeof(AgentType).Name} Agent completed command {Command.Command.GetType().Name}");
 #endif
 
+            this.Command.Command.OnCompleted(this.Agent);
+
             if(this.Command.OnComplete != null)
                 this.Command.OnComplete.Invoke(this.Command.Command);
 
@@ -41,8 +43,13 @@ namespace ImprovedHordes.Core.AI
 
         public void SetCommand(GeneratedAICommand<AICommand> command)
         {
-            if(this.Command != null && this.Command.OnInterrupt != null)
-                this.Command.OnInterrupt.Invoke(this.Command.Command);
+            if (this.Command != null)
+            {
+                this.Command.Command.OnInterrupted(this.Agent);
+
+                if(this.Command.OnInterrupt != null)
+                    this.Command.OnInterrupt.Invoke(this.Command.Command);
+            }
 
             this.Command = command;
         }

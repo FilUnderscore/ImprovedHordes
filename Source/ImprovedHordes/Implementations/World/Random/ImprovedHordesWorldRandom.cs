@@ -50,5 +50,10 @@ namespace ImprovedHordes.Implementations.World.Random
         {
             return this.random;
         }
+
+        public bool RandomChance(float pct)
+        {
+            return this.random.RandomFloat <= pct;
+        }
     }
 }

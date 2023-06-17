@@ -169,6 +169,7 @@
     <Compile Include="Wandering\Animal\Enemy\WanderingAnimalEnemyHorde.cs" />
     <Compile Include="Wandering\Animal\WanderingAnimalHorde.cs" />
     <Compile Include="Wandering\Enemy\WanderingEnemyHorde.cs" />
+    <Compile Include="Wandering\Enemy\Wilderness\WorldWildernessWanderingEnemyAICommandGenerator.cs" />
     <Compile Include="Wandering\Enemy\Wilderness\WorldWildernessWanderingEnemyHordePopulator.cs" />
     <Compile Include="Wandering\Enemy\Zone\WorldZoneWanderingEnemyAICommandGenerator.cs" />
     <Compile Include="Wandering\Enemy\Zone\WorldZoneWanderingEnemyHordePopulator.cs" />

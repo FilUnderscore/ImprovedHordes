@@ -14,7 +14,7 @@ namespace ImprovedHordes.Data
             this.definition = HordesFromXml.GetHordeDefinition(type);
         }
 
-        public bool CanMergeWith(IHorde other)
+        public virtual bool CanMergeWith(IHorde other)
         {
             if (other.GetType().Equals(this.GetType())) // Same horde types at runtime should always be able to merge together.
                 return true;

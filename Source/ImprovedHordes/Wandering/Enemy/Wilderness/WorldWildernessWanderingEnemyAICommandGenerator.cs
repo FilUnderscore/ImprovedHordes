@@ -3,31 +3,39 @@ using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
 
-namespace ImprovedHordes.Wandering.Enemy.POIZone
+namespace ImprovedHordes.Wandering.Enemy.Wilderness
 {
-    public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
+    public sealed class WorldWildernessWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
-        private readonly WorldPOIScanner scanner;
-        
-        public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner) : base(new WanderingEnemyAIState())
+        private readonly WorldPOIScanner worldPOIScanner;
+
+        public WorldWildernessWanderingEnemyAICommandGenerator(WorldPOIScanner worldPOIScanner) : base(new WanderingEnemyAIState())
         {
-            this.scanner = scanner;
+            this.worldPOIScanner = worldPOIScanner;
         }
 
         protected override bool GenerateNextCommandFromState(WanderingEnemyAIState state, IWorldRandom worldRandom, out GeneratedAICommand<AICommand> command)
         {
-            switch (state.GetWanderingState())
+            switch(state.GetWanderingState())
             {
                 case WanderingEnemyAIState.WanderingState.IDLE:
-                    // Set next zone target and begin moving.
-                    var zones = this.scanner.GetZones();
-                    var zone = worldRandom.Random(zones);
+                    // Set next target zone / location.
+                    bool zoneOrWild = worldRandom.RandomChance(0.1f);
 
-                    state.SetTargetZone(zone);
+                    if(zoneOrWild)
+                    {
+                        var zone = worldRandom.Random(this.worldPOIScanner.GetZones());
+
+                        state.SetTargetZone(zone);
+                    }
+                    else
+                    {
+                        state.SetTargetLocation(worldRandom.RandomLocation3);
+                    }
+
                     state.SetWanderingState(WanderingEnemyAIState.WanderingState.MOVING);
 
-                    // Set wander time once per zone.
-                    float wanderTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f + worldRandom.RandomRange(48) * 100.0f;
+                    float wanderTime = 100.0f + worldRandom.RandomRange(48) * 100.0f;
                     state.SetRemainingWanderTime(wanderTime);
 
                     command = new GeneratedAICommand<AICommand>(new SleepingAICommand(wanderTime));
@@ -46,13 +54,13 @@ namespace ImprovedHordes.Wandering.Enemy.POIZone
 
                     return true;
                 case WanderingEnemyAIState.WanderingState.MOVING:
-                    // Continue moving to zone.
+                    // Continue moving to zone / location.
                     break;
             }
 
             if(state.GetWanderingState() != WanderingEnemyAIState.WanderingState.WANDER)
             {
-                if (state.GetTargetZone() == null)
+                if(state.GetTargetZone() == null && state.GetTargetLocation() == null)
                 {
                     state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);
 
@@ -61,10 +69,26 @@ namespace ImprovedHordes.Wandering.Enemy.POIZone
                 }
                 else
                 {
-                    var zone = state.GetTargetZone();
-                    var zoneTargetCommand = new GoToTargetAICommand(zone.GetBounds().center);
+                    GoToTargetAICommand targetCommand;
 
-                    command = new GeneratedAICommand<AICommand>(zoneTargetCommand, (_) =>
+                    if(state.GetTargetZone() != null)
+                    {
+                        var zone = state.GetTargetZone();
+                        targetCommand = new GoToTargetAICommand(zone.GetBounds().center);
+                    }
+                    else if(state.GetTargetLocation() != null)
+                    {
+                        var location = state.GetTargetLocation().Value;
+                        targetCommand = new GoToTargetAICommand(location);
+                    }
+                    else
+                    {
+                        // This should never be reached.
+                        command = null;
+                        return false;
+                    }
+
+                    command = new GeneratedAICommand<AICommand>(targetCommand, (_) =>
                     {
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.WANDER);
                     });

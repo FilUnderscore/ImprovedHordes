@@ -28,6 +28,9 @@ namespace ImprovedHordes.Core.AI
 
         public abstract bool IsComplete(IAIAgent agent);
 
+        public virtual void OnInterrupted(IAIAgent agent) { }
+        public virtual void OnCompleted(IAIAgent agent) { }
+
         public abstract int GetObjectiveScore(IAIAgent agent);
 
         public bool HasExpired()

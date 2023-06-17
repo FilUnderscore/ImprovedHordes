@@ -12,7 +12,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
 
         public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator()
         {
-            return new GoToWorldZoneAICommandGenerator(this.scanner);
+            return new WorldWildernessWanderingEnemyAICommandGenerator(this.scanner);
         }
     }
 }

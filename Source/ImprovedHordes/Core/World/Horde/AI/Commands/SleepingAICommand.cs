@@ -4,6 +4,13 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 {
     public sealed class SleepingAICommand : AICommand
     {
+        private float sleepTime;
+
+        public SleepingAICommand(float sleepTime)
+        {
+            this.sleepTime = sleepTime;
+        }
+
         public override bool CanExecute(IAIAgent agent)
         {
             return true;
@@ -11,6 +18,8 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override void Execute(IAIAgent agent, float dt)
         {
+            sleepTime -= dt;
+
             if (agent.IsSleeping())
                 return;
 
@@ -19,12 +28,24 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override int GetObjectiveScore(IAIAgent agent)
         {
-            return 0;
+            return (int)this.sleepTime * 10;
         }
 
         public override bool IsComplete(IAIAgent agent)
         {
-            return agent.GetTarget() != null;
+            return sleepTime <= 0.0f || agent.GetTarget() != null;
+        }
+
+        public override void OnInterrupted(IAIAgent agent)
+        {
+            if(agent.IsSleeping())
+                agent.WakeUp();
+        }
+
+        public override void OnCompleted(IAIAgent agent)
+        {
+            if(agent.IsSleeping())
+                agent.WakeUp();
         }
     }
 }
