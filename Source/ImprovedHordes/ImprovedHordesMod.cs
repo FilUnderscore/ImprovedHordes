@@ -15,6 +15,7 @@ using ImprovedHordes.Implementations.World.Random;
 using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Implementations.Settings;
 using ImprovedHordes.Implementations.Settings.Parsers;
+using ImprovedHordes.Wandering.Animal.Enemy;
 
 namespace ImprovedHordes
 {
@@ -93,6 +94,7 @@ namespace ImprovedHordes
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
+            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
 
             this.settingLoader.LoadSettings();
         }

@@ -162,6 +162,8 @@
     <Compile Include="Screamer\ScreamerHorde.cs" />
     <Compile Include="Screamer\WorldZoneScreamerAICommandGenerator.cs" />
     <Compile Include="Screamer\WorldZoneScreamerHordePopulator.cs" />
+    <Compile Include="Wandering\Animal\Enemy\WorldWildernessWanderingAnimalEnemyAICommandGenerator.cs" />
+    <Compile Include="Wandering\Animal\Enemy\WorldWildernessWanderingAnimalEnemyHordePopulator.cs" />
     <Compile Include="Wandering\Animal\WanderingAnimalAIState.cs" />
     <Compile Include="Wandering\Animal\WorldWildernessWanderingAnimalAICommandGenerator.cs" />
     <Compile Include="Wandering\Animal\WorldWildernessWanderingAnimalHordePopulator.cs" />

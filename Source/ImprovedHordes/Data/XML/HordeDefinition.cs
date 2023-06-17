@@ -37,6 +37,9 @@ namespace ImprovedHordes.Data.XML
         {
             IEnumerable<Group> eligibleGroups = groups.Where(group => group.IsEligible(playerGroup));
 
+            if (eligibleGroups.Count() == 0) // Try again while ignoring chances.
+                eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, true));
+
             if (eligibleGroups.Count() == 0)
                 return null;
 

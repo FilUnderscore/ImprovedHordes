@@ -85,7 +85,7 @@
 	</horde>
 	
 	<horde type="screamer">
-		<!-- Define list of hordes that this horde can merge with. Hordes of the same type can merge. -->
+		<!-- Define list of hordes that this horde can merge with. Hordes of the same type can usually merge. Screamers are an exception. -->
 		<merge>
 			<horde type="wandering_enemy"/>
 		</merge>
