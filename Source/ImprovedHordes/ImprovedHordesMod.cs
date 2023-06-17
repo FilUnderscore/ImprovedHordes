@@ -8,7 +8,7 @@ using ImprovedHordes.POI;
 using ImprovedHordes.Screamer;
 using ImprovedHordes.Wandering.Animal;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
-using ImprovedHordes.Wandering.Enemy.POIZone;
+using ImprovedHordes.Wandering.Enemy.Zone;
 using ImprovedHordes.Core.Abstractions.Logging;
 using System;
 using ImprovedHordes.Implementations.World.Random;

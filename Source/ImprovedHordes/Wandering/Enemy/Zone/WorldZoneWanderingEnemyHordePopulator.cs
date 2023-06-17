@@ -2,7 +2,7 @@
 using ImprovedHordes.POI;
 using UnityEngine;
 
-namespace ImprovedHordes.Wandering.Enemy.POIZone
+namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyHordePopulator : WorldZoneHordePopulator<WanderingEnemyHorde>
     {

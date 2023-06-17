@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ImprovedHordes.POI
@@ -7,6 +8,8 @@ namespace ImprovedHordes.POI
     public sealed class WorldPOIScanner
     {
         private readonly Core.Abstractions.Logging.ILogger logger;
+
+        private static int HIGHEST_COUNT;
 
         private readonly List<POI> pois = new List<POI>();
         private readonly List<POIZone> zones = new List<POIZone>();
@@ -105,6 +108,7 @@ namespace ImprovedHordes.POI
             }
 
             zones.AddRange(poiZones);
+            HIGHEST_COUNT = zones.Max(zone => zone.GetCount());
         }
 
         public List<POIZone> GetZones()
@@ -198,7 +202,7 @@ namespace ImprovedHordes.POI
 
             public float GetDensity()
             {
-                return this.GetAverageWeight() * this.GetCount();
+                return ((float)this.GetCount() / HIGHEST_COUNT) * this.GetAverageWeight();
             }
         }
 

@@ -6,7 +6,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
 {
     public sealed class WorldWildernessWanderingEnemyHordePopulator : WorldWildernessHordePopulator<WanderingEnemyHorde>
     {
-        public WorldWildernessWanderingEnemyHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, 32)
+        public WorldWildernessWanderingEnemyHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, 16)
         {
         }
 
