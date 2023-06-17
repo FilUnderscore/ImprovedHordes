@@ -1,7 +1,7 @@
 <!-- Settings for Improved Hordes. -->
 <improved_hordes>
 	<!-- Entity Spawn Limit -->
-	<max_entities_spawned_per_player>20</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
+	<max_entities_spawned_per_player>16</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
 
 	<!-- Threading -->
 	<max_horde_threads>4</max_horde_threads> <!-- Number of threads to use for Horde updates. -->
