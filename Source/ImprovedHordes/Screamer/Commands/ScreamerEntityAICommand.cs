@@ -33,7 +33,7 @@ namespace ImprovedHordes.Screamer.Commands
                 entity.PlaySound(entity.GetAlertSound());
                 this.worldEventReporter.Report(new WorldEvent(entity.GetLocation(), 33f));
 
-                screamTicks = SCREAM_DELAY * (screamCount + 1);
+                screamTicks = SCREAM_DELAY * (screamCount + 1) * (screamCount + 2);
                 screamCount = screamCount % 3;
             }
             else
