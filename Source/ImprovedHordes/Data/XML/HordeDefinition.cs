@@ -162,7 +162,10 @@ namespace ImprovedHordes.Data.XML
                 {
                     int groupGS = playerGroup.GetGamestage();
 
-                    return groupGS >= this.min && groupGS < this.max;
+                    if(this.max != null && groupGS >= this.max)
+                        return false;
+
+                    return groupGS >= this.min;
                 }
             }
 
