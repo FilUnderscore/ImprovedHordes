@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using HarmonyLib;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Event;
 using ImprovedHordes.POI;
 
@@ -31,6 +32,17 @@ namespace ImprovedHordes.Screamer
         protected override float GetMinimumDensity()
         {
             return 0.5f;
+        }
+
+        [HarmonyPatch(typeof(AIDirectorChunkEventComponent))]
+        [HarmonyPatch("SpawnScouts")]
+        class AIDirectorChunkEventComponent_SpawnScouts_Patch
+        {
+            static bool Prefix()
+            {
+                // Prevent default scout horde from spawning.
+                return false;
+            }
         }
     }
 }
