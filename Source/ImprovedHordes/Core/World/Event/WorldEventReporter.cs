@@ -166,7 +166,7 @@ namespace ImprovedHordes.Core.World.Event
 
             static void Postfix(AIDirectorChunkEvent _chunkEvent)
             {
-                WorldEventReporter.Report(new WorldEvent(_chunkEvent.Position, _chunkEvent.Value * 5));
+                WorldEventReporter.Report(new WorldEvent(_chunkEvent.Position, _chunkEvent.Value));
             }
         }
     }
