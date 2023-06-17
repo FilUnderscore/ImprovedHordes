@@ -8,7 +8,7 @@
 	<max_cluster_threads>2</max_cluster_threads> <!-- Number of threads to use for loaded Horde Cluster updates. -->
 	
 	<!-- World Spawn Limits -->
-	<max_horde_density>10.0</max_horde_density> <!-- Max Horde Density per Horde. -->
+	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. -->
 	<max_world_density>500.0</max_world_density> <!-- Max World Horde Density. -->
 	
 	<!-- Horde Merge Distances -->
