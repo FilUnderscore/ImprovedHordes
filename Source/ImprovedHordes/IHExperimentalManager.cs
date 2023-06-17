@@ -6,6 +6,7 @@ namespace ImprovedHordes
         private const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
 
         private static string VERSION;
+        private static string EXPERIMENTAL_VERSION = "-alpha.1";
 
         public IHExperimentalManager(Mod _modInstance)
         {
@@ -19,8 +20,8 @@ namespace ImprovedHordes
             // Post on first player login.
             ModEvents.PlayerSpawnedInWorld.UnregisterHandler(PlayerSpawnedInWorld);
 
-            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"{VERSION} Experimental Build.", "Improved Hordes", false, null);
-            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"Please report any bugs/performance issues at - {ISSUE_REPORT_URL}", "Improved Hordes", false, null);
+            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"{VERSION + EXPERIMENTAL_VERSION} Experimental Build.", "Improved Hordes", false, null);
+            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, $"Please report any bugs/performance issues at {ISSUE_REPORT_URL}", "Improved Hordes", false, null);
         }
     }
 }
