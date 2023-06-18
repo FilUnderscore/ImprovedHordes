@@ -127,12 +127,10 @@ namespace ImprovedHordes.Data.XML
                     {
                         return GetCountRelativeToMinMax(gs, minCount, maxCount);
                     }
-                    else if(this.max == null && this.increaseEvery == null)
+                    else
                     {
                         return GetCountRandom(minCount, maxCount);
                     }
-
-                    throw new Exception("[Improved Hordes] GS must have either a defined max attribute or increaseEvery attribute.");
                 }
 
                 private int GetCountRelativeToMinIncrease(int gs, int minCount, int maxCount)
