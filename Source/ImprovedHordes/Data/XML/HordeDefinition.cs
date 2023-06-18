@@ -127,6 +127,10 @@ namespace ImprovedHordes.Data.XML
                     {
                         return GetCountRelativeToMinMax(gs, minCount, maxCount);
                     }
+                    else if(this.max == null && this.increaseEvery == null)
+                    {
+                        return GetCountRandom(minCount, maxCount);
+                    }
 
                     throw new Exception("[Improved Hordes] GS must have either a defined max attribute or increaseEvery attribute.");
                 }
@@ -134,6 +138,11 @@ namespace ImprovedHordes.Data.XML
                 private int GetCountRelativeToMinIncrease(int gs, int minCount, int maxCount)
                 {
                     return Mathf.Clamp(minCount + Mathf.RoundToInt((1f / this.increaseEvery.Value) * (gs - min)), minCount, maxCount);
+                }
+
+                private int GetCountRandom(int minCount, int maxCount)
+                {
+                    return GameManager.Instance.World.GetGameRandom().RandomRange(maxCount - minCount) + minCount;
                 }
 
                 private int GetCountRelativeToMinMax(int gs, int minCount, int maxCount)
