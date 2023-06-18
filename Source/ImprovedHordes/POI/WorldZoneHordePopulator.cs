@@ -18,6 +18,14 @@ namespace ImprovedHordes.POI
 
         protected readonly WorldPOIScanner scanner;
         
+        private int MAX_VIEW_DISTANCE_SQUARED
+        {
+            get
+            {
+                return WorldHordeTracker.MAX_VIEW_DISTANCE * WorldHordeTracker.MAX_VIEW_DISTANCE;
+            }
+        }
+
         public WorldZoneHordePopulator(WorldPOIScanner scanner)
         {
             this.scanner = scanner;
@@ -68,7 +76,7 @@ namespace ImprovedHordes.POI
             // Check for nearby players.
             Parallel.ForEach(players, player =>
             {
-                if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
+                if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
                 {
                     nearby |= true;
                 }
@@ -79,7 +87,7 @@ namespace ImprovedHordes.POI
                 // Check for nearby hordes.
                 Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
-                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
+                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
                     {
                         nearby |= true;
                     }

@@ -13,5 +13,5 @@
 	
 	<!-- Horde Merge Distances -->
 	<loaded_merge_distance>10</loaded_merge_distance>
-	<unloaded_merge_distance>100</unloaded_merge_distance>
+	<unloaded_merge_distance>50</unloaded_merge_distance>
 </improved_hordes>
