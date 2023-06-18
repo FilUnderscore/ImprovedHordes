@@ -6,7 +6,7 @@ namespace ImprovedHordes
         private const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
 
         private static string VERSION;
-        private static string EXPERIMENTAL_VERSION = "-alpha.1";
+        private static string EXPERIMENTAL_VERSION = "-alpha.2";
 
         public IHExperimentalManager(Mod _modInstance)
         {
