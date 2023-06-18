@@ -120,7 +120,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if (GetWorldEntitiesAlive() >= GetMaxAllowedWorldEntitiesAlive()) // World is currently overpopulated, so skip this update.
                 return;
 
-            if (this.horde.GetSpawnedHordeEntityCount() >= WorldHordeTracker.MAX_ENTITIES_SPAWNED_PER_PLAYER.Value * this.playerGroup.GetCount()) // Cannot exceed the max number of entities per player for performance reasons.
+            int MAX_ENTITIES_SPAWNED_PER_PLAYER = WorldHordeTracker.MAX_ENTITIES_SPAWNED_PER_PLAYER.Value;
+
+            if (MAX_ENTITIES_SPAWNED_PER_PLAYER > -1 && this.horde.GetSpawnedHordeEntityCount() >= MAX_ENTITIES_SPAWNED_PER_PLAYER * this.playerGroup.GetCount()) // Cannot exceed the max number of entities per player for performance reasons.
                 return;
 
             Vector3 spawnTargetLocation = this.hordeLocation;
