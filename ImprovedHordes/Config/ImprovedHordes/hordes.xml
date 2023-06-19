@@ -4,29 +4,29 @@
 		<merge />
 		<groups> <!-- Define possible groups for wandering hordes-->
 			<group name="Zombies">
-				<gs min="0" max="165"> <!-- 3 zombies @ GS 0, 20 zombies @ GS 55 (1/3 of 165), 10 zombies @ GS 110 (2/3 of 165), 0 zombies @ GS 165+ -->
-					<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="3" maxCount="20"/>
-					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="3" maxCount="20"/>
+				<gs min="0" increaseEvery="3"> <!-- 3 zombies @ GS 0, 20 zombies @ GS 55 (1/3 of 165), 10 zombies @ GS 110 (2/3 of 165), 0 zombies @ GS 165+ -->
+					<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="3" maxCount="15"/>
+					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="3" maxCount="15"/>
 			
-					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="3" maxCount="20"/>
-					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="3" maxCount="20"/>
+					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesAll" minCount="3" maxCount="15"/>
+					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="ZombiesNight" minCount="3" maxCount="15"/>
 				</gs>
 				
-				<gs min="50" max="285">
-					<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="1" maxCount="20"/>
-					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="20"/>
+				<gs min="48" increaseEvery="8">
+					<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="1" maxCount="15"/>
+					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="15"/>
 				
-					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="20"/>
-					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="20"/>
+					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="15"/>
+					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="15"/>
 				</gs>
 				
 				<!-- Radiated Zombies -->
 				<gs min="165" increaseEvery="5">
-					<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="40"/>
-					<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="40"/>
+					<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="20"/>
+					<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="20"/>
 				
-					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="40"/>
-					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="40"/>
+					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="20"/>
+					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="20"/>
 				</gs>
 			</group>
 		</groups>
