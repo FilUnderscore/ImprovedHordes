@@ -35,16 +35,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             this.Spawn<Horde, HordeSpawn>(spawn, spawnData, 1.0f, commandGenerator, entityCommandGenerator);
         }
 
-        private float DetermineBiomeDensity(Vector2 location)
-        {
-            BiomeDefinition biome = GameManager.Instance.World.GetBiome((int)location.x, (int)location.y);
-
-            if (biome == null)
-                return 1.0f;
-
-            return 1.0f + (1.0f - 1.0f / biome.Difficulty);
-        }
-
         public void Spawn<Horde, HordeSpawn>(HordeSpawn spawn, HordeSpawnData spawnData, float density, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) where Horde : IHorde where HordeSpawn : IHordeSpawn
         {
             Horde horde = Activator.CreateInstance<Horde>();
@@ -53,7 +43,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(surfaceSpawnLocation.x, surfaceSpawnLocation.y) + 1.0f;
 
             Vector3 spawnLocation = new Vector3(surfaceSpawnLocation.x, surfaceSpawnHeight, surfaceSpawnLocation.y);
-            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density * DetermineBiomeDensity(surfaceSpawnLocation), this.randomFactory, commandGenerator, entityCommandGenerator));
+            this.hordeTracker.Add(new WorldHorde(spawnLocation, spawnData, horde, density, this.randomFactory, commandGenerator, entityCommandGenerator));
         }
 
         public HordeClusterSpawnRequest RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData hordeSpawnData, Action<IEntity> onEntitySpawn, Action onSpawned)

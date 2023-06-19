@@ -30,7 +30,7 @@ namespace ImprovedHordes.Core.World.Horde
         private int entityCount = 0; // Shared by main thread requests.
         private bool sleeping = false;
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density, entityCommandGenerator), randomFactory, commandGenerator) { }
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density * DetermineBiomeDensity(location), entityCommandGenerator), randomFactory, commandGenerator) { }
 
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator)
         {
@@ -223,6 +223,16 @@ namespace ImprovedHordes.Core.World.Horde
         public void Cleanup(IRandomFactory<IWorldRandom> randomFactory)
         {
             randomFactory.FreeRandom(this.worldRandom);
+        }
+
+        private static float DetermineBiomeDensity(Vector3 location)
+        {
+            BiomeDefinition biome = GameManager.Instance.World.GetBiome((int)location.x, (int)location.z);
+
+            if (biome == null)
+                return 1.0f;
+
+            return 1.0f + (1.0f - 1.0f / biome.Difficulty);
         }
     }
 }
