@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Event;
+using UnityEngine;
 
 namespace ImprovedHordes.Screamer.Commands
 {
@@ -31,7 +32,7 @@ namespace ImprovedHordes.Screamer.Commands
             if (screamTicks <= 0.0 && !entity.IsStunned())
             {
                 entity.PlaySound(entity.GetAlertSound());
-                this.worldEventReporter.Report(new WorldEvent(entity.GetLocation(), 33f));
+                this.worldEventReporter.Report(new WorldEvent(entity.GetLocation(), Mathf.Clamp((screamCount + 1) * 33f, 0f, 100.0f)));
 
                 screamTicks = SCREAM_DELAY * (screamCount + 1) * (screamCount + 2);
                 screamCount = screamCount % 3;
