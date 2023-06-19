@@ -1,5 +1,4 @@
 ﻿using ImprovedHordes.Core.AI;
-using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
@@ -13,7 +12,7 @@ namespace ImprovedHordes.POI
 {
     public abstract class WorldZoneHordePopulator<Horde> : HordePopulator<WorldPOIScanner.POIZone> where Horde: IHorde
     {
-        private const ulong RESPAWN_DELAY = 24000 * 3;
+        private const ulong RESPAWN_DELAY = 24000 * 7;
         private readonly Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.POIZone, ulong>();
 
         protected readonly WorldPOIScanner scanner;
