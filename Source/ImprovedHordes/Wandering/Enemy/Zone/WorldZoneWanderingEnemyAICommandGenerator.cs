@@ -7,6 +7,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
+        private const float SLEEP_CHANCE = 0.1f;
         private readonly WorldPOIScanner scanner;
         
         public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner) : base(new WanderingEnemyAIState())
@@ -30,8 +31,15 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
                     float wanderTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f + worldRandom.RandomRange(48) * 100.0f;
                     state.SetRemainingWanderTime(wanderTime);
 
-                    command = new GeneratedAICommand<AICommand>(new SleepingAICommand(wanderTime));
-                    return true;
+                    bool sleep = worldRandom.RandomChance(SLEEP_CHANCE);
+
+                    if (sleep)
+                    {
+                        command = new GeneratedAICommand<AICommand>(new SleepingAICommand(wanderTime));
+                        return true;
+                    }
+
+                    break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
                     command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
                     {
