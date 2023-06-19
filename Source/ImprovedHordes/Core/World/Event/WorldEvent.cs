@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Event
 {
-    public class WorldEvent
+    public sealed class WorldEvent
     {
-        private const float TIME_SCALE = 1e5f;
+        private const float TIME_SCALE = 1e1f;
 
         private Vector2i chunkLocation;
         private Vector3 blockLocation;
@@ -26,8 +26,7 @@ namespace ImprovedHordes.Core.World.Event
             this.blockLocation = blockPosition;
             this.chunkLocation = chunkLocation;
 
-            this.interest = interest;
-            this.interest_ln = Mathf.Log(interest + 1);
+            this.SetInterest(interest);
 
             this.strength = strength;
 
@@ -47,7 +46,8 @@ namespace ImprovedHordes.Core.World.Event
 
         public float GetInterestLevel()
         {
-            //-((ln(a+1))/c)t^2+a
+            //L=-((ln(a+1))/c)t^2+a
+            //(c*(L-a) / -(ln(a+1)))=t^2
 
             float slope = -(interest_ln / TIME_SCALE);
             float offset = interest;
@@ -74,23 +74,25 @@ namespace ImprovedHordes.Core.World.Event
             return (Time.timeAsDouble - time) > this.expire_time;
         }
 
-        public float GetStrength()
+        private void SetInterest(float interest)
         {
-            return this.strength;
+            this.interest = interest;
+            this.interest_ln = Mathf.Log(this.interest + 1);
         }
 
         public void Add(WorldEvent other)
         {
             float cap = 100.0f;
-            if (other.strength != 1.0f)
+            if (other.strength < 1.0f)
             {
                 cap *= other.strength;
             }
 
-            this.interest = Mathf.Clamp(this.interest + other.interest, 0.0f, cap);
-            this.interest_ln = Mathf.Log(this.interest + 1);
+            this.SetInterest(Mathf.Clamp(this.interest + other.interest, 0.0f, cap));
 
-            this.time = Time.timeAsDouble;
+            double timeDiff = (other.time - this.time) / 2;
+
+            this.time = other.time - (timeDiff * ((100.0f - this.interest) / 100.0f));
             this.expire_time = GetExpireTime();
         }
     }
