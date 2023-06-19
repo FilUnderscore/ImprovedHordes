@@ -370,27 +370,37 @@ namespace ImprovedHordes.Core.World.Horde
 
                 if (!horde.IsDead())
                 {
-                    for (int j = index + 1; j < this.hordes.Count; j++)
+                    if (horde.Split(this.LoggerFactory, this.mainThreadRequestProcessor, out var newHordes))
                     {
-                        WorldHorde otherHorde = this.hordes[j];
-
-                        if (!otherHorde.IsDead())
+                        foreach (var newHorde in newHordes)
                         {
-                            int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED.Value : MERGE_DISTANCE_UNLOADED.Value;
+                            this.Add(newHorde);
+                        }
+                    }
+                    else
+                    {
+                        for (int j = index + 1; j < this.hordes.Count; j++)
+                        {
+                            WorldHorde otherHorde = this.hordes[j];
 
-                            bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
-                            bool mergeChance = this.Random.RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
-
-                            if (nearby && mergeChance)
+                            if (!otherHorde.IsDead())
                             {
-                                if (horde.Merge(otherHorde))
+                                int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED.Value : MERGE_DISTANCE_UNLOADED.Value;
+
+                                bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
+                                bool mergeChance = this.Random.RandomFloat >= 0.9f; // TODO: Calculate based on horde variables.
+
+                                if (nearby && mergeChance)
                                 {
-                                    toRemove.Enqueue(otherHorde);
-                                }
-                                else if (otherHorde.Merge(horde))
-                                {
-                                    toRemove.Enqueue(horde);
-                                    break;
+                                    if (horde.Merge(otherHorde))
+                                    {
+                                        toRemove.Enqueue(otherHorde);
+                                    }
+                                    else if (otherHorde.Merge(horde))
+                                    {
+                                        toRemove.Enqueue(horde);
+                                        break;
+                                    }
                                 }
                             }
                         }

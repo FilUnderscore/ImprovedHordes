@@ -22,9 +22,13 @@ namespace ImprovedHordes.Core.World.Horde
         private HordeSpawnData spawnData;
 
         private readonly List<HordeCluster> clusters = new List<HordeCluster>();
+
+        private readonly IRandomFactory<IWorldRandom> randomFactory;
         private readonly IWorldRandom worldRandom;
 
         private HordeCharacteristics characteristics = new HordeCharacteristics();
+
+        private readonly IAICommandGenerator<AICommand> commandGenerator;
         private HordeAIExecutor AIExecutor;
 
         private int entityCount = 0; // Shared by main thread requests.
@@ -32,14 +36,20 @@ namespace ImprovedHordes.Core.World.Horde
 
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density * DetermineBiomeDensity(location), entityCommandGenerator), randomFactory, commandGenerator) { }
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator)
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator) : this(location, spawnData, randomFactory, commandGenerator)
+        {
+            this.AddCluster(cluster);
+        }
+
+        private WorldHorde(Vector3 location, HordeSpawnData spawnData, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator)
         {
             this.location = location;
             this.spawnData = spawnData;
 
-            this.AddCluster(cluster);
-
+            this.randomFactory = randomFactory;
             this.worldRandom = randomFactory.CreateRandom(this.GetHashCode());
+
+            this.commandGenerator = commandGenerator;
             this.AIExecutor = new HordeAIExecutor(this, this.worldRandom, commandGenerator);
         }
 
@@ -156,10 +166,74 @@ namespace ImprovedHordes.Core.World.Horde
             float otherHordeDensity = other.clusters.Sum(cluster => cluster.GetDensity());
             float hordeDensity = this.clusters.Sum(cluster => cluster.GetDensity());
 
-            if (otherHordeDensity + hordeDensity > WorldHordeTracker.MAX_HORDE_DENSITY.Value)
+            float maxHordeDensity = DetermineBiomeDensity(this.location);
+            if (otherHordeDensity + hordeDensity > maxHordeDensity)
                 return false;
 
             return true;
+        }
+
+        public bool Split(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor, out List<WorldHorde> newHordes)
+        {
+            if(!DoesHordeExceedBiomeDensity())
+            {
+                newHordes = null;
+                return false;
+            }
+
+            newHordes = new List<WorldHorde>();
+
+            float biomeDensity = DetermineBiomeDensity(this.location);
+            float splitDensity = this.GetDensity() - biomeDensity;
+
+            WorldHorde newHorde;
+            for(int i = 0; i < this.clusters.Count; i++)
+            {
+                if (splitDensity <= 0.0f)
+                    break;
+
+                var cluster = this.clusters[i];
+
+                if(cluster.GetDensity() > biomeDensity)
+                {
+                    // Split cluster.
+                    float clusterSplitDensity = cluster.GetDensity() - biomeDensity;
+
+                    do
+                    {
+                        newHorde = new WorldHorde(this.location, this.spawnData, this.randomFactory, this.commandGenerator);
+                        HordeCluster currentCluster = new HordeCluster(cluster.GetHorde(), Mathf.Min(clusterSplitDensity, biomeDensity), cluster.GetEntityCommandGenerator());
+                        newHorde.AddCluster(currentCluster);
+                        newHordes.Add(newHorde);
+                        clusterSplitDensity -= biomeDensity;
+                    } while (clusterSplitDensity > 0.0f);
+                }
+                else
+                {
+                    newHorde = new WorldHorde(this.location, this.spawnData, this.randomFactory, this.commandGenerator);
+                    newHorde.AddCluster(cluster);
+                    newHordes.Add(newHorde);
+                }
+
+                this.clusters.RemoveAt(i--);
+                splitDensity -= cluster.GetDensity();
+            }
+
+            // Respawn horde.
+            if(this.IsSpawned())
+                this.Despawn(loggerFactory, mainThreadRequestProcessor);
+
+            return true;
+        }
+
+        private float GetDensity()
+        {
+            return this.clusters.Sum(cluster => cluster.GetDensity());
+        }
+
+        private bool DoesHordeExceedBiomeDensity()
+        {
+            return this.GetDensity() > DetermineBiomeDensity(this.location);
         }
 
         public void Update(float dt)
@@ -232,7 +306,8 @@ namespace ImprovedHordes.Core.World.Horde
             if (biome == null)
                 return 1.0f;
 
-            return 1.0f + (1.0f - 1.0f / biome.Difficulty);
+            float maxHordeDensity = WorldHordeTracker.MAX_HORDE_DENSITY.Value - 1.0f;
+            return 1.0f + (maxHordeDensity - (maxHordeDensity / biome.Difficulty));
         }
     }
 }
