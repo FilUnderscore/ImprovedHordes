@@ -33,7 +33,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override bool IsComplete(IAIAgent agent)
         {
-            return sleepTime <= 0.0f || (agent.AnyPlayersNearby(out float distance) && distance <= 10.0f);
+            return sleepTime <= 0.0f || (agent.AnyPlayersNearby(out float distance) && distance <= 15.0f);
         }
 
         public override void OnInterrupted(IAIAgent agent)
