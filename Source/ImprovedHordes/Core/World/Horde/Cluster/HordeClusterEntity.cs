@@ -4,7 +4,11 @@ using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Cluster
 {
@@ -202,6 +206,23 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public bool IsSleeping()
         {
             return this.entity != null ? this.entity.IsSleeping() : this.sleeping;
+        }
+
+        private bool nearby;
+        private float nearbyDistance;
+
+        public bool AnyPlayersNearby(out float distance)
+        {
+            distance = this.nearbyDistance;
+            return this.nearby;
+        }
+
+        public void SetPlayersNearby(IEnumerable<PlayerSnapshot> nearby)
+        {
+            this.nearby = nearby.Any();
+
+            if(this.nearby)
+                this.nearbyDistance = nearby.Min(player => Vector3.Distance(player.location, this.GetLocation()));
         }
     }
 }

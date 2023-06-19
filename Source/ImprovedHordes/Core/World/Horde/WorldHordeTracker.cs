@@ -292,6 +292,7 @@ namespace ImprovedHordes.Core.World.Horde
                                 return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
                             });
 
+                            entity.SetPlayersNearby(nearby);
                             anyNearby |= nearby.Any();
 
                             if (entity.IsSpawned() && !nearby.Any())

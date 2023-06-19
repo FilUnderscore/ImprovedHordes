@@ -16,5 +16,6 @@ namespace ImprovedHordes.Core.AI
         void WakeUp();
 
         bool IsSleeping();
+        bool AnyPlayersNearby(out float distance);
     }
 }

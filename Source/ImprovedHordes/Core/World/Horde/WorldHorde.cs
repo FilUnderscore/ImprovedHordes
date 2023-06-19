@@ -224,5 +224,11 @@ namespace ImprovedHordes.Core.World.Horde
         {
             randomFactory.FreeRandom(this.worldRandom);
         }
+
+        public bool AnyPlayersNearby(out float distance)
+        {
+            distance = 0.0f;
+            return false;
+        }
     }
 }

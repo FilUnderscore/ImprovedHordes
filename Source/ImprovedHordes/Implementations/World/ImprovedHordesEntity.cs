@@ -78,5 +78,11 @@ namespace ImprovedHordes.Implementations.World
         {
             return this.entity.IsSleeping;
         }
+
+        public bool AnyPlayersNearby(out float distance)
+        {
+            distance = 0.0f;
+            return false;
+        }
     }
 }
