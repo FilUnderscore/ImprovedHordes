@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using System;
 using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.Characteristics
 {
-    public sealed class HordeCharacteristics
+    public sealed class HordeCharacteristics : IData
     {
         private readonly Dictionary<Type, IHordeCharacteristic> characteristics = new Dictionary<Type, IHordeCharacteristic>();
 
@@ -49,6 +50,23 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
                     characteristic.Merge(otherCharacteristic);
                 }
             }
+        }
+
+        public IData Load(IDataLoader loader)
+        {
+            Dictionary<Type, IHordeCharacteristic> characteristics = loader.Load<Dictionary<Type, IHordeCharacteristic>>();
+
+            foreach(var characteristic in characteristics)
+            {
+                this.characteristics.Add(characteristic.Key, characteristic.Value);
+            }
+
+            return this;
+        }
+
+        public void Save(IDataSaver saver)
+        {
+            saver.Save<Dictionary<Type, IHordeCharacteristic>>(this.characteristics);
         }
     }
 }

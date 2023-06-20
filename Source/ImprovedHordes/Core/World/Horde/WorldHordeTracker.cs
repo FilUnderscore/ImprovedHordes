@@ -1,5 +1,6 @@
 ﻿using ConcurrentCollections;
 using HarmonyLib;
+using ImprovedHordes.Core.Abstractions.Data;
 using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.Settings;
@@ -21,7 +22,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
 {
-    public sealed class WorldHordeTracker : MainThreadSynchronizedTask<int>
+    public sealed class WorldHordeTracker : MainThreadSynchronizedTask<int>, IData
     {
         private readonly Setting<int> MERGE_DISTANCE_LOADED = new Setting<int>("loaded_merge_distance", 10);
         private readonly Setting<int> MERGE_DISTANCE_UNLOADED = new Setting<int>("unloaded_merge_distance", 100);
@@ -419,6 +420,18 @@ namespace ImprovedHordes.Core.World.Horde
         public void Add(WorldHorde horde)
         {
             toAdd.Enqueue(horde);
+        }
+
+        public IData Load(IDataLoader loader)
+        {
+            this.hordes.AddRange(loader.Load<List<WorldHorde>>());
+
+            return this;
+        }
+
+        public void Save(IDataSaver saver)
+        {
+            saver.Save<List<WorldHorde>>(this.hordes);
         }
 
         [HarmonyPatch(typeof(EntityAlive))]

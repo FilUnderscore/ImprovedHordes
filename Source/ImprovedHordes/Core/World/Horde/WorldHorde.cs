@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions.Logging;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
@@ -7,6 +8,7 @@ using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.AI;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Cluster;
+using ImprovedHordes.Core.World.Horde.Data;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
 using System;
@@ -16,7 +18,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
 {
-    public sealed class WorldHorde : IAIAgent
+    public sealed class WorldHorde : IAIAgent, ISaveable<WorldHordeData>
     {
         private Vector3 location;
         private HordeSpawnData spawnData;
@@ -51,6 +53,14 @@ namespace ImprovedHordes.Core.World.Horde
 
             this.commandGenerator = commandGenerator;
             this.AIExecutor = new HordeAIExecutor(this, this.worldRandom, commandGenerator);
+        }
+
+        public WorldHorde(WorldHordeData data, IRandomFactory<IWorldRandom> randomFactory) : this(data.GetLocation(), data.GetSpawnData(), randomFactory, data.GetCommandGenerator())
+        {
+            foreach(var cluster in data.GetClusters())
+            {
+                this.AddCluster(cluster);
+            }
         }
 
         public Vector3 GetLocation()
@@ -314,6 +324,11 @@ namespace ImprovedHordes.Core.World.Horde
         {
             distance = 0.0f;
             return false;
+        }
+
+        public WorldHordeData GetData()
+        {
+            return new WorldHordeData(this.location, this.spawnData, this.clusters, this.characteristics, this.commandGenerator);
         }
     }
 }

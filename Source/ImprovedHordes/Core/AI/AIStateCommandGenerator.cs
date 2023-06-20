@@ -17,5 +17,10 @@ namespace ImprovedHordes.Core.AI
         }
 
         protected abstract bool GenerateNextCommandFromState(AIState state, IWorldRandom worldRandom, out GeneratedAICommand<CommandType> command);
+
+        public AIState GetState()
+        {
+            return this.state;
+        }
     }
 }

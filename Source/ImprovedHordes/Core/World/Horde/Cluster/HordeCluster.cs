@@ -1,8 +1,10 @@
-﻿using ImprovedHordes.Core.Abstractions.World;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.AI;
+using ImprovedHordes.Core.World.Horde.Cluster.Data;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
 using System;
@@ -10,7 +12,7 @@ using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.World.Horde.Cluster
 {
-    public sealed class HordeCluster
+    public sealed class HordeCluster : ISaveable<HordeClusterData>
     {
         public enum SpawnState
         {
@@ -35,6 +37,13 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             this.horde = horde;
             this.density = density;
             this.entityCommandGenerator = entityCommandGenerator;
+        }
+
+        public HordeCluster(HordeClusterData data)
+        {
+            this.horde = data.GetHorde();
+            this.density = data.GetDensity();
+            this.entityCommandGenerator = data.GetEntityCommandGenerator();
         }
 
         public IHorde GetHorde()
@@ -159,6 +168,11 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public IAICommandGenerator<EntityAICommand> GetEntityCommandGenerator()
         {
             return this.entityCommandGenerator;
+        }
+
+        public HordeClusterData GetData()
+        {
+            return new HordeClusterData(this.horde, this.density, this.entityCommandGenerator);
         }
     }
 }

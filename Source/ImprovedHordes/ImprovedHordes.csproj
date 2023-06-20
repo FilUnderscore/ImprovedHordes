@@ -67,6 +67,12 @@
   <ItemGroup>
     <Compile Include="Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
     <Compile Include="Command\ImprovedHordesVerboseSubcommand.cs" />
+    <Compile Include="Core\Abstractions\Data\Data.cs" />
+    <Compile Include="Core\Abstractions\Data\DataLoader.cs" />
+    <Compile Include="Core\Abstractions\Data\DataParser.cs" />
+    <Compile Include="Core\Abstractions\Data\DataParserRegistry.cs" />
+    <Compile Include="Core\Abstractions\Data\DataSaver.cs" />
+    <Compile Include="Core\Abstractions\Data\Saveable.cs" />
     <Compile Include="Core\Abstractions\Random\Random.cs" />
     <Compile Include="Core\Abstractions\Random\RandomFactory.cs" />
     <Compile Include="Core\Abstractions\Settings\Setting.cs" />
@@ -88,6 +94,8 @@
     <Compile Include="Core\Threading\ThreadSubscription.cs" />
     <Compile Include="Core\World\Horde\AI\Commands\SleepingAICommand.cs" />
     <Compile Include="Core\World\Horde\Characteristics\WalkSpeedHordeCharacteristic.cs" />
+    <Compile Include="Core\World\Horde\Cluster\Data\HordeClusterData.cs" />
+    <Compile Include="Core\World\Horde\Data\WorldHordeData.cs" />
     <Compile Include="Core\World\Horde\HordeType.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnState.cs" />
@@ -141,6 +149,22 @@
     <Compile Include="Core\World\Horde\Horde.cs" />
     <Compile Include="Core\ImprovedHordesCore.cs" />
     <Compile Include="IHExperimentalManager.cs" />
+    <Compile Include="Implementations\Data\ImprovedHordesDataLoader.cs" />
+    <Compile Include="Implementations\Data\ImprovedHordesDataParserRegistry.cs" />
+    <Compile Include="Implementations\Data\ImprovedHordesDataSaver.cs" />
+    <Compile Include="Implementations\Data\Parsers\DictionaryTypeParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\FloatDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Horde\HordeCharacteristicDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Horde\HordeClusterDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Horde\HordeSpawnDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\ListDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\ParameterizedConstructorRuntimeDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\POI\POIZoneDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\TypeDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\UIntDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\UShortDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Vector3DataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Horde\WorldHordeDataParser.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLogger.cs" />
     <Compile Include="Implementations\Settings\ImprovedHordesSettingLoader.cs" />
     <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserFloat.cs" />
