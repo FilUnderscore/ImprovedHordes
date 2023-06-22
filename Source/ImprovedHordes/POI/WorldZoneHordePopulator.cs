@@ -115,7 +115,7 @@ namespace ImprovedHordes.POI
             for (int i = 0; i < hordeCount; i++)
             {
                 Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
-                SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount, random);
+                SpawnHordeAt(zoneSpawnLocation, zone, spawner);
             }
 
             ulong worldTime = GameManager.Instance.World.worldTime;
@@ -130,12 +130,9 @@ namespace ImprovedHordes.POI
             }
         }
 
-        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount, GameRandom random)
+        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner)
         {
-            float zoneSpawnDensity = (zone.GetDensity() * 1.0f);
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zoneSpawnDensity, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
-
-            //Log.Out($"Spawned horde of density {zoneSpawnDensity} at {location}.");
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zone.GetDensity(), CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }
 
         public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone);
