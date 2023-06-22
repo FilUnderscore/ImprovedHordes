@@ -154,7 +154,6 @@
     <Compile Include="Implementations\Data\ImprovedHordesDataSaver.cs" />
     <Compile Include="Implementations\Data\Parsers\DictionaryTypeParser.cs" />
     <Compile Include="Implementations\Data\Parsers\FloatDataParser.cs" />
-    <Compile Include="Implementations\Data\Parsers\Horde\HordeCharacteristicDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\Horde\HordeClusterDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\Horde\HordeSpawnDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\ListDataParser.cs" />

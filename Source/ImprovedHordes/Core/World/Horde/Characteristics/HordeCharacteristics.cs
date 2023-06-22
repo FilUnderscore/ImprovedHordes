@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImprovedHordes.Core.World.Horde.Characteristics
 {
@@ -54,11 +55,11 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
 
         public IData Load(IDataLoader loader)
         {
-            Dictionary<Type, IHordeCharacteristic> characteristics = loader.Load<Dictionary<Type, IHordeCharacteristic>>();
+            List<IHordeCharacteristic> characteristics = loader.Load<List<IHordeCharacteristic>>();
 
             foreach(var characteristic in characteristics)
             {
-                this.characteristics.Add(characteristic.Key, characteristic.Value);
+                this.characteristics.Add(characteristic.GetType(), characteristic);
             }
 
             return this;
@@ -66,7 +67,7 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
 
         public void Save(IDataSaver saver)
         {
-            saver.Save<Dictionary<Type, IHordeCharacteristic>>(this.characteristics);
+            saver.Save<List<IHordeCharacteristic>>(this.characteristics.Values.ToList());
         }
     }
 }

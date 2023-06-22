@@ -39,7 +39,10 @@ namespace ImprovedHordes.Implementations.Data
             this.RegisterDataParser<List<HordeCluster>>(new ListDataParser<HordeCluster>());
             this.RegisterDataParser<List<WorldHorde>>(new ListDataParser<WorldHorde>());
 
-            this.RegisterDataParser<Dictionary<Type, IHordeCharacteristic>>(new DictionaryTypeParser<Type, IHordeCharacteristic>());
+            this.RegisterDataParser<WalkSpeedHordeCharacteristic>(new ParameterizedConstructorRuntimeDataParser<WalkSpeedHordeCharacteristic>((loader) => new WalkSpeedHordeCharacteristic(loader.Load<float>(), loader.Load<float>()), (characteristic, saver) => characteristic.Save(saver)));
+            this.RegisterDataParser<SensitivityHordeCharacteristic>(new ParameterizedConstructorRuntimeDataParser<SensitivityHordeCharacteristic>((loader) => new SensitivityHordeCharacteristic(loader.Load<float>()), (characteristic, saver) => characteristic.Save(saver)));
+
+            this.RegisterDataParser<List<IHordeCharacteristic>>(new ListDataParser<IHordeCharacteristic>());
 
             this.RegisterDataParser<WorldPOIScanner.POIZone>(new POIZoneDataParser(poiScanner));
 

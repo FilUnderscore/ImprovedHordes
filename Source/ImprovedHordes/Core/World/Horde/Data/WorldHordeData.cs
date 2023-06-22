@@ -23,7 +23,7 @@ namespace ImprovedHordes.Core.World.Horde.Data
             this.location = location;
             this.spawnData = spawnData;
             this.clusters = clusters;
-            //this.characteristics = characteristics;
+            this.characteristics = characteristics;
             this.commandGenerator = commandGenerator;
         }
 

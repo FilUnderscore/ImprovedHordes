@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.Characteristics
 {
@@ -18,11 +19,20 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
 
         public float GetSensitivity()
         {
-            // TODO: blood moon scaling.
-            //bool isBloodMoon = GameManager.Instance.World.GetAIDirector().BloodMoonComponent.BloodMoonActive;
-
-            //return isBloodMoon ? this.sensitivity : this.sensitivity * 5.0f;
+            // TODO blood moon scaling?
             return this.sensitivity;
+        }
+
+        public override IData Load(IDataLoader loader)
+        {
+            this.sensitivity = loader.Load<float>();
+
+            return this;
+        }
+
+        public override void Save(IDataSaver saver)
+        {
+            saver.Save<float>(this.sensitivity);
         }
     }
 }

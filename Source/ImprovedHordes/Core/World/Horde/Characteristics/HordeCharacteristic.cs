@@ -1,14 +1,17 @@
-﻿using System;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using System;
 
 namespace ImprovedHordes.Core.World.Horde.Characteristics
 {
-    public interface IHordeCharacteristic
+    public interface IHordeCharacteristic : IData
     {
         void Merge(IHordeCharacteristic other);
     }
 
     public abstract class HordeCharacteristic<T> : IHordeCharacteristic where T : HordeCharacteristic<T>
     {
+        public abstract IData Load(IDataLoader loader);
+
         public void Merge(IHordeCharacteristic other)
         {
             if (!(other is T otherCharacteristic))
@@ -18,5 +21,6 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
         }
 
         public abstract void Merge(T other);
+        public abstract void Save(IDataSaver saver);
     }
 }
