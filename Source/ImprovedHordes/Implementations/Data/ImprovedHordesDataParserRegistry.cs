@@ -10,6 +10,7 @@ using ImprovedHordes.Implementations.Data.Parsers;
 using ImprovedHordes.Implementations.Data.Parsers.POI;
 using ImprovedHordes.POI;
 using ImprovedHordes.Screamer;
+using ImprovedHordes.Wandering.Animal;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
 using ImprovedHordes.Wandering.Enemy.Zone;
 using System;
@@ -28,7 +29,9 @@ namespace ImprovedHordes.Implementations.Data
             this.RegisterDataParser<Type>(new TypeDataParser());
             this.RegisterDataParser<float>(new FloatDataParser());
             this.RegisterDataParser<uint>(new UIntDataParser());
+            this.RegisterDataParser<ulong>(new ULongDataParser());
             this.RegisterDataParser<ushort>(new UShortDataParser());
+            this.RegisterDataParser<Vector2i>(new Vector2iDataParser());
             this.RegisterDataParser<Vector3>(new Vector3DataParser());
 
             this.RegisterDataParser<HordeSpawnData>(new HordeSpawnDataParser());
@@ -51,6 +54,9 @@ namespace ImprovedHordes.Implementations.Data
             this.RegisterDataParser<WorldZoneScreamerAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneScreamerAICommandGenerator>((loader) => new WorldZoneScreamerAICommandGenerator(loader.Load<WorldPOIScanner.POIZone>()), (screamerCommandGenerator, saver) => saver.Save<WorldPOIScanner.POIZone>(screamerCommandGenerator.GetState().GetPOIZone())));
 
             this.RegisterDataParser<ScreamerEntityAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<ScreamerEntityAICommandGenerator>((loader) => new ScreamerEntityAICommandGenerator(worldEventReporter)));
+
+            this.RegisterDataParser<Dictionary<Vector2i, ulong>>(new DictionaryTypeParser<Vector2i, ulong>());
+            this.RegisterDataParser<Dictionary<WorldPOIScanner.POIZone, ulong>>(new DictionaryTypeParser<WorldPOIScanner.POIZone, ulong>());
         }
 
         public IDataParser<T> GetDataParser<T>()

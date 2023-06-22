@@ -161,7 +161,9 @@
     <Compile Include="Implementations\Data\Parsers\POI\POIZoneDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\TypeDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\UIntDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\ULongDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\UShortDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Vector2iDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\Vector3DataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\Horde\WorldHordeDataParser.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLogger.cs" />

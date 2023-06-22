@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
@@ -141,6 +142,23 @@ namespace ImprovedHordes.POI
         public virtual IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator()
         {
             return null;
+        }
+
+        public override IData Load(IDataLoader loader)
+        {
+            Dictionary<Vector2i, ulong> lastSpawnedDictionary = loader.Load<Dictionary<Vector2i, ulong>>();
+
+            foreach(var lastSpawnedEntry in lastSpawnedDictionary)
+            {
+                this.lastSpawned.Add(lastSpawnedEntry.Key, lastSpawnedEntry.Value);
+            }
+
+            return this;
+        }
+
+        public override void Save(IDataSaver saver)
+        {
+            saver.Save<Dictionary<Vector2i, ulong>>(this.lastSpawned);
         }
     }
 }

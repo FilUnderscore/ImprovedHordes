@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
@@ -139,5 +140,22 @@ namespace ImprovedHordes.POI
 
         public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone);
         public abstract IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator();
+
+        public override IData Load(IDataLoader loader)
+        {
+            Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawnedDictionary = loader.Load<Dictionary<WorldPOIScanner.POIZone, ulong>>();
+
+            foreach (var lastSpawnedEntry in lastSpawnedDictionary)
+            {
+                this.lastSpawned.Add(lastSpawnedEntry.Key, lastSpawnedEntry.Value);
+            }
+
+            return this;
+        }
+
+        public override void Save(IDataSaver saver)
+        {
+            saver.Save<Dictionary<WorldPOIScanner.POIZone, ulong>>(this.lastSpawned);
+        }
     }
 }

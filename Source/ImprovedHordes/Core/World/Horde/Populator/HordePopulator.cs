@@ -1,4 +1,4 @@
-﻿using ImprovedHordes.Core.Threading;
+﻿using ImprovedHordes.Core.Abstractions.Data;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Populator
 {
-    public abstract class HordePopulator
+    public abstract class HordePopulator : IData
     {
         public virtual bool CanRun(List<PlayerSnapshot> players, Dictionary<Type,List<ClusterSnapshot>> clusters)
         {
@@ -14,6 +14,9 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         }
 
         public abstract void Populate(float dt, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, WorldHordeSpawner spawner, GameRandom random);
+
+        public abstract IData Load(IDataLoader loader);
+        public abstract void Save(IDataSaver saver);
     }
 
     public abstract class HordePopulator<TaskReturnValue> : HordePopulator

@@ -66,6 +66,7 @@ namespace ImprovedHordes.Core
             }
 
             this.tracker.Load(dataLoader);
+            this.populator.Load(dataLoader);
         }
 
         public void Save(IDataSaver dataSaver) 
@@ -74,6 +75,7 @@ namespace ImprovedHordes.Core
             dataSaver.Save<uint>(DATA_FILE_VERSION);
 
             this.tracker.Save(dataSaver);
+            this.populator.Save(dataSaver);
         }
 
         public ILoggerFactory GetLoggerFactory()

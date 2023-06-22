@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions.Logging;
+﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
@@ -8,7 +9,7 @@ using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Populator
 {
-    public sealed class WorldHordePopulator : MainThreadSynchronizedTask
+    public sealed class WorldHordePopulator : MainThreadSynchronizedTask, IData
     {
         private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
@@ -66,6 +67,24 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         public void RegisterPopulator(HordePopulator populator)
         {
             this.populators.Add(populator);
+        }
+
+        public IData Load(IDataLoader loader)
+        {
+            foreach(var populator in this.populators)
+            {
+                populator.Load(loader);
+            }
+
+            return this;
+        }
+
+        public void Save(IDataSaver saver)
+        {
+            foreach(var populator in this.populators)
+            {
+                populator.Save(saver);
+            }
         }
     }
 }
