@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.Settings;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.POI;
 
@@ -6,7 +7,9 @@ namespace ImprovedHordes.Wandering.Animal
 {
     public sealed class WorldWildernessWanderingAnimalHordePopulator : WorldWildernessHordePopulator<WanderingAnimalHorde>
     {
-        public WorldWildernessWanderingAnimalHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, 64)
+        private static readonly Setting<int> WANDERING_ANIMAL_WILDERNESS_SPARSITY = new Setting<int>("wandering_animal_wilderness_sparsity", 64);
+
+        public WorldWildernessWanderingAnimalHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, WANDERING_ANIMAL_WILDERNESS_SPARSITY.Value)
         {
         }
 

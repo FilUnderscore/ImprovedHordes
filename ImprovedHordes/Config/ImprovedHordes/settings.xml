@@ -1,5 +1,7 @@
 <!-- Settings for Improved Hordes. -->
 <improved_hordes>
+	<!-- https://github.com/FilUnderscore/ImprovedHordes/wiki/Settings -->
+
 	<!-- Entity Spawn Limit -->
 	<max_entities_spawned_per_player>16</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
 
@@ -8,10 +10,16 @@
 	<max_cluster_threads>2</max_cluster_threads> <!-- Number of threads to use for loaded Horde Cluster updates. -->
 	
 	<!-- World Spawn Limits -->
-	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. -->
-	<max_world_density>500.0</max_world_density> <!-- Max World Horde Density. -->
+	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. (Horde biome size) -->
+	<max_world_density>500.0</max_world_density> <!-- Max World Horde Density. (Number of hordes in world) -->
 	
 	<!-- Horde Merge Distances -->
 	<loaded_merge_distance>10</loaded_merge_distance>
 	<unloaded_merge_distance>50</unloaded_merge_distance>
+	
+	<!-- Horde Populator Settings -->
+	<wandering_animal_wilderness_sparsity>64</wandering_animal_wilderness_sparsity>
+	<wandering_animal_enemy_wilderness_sparsity>32</wandering_animal_enemy_wilderness_sparsity>
+	
+	<wandering_enemy_wilderness_sparsity>32</wandering_enemy_wilderness_sparsity>
 </improved_hordes>
