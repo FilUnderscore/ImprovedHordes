@@ -9,6 +9,8 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
     {
         private readonly Dictionary<Type, IHordeCharacteristic> characteristics = new Dictionary<Type, IHordeCharacteristic>();
 
+        public HordeCharacteristics() { }
+
         public HordeCharacteristics(params IHordeCharacteristic[] characteristics) 
         {
             foreach(var characteristic in characteristics) 

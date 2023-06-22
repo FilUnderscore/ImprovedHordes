@@ -3,15 +3,13 @@ using System;
 
 namespace ImprovedHordes.Core.World.Horde.Characteristics
 {
-    public interface IHordeCharacteristic : IData
+    public interface IHordeCharacteristic
     {
         void Merge(IHordeCharacteristic other);
     }
 
     public abstract class HordeCharacteristic<T> : IHordeCharacteristic where T : HordeCharacteristic<T>
     {
-        public abstract IData Load(IDataLoader loader);
-
         public void Merge(IHordeCharacteristic other)
         {
             if (!(other is T otherCharacteristic))

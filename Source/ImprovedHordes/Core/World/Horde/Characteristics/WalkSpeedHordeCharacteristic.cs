@@ -28,14 +28,6 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
             return isDay ? this.dayWalkSpeed : this.nightWalkSpeed;
         }
 
-        public override IData Load(IDataLoader loader)
-        {
-            this.dayWalkSpeed = loader.Load<float>();
-            this.nightWalkSpeed = loader.Load<float>();
-
-            return this;
-        }
-
         public override void Save(IDataSaver saver)
         {
             saver.Save<float>(this.dayWalkSpeed);

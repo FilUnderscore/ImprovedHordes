@@ -23,13 +23,6 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
             return this.sensitivity;
         }
 
-        public override IData Load(IDataLoader loader)
-        {
-            this.sensitivity = loader.Load<float>();
-
-            return this;
-        }
-
         public override void Save(IDataSaver saver)
         {
             saver.Save<float>(this.sensitivity);

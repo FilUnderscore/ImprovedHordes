@@ -57,7 +57,9 @@ namespace ImprovedHordes.Core.World.Horde
 
         public WorldHorde(WorldHordeData data, IRandomFactory<IWorldRandom> randomFactory) : this(data.GetLocation(), data.GetSpawnData(), randomFactory, data.GetCommandGenerator())
         {
-            foreach(var cluster in data.GetClusters())
+            this.characteristics = data.GetCharacteristics();
+
+            foreach (var cluster in data.GetClusters())
             {
                 this.AddCluster(cluster);
             }
