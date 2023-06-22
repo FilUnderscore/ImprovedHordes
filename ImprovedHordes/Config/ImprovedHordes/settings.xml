@@ -22,4 +22,7 @@
 	<wandering_animal_enemy_wilderness_sparsity>32</wandering_animal_enemy_wilderness_sparsity>
 	
 	<wandering_enemy_wilderness_sparsity>32</wandering_enemy_wilderness_sparsity>
+	
+	<wilderness_horde_repopulation_days>7</wilderness_horde_repopulation_days>
+	<zone_horde_repopulation_days>7</zone_horde_repopulation_days>
 </improved_hordes>

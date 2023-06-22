@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
@@ -13,7 +14,8 @@ namespace ImprovedHordes.POI
 {
     public abstract class WorldZoneHordePopulator<Horde> : HordePopulator<WorldPOIScanner.POIZone> where Horde: IHorde
     {
-        private const ulong RESPAWN_DELAY = 24000 * 7;
+        private static readonly Setting<ulong> ZONE_HORDE_REPOPULATION_DAYS = new Setting<ulong>("zone_horde_repopulation_days", 7);
+        
         private readonly Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.POIZone, ulong>();
 
         protected readonly WorldPOIScanner scanner;
@@ -64,7 +66,7 @@ namespace ImprovedHordes.POI
             {
                 ulong worldTime = GameManager.Instance.World.worldTime;
 
-                if (worldTime - spawnTime < RESPAWN_DELAY)
+                if (worldTime - spawnTime < (24000 * ZONE_HORDE_REPOPULATION_DAYS.Value))
                 {
                     zone = null;
                     return false;

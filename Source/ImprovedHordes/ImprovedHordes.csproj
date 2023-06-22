@@ -170,6 +170,7 @@
     <Compile Include="Implementations\Settings\ImprovedHordesSettingLoader.cs" />
     <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserFloat.cs" />
     <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserInt.cs" />
+    <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserULong.cs" />
     <Compile Include="Implementations\World\ImprovedHordesEntity.cs" />
     <Compile Include="Implementations\World\ImprovedHordesEntitySpawner.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLoggerFactory.cs" />

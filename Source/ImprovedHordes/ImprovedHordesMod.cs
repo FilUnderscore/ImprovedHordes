@@ -59,6 +59,7 @@ namespace ImprovedHordes
 
             this.settingLoader.RegisterTypeParser<int>(new ImprovedHordesSettingTypeParserInt());
             this.settingLoader.RegisterTypeParser<float>(new ImprovedHordesSettingTypeParserFloat());
+            this.settingLoader.RegisterTypeParser<ulong>(new ImprovedHordesSettingTypeParserULong());
 
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
         }
