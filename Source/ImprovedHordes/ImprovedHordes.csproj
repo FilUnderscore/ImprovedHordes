@@ -96,6 +96,7 @@
     <Compile Include="Core\World\Horde\Characteristics\WalkSpeedHordeCharacteristic.cs" />
     <Compile Include="Core\World\Horde\Cluster\Data\HordeClusterData.cs" />
     <Compile Include="Core\World\Horde\Data\WorldHordeData.cs" />
+    <Compile Include="Core\World\Horde\HordeBiomes.cs" />
     <Compile Include="Core\World\Horde\HordeType.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnState.cs" />

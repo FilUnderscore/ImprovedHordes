@@ -43,8 +43,10 @@ namespace ImprovedHordes.POI
 
         private Vector2i GetRegionFromPosition(Vector2 pos)
         {
-            int regionX = Mathf.FloorToInt(pos.x / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 8)));
-            int regionY = Mathf.FloorToInt(pos.y / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 8)));
+            float biomeFactor = HordeBiomes.DetermineBiomeFactor(pos);
+
+            int regionX = Mathf.FloorToInt(pos.x / (this.sparsityFactor * biomeFactor * (MAX_VIEW_DISTANCE / 8)));
+            int regionY = Mathf.FloorToInt(pos.y / (this.sparsityFactor * biomeFactor * (MAX_VIEW_DISTANCE / 8)));
 
             return new Vector2i(regionX, regionY);
         }
@@ -85,13 +87,15 @@ namespace ImprovedHordes.POI
 
             bool nearby = false;
 
+            float biomeFactor = HordeBiomes.DetermineBiomeFactor(randomWorldPos);
+
             // Check for nearby players.
-            
+
             Parallel.ForEach(players, player =>
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
-                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * (sparsityFactor / 2))
+                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * (sparsityFactor * biomeFactor / 2))
                 {
                     nearby |= true;
                 }
@@ -104,7 +108,7 @@ namespace ImprovedHordes.POI
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
-                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * sparsityFactor)
+                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * sparsityFactor * biomeFactor)
                     {
                         nearby |= true;
                     }

@@ -36,7 +36,7 @@ namespace ImprovedHordes.Core.World.Horde
         private int entityCount = 0; // Shared by main thread requests.
         private bool sleeping = false;
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density * DetermineBiomeDensity(location), entityCommandGenerator), randomFactory, commandGenerator) { }
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density * HordeBiomes.DetermineBiomeDensity(location), entityCommandGenerator), randomFactory, commandGenerator) { }
 
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator) : this(location, spawnData, randomFactory, commandGenerator)
         {
@@ -178,7 +178,7 @@ namespace ImprovedHordes.Core.World.Horde
             float otherHordeDensity = other.clusters.Sum(cluster => cluster.GetDensity());
             float hordeDensity = this.clusters.Sum(cluster => cluster.GetDensity());
 
-            float maxHordeDensity = DetermineBiomeDensity(this.location);
+            float maxHordeDensity = HordeBiomes.DetermineBiomeDensity(this.location);
             if (otherHordeDensity + hordeDensity > maxHordeDensity)
                 return false;
 
@@ -195,7 +195,7 @@ namespace ImprovedHordes.Core.World.Horde
 
             newHordes = new List<WorldHorde>();
 
-            float biomeDensity = DetermineBiomeDensity(this.location);
+            float biomeDensity = HordeBiomes.DetermineBiomeDensity(this.location);
             float splitDensity = this.GetDensity() - biomeDensity;
 
             WorldHorde newHorde;
@@ -245,7 +245,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private bool DoesHordeExceedBiomeDensity()
         {
-            return this.GetDensity() > DetermineBiomeDensity(this.location);
+            return this.GetDensity() > HordeBiomes.DetermineBiomeDensity(this.location);
         }
 
         public void Update(float dt)
@@ -309,17 +309,6 @@ namespace ImprovedHordes.Core.World.Horde
         public void Cleanup(IRandomFactory<IWorldRandom> randomFactory)
         {
             randomFactory.FreeRandom(this.worldRandom);
-        }
-
-        private static float DetermineBiomeDensity(Vector3 location)
-        {
-            BiomeDefinition biome = GameManager.Instance.World.GetBiome((int)location.x, (int)location.z);
-
-            if (biome == null)
-                return 1.0f;
-
-            float maxHordeDensity = WorldHordeTracker.MAX_HORDE_DENSITY.Value - 1.0f;
-            return 1.0f + (maxHordeDensity - (maxHordeDensity / biome.Difficulty));
         }
 
         public bool AnyPlayersNearby(out float distance)
