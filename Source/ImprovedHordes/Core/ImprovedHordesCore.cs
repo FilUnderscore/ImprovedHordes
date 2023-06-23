@@ -9,7 +9,6 @@ using ImprovedHordes.Core.World.Event;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
-using System;
 using UnityEngine;
 
 namespace ImprovedHordes.Core
@@ -17,7 +16,7 @@ namespace ImprovedHordes.Core
     public sealed class ImprovedHordesCore
     {
         private const ushort DATA_FILE_MAGIC = 0x4948;
-        private const uint DATA_FILE_VERSION = 2;
+        private const uint DATA_FILE_VERSION = 3;
 
         private readonly ILoggerFactory loggerFactory;
         private readonly Abstractions.Logging.ILogger logger;

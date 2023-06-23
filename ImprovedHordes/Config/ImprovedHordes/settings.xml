@@ -11,7 +11,9 @@
 	
 	<!-- World Spawn Limits -->
 	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. (Horde biome size) -->
-	<max_world_density>500.0</max_world_density> <!-- Max World Horde Density. (Number of hordes in world) -->
+	<max_world_density>200.0</max_world_density> <!-- Max World Horde Density. (Number of hordes in world) -->
+	
+	<horde_biome_sparsity_multiplier>0.5</horde_biome_sparsity_multiplier>
 	
 	<!-- Horde Merge Distances -->
 	<loaded_merge_distance>10</loaded_merge_distance>
@@ -25,4 +27,8 @@
 	
 	<wilderness_horde_repopulation_days>7</wilderness_horde_repopulation_days>
 	<zone_horde_repopulation_days>7</zone_horde_repopulation_days>
+	
+	<!-- Events -->
+	<event_chunk_radius>3</event_chunk_radius>
+	<event_interest_distance_multiplier>0.25</event_interest_distance_multiplier>
 </improved_hordes>

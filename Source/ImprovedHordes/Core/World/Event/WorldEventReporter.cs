@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Core.Threading;
 using System;
 using System.Collections.Concurrent;
@@ -11,7 +12,8 @@ namespace ImprovedHordes.Core.World.Event
 {
     public sealed class WorldEventReporter : MainThreadSynchronizedTask
     {
-        private const int EVENT_CHUNK_RADIUS = 3;
+        private static readonly Setting<int> EVENT_CHUNK_RADIUS = new Setting<int>("event_chunk_radius", 3);
+        private static readonly Setting<float> EVENT_INTEREST_DISTANCE_MULTIPLIER = new Setting<float>("event_interest_distance_multiplier", 0.25f);
 
         private const double LOG_N_100 = 4.60517018599;
         private readonly double MAP_SIZE_LOG_N, MAP_SIZE_POW_2_LOG_N;
@@ -96,7 +98,7 @@ namespace ImprovedHordes.Core.World.Event
             {
                 float interest = worldEvent.GetInterestLevel();
 
-                ConcurrentDictionary<Vector2i, float> nearby = GetNearbyChunks(worldEvent.GetLocation(), EVENT_CHUNK_RADIUS);
+                ConcurrentDictionary<Vector2i, float> nearby = GetNearbyChunks(worldEvent.GetLocation(), EVENT_CHUNK_RADIUS.Value);
 
                 foreach(var entry in nearby)
                 {
@@ -155,7 +157,7 @@ namespace ImprovedHordes.Core.World.Event
 
             double distance = mapScaleFactor * (interestLevel / 100.0) + mapOffsetFactor;
 
-            return (int)distance;
+            return (int)(distance * EVENT_INTEREST_DISTANCE_MULTIPLIER.Value);
         }
 
         [HarmonyPatch(typeof(AIDirectorChunkEventComponent))]

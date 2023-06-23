@@ -22,7 +22,10 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
         protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
         {
-            return Mathf.CeilToInt(zone.GetCount() * zone.GetDensity());
+            //return Mathf.FloorToInt(zone.GetCount() * zone.GetDensity());
+            // TODO temporary until we can accurately measure zone size.
+
+            return 1;
         }
     }
 }

@@ -45,8 +45,8 @@ namespace ImprovedHordes.POI
         {
             float biomeFactor = HordeBiomes.DetermineBiomeFactor(pos);
 
-            int regionX = Mathf.FloorToInt(pos.x / (this.sparsityFactor * biomeFactor * (MAX_VIEW_DISTANCE / 8)));
-            int regionY = Mathf.FloorToInt(pos.y / (this.sparsityFactor * biomeFactor * (MAX_VIEW_DISTANCE / 8)));
+            int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 16)));
+            int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 16)));
 
             return new Vector2i(regionX, regionY);
         }
@@ -95,7 +95,7 @@ namespace ImprovedHordes.POI
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
-                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * (sparsityFactor * biomeFactor / 2))
+                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * ((sparsityFactor / biomeFactor) / 2))
                 {
                     nearby |= true;
                 }
@@ -108,7 +108,7 @@ namespace ImprovedHordes.POI
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
-                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * sparsityFactor * biomeFactor)
+                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * (sparsityFactor / biomeFactor))
                     {
                         nearby |= true;
                     }

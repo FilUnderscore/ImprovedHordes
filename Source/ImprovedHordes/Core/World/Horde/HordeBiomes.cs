@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using ImprovedHordes.Core.Abstractions.Settings;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
 {
     public static class HordeBiomes
     {
+        private static readonly Setting<float> HORDE_BIOME_SPARSITY_MULTIPLIER = new Setting<float>("horde_biome_sparsity_multiplier", 0.5f);
+
         public static float DetermineBiomeDensity(Vector3 location)
         {
             return DetermineBiomeDensity(new Vector2(location.x, location.z));
@@ -28,12 +31,12 @@ namespace ImprovedHordes.Core.World.Horde
         public static float DetermineBiomeFactor(Vector2 location)
         {
             BiomeDefinition biome = GameManager.Instance.World.GetBiome((int)location.x, (int)location.y);
-            float maxHordeDensity = WorldHordeTracker.MAX_HORDE_DENSITY.Value;
+            float biomeSparsityMultiplier = HORDE_BIOME_SPARSITY_MULTIPLIER.Value;
 
             if (biome == null)
-                return maxHordeDensity;
+                return biomeSparsityMultiplier;
 
-            return maxHordeDensity / biome.Difficulty;
+            return biomeSparsityMultiplier / biome.Difficulty;
         }
     }
 }

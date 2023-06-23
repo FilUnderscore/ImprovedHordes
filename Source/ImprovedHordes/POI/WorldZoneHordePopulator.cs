@@ -89,7 +89,7 @@ namespace ImprovedHordes.POI
                 // Check for nearby hordes.
                 Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
-                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude)
+                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude * 10)
                     {
                         nearby |= true;
                     }
@@ -113,8 +113,8 @@ namespace ImprovedHordes.POI
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
 
             float biomeFactor = HordeBiomes.DetermineBiomeFactor(zoneCenter);
-            int hordeCount = Mathf.Max(1, Mathf.RoundToInt((1 + CalculateHordeCount(zone)) / biomeFactor));
-            
+            int hordeCount = Mathf.Max(1, Mathf.FloorToInt(CalculateHordeCount(zone) / biomeFactor));
+
             for (int i = 0; i < hordeCount; i++)
             {
                 Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
