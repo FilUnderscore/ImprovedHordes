@@ -59,9 +59,9 @@ namespace ImprovedHordes.Core.World.Event
         {
             while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
             {
-                if (eventHistory.ContainsKey(worldEvent.GetChunkLocation()))
+                if (eventHistory.TryGetValue(worldEvent.GetChunkLocation(), out WorldEvent chunkHistoryEvent))
                 {
-                    eventHistory[worldEvent.GetChunkLocation()].Add(worldEvent);
+                    chunkHistoryEvent.Add(worldEvent);
                 }
                 else
                 {
@@ -85,10 +85,11 @@ namespace ImprovedHordes.Core.World.Event
 
             while (eventsToReportKeys.TryDequeue(out Vector3 key))
             {
-                WorldEvent worldEvent = eventHistory[global::World.toChunkXZ(key)];
-                float interest = worldEvent.GetInterestLevel();
-
-                eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
+                if(eventHistory.TryGetValue(global::World.toChunkXZ(key), out WorldEvent worldEvent))
+                {
+                    float interest = worldEvent.GetInterestLevel();
+                    eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
+                }
             }
         }
 
