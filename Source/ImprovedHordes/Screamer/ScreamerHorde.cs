@@ -25,7 +25,7 @@ namespace ImprovedHordes.Screamer
             if (other.GetType() == typeof(ScreamerHorde)) // Prevent screamers from merging with screamers, otherwise you get too many screamers.
                 return false;
 
-            return false;
+            return true;
         }
     }
 }
