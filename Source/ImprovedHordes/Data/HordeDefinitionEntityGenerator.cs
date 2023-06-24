@@ -16,7 +16,7 @@ namespace ImprovedHordes.Data
         private readonly HordeDefinition.Group group;
         private readonly Dictionary<HordeDefinition.Group.Entity, int> maxEntitiesToSpawn = new Dictionary<HordeDefinition.Group.Entity, int>();
 
-        private int lastEntityId;
+        private int lastEntityClassId;
 
         public HordeDefinitionEntityGenerator(ILoggerFactory loggerFactory, PlayerHordeGroup playerGroup, HordeDefinition definition) : base(playerGroup)
         {
@@ -26,7 +26,7 @@ namespace ImprovedHordes.Data
             if (this.group != null)
                 this.CalculateEntitiesToSpawn();
             else
-                this.logger.Error($"No eligible '{definition.GetHordeType()}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
+                this.logger.Warn($"No eligible '{definition.GetHordeType()}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
         }
 
         private void CalculateEntitiesToSpawn()
@@ -69,7 +69,13 @@ namespace ImprovedHordes.Data
 
             HordeDefinition.Group.Entity randomEntity = GetRandomEntity(random);
 
-            return randomEntity.GetEntityId(ref this.lastEntityId, random);
+            if(!randomEntity.GetEntityClassId(ref this.lastEntityClassId, out int entityClassId, random))
+            {
+                this.logger.Warn($"Could not get entity class ID for Horde Entity. Perhaps the entity class is invalid or the entity group does not exist?");
+                return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);
+            }
+
+            return entityClassId;
         }
 
         public override bool IsStillValidFor(PlayerHordeGroup playerGroup)
