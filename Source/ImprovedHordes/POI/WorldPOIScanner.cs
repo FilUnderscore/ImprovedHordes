@@ -194,7 +194,7 @@ namespace ImprovedHordes.POI
 
                 for(int i = 1; i < this.pois.Count; i++)
                 {
-                    bounds.Encapsulate(this.pois[1].GetBounds());
+                    bounds.Encapsulate(this.pois[i].GetBounds());
                 }
 
                 return bounds;
