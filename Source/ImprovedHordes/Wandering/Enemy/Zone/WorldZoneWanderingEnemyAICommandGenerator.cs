@@ -7,7 +7,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
-        private const float SLEEP_CHANCE = 0.3f;
+        private const float SLEEP_CHANCE = 0.5f;
         private readonly WorldPOIScanner scanner;
         
         public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner) : base(new WanderingEnemyAIState())

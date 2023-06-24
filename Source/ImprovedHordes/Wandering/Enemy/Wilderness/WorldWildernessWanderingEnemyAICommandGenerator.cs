@@ -7,7 +7,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
 {
     public sealed class WorldWildernessWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
-        private const float SLEEP_CHANCE = 0.3f;
+        private const float SLEEP_CHANCE = 0.7f;
         private readonly WorldPOIScanner worldPOIScanner;
 
         public WorldWildernessWanderingEnemyAICommandGenerator(WorldPOIScanner worldPOIScanner) : base(new WanderingEnemyAIState())
