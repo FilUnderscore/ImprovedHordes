@@ -10,7 +10,7 @@ namespace ImprovedHordes.Wandering.Animal
 
         public override HordeCharacteristics CreateCharacteristics()
         {
-            return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(1.6f, 0.0f));
+            return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(0.8f, 0.0f));
         }
 
         public override HordeType GetHordeType()

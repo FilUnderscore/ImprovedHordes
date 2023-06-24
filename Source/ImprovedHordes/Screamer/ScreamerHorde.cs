@@ -12,7 +12,7 @@ namespace ImprovedHordes.Screamer
 
         public override HordeCharacteristics CreateCharacteristics()
         {
-            return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(1.6f, 3.2f), new SensitivityHordeCharacteristic(4.0f));
+            return new HordeCharacteristics(new WalkSpeedHordeCharacteristic(0.8f, 1.6f), new SensitivityHordeCharacteristic(4.0f));
         }
 
         public override HordeType GetHordeType()
