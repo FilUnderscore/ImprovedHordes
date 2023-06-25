@@ -7,6 +7,7 @@ namespace ImprovedHordes.POI
 {
     public sealed class WorldPOIScanner
     {
+        private const float TOWN_WEIGHT = 4.0f;
         private readonly Core.Abstractions.Logging.ILogger logger;
 
         private static int HIGHEST_COUNT;
@@ -60,13 +61,9 @@ namespace ImprovedHordes.POI
             }
 
             this.logger.Warn("Before weight purge: " + toZone.Count);
-            // Remove under avg
-            float avgWeight = pois.Average(p => p.GetWeight());
-            avgWeight = 4.0f;
-            this.logger.Warn("Average POI weight: " + avgWeight);
             for(int i = 0; i < toZone.Count; i++)
             {
-                if (toZone[i].GetWeight() < avgWeight)
+                if (toZone[i].GetWeight() < TOWN_WEIGHT)
                 {
                     toZone.RemoveAt(i--);
                 }
@@ -99,6 +96,8 @@ namespace ImprovedHordes.POI
 
                 poiZones.Add(zone);
             }
+
+            // Combine zones
 
             /*
             // Start zoning.
