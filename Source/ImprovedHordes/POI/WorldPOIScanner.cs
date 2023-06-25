@@ -7,6 +7,7 @@ namespace ImprovedHordes.POI
 {
     public sealed class WorldPOIScanner
     {
+        private const float POI_MERGE_DIST = 84.0f;
         private readonly Core.Abstractions.Logging.ILogger logger;
 
         private static int HIGHEST_COUNT;
@@ -48,7 +49,7 @@ namespace ImprovedHordes.POI
                 {
                     var other = toZone[j];
                     float distance = Vector2.Distance(poi.GetLocation(), other.GetLocation());
-                    bool zoned = distance <= 72.0f;
+                    bool zoned = distance <= POI_MERGE_DIST;
 
                     if (zoned)
                     {
@@ -73,29 +74,37 @@ namespace ImprovedHordes.POI
                 for(int i = 0; i < poiZones.Count - 1; i++)
                 {
                     var zone = poiZones[i];
+                    var nearby = new List<POIZone>();
 
                     for(int j = i + 1; j < poiZones.Count; j++)
                     {
                         var other = poiZones[j];
                         float distance = Vector2.Distance(zone.GetCenter(), other.GetCenter());
 
-                        float tolerance = (zone.GetAverageDistanceBetweenZones() + other.GetAverageDistanceBetweenZones()) / (2.0f * other.GetCount());
+                        //float tolerance = (zone.GetAverageDistanceBetweenZones() + other.GetAverageDistanceBetweenZones()) / 2.0f;
+                        float tolerance = Mathf.Min(zone.GetAverageDistanceBetweenZones(), other.GetAverageDistanceBetweenZones());
 
                         if (distance <= tolerance)
                         {
-                            zone.Merge(other);
-                            this.logger.Verbose($"ITERATION {iteration} : {j} merged into {i} - new count " + zone.GetCount());
+                            nearby.Add(other);
+                            poiZones.RemoveAt(j--);
                         }
                     }
+
+                    zone.Merge(nearby.ToArray());
+                    this.logger.Verbose($"ITERATION {iteration} : merged into {i} - new count " + zone.GetCount());
                 }
             }
 
+            float avgWeight = poiZones.Average(zone => zone.GetAverageWeight());
             for(int z = 0; z < poiZones.Count; z++)
             {
                 var zone = poiZones[z];
+                //float avgWeight = zone.GetAverageWeight();
+
                 for (int i = 0; i < zone.GetPOIs().Count; i++)
                 {
-                    if (zone.GetPOIs()[i].GetWeight() < zone.GetAverageWeight())
+                    if (zone.GetPOIs()[i].GetWeight() < avgWeight)
                     {
                         zone.GetPOIs().RemoveAt(i--);
                     }
@@ -119,7 +128,7 @@ namespace ImprovedHordes.POI
         public sealed class POIZone
         {
             private List<POI> pois = new List<POI>();
-            private float averageDistanceBetweenZones = 64.0f;
+            private float averageDistanceBetweenZones = POI_MERGE_DIST;
 
             public POIZone(POI poi)
             {
@@ -128,7 +137,9 @@ namespace ImprovedHordes.POI
 
             public void Add(POI poi)
             {
+                this.pois.ForEach(p => p.MarkZoned());
                 this.pois.Add(poi);
+
                 poi.MarkZoned();
             }
 
@@ -146,7 +157,7 @@ namespace ImprovedHordes.POI
                     float distance = Vector2.Distance(zone.GetCenter(), this.GetCenter());
                     averageDistanceBetweenZones += distance;
 
-                    this.pois.AddRange(zone.pois);
+                    zone.pois.ForEach(p => this.Add(p));
                 }
 
                 averageDistanceBetweenZones /= other.Length;
@@ -159,15 +170,7 @@ namespace ImprovedHordes.POI
 
             public float GetAverageWeight()
             {
-                float weight = 0.0f;
-
-                foreach(var poi in this.pois)
-                {
-                    weight += poi.GetWeight();
-                }
-
-                weight /= this.pois.Count;
-                return weight;
+                return this.pois.Average(poi => poi.GetWeight());
             }
 
             public int GetCount()
