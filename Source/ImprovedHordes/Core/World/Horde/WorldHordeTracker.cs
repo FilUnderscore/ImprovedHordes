@@ -350,7 +350,7 @@ namespace ImprovedHordes.Core.World.Horde
                     {
                         // Interrupt AI to split off/target reported event.
                         WorldEventReportEvent nearbyEvent = nearbyReports.OrderBy(report => report.GetDistance()).First();
-                        horde.Interrupt(new GoToTargetAICommand(nearbyEvent.GetLocation()));
+                        horde.Interrupt(new GoToTargetAICommand(nearbyEvent.GetLocation()), new WanderAICommand(nearbyEvent.GetInterest()));
                     }
                 }
 

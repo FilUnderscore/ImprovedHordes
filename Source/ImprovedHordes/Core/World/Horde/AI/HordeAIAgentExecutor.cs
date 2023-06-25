@@ -8,7 +8,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
     public sealed class HordeAIAgentExecutor : AIAgentExecutor<WorldHorde>
     {
         private readonly IAICommandGenerator<AICommand> commandGenerator;
-        private readonly ConcurrentStack<AICommand> interruptCommands = new ConcurrentStack<AICommand>();
+        private readonly ConcurrentQueue<AICommand> interruptCommands = new ConcurrentQueue<AICommand>();
 
         private readonly List<HordeEntityAIAgentExecutor> entities = new List<HordeEntityAIAgentExecutor>();
 
@@ -30,16 +30,18 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         public void Interrupt(params AICommand[] commands)
         {
-            this.interruptCommands.Clear();
-            this.interruptCommands.PushRange(commands);
+            while (this.interruptCommands.TryDequeue(out _)) { }
 
-            if(this.commandGenerator != null)
-                this.commandGenerator.GenerateNextCommand(this.Random, out this.Command);
+            foreach(var command in commands)
+                this.interruptCommands.Enqueue(command);
 
             foreach (var entity in this.entities)
             {
                 entity.SetCommand(this.GetCommand());
             }
+
+            if (this.commandGenerator != null)
+                this.commandGenerator.GenerateNextCommand(this.Random, out this.Command);
         }
 
         public override GeneratedAICommand<AICommand> GetCommand()
@@ -53,7 +55,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
         public GeneratedAICommand<AICommand> GetNextCommand(IWorldRandom random, GeneratedAICommand<AICommand> currentCommand)
         {
             // Try get next interrupt command first.
-            if(this.interruptCommands.TryPop(out _))
+            if(this.interruptCommands.TryDequeue(out _))
             {
                 if (this.interruptCommands.TryPeek(out AICommand nextInterruptCommand))
                     return new GeneratedAICommand<AICommand>(nextInterruptCommand);
@@ -86,7 +88,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
             do
             {
                 // Discard current command and any expired commands.
-                interruptCommands.TryPop(out _);
+                interruptCommands.TryDequeue(out _);
             }
             while (interruptCommands.TryPeek(out AICommand nextNextCommand) && nextNextCommand.HasExpired());
 

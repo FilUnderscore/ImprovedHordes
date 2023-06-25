@@ -5,7 +5,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 {
     public class GoToTargetAICommand : AICommand
     {
-        private const int MIN_DISTANCE_TO_TARGET = 10;
+        private const int MIN_DISTANCE_TO_TARGET = 5;
         private Vector3 target;
 
         public GoToTargetAICommand(Vector3 target) : base()
@@ -35,7 +35,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override bool IsComplete(IAIAgent agent)
         {
-            return Vector2.Distance(ToXZ(agent.GetLocation()), ToXZ(this.target)) < MIN_DISTANCE_TO_TARGET;
+            return Vector2.Distance(ToXZ(agent.GetLocation()), ToXZ(this.target)) <= MIN_DISTANCE_TO_TARGET;
         }
 
         private Vector2 ToXZ(Vector3 v)

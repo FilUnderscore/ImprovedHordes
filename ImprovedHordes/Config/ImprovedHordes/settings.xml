@@ -23,12 +23,12 @@
 	<wandering_animal_wilderness_sparsity>64</wandering_animal_wilderness_sparsity>
 	<wandering_animal_enemy_wilderness_sparsity>32</wandering_animal_enemy_wilderness_sparsity>
 	
-	<wandering_enemy_wilderness_sparsity>32</wandering_enemy_wilderness_sparsity>
+	<wandering_enemy_wilderness_sparsity>16</wandering_enemy_wilderness_sparsity>
 	
 	<wilderness_horde_repopulation_days>7</wilderness_horde_repopulation_days>
 	<zone_horde_repopulation_days>7</zone_horde_repopulation_days>
 	
 	<!-- Events -->
 	<event_chunk_radius>3</event_chunk_radius>
-	<event_interest_distance_multiplier>0.25</event_interest_distance_multiplier>
+	<event_interest_distance_multiplier>0.5</event_interest_distance_multiplier>
 </improved_hordes>
