@@ -87,10 +87,10 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                 writer.Write((int)zone.GetBounds().size.x);
                 writer.Write((int)zone.GetBounds().size.z);
 
-                writer.Write(zone.GetDensity());
-                writer.Write(zone.GetCount());
-                writer.Write(zone.GetAverageDistanceBetweenZones());
-                writer.Write(zone.GetAverageWeight());
+                writer.Write(0.0f);
+                writer.Write(0);
+                writer.Write(0.0f);
+                writer.Write(0.0f);
             }
         }
 

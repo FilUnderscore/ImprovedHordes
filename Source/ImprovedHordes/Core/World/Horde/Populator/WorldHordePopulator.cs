@@ -55,6 +55,8 @@ namespace ImprovedHordes.Core.World.Horde.Populator
             if (GetWorldHordeDensity(clusters) >= WorldHordeTracker.MAX_WORLD_DENSITY.Value)
                 return;
 
+            return;
+
             foreach(var populator in this.populators)
             {
                 if (!populator.CanRun(players, clusters))
