@@ -6,7 +6,7 @@
 	<max_entities_spawned_per_player>16</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
 
 	<!-- Threading -->
-	<max_horde_threads>4</max_horde_threads> <!-- Number of threads to use for Horde updates. -->
+	<max_horde_threads>2</max_horde_threads> <!-- Number of threads to use for Horde updates. -->
 	<max_cluster_threads>2</max_cluster_threads> <!-- Number of threads to use for loaded Horde Cluster updates. -->
 	
 	<!-- World Spawn Limits -->

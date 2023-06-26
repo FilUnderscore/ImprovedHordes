@@ -36,7 +36,7 @@ namespace ImprovedHordes.Core.World.Horde
             if (biome == null)
                 return biomeSparsityMultiplier;
 
-            return biomeSparsityMultiplier / biome.Difficulty;
+            return biomeSparsityMultiplier * biome.Difficulty;
         }
     }
 }
