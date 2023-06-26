@@ -70,7 +70,7 @@ public final class WorldHordeState
 	
 	private void drawAxis(IHRenderer renderer, Graphics g)
 	{
-		Vector2i rescaledAxisThickness = renderer.rescaleBlocksToScreen(16);
+		Vector2i rescaledAxisThickness = renderer.rescaleBlocksToScreen(32);
 		
 		g.setColor(Color.white);
 		g.drawRect(0, 0, renderer.getPanelSize().x, renderer.getPanelSize().y);
@@ -83,7 +83,7 @@ public final class WorldHordeState
 		g.setColor(new Color(0, 102, 0, 255));
 		
 		// Draw chunks.
-		int blockSize = 16;
+		int blockSize = 100;
 		Vector2i rescaledBlocks = renderer.rescaleBlocksToScreen(blockSize);
 	
 		for(int x = -worldSize.x / 2; x <= worldSize.x / 2; x += blockSize)
