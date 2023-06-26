@@ -7,6 +7,9 @@ namespace ImprovedHordes.POI
 {
     public sealed class WorldPOIScanner
     {
+        private static int HIGHEST_COUNT;
+        private float avgZoneDensity;
+
         private const float TOWN_WEIGHT = 4.0f;
         private readonly Core.Abstractions.Logging.ILogger logger;
 
@@ -58,7 +61,6 @@ namespace ImprovedHordes.POI
                 }
             }
 
-            this.logger.Warn("Before weight purge: " + toZone.Count);
             for(int i = 0; i < toZone.Count; i++)
             {
                 if (toZone[i].GetWeight() < TOWN_WEIGHT)
@@ -66,7 +68,6 @@ namespace ImprovedHordes.POI
                     toZone.RemoveAt(i--);
                 }
             }
-            this.logger.Warn("After weight purge: " + toZone.Count);
 
             for(int i = 0; i < toZone.Count - 1; i++)
             {
@@ -85,23 +86,10 @@ namespace ImprovedHordes.POI
                             zone.Add(toZone[j]);
                             toZone.RemoveAt(j--);
                         }
-                        else
-                        {
-                            this.logger.Info($"Not big enough.");
-                        }
                     }
                 }
 
                 poiZones.Add(zone);
-            }
-
-            float avg = poiZones.Average(z => z.GetDensity());
-            for(int i = 0; i < poiZones.Count; i++)
-            {
-                if (poiZones[i].GetDensity() < avg)
-                {
-                    poiZones.RemoveAt(i--);
-                }
             }
 
             // Merge
@@ -187,8 +175,16 @@ namespace ImprovedHordes.POI
                 }
             } while (merge);
 
-            Log.Out($"Highest count: {poiZones.Max(z => z.GetCount())}");
             zones.AddRange(poiZones);
+
+            // Calculate zone density.
+            HIGHEST_COUNT = poiZones.Max(z => z.GetCount());
+            avgZoneDensity = zones.Average(z => z.GetDensity());
+        }
+
+        public float GetAverageZoneDensity()
+        {
+            return this.avgZoneDensity;
         }
 
         public List<POIZone> GetZones()
@@ -218,28 +214,6 @@ namespace ImprovedHordes.POI
             public void Merge(POIZone other)
             {
                 other.pois.ForEach(z => this.pois.Add(z));
-            }
-
-            public float GetAverageDistanceBetweenPOIs()
-            {
-                float avgDist = 0.0f;
-                int count = 0;
-
-                for(int i = 0; i < this.pois.Count - 1; i++)
-                {
-                    for(int j = i + 1; j < this.pois.Count; j++)
-                    {
-                        avgDist += Vector2.Distance(pois[i].GetLocation(), pois[j].GetLocation());
-                        count += 1;
-                    }
-                }
-
-                return avgDist / count;
-            }
-
-            public float GetAverageWeight()
-            {
-                return this.pois.Average(poi => poi.GetWeight());
             }
 
             public int GetCount()
@@ -274,8 +248,7 @@ namespace ImprovedHordes.POI
 
             public float GetDensity()
             {
-                //return ((float)this.GetCount() / HIGHEST_COUNT) * this.GetAverageWeight();
-                return 0.0f;
+                return (float)this.GetCount() / HIGHEST_COUNT;
             }
         }
 

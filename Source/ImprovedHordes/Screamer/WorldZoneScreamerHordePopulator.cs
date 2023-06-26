@@ -31,7 +31,7 @@ namespace ImprovedHordes.Screamer
 
         protected override float GetMinimumDensity()
         {
-            return 0.75f;
+            return this.scanner.GetAverageZoneDensity();
         }
 
         [HarmonyPatch(typeof(AIDirectorChunkEventComponent))]

@@ -89,7 +89,7 @@ namespace ImprovedHordes.POI
                 // Check for nearby hordes.
                 Parallel.ForEach(clusters[typeof(Horde)], cluster =>
                 {
-                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= randomZone.GetBounds().size.sqrMagnitude * 10)
+                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= (randomZone.GetBounds().size.sqrMagnitude / 2.0f))
                     {
                         nearby |= true;
                     }
@@ -110,10 +110,11 @@ namespace ImprovedHordes.POI
         private void SpawnHordesAt(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, GameRandom random)
         {
             Vector3 zoneCenter = zone.GetBounds().center;
-            int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude);
+            int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude) / 4;
 
             float biomeFactor = HordeBiomes.DetermineBiomeFactor(zoneCenter);
             int hordeCount = Mathf.Max(1, Mathf.FloorToInt(CalculateHordeCount(zone) / biomeFactor));
+            Log.Out("Calculated " + hordeCount);
 
             for (int i = 0; i < hordeCount; i++)
             {
