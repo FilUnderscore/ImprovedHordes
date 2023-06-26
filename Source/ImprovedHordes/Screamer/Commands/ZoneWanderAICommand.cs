@@ -12,7 +12,7 @@ namespace ImprovedHordes.Screamer.Commands
 
         private static Vector3 GetTarget(WorldPOIScanner.POIZone zone)
         {
-            Vector2 targetPos2 = zone.GetCenter() + zone.GetBounds().size.magnitude * 0.5f * GameManager.Instance.World.GetGameRandom().RandomOnUnitCircle;
+            Vector2 targetPos2 = zone.GetCenter() + (zone.GetBounds().size.magnitude / 4) * GameManager.Instance.World.GetGameRandom().RandomOnUnitCircle;
             float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y);
 
             return new Vector3(targetPos2.x, y, targetPos2.y);
