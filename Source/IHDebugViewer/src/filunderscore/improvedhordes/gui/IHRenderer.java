@@ -20,60 +20,56 @@ public class IHRenderer
 	
 	public Vector2i rescaleBlocksToScreen(int blocks)
 	{
-		return worldToScreen(new Vector2i(blocks, blocks));
+		return worldToScreen(new Vector2i(blocks, blocks), false);
 	}
 	
-	public Vector2i worldToScreen(Vector2i absoluteWorldPos)
+	public Vector2i worldToScreen(Vector2i absoluteWorldPos, boolean flip)
 	{
 		int localX = (int)((absoluteWorldPos.x / (float)this.worldSize.x) * panelSize.x);
-		int localY = panelSize.y - (int)((absoluteWorldPos.y / (float)this.worldSize.y) * panelSize.y);
+		int localY = (int)((absoluteWorldPos.y / (float)this.worldSize.y) * panelSize.y);
+		
+		if(flip)
+			localY = panelSize.y - localY;
 		
 		return new Vector2i(localX, localY);
 	}
 	
-	private Vector3 worldToAbsoluteWorld(Vector3 worldPos)
+	private Vector2i worldToAbsoluteWorld(Vector2i worldPos)
 	{
 		int maxWW = (this.worldSize.x / 2);
 		int maxWH = (this.worldSize.y / 2);
 		
 		worldPos.x += maxWW;
-		worldPos.z += maxWH;
+		worldPos.y += maxWH;
 		
 		worldPos.x = Math.max(0, worldPos.x);
-		worldPos.z = Math.max(0, worldPos.z);
+		worldPos.y = Math.max(0, worldPos.y);
 		
 		return worldPos;
 	}
 	
 	private Vector2i worldToScreen(Vector3 pos)
 	{
-		return worldToScreen(new Vector2i((int)pos.x, (int)pos.z));
+		return worldToScreen(new Vector2i((int)pos.x, (int)pos.z), true);
 	}
 	
 	public ScaledVector rescale(Vector2i pos, Vector2i markerSize)
 	{
-		return rescale(new Vector3(pos.x, 0, pos.y), markerSize);
-	}
-	
-	public ScaledVector rescale(Vector3 pos, Vector2i markerSize)
-	{
 		pos = worldToAbsoluteWorld(pos.clone());
-		Vector2i screenPos = worldToScreen(pos.clone());
+		pos = worldToScreen(pos.clone(), true);
 		
-		markerSize = markerSize.clone();
-		return new ScaledVector(new Vector2i((int)pos.x, (int)pos.z), screenPos, new Vector2i(markerSize.x, markerSize.y));
+		markerSize = worldToScreen(markerSize.clone(), false);
+		
+		return new ScaledVector(pos, markerSize);
 	}
 	
 	public static class ScaledVector
 	{
-		private Vector2i worldPosition;
-		
 		public Vector2i scaledPosition;
 		public Vector2i scaledSize;
 		
-		public ScaledVector(Vector2i worldPosition, Vector2i scaledPosition, Vector2i scaledSize)
+		public ScaledVector(Vector2i scaledPosition, Vector2i scaledSize)
 		{
-			this.worldPosition = worldPosition;
 			this.scaledPosition = scaledPosition;
 			this.scaledSize = scaledSize;
 		}

@@ -150,6 +150,8 @@ namespace ImprovedHordes.POI
                 this.lastSpawned.Add(lastSpawnedEntry.Key, lastSpawnedEntry.Value);
             }
 
+            Log.Out("Loaded : " + lastSpawnedDictionary.Count);
+
             return this;
         }
 

@@ -29,20 +29,20 @@ public class ClusterSnapshot implements Drawable
 	@Override
 	public void draw(WorldHordeState world, IHRenderer renderer, Graphics g) 
 	{
-		ScaledVector rescaledLocation = renderer.rescale(this.location, new Vector2i(10, 10));
+		ScaledVector rescaledLocation = renderer.rescale(this.location.toVXZ(), new Vector2i(30, 30));
 		
 		if(this.clusterType.equalsIgnoreCase("WanderingAnimalHorde"))
 			g.setColor(Color.blue);
 		else if(this.clusterType.equalsIgnoreCase("WanderingEnemyHorde"))
 			g.setColor(Color.red);
 		else if(this.clusterType.equalsIgnoreCase("ScreamerHorde"))
-			g.setColor(Color.orange);
+			g.setColor(Color.green);
 		else if(this.clusterType.equalsIgnoreCase("WanderingAnimalEnemyHorde"))
-			g.setColor(Color.pink);
+			g.setColor(Color.orange);
 		
 		if(rescaledLocation.inView())
 		{
-			g.fillOval((int)rescaledLocation.scaledPosition.x - rescaledLocation.scaledSize.x / 2, (int)rescaledLocation.scaledPosition.y - rescaledLocation.scaledSize.y / 2, rescaledLocation.scaledSize.x, rescaledLocation.scaledSize.y);
+			g.fillOval((int)(rescaledLocation.scaledPosition.x - rescaledLocation.scaledSize.x / 1.5), (int)(rescaledLocation.scaledPosition.y - rescaledLocation.scaledSize.y / 1.5), rescaledLocation.scaledSize.x, rescaledLocation.scaledSize.y);
 		}
 	}
 }

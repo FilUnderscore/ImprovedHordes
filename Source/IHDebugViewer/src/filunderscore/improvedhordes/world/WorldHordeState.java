@@ -90,7 +90,7 @@ public final class WorldHordeState
 		{
 			for(int y = -worldSize.y / 2; y <= worldSize.y / 2; y += blockSize)
 			{
-				ScaledVector rescaled = renderer.rescale(new Vector3(x, 0, y), new Vector2i(1, 1));
+				ScaledVector rescaled = renderer.rescale(new Vector2i(x, y), new Vector2i(1, 1));
 				
 				if(rescaled.inView())
 				{

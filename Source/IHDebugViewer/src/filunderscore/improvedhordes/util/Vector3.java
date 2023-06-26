@@ -30,4 +30,9 @@ public class Vector3 implements Cloneable
 	{
 		return new Vector3(in.readFloat(), in.readFloat(), in.readFloat());
 	}
+	
+	public Vector2i toVXZ()
+	{
+		return new Vector2i(this.x, this.z);
+	}
 }

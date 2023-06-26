@@ -30,9 +30,9 @@ public class PlayerSnapshot implements Drawable
 	@Override
 	public void draw(WorldHordeState world, IHRenderer renderer, Graphics g) 
 	{
-		ScaledVector scaled = renderer.rescale(this.location, new Vector2i(10, 10));
+		ScaledVector scaled = renderer.rescale(this.location.toVXZ(), new Vector2i(50, 50));
 		
 		g.setColor(Color.yellow);
-		g.fillOval((int)scaled.scaledPosition.x - scaled.scaledSize.x / 2, (int)scaled.scaledPosition.y - scaled.scaledSize.y / 2, scaled.scaledSize.x, scaled.scaledSize.y);
+		g.fillOval((int)(scaled.scaledPosition.x - scaled.scaledSize.x / 1.5), (int)(scaled.scaledPosition.y - scaled.scaledSize.y / 1.5), scaled.scaledSize.x, scaled.scaledSize.y);
 	}
 }

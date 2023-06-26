@@ -33,7 +33,7 @@ public class POI implements Drawable
 		
 		g.setColor(Color.yellow);
 		
-		g.drawRect(scaled.scaledPosition.x - scaled.scaledSize.x / 2, scaled.scaledPosition.y - scaled.scaledSize.y / 2, scaled.scaledSize.x, scaled.scaledSize.y);
+		g.drawRect((int)(scaled.scaledPosition.x), (int)(scaled.scaledPosition.y - scaled.scaledSize.y), scaled.scaledSize.x, scaled.scaledSize.y);
 
 		g.setFont(g.getFont().deriveFont(12.0f));
 		//g.drawString("Density: " + this.density + " Count: " + this.count, scaled.scaledPosition.x, scaled.scaledPosition.y - 10);

@@ -10,8 +10,6 @@ namespace ImprovedHordes.POI
         private const float TOWN_WEIGHT = 4.0f;
         private readonly Core.Abstractions.Logging.ILogger logger;
 
-        private static int HIGHEST_COUNT;
-
         private readonly List<POI> pois = new List<POI>();
         private readonly List<POIZone> zones = new List<POIZone>();
 
@@ -81,7 +79,7 @@ namespace ImprovedHordes.POI
 
                     if(nearby)
                     {
-                        float higherWeight = Mathf.Max(toZone[i].GetWeight(), toZone[j].GetWeight());
+                        float higherWeight = (toZone[i].GetWeight() + toZone[j].GetWeight()) / 2.0f;
                         if (toZone[j].GetWeight() >= higherWeight)
                         {
                             zone.Add(toZone[j]);
@@ -97,71 +95,43 @@ namespace ImprovedHordes.POI
                 poiZones.Add(zone);
             }
 
-            // Combine zones
-
-            /*
-            // Start zoning.
-            for (int i = 0; i < toZone.Count - 1; i++)
+            float avg = poiZones.Average(z => z.GetDensity());
+            for(int i = 0; i < poiZones.Count; i++)
             {
-                var poi = toZone[i];
-                var zone = new POIZone(poi);
-                bool valid = false;
-
-                for(int j = i + 1; j < toZone.Count; j++)
+                if (poiZones[i].GetDensity() < avg)
                 {
-                    var other = toZone[j];
-                    float distance = Vector2.Distance(poi.GetLocation(), other.GetLocation());
-                    float sizeCombined = (poi.GetBounds().size.magnitude + other.GetBounds().size.magnitude) / 2;
-                    bool zoned = distance <= sizeCombined;
-
-                    if (zoned)
-                    {
-                        zone.Add(other);
-                        toZone.RemoveAt(j--);
-                    }
-                }
-
-                valid = zone.GetCount() > 1;
-
-                if (valid)
-                    poiZones.Add(zone);
-            }
-
-            // Iterate and merge zones. average
-
-            const int ITERATIONS = 20;
-            int iteration = 0;
-
-            while(iteration++ < ITERATIONS)
-            { 
-                for(int i = 0; i < poiZones.Count - 1; i++)
-                {
-                    var zone = poiZones[i];
-                    var nearby = new List<POIZone>();
-
-                    for(int j = i + 1; j < poiZones.Count; j++)
-                    {
-                        var other = poiZones[j];
-                        float distance = Vector2.Distance(zone.GetCenter(), other.GetCenter());
-                        //float tolerance = Mathf.Min(zone.GetBounds().size.magnitude, other.GetBounds().size.magnitude) / 2;
-
-                        float tolerance = Mathf.Min(zone.GetAverageDistanceBetweenPOIs(), other.GetAverageDistanceBetweenPOIs());
-
-                        if (distance <= tolerance)
-                        {
-                            nearby.Add(other);
-                            poiZones.RemoveAt(j--);
-                        }
-                    }
-
-                    zone.Merge(nearby.ToArray());
-                    this.logger.Verbose($"ITERATION {iteration} : merged into {i} - new count " + zone.GetCount());
+                    poiZones.RemoveAt(i--);
                 }
             }
 
-            */
+            // Merge
+            for (int i = 0; i < poiZones.Count - 1; i++)
+            {
+                var zone = poiZones[i];
+                var near = new List<POIZone>();
+
+                for (int j = i + 1; j < poiZones.Count; j++)
+                {
+                    var other = poiZones[j];
+
+                    float distance = Vector2.Distance(zone.GetCenter(), other.GetCenter());
+                    bool nearby = distance <= Mathf.Max(zone.GetBounds().size.magnitude, other.GetBounds().size.magnitude) * 2f;
+
+                    if (nearby)
+                    {
+                        near.Add(other);
+                        poiZones.RemoveAt(j--);
+                    }
+                }
+
+                this.logger.Info($"For {i} got {near.Count} remains {poiZones.Count}");
+                foreach (var n in near)
+                {
+                    zone.Merge(n);
+                }
+            }
+
             zones.AddRange(poiZones);
-            HIGHEST_COUNT = zones.Max(zone => zone.GetCount());
         }
 
         public List<POIZone> GetZones()
@@ -188,12 +158,9 @@ namespace ImprovedHordes.POI
                 return this.pois;
             }
 
-            public void Merge(params POIZone[] other)
+            public void Merge(POIZone other)
             {
-                foreach(var zone in other)
-                {
-                    zone.pois.ForEach(p => this.Add(p));
-                }
+                other.pois.ForEach(z => this.pois.Add(z));
             }
 
             public float GetAverageDistanceBetweenPOIs()
@@ -250,7 +217,8 @@ namespace ImprovedHordes.POI
 
             public float GetDensity()
             {
-                return ((float)this.GetCount() / HIGHEST_COUNT) * this.GetAverageWeight();
+                //return ((float)this.GetCount() / HIGHEST_COUNT) * this.GetAverageWeight();
+                return 0.0f;
             }
         }
 
