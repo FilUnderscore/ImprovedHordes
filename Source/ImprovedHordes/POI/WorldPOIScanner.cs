@@ -139,6 +139,54 @@ namespace ImprovedHordes.POI
                 }
             } while (merge);
 
+            // Combine smaller zones into bigger by taking POIs in zones and checking distance is near.
+
+            do
+            {
+                merge = false;
+
+                for(int i = 0; i < poiZones.Count - 1; i++)
+                {
+                    var zone = poiZones[i];
+                    var zonePOI = zone.GetPOIs();
+                    
+                    for(int j = i + 1; j < poiZones.Count; j++)
+                    {
+                        bool done = false;
+
+                        var other = poiZones[j];
+                        var otherPOI = other.GetPOIs();
+
+                        for(int zp = 0; zp < zonePOI.Count; zp++)
+                        {
+                            var zPOI = zonePOI[zp];
+
+                            for(int op = 0; op < otherPOI.Count; op++)
+                            {
+                                var oPOI = otherPOI[op];
+
+                                float distance = Vector2.Distance(zPOI.GetLocation(), oPOI.GetLocation());
+                                bool nearby = distance <= (zPOI.GetBounds().size.magnitude + oPOI.GetBounds().size.magnitude);
+
+                                if(nearby)
+                                {
+                                    zone.Merge(other);
+                                    poiZones.RemoveAt(j--);
+                                    done = true;
+                                    merge |= true;
+                                    break;
+                                }
+                            }
+
+                            if (done)
+                                break;
+                        }
+
+                        done = false;
+                    }
+                }
+            } while (merge);
+
             Log.Out($"Highest count: {poiZones.Max(z => z.GetCount())}");
             zones.AddRange(poiZones);
         }
