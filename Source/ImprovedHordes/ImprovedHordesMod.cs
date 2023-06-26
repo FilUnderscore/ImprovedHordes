@@ -29,6 +29,7 @@ namespace ImprovedHordes
         private static ImprovedHordesMod Instance;
 
         private Mod modInstance;
+        private bool loaded;
 
         private readonly Harmony harmony;
 
@@ -142,9 +143,11 @@ namespace ImprovedHordes
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnData(15)));
 
             this.settingLoader.LoadSettings();
-            
+
+            loaded = false;
             if(this.TryLoadData())
                 this.logger.Info("Loaded data.");
+            loaded = true;
         }
 
         private bool TryLoadData()
@@ -205,7 +208,7 @@ namespace ImprovedHordes
 
         private static void GameUpdate()
         {
-            if (Instance.core == null)
+            if (Instance.core == null || !Instance.loaded)
                 return;
 
             Instance.core.Update();
