@@ -105,32 +105,41 @@ namespace ImprovedHordes.POI
             }
 
             // Merge
-            for (int i = 0; i < poiZones.Count - 1; i++)
+            bool merge;
+
+            do
             {
-                var zone = poiZones[i];
-                var near = new List<POIZone>();
+                merge = false;
 
-                for (int j = i + 1; j < poiZones.Count; j++)
+                for (int i = 0; i < poiZones.Count - 1; i++)
                 {
-                    var other = poiZones[j];
+                    var zone = poiZones[i];
+                    var near = new List<POIZone>();
 
-                    float distance = Vector2.Distance(zone.GetCenter(), other.GetCenter());
-                    bool nearby = distance <= Mathf.Max(zone.GetBounds().size.magnitude, other.GetBounds().size.magnitude) * 2f;
-
-                    if (nearby)
+                    for (int j = i + 1; j < poiZones.Count; j++)
                     {
-                        near.Add(other);
-                        poiZones.RemoveAt(j--);
+                        var other = poiZones[j];
+
+                        float distance = Vector2.Distance(zone.GetCenter(), other.GetCenter());
+                        bool nearby = distance <= Mathf.Min(zone.GetBounds().size.magnitude, other.GetBounds().size.magnitude) / 2f;
+
+                        if (nearby)
+                        {
+                            near.Add(other);
+                            poiZones.RemoveAt(j--);
+                        }
                     }
-                }
 
-                this.logger.Info($"For {i} got {near.Count} remains {poiZones.Count}");
-                foreach (var n in near)
-                {
-                    zone.Merge(n);
-                }
-            }
+                    foreach (var n in near)
+                    {
+                        zone.Merge(n);
+                    }
 
+                    merge |= near.Any();
+                }
+            } while (merge);
+
+            Log.Out($"Highest count: {poiZones.Max(z => z.GetCount())}");
             zones.AddRange(poiZones);
         }
 
