@@ -29,6 +29,11 @@ namespace ImprovedHordes.Screamer
             return 1;
         }
 
+        protected override bool IsDensityInfluencedByZoneProperties()
+        {
+            return false;
+        }
+
         protected override float GetMinimumDensity()
         {
             return this.scanner.GetAverageZoneDensity();

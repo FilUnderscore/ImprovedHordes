@@ -102,6 +102,11 @@ namespace ImprovedHordes.POI
 
         protected abstract int CalculateHordeCount(WorldPOIScanner.POIZone zone);
 
+        protected virtual bool IsDensityInfluencedByZoneProperties()
+        {
+            return true;
+        }
+
         protected virtual float GetMinimumDensity()
         {
             return 0.0f;
@@ -113,12 +118,12 @@ namespace ImprovedHordes.POI
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude) / 4;
 
             float biomeFactor = HordeBiomes.DetermineBiomeFactor(zoneCenter);
-            int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.CeilToInt(CalculateHordeCount(zone))) * biomeFactor);
+            int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.CeilToInt(CalculateHordeCount(zone))) * (biomeFactor / 2));
             
             for (int i = 0; i < hordeCount; i++)
             {
                 Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
-                SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount);
+                SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount * 2);
             }
 
             ulong worldTime = GameManager.Instance.World.worldTime;
@@ -135,7 +140,11 @@ namespace ImprovedHordes.POI
 
         private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount)
         {
-            float densitySizeRatio = Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount())) / hordeCount;
+            float densitySizeRatio = 1.0f;
+
+            if (this.IsDensityInfluencedByZoneProperties())
+                 densitySizeRatio = Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount() * hordeCount * hordeCount));
+    
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), densitySizeRatio, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }
 

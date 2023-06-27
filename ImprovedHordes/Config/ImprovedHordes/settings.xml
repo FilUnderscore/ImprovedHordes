@@ -11,7 +11,7 @@
 	
 	<!-- World Spawn Limits -->
 	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. (Horde biome size) -->
-	<max_world_density>200.0</max_world_density> <!-- Max World Horde Density. (Number of hordes in world) -->
+	<max_world_density>350.0</max_world_density> <!-- Max World Horde Density. (Number of hordes in world) -->
 	
 	<horde_biome_multiplier>0.1</horde_biome_multiplier> <!-- Biome multiplier. Higher = more hordes. -->
 	
