@@ -113,8 +113,8 @@ namespace ImprovedHordes.POI
             int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude) / 4;
 
             float biomeFactor = HordeBiomes.DetermineBiomeFactor(zoneCenter);
-            int hordeCount = Mathf.Max(1, Mathf.CeilToInt(CalculateHordeCount(zone) * biomeFactor));
-            Log.Out("Calculated " + hordeCount);
+            int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.CeilToInt(CalculateHordeCount(zone))) * biomeFactor);
+            Log.Out($"Calculated " + hordeCount + $" biome factor {biomeFactor}");
 
             for (int i = 0; i < hordeCount; i++)
             {
@@ -150,8 +150,6 @@ namespace ImprovedHordes.POI
             {
                 this.lastSpawned.Add(lastSpawnedEntry.Key, lastSpawnedEntry.Value);
             }
-
-            Log.Out("Loaded : " + lastSpawnedDictionary.Count);
 
             return this;
         }

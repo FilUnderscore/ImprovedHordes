@@ -203,8 +203,8 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             base.Shutdown();
 
-            this.listener.Stop();
             this.running = false;
+            this.listener.Stop();
         }
     }
 }
