@@ -5,7 +5,7 @@ namespace ImprovedHordes.Core.World.Horde
 {
     public static class HordeBiomes
     {
-        private static readonly Setting<float> HORDE_BIOME_SPARSITY_MULTIPLIER = new Setting<float>("horde_biome_sparsity_multiplier", 0.5f);
+        private static readonly Setting<float> HORDE_BIOME_MULTIPLIER = new Setting<float>("horde_biome_multiplier", 0.1f);
         
         private static BiomeDefinition GetBiomeAt(Vector2 location)
         {
@@ -36,12 +36,12 @@ namespace ImprovedHordes.Core.World.Horde
         public static float DetermineBiomeFactor(Vector2 location)
         {
             BiomeDefinition biome = GetBiomeAt(location);
-            float biomeSparsityMultiplier = HORDE_BIOME_SPARSITY_MULTIPLIER.Value;
+            float biomeMultiplier = HORDE_BIOME_MULTIPLIER.Value;
 
             if (biome == null)
-                return biomeSparsityMultiplier;
+                return biomeMultiplier;
 
-            return biomeSparsityMultiplier + Mathf.Pow(5.0f, biome.Difficulty - 4.0f);
+            return biomeMultiplier + Mathf.Pow(5.0f, biome.Difficulty - 4.0f);
         }
     }
 }

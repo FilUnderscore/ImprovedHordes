@@ -114,12 +114,11 @@ namespace ImprovedHordes.POI
 
             float biomeFactor = HordeBiomes.DetermineBiomeFactor(zoneCenter);
             int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.CeilToInt(CalculateHordeCount(zone))) * biomeFactor);
-            Log.Out($"Calculated " + hordeCount + $" biome factor {biomeFactor}");
-
+            
             for (int i = 0; i < hordeCount; i++)
             {
                 Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
-                SpawnHordeAt(zoneSpawnLocation, zone, spawner);
+                SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount);
             }
 
             ulong worldTime = GameManager.Instance.World.worldTime;
@@ -134,9 +133,9 @@ namespace ImprovedHordes.POI
             }
         }
 
-        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner)
+        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount)
         {
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zone.GetDensity(), CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zone.GetDensity() / hordeCount, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }
 
         public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone);
