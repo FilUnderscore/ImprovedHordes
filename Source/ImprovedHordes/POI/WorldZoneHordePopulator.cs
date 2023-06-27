@@ -135,7 +135,8 @@ namespace ImprovedHordes.POI
 
         private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount)
         {
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), zone.GetDensity() / Mathf.Sqrt(hordeCount), CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
+            float densitySizeRatio = Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount())) / hordeCount;
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnData(20), densitySizeRatio, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }
 
         public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone);

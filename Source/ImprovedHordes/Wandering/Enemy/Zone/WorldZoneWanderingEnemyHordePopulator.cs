@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.AI;
+using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.POI;
 using UnityEngine;
 
@@ -22,8 +23,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
         protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
         {
-            float sizeCountRatio = zone.GetBounds().size.magnitude / (2 * zone.GetCount());
-            return Mathf.FloorToInt(sizeCountRatio * zone.GetDensity());
+            return Mathf.FloorToInt((zone.GetBounds().size.magnitude * 2) / WorldHordeTracker.MAX_VIEW_DISTANCE);
         }
     }
 }
