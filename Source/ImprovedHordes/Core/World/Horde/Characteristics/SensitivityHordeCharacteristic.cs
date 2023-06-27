@@ -20,7 +20,24 @@ namespace ImprovedHordes.Core.World.Horde.Characteristics
         public float GetSensitivity()
         {
             // TODO blood moon scaling?
-            return this.sensitivity;
+            return this.sensitivity + GetFeralSenseSensitivity();
+        }
+
+        private float GetFeralSenseSensitivity()
+        {
+            bool isDay = GameManager.Instance.World.IsDaytime();
+
+            switch(GamePrefs.GetInt(EnumGamePrefs.ZombieFeralSense))
+            {
+                case 1:
+                    return isDay ? 1.0f : 0.0f;
+                case 2:
+                    return !isDay ? 1.0f : 0.0f;
+                case 3:
+                    return 1.0f;
+            }
+
+            return 0.0f;
         }
 
         public override void Save(IDataSaver saver)
