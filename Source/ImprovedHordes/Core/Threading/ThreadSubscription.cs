@@ -1,6 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ImprovedHordes.Core.Threading
 {
@@ -34,7 +32,7 @@ namespace ImprovedHordes.Core.Threading
 
     public sealed class ThreadSubscriber<T>
     {
-        private ConcurrentQueue<T> history = new ConcurrentQueue<T>();
+        private readonly ConcurrentQueue<T> history = new ConcurrentQueue<T>();
         
         public bool TryGet(out T next)
         {
@@ -43,23 +41,15 @@ namespace ImprovedHordes.Core.Threading
                 next = default(T);
                 return false;
             }
-            else
-            {
-                while (history.Count > 100)
-                    history.TryDequeue(out _);
-            }
 
-            List<T> reverseList = history.ToList();
-            reverseList.Reverse();
-
-            next = reverseList[0];
-            history.TryDequeue(out _);
-
-            return true;
+            return history.TryDequeue(out next);
         }
 
         public void Add(T item)
         {
+            if (history.Count > 20)
+                history.TryDequeue(out _);
+
             history.Enqueue(item);
         }
     }
