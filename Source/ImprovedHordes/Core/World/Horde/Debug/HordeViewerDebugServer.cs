@@ -119,7 +119,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly TcpListener listener;
 
         private readonly List<TcpClient> clients = new List<TcpClient>();
-        private bool running = true;
+        private bool running = false;
 
         private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
@@ -138,6 +138,8 @@ namespace ImprovedHordes.Core.World.Horde.Debug
 
         public void Start()
         {
+            this.running = true;
+
             this.listener.Start();
             Task.Factory.StartNew(() =>
             {

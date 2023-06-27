@@ -26,8 +26,8 @@ public final class ImprovedHordesFrame extends JFrame
 	private ImprovedHordesPanel panel;
 	private Vector2i size;
 	
-	private final float LIST_PERCENT = 0.5f;
-	private final float PANEL_PERCENT = 0.5f;
+	private final float LIST_PERCENT = 0.0f;
+	private final float PANEL_PERCENT = 1.0f;
 	
 	private JList<ClusterSnapshot> clustersList;
 	private JList<PlayerSnapshot> playersList;
