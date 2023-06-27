@@ -41,7 +41,7 @@ namespace ImprovedHordes.Core.World.Horde
             if (biome == null)
                 return biomeSparsityMultiplier;
 
-            return biomeSparsityMultiplier + Mathf.Exp(biome.Difficulty - 4);
+            return biomeSparsityMultiplier + Mathf.Pow(5.0f, biome.Difficulty - 4.0f);
         }
     }
 }
