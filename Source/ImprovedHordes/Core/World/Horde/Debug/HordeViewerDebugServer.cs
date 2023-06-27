@@ -134,7 +134,10 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.clusters = tracker.GetClustersSubscription().Subscribe();
 
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
+        }
 
+        public void Start()
+        {
             this.listener.Start();
             Task.Factory.StartNew(() =>
             {
@@ -147,13 +150,24 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                         this.clients.Add(this.listener.AcceptTcpClient());
                         this.Logger.Info("New client connected.");
                     }
-                    catch(SocketException ex)
+                    catch (SocketException ex)
                     {
+                        if (ex.SocketErrorCode == SocketError.Interrupted)
+                            break;
+
                         this.Logger.Error($"Socket exception occurred while listening for new clients. {ex.Message}");
                     }
                 }
                 this.Logger.Info("Shutdown debug server.");
             }, TaskCreationOptions.LongRunning);
+        }
+
+        public bool Started
+        {
+            get
+            {
+                return this.running;
+            }
         }
 
         protected override void BeforeTaskRestart()
@@ -187,8 +201,8 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             base.Shutdown();
 
-            this.running = false;
             this.listener.Stop();
+            this.running = false;
         }
     }
 }

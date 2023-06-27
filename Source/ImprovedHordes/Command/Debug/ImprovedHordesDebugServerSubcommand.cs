@@ -17,13 +17,16 @@ namespace ImprovedHordes.Command.Debug
         {
             if (ImprovedHordesMod.TryGetInstance(out var instance))
             {
-                if (debugServer != null)
+                if(debugServer == null)
+                    debugServer = new HordeViewerDebugServer(instance.GetCore().GetLoggerFactory(), instance.GetCore().GetWorldSize(), instance.GetCore().GetWorldHordeTracker(), instance.GetPOIScanner());
+
+                if (debugServer.Started)
                 {
                     message = "Debug server has already been started.";
                 }
                 else
                 {
-                    debugServer = new HordeViewerDebugServer(instance.GetCore().GetLoggerFactory(), instance.GetCore().GetWorldSize(), instance.GetCore().GetWorldHordeTracker(), instance.GetPOIScanner());
+                    debugServer.Start();
                     message = "Started debug server. Connect to 127.0.0.1 with IHDebugViewer to view World Horde state.";
                 }
             }
