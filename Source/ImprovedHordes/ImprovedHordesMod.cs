@@ -101,7 +101,7 @@ namespace ImprovedHordes
                 ModEvents.GameUpdate.RegisterHandler(GameUpdate);
                 ModEvents.GameShutdown.RegisterHandler(GameShutdown);
 
-#if EXPERIMENTAL
+#if EXPERIMENTAL || DEBUG
             new IHExperimentalManager(this.modInstance);
 #endif
             }
