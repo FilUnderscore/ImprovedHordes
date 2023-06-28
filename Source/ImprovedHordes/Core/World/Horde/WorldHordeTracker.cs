@@ -326,6 +326,10 @@ namespace ImprovedHordes.Core.World.Horde
             {
                 horde.UpdatePosition(this.mainThreadRequestProcessor);
             }
+            else
+            {
+                horde.UpdateDecay(dt);
+            }
 
             if (horde.IsDead())
             {

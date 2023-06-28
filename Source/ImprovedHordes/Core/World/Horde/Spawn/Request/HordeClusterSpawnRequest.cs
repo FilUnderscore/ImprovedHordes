@@ -8,11 +8,11 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         public readonly WorldHorde Horde;
         public readonly HordeCluster Cluster;
         public readonly PlayerHordeGroup PlayerGroup;
-        public readonly HordeSpawnData SpawnData;
+        public readonly HordeSpawnParams SpawnData;
 
         public readonly ThreadSubscriber<HordeClusterSpawnState> State;
 
-        public HordeClusterSpawnRequest(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData spawnData, ThreadSubscriber<HordeClusterSpawnState> state)
+        public HordeClusterSpawnRequest(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, ThreadSubscriber<HordeClusterSpawnState> state)
         {
             this.Horde = horde;
             this.Cluster = cluster;

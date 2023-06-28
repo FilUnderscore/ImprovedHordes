@@ -9,7 +9,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
     {
         private static readonly Setting<int> WANDERING_ENEMY_WILDERNESS_SPARSITY = new Setting<int>("wandering_enemy_wilderness_sparsity", 32);
 
-        public WorldWildernessWanderingEnemyHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData) : base(worldSize, scanner, spawnData, WANDERING_ENEMY_WILDERNESS_SPARSITY.Value)
+        public WorldWildernessWanderingEnemyHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnParams spawnData) : base(worldSize, scanner, spawnData, WANDERING_ENEMY_WILDERNESS_SPARSITY.Value)
         {
         }
 

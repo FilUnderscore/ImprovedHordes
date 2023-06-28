@@ -98,6 +98,7 @@
     <Compile Include="Core\World\Horde\Data\WorldHordeData.cs" />
     <Compile Include="Core\World\Horde\HordeBiomes.cs" />
     <Compile Include="Core\World\Horde\HordeType.cs" />
+    <Compile Include="Core\World\Horde\Spawn\HordeSpawnData.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnState.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeDespawnRequest.cs" />
@@ -127,7 +128,7 @@
     <Compile Include="Data\HordeDefinitionEntityGenerator.cs" />
     <Compile Include="Core\World\Horde\PlayerHordeGroup.cs" />
     <Compile Include="Core\World\Horde\Spawn\HordeSpawn.cs" />
-    <Compile Include="Core\World\Horde\Spawn\HordeSpawnData.cs" />
+    <Compile Include="Core\World\Horde\Spawn\HordeSpawnParams.cs" />
     <Compile Include="Core\World\Horde\Spawn\LocationHordeSpawn.cs" />
     <Compile Include="Core\World\Horde\Spawn\PlayerHordeSpawn.cs" />
     <Compile Include="Core\World\Horde\Spawn\RandomHordeSpawn.cs" />
@@ -153,10 +154,12 @@
     <Compile Include="Implementations\Data\ImprovedHordesDataLoader.cs" />
     <Compile Include="Implementations\Data\ImprovedHordesDataParserRegistry.cs" />
     <Compile Include="Implementations\Data\ImprovedHordesDataSaver.cs" />
+    <Compile Include="Implementations\Data\Parsers\BiomeDefinitionDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\DictionaryTypeParser.cs" />
     <Compile Include="Implementations\Data\Parsers\FloatDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\Horde\HordeClusterDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\Horde\HordeSpawnDataParser.cs" />
+    <Compile Include="Implementations\Data\Parsers\Horde\HordeSpawnParamsParser.cs" />
     <Compile Include="Implementations\Data\Parsers\ListDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\ParameterizedConstructorRuntimeDataParser.cs" />
     <Compile Include="Implementations\Data\Parsers\POI\POIZoneDataParser.cs" />

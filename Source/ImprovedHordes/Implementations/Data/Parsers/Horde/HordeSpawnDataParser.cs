@@ -2,18 +2,19 @@
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System.IO;
 
-namespace ImprovedHordes.Implementations.Data.Parsers
+namespace ImprovedHordes.Implementations.Data.Parsers.Horde
 {
     public sealed class HordeSpawnDataParser : IDataParser<HordeSpawnData>
     {
         public HordeSpawnData Load(IDataLoader loader, BinaryReader reader)
         {
-            return new HordeSpawnData(reader.ReadInt32());
+            return new HordeSpawnData(loader.Load<HordeSpawnParams>(), loader.Load<BiomeDefinition>());
         }
 
         public void Save(IDataSaver saver, BinaryWriter writer, HordeSpawnData obj)
         {
-            writer.Write(obj.SpreadDistanceLimit);
+            saver.Save<HordeSpawnParams>(obj.SpawnParams);
+            saver.Save<BiomeDefinition>(obj.SpawnBiome);
         }
     }
 }

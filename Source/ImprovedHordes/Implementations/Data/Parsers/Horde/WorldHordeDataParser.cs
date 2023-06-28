@@ -5,7 +5,7 @@ using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Data;
 using System.IO;
 
-namespace ImprovedHordes.Implementations.Data.Parsers
+namespace ImprovedHordes.Implementations.Data.Parsers.Horde
 {
     public sealed class WorldHordeDataParser : IDataParser<WorldHorde>
     {

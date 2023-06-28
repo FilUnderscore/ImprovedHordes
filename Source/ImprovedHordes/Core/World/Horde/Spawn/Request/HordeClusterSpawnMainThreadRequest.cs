@@ -18,7 +18,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly WorldHorde horde;
         private readonly HordeCluster cluster;
         private readonly PlayerHordeGroup playerGroup;
-        private readonly HordeSpawnData spawnData;
+        private readonly HordeSpawnParams spawnData;
 
         private readonly int size;
         private int index;
@@ -31,7 +31,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly ThreadSubscription<HordeClusterSpawnState> spawnState;
         private Vector3 hordeLocation;
 
-        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnData spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
+        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
         {
             this.logger = loggerFactory.Create(typeof(HordeClusterSpawnMainThreadRequest));
             this.spawner = spawner;

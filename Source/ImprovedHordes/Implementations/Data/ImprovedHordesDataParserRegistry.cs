@@ -7,10 +7,10 @@ using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Implementations.Data.Parsers;
+using ImprovedHordes.Implementations.Data.Parsers.Horde;
 using ImprovedHordes.Implementations.Data.Parsers.POI;
 using ImprovedHordes.POI;
 using ImprovedHordes.Screamer;
-using ImprovedHordes.Wandering.Animal;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
 using ImprovedHordes.Wandering.Enemy.Zone;
 using System;
@@ -23,7 +23,7 @@ namespace ImprovedHordes.Implementations.Data
     {
         private readonly Dictionary<Type, IDataParser> parsers = new Dictionary<Type, IDataParser>();
 
-        public ImprovedHordesDataParserRegistry(IRandomFactory<IWorldRandom> randomFactory, WorldPOIScanner poiScanner, WorldEventReporter worldEventReporter)
+        public ImprovedHordesDataParserRegistry(IRandomFactory<IWorldRandom> randomFactory, WorldPOIScanner poiScanner, WorldEventReporter worldEventReporter, global::World world)
         {
             // Default data parser for types.
             this.RegisterDataParser<Type>(new TypeDataParser());
@@ -34,6 +34,8 @@ namespace ImprovedHordes.Implementations.Data
             this.RegisterDataParser<Vector2i>(new Vector2iDataParser());
             this.RegisterDataParser<Vector3>(new Vector3DataParser());
 
+            this.RegisterDataParser<HordeSpawnParams>(new HordeSpawnParamsParser());
+            this.RegisterDataParser<BiomeDefinition>(new BiomeDefinitionDataParser(world));
             this.RegisterDataParser<HordeSpawnData>(new HordeSpawnDataParser());
 
             this.RegisterDataParser<HordeCluster>(new HordeClusterDataParser());

@@ -7,7 +7,7 @@ namespace ImprovedHordes.Core.World.Horde
     {
         private static readonly Setting<float> HORDE_BIOME_MULTIPLIER = new Setting<float>("horde_biome_multiplier", 0.1f);
         
-        private static BiomeDefinition GetBiomeAt(Vector2 location)
+        public static BiomeDefinition GetBiomeAt(Vector2 location)
         {
             return GameManager.Instance.World.ChunkCache.ChunkProvider.GetBiomeProvider().GetBiomeAt((int)location.x, (int)location.y);
         }

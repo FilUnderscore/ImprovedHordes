@@ -19,7 +19,7 @@ namespace ImprovedHordes.POI
         private readonly float worldSize;
         protected readonly WorldPOIScanner scanner;
 
-        private readonly HordeSpawnData spawnData;
+        private readonly HordeSpawnParams spawnData;
         private readonly int sparsityFactor;
 
         private readonly Dictionary<Vector2i, ulong> lastSpawned = new Dictionary<Vector2i, ulong>();
@@ -32,7 +32,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnData spawnData, int sparsityFactor)
+        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnParams spawnData, int sparsityFactor)
         {
             this.worldSize = worldSize;
             this.scanner = scanner;

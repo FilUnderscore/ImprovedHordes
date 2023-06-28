@@ -3,7 +3,7 @@ using ImprovedHordes.Core.World.Horde.Cluster;
 using ImprovedHordes.Core.World.Horde.Cluster.Data;
 using System.IO;
 
-namespace ImprovedHordes.Implementations.Data.Parsers
+namespace ImprovedHordes.Implementations.Data.Parsers.Horde
 {
     public sealed class HordeClusterDataParser : IDataParser<HordeCluster>
     {

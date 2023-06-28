@@ -80,7 +80,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void RequestSpawn(HordeCluster cluster, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, Action<IEntity> onSpawn)
         {
-            cluster.RequestSpawn(this, this.spawnData, spawner, group, mainThreadRequestProcessor, worldRandom, this.AIExecutor, onSpawn);
+            cluster.RequestSpawn(this, this.spawnData.SpawnParams, spawner, group, mainThreadRequestProcessor, worldRandom, this.AIExecutor, onSpawn);
         }
 
         private void AddCluster(HordeCluster cluster)
@@ -121,6 +121,25 @@ namespace ImprovedHordes.Core.World.Horde
 
             previousRequest = new HordeUpdateRequest(this);
             mainThreadRequestProcessor.Request(previousRequest);
+        }
+
+        // Biome horde decay.
+        public void UpdateDecay(float dt)
+        {
+            var currentBiome = HordeBiomes.GetBiomeAt(this.location);
+
+            if (currentBiome == this.spawnData.SpawnBiome)
+                return;
+
+            for(int i = 0; i < this.clusters.Count; i++)
+            {
+                var cluster = this.clusters[i];
+
+                cluster.Decay(dt);
+
+                if (cluster.IsDead())
+                    this.clusters.RemoveAt(i--);
+            }
         }
 
         public bool IsDead()

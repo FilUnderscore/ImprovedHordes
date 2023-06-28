@@ -61,7 +61,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             this.previousHordeEntityGenerator = hordeEntityGenerator;
         }
 
-        public void RequestSpawn(WorldHorde horde, HordeSpawnData spawnData, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
+        public void RequestSpawn(WorldHorde horde, HordeSpawnParams spawnParams, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
         {
             if (this.spawnState != SpawnState.DESPAWNED)
             {
@@ -73,7 +73,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
                 return;
             }
 
-            this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnData, entity =>
+            this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnParams, entity =>
             {
                 HordeClusterEntity clusterEntity = new HordeClusterEntity(this, entity, horde.GetCharacteristics());
                 this.AddEntity(horde, clusterEntity);
@@ -115,6 +115,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public void NotifyDensityRemoved()
         {
             this.density -= this.densityPerEntity;
+        }
+
+        public void Decay(float dt)
+        {
+            const float decayRate = 0.001f;
+            this.density -= decayRate * dt;
         }
 
         public bool IsDead()

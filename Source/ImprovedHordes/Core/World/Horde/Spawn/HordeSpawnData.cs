@@ -2,11 +2,13 @@
 {
     public readonly struct HordeSpawnData
     {
-        public readonly int SpreadDistanceLimit;
+        public readonly HordeSpawnParams SpawnParams;
+        public readonly BiomeDefinition SpawnBiome;
 
-        public HordeSpawnData(int spreadDistanceLimit)
+        public HordeSpawnData(HordeSpawnParams spawnParams, BiomeDefinition biome)
         {
-            this.SpreadDistanceLimit = spreadDistanceLimit;
+            this.SpawnParams = spawnParams;
+            this.SpawnBiome = biome;
         }
     }
 }
