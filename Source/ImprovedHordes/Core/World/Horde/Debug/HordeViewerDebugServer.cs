@@ -44,8 +44,8 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                     writer.Write(location.y);
                     writer.Write(location.z);
 
-                    writer.Write(player.gamestage);
-                    EncodeString(writer, player.biome);
+                    writer.Write(player.player.gameStage);
+                    EncodeString(writer, player.player.biomeStandingOn?.m_sBiomeName);
                 }
             }
             else

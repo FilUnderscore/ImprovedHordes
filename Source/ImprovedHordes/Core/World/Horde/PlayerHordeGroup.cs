@@ -1,25 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde
 {
-    public sealed class PlayerHordeGroup
+    public readonly struct PlayerHordeGroup
     {
-        private List<EntityPlayer> players = new List<EntityPlayer>();
-        private Dictionary<string, int> biomes = new Dictionary<string, int>();
+        private readonly List<PlayerSnapshot> players;
+        
+        public PlayerHordeGroup(PlayerSnapshot player)
+        {
+            this.players = new List<PlayerSnapshot>();
+            this.AddPlayer(player);
+        }
 
-        public void AddPlayer(EntityPlayer player, int gamestage, string biome)
+        public void AddPlayer(PlayerSnapshot player)
         {
             this.players.Add(player);
+        }
 
-            if (biome != null)
-            {
-                if (!this.biomes.ContainsKey(biome))
-                    this.biomes.Add(biome, 1);
-                else
-                    this.biomes[biome]++;
-            }
+        public List<PlayerSnapshot> GetPlayers()
+        {
+            return this.players;
         }
 
         public List<Vector3> GetLocations()
@@ -28,7 +31,7 @@ namespace ImprovedHordes.Core.World.Horde
 
             foreach(var player in this.players) 
             {
-                locations.Add(player.position);
+                locations.Add(player.location);
             }
 
             return locations;
@@ -43,7 +46,7 @@ namespace ImprovedHordes.Core.World.Horde
 
             foreach(var player in this.players)
             {
-                gamestage += player.gameStage * difficultyBonus;
+                gamestage += player.player.gameStage * difficultyBonus;
                 difficultyBonus *= diminishingReturns;
             }
 
@@ -57,6 +60,23 @@ namespace ImprovedHordes.Core.World.Horde
 
         public string GetBiome()
         {
+            Dictionary<string, int> biomes = new Dictionary<string, int>();
+
+            foreach(var player in this.players)
+            {
+                if (player.player.biomeStandingOn == null)
+                    continue;
+
+                string biomeName = player.player.biomeStandingOn.m_sBiomeName;
+
+                if(biomes.TryGetValue(biomeName, out var count))
+                {
+                    biomes[biomeName]++;
+                }
+                else
+                    biomes.Add(player.player.biomeStandingOn.m_sBiomeName, 1);
+            }
+
             if (biomes.Count == 0)
                 return "pine_forest";
 
