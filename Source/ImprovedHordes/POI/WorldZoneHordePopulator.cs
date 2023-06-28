@@ -167,5 +167,10 @@ namespace ImprovedHordes.POI
         {
             saver.Save<Dictionary<WorldPOIScanner.POIZone, ulong>>(this.lastSpawned);
         }
+
+        public override void Flush()
+        {
+            this.lastSpawned.Clear();
+        }
     }
 }

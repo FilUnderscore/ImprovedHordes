@@ -86,5 +86,13 @@ namespace ImprovedHordes.Core.World.Horde.Populator
                 populator.Save(saver);
             }
         }
+
+        public void Flush()
+        {
+            foreach(var populator in this.populators)
+            {
+                populator.Flush();
+            }
+        }
     }
 }

@@ -165,5 +165,10 @@ namespace ImprovedHordes.POI
         {
             saver.Save<Dictionary<Vector2i, ulong>>(this.lastSpawned);
         }
+
+        public override void Flush()
+        {
+            this.lastSpawned.Clear();
+        }
     }
 }

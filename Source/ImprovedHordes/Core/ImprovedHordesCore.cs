@@ -77,6 +77,12 @@ namespace ImprovedHordes.Core
             this.populator.Save(dataSaver);
         }
 
+        public void Flush()
+        {
+            this.tracker.Flush();
+            this.populator.Flush();
+        }
+
         public ILoggerFactory GetLoggerFactory()
         {
             return this.loggerFactory;

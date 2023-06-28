@@ -17,6 +17,8 @@ namespace ImprovedHordes.Core.World.Horde.Populator
 
         public abstract IData Load(IDataLoader loader);
         public abstract void Save(IDataSaver saver);
+
+        public abstract void Flush();
     }
 
     public abstract class HordePopulator<TaskReturnValue> : HordePopulator

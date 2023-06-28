@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\Debug\ImprovedHordesDebugServerSubcommand.cs" />
+    <Compile Include="Command\ImprovedHordesFlushSubcommand.cs" />
     <Compile Include="Command\ImprovedHordesVerboseSubcommand.cs" />
     <Compile Include="Core\Abstractions\Data\Data.cs" />
     <Compile Include="Core\Abstractions\Data\DataLoader.cs" />

@@ -100,6 +100,8 @@ namespace ImprovedHordes.Core.World.Horde
 
         private WorldHordeSpawner spawner;
 
+        private bool flushFlag = false;
+
         public WorldHordeTracker(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
         {
             this.randomFactory = randomFactory;
@@ -162,6 +164,14 @@ namespace ImprovedHordes.Core.World.Horde
             while (toAdd.TryDequeue(out WorldHorde cluster))
             {
                 hordes.Add(cluster);
+            }
+
+            if (this.flushFlag)
+            {
+                foreach (var horde in this.hordes)
+                    toRemove.Enqueue(horde);
+
+                this.flushFlag = false;
             }
 
             // Remove dead/merged hordes.
@@ -436,6 +446,11 @@ namespace ImprovedHordes.Core.World.Horde
         public void Save(IDataSaver saver)
         {
             saver.Save<List<WorldHorde>>(this.hordes);
+        }
+
+        public void Flush()
+        {
+            this.flushFlag = true;
         }
 
         [HarmonyPatch(typeof(EntityAlive))]
