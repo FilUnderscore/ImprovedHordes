@@ -10,12 +10,12 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public GoToTargetAICommand(Vector3 target) : base()
         {
-            this.target = target;
+            this.target = ToGround(target);
         }
 
         public GoToTargetAICommand(Vector3 target, double expiryTimeSeconds) : base(expiryTimeSeconds)
         {
-            this.target = target;
+            this.target = ToGround(target);
         }
 
         public override bool CanExecute(IAIAgent agent)
@@ -36,6 +36,12 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
         public override bool IsComplete(IAIAgent agent)
         {
             return Vector2.Distance(ToXZ(agent.GetLocation()), ToXZ(this.target)) <= MIN_DISTANCE_TO_TARGET;
+        }
+
+        private static Vector3 ToGround(Vector3 v)
+        {
+            float y = GameManager.Instance.World.GetHeightAt(v.x, v.z) + 1.0f;
+            return new Vector3(v.x, y, v.z);
         }
 
         private Vector2 ToXZ(Vector3 v)

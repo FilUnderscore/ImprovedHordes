@@ -203,6 +203,11 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             base.Shutdown();
 
+            foreach(var client in this.clients) 
+            {
+                client.Close();
+            }
+
             this.running = false;
             this.listener.Stop();
         }

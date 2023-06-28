@@ -43,6 +43,7 @@ public class ClusterSnapshot implements Drawable
 		if(rescaledLocation.inView())
 		{
 			g.fillOval((int)(rescaledLocation.scaledPosition.x - rescaledLocation.scaledSize.x / 1.5), (int)(rescaledLocation.scaledPosition.y - rescaledLocation.scaledSize.y / 1.5), rescaledLocation.scaledSize.x, rescaledLocation.scaledSize.y);
+			g.drawString(Float.toString(this.density), rescaledLocation.scaledPosition.x - rescaledLocation.scaledSize.x, rescaledLocation.scaledPosition.y - rescaledLocation.scaledSize.y);
 		}
 	}
 }
