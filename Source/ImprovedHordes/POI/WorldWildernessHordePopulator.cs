@@ -21,6 +21,7 @@ namespace ImprovedHordes.POI
 
         private readonly HordeSpawnParams spawnData;
         private readonly int sparsityFactor;
+        private readonly bool biomeAffectsSparsity;
 
         private readonly Dictionary<Vector2i, ulong> lastSpawned = new Dictionary<Vector2i, ulong>();
 
@@ -32,18 +33,19 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnParams spawnData, int sparsityFactor)
+        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnParams spawnData, int sparsityFactor, bool biomeAffectsSparsity)
         {
             this.worldSize = worldSize;
             this.scanner = scanner;
 
             this.spawnData = spawnData;
             this.sparsityFactor = sparsityFactor;
+            this.biomeAffectsSparsity = biomeAffectsSparsity;
         }
 
         private Vector2i GetRegionFromPosition(Vector2 pos)
         {
-            float biomeFactor = HordeBiomes.DetermineBiomeFactor(pos);
+            float biomeFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeFactor(pos) : 1.0f;
 
             int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 16)));
             int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 16)));
@@ -87,7 +89,7 @@ namespace ImprovedHordes.POI
 
             bool nearby = false;
 
-            float biomeFactor = HordeBiomes.DetermineBiomeFactor(randomWorldPos);
+            float biomeFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeFactor(randomWorldPos) : 1.0f;
 
             // Check for nearby players.
 
@@ -121,7 +123,9 @@ namespace ImprovedHordes.POI
 
         public override void Populate(Vector2 pos, WorldHordeSpawner spawner, GameRandom random)
         {
-            float density = random.RandomFloat;
+            float maxBiomeDensity = HordeBiomes.DetermineBiomeDensity(pos);
+
+            float density = random.RandomFloat * maxBiomeDensity;
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(), CreateEntityAICommandGenerator());
 
             // Respawn delay for this region.
