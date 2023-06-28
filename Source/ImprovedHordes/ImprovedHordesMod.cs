@@ -148,6 +148,8 @@ namespace ImprovedHordes
             if(this.TryLoadData())
                 this.logger.Info("Loaded data.");
             loaded = true;
+
+            core.Start();
         }
 
         private bool TryLoadData()

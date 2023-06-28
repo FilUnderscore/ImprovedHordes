@@ -76,24 +76,24 @@ namespace ImprovedHordes.POI
             bool nearby = false;
 
             // Check for nearby players.
-            Parallel.ForEach(players, player =>
+            foreach(var player in players)
             {
                 if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
                 {
                     nearby |= true;
                 }
-            });
+            }
 
             if (!nearby)
             {
                 // Check for nearby hordes.
-                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
+                foreach(var cluster in clusters[typeof(Horde)])
                 {
                     if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
                     {
                         nearby |= true;
                     }
-                });
+                }
             }
 
             zone = randomZone;

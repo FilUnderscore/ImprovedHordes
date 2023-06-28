@@ -48,6 +48,11 @@ namespace ImprovedHordes.Core
             this.populator = new WorldHordePopulator(loggerFactory, this.tracker, this.spawner);
         }
 
+        public void Start()
+        {
+            Threaded.StartAll();
+        }
+
         public void Load(IDataLoader dataLoader) 
         {
             ushort loaded_data_magic = dataLoader.Load<ushort>();
@@ -128,6 +133,7 @@ namespace ImprovedHordes.Core
         {
             this.logger.Info("Shutting down.");
 
+            Threaded.ShutdownAll();
             MainThreaded.ShutdownAll();
         }
     }

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Event
 {
-    public sealed class WorldEventReporter : MainThreadSynchronizedTask
+    public sealed class WorldEventReporter : Threaded
     {
         private static readonly Setting<int> EVENT_CHUNK_RADIUS = new Setting<int>("event_chunk_radius", 3);
         private static readonly Setting<float> EVENT_INTEREST_DISTANCE_MULTIPLIER = new Setting<float>("event_interest_distance_multiplier", 0.25f);
@@ -38,24 +38,7 @@ namespace ImprovedHordes.Core.World.Event
             AIDirectorChunkEventComponent_NotifyEvent_Patch.WorldEventReporter = this;
         }
 
-        protected override void BeforeTaskRestart()
-        {
-        }
-
-        protected override void OnTaskFinish()
-        {
-            if (this.OnWorldEventReport != null)
-            {
-                foreach (var eventToReport in eventsToReport)
-                {
-                    this.OnWorldEventReport.Invoke(this, eventToReport);
-                }
-            }
-
-            eventsToReport.Clear();
-        }
-
-        protected override void UpdateAsyncVoid(float dt)
+        protected override void UpdateAsync(float dt)
         {
             while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
             {
@@ -91,6 +74,16 @@ namespace ImprovedHordes.Core.World.Event
                     eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
                 }
             }
+
+            if (this.OnWorldEventReport != null)
+            {
+                foreach (var eventToReport in eventsToReport)
+                {
+                    this.OnWorldEventReport.Invoke(this, eventToReport);
+                }
+            }
+
+            eventsToReport.Clear();
         }
 
         public void Report(WorldEvent worldEvent)

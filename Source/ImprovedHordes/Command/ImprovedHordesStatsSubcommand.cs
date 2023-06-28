@@ -1,8 +1,8 @@
 ﻿using ImprovedHordes.Core.Command;
 using ImprovedHordes.Core.Threading;
+using ImprovedHordes.Core.World.Horde;
 using System;
 using System.Collections.Generic;
-using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Command
 {

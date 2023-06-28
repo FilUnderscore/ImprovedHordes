@@ -23,13 +23,67 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
 {
-    public sealed class WorldHordeTracker : MainThreadSynchronizedTask<int>, IData
+    public readonly struct PlayerSnapshot
+    {
+        public readonly EntityPlayer player;
+        public readonly Vector3 location;
+
+        public PlayerSnapshot(EntityPlayer player, Vector3 location)
+        {
+            this.player = player;
+            this.location = location;
+        }
+    }
+
+    public readonly struct ClusterSnapshot
+    {
+        public readonly IHorde horde;
+        public readonly Vector3 location;
+        public readonly float density;
+
+        public ClusterSnapshot(IHorde horde, Vector3 location, float density)
+        {
+            this.horde = horde;
+            this.location = location;
+            this.density = density;
+        }
+    }
+
+    public sealed class WorldPlayerTracker : MainThreaded
+    {
+        private ThreadSubscription<List<PlayerSnapshot>> snapshots;
+
+        public WorldPlayerTracker()
+        {
+            this.snapshots = new ThreadSubscription<List<PlayerSnapshot>>();
+        }
+
+        public ThreadSubscriber<List<PlayerSnapshot>> Subscribe()
+        {
+            return this.snapshots.Subscribe();
+        }
+
+        protected override void Shutdown()
+        {
+        }
+
+        protected override void Update(float dt)
+        {
+            List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
+
+            foreach (var player in GameManager.Instance.World.Players.list)
+            {
+                snapshots.Add(new PlayerSnapshot(player, player.position));
+            }
+
+            this.snapshots.Update(snapshots);
+        }
+    }
+
+    public sealed class WorldHordeTracker : Threaded, IData
     {
         private readonly Setting<int> MERGE_DISTANCE_LOADED = new Setting<int>("loaded_merge_distance", 10);
         private readonly Setting<int> MERGE_DISTANCE_UNLOADED = new Setting<int>("unloaded_merge_distance", 100);
-
-        private readonly Setting<int> HORDE_THREADS = new Setting<int>("max_horde_threads", 4);
-        private readonly Setting<int> HORDE_CLUSTER_THREADS = new Setting<int>("max_cluster_threads", 2);
 
         public static readonly Setting<float> MAX_HORDE_DENSITY = new Setting<float>("max_horde_density", 2.0f);
         public static readonly Setting<float> MAX_WORLD_DENSITY = new Setting<float>("max_world_density", 500.0f);
@@ -41,35 +95,6 @@ namespace ImprovedHordes.Core.World.Horde
             get
             {
                 return GameStats.GetInt(EnumGameStats.AllowedViewDistance) * 16;
-            }
-        }
-
-        private ParallelOptions ParallelHordeOptions;
-        private ParallelOptions ParallelClusterOptions;
-
-        public readonly struct PlayerSnapshot
-        {
-            public readonly EntityPlayer player;
-            public readonly Vector3 location;
-            
-            public PlayerSnapshot(EntityPlayer player, Vector3 location)
-            {
-                this.player = player;
-                this.location = location;
-            }
-        }
-
-        public readonly struct ClusterSnapshot
-        {
-            public readonly IHorde horde;
-            public readonly Vector3 location;
-            public readonly float density;
-
-            public ClusterSnapshot(IHorde horde, Vector3 location, float density)
-            {
-                this.horde = horde;
-                this.location = location;
-                this.density = density;
             }
         }
 
@@ -87,8 +112,8 @@ namespace ImprovedHordes.Core.World.Horde
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
 
-        private readonly List<PlayerSnapshot> snapshotsList = new List<PlayerSnapshot>();
-        private readonly ThreadSubscription<List<PlayerSnapshot>> snapshots = new ThreadSubscription<List<PlayerSnapshot>>();
+        private readonly WorldPlayerTracker playerTracker;
+        private readonly ThreadSubscriber<List<PlayerSnapshot>> snapshots;
 
         private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
@@ -101,6 +126,9 @@ namespace ImprovedHordes.Core.World.Horde
 
         public WorldHordeTracker(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
         {
+            this.playerTracker = new WorldPlayerTracker();
+            this.snapshots = this.playerTracker.Subscribe();
+
             this.randomFactory = randomFactory;
             this.entitySpawner = entitySpawner;
             this.mainThreadRequestProcessor = mainThreadRequestProcessor;
@@ -109,19 +137,6 @@ namespace ImprovedHordes.Core.World.Horde
 
             this.RegisterHordes();
             EntityAlive_canDespawn_Patch.Tracker = this;
-
-            HORDE_THREADS.OnSettingUpdated += HORDE_THREADS_OnSettingUpdated;
-            HORDE_CLUSTER_THREADS.OnSettingUpdated += HORDE_CLUSTER_THREADS_OnSettingUpdated;
-        }
-
-        private void HORDE_THREADS_OnSettingUpdated(object sender, EventArgs e)
-        {
-            ParallelHordeOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_THREADS.Value };
-        }
-
-        private void HORDE_CLUSTER_THREADS_OnSettingUpdated(object sender, EventArgs e)
-        {
-            ParallelClusterOptions = new ParallelOptions { MaxDegreeOfParallelism = HORDE_CLUSTER_THREADS.Value };
         }
 
         private void RegisterHordes()
@@ -142,21 +157,8 @@ namespace ImprovedHordes.Core.World.Horde
             this.eventsToReport.Add(e);
         }
 
-        protected override void BeforeTaskRestart()
+        private void UpdateHordesList()
         {
-            foreach (var player in GameManager.Instance.World.Players.list)
-            {
-                snapshotsList.Add(new PlayerSnapshot(player, player.position));
-            }
-
-            snapshots.Update(this.snapshotsList.ToList());
-        }
-
-        protected override void OnTaskFinish(int returnValue)
-        {
-            // Clear old snapshots after task is complete.
-            snapshotsList.Clear();
-
             // Add hordes.
             while (toAdd.TryDequeue(out WorldHorde cluster))
             {
@@ -177,12 +179,10 @@ namespace ImprovedHordes.Core.World.Horde
                 cluster.Cleanup(this.randomFactory);
                 hordes.Remove(cluster);
             }
+        }
 
-            int eventsProcessed = returnValue;
-
-            if (eventsProcessed > 0)
-                this.eventsToReport.RemoveRange(0, eventsProcessed);
-
+        private void UpdateClusterSnapshots()
+        {
             // Update cluster snapshots and remove outdated ones.
 
             foreach (var key in clusterSnapshotsDict.Keys)
@@ -201,19 +201,29 @@ namespace ImprovedHordes.Core.World.Horde
             clusterSnapshots.Update(this.clusterSnapshotsDict.ToDictionary(k => k.Key, v => v.Value.ToList()));
         }
 
-        protected override int UpdateAsync(float dt)
+        protected override void UpdateAsync(float dt)
         {
-            return UpdateTrackerAsync(snapshotsList, this.eventsToReport.ToList(), dt);
+            this.UpdateHordesList();
+
+            if (!this.snapshots.TryGet(out var snapshots))
+                return;
+
+            this.UpdateClusterSnapshots();
+            
+            int eventsProcessed = UpdateTrackerAsync(snapshots, this.eventsToReport.ToList(), dt);
+
+            if (eventsProcessed > 0)
+                this.eventsToReport.RemoveRange(0, eventsProcessed);
+        }
+
+        public WorldPlayerTracker GetPlayerTracker()
+        {
+            return this.playerTracker;
         }
 
         public ThreadSubscription<Dictionary<Type, List<ClusterSnapshot>>> GetClustersSubscription()
         {
             return this.clusterSnapshots;
-        }
-
-        public ThreadSubscription<List<PlayerSnapshot>> GetPlayersSubscription()
-        {
-            return this.snapshots;
         }
 
         public void SetHordeSpawner(WorldHordeSpawner spawner)
@@ -295,7 +305,7 @@ namespace ImprovedHordes.Core.World.Horde
                 {
                     bool anyNearby = false;
 
-                    Parallel.ForEach(horde.GetClusters(), ParallelClusterOptions, cluster =>
+                    foreach(var cluster in horde.GetClusters())
                     {
                         TrySpawnCluster(cluster, horde, playerHordeGroup);
 
@@ -332,7 +342,7 @@ namespace ImprovedHordes.Core.World.Horde
                                 }
                             }
                         }
-                    });
+                    }
                 }
             }
             else if(horde.IsSpawned())
@@ -406,10 +416,10 @@ namespace ImprovedHordes.Core.World.Horde
                 playerHordeGroups.Add(playerGroup);
             }
 
-            Parallel.ForEach(this.hordes, ParallelHordeOptions, horde =>
+            foreach(var horde in this.hordes)
             {
                 UpdateHorde(horde, dt, playerHordeGroups, eventReports);
-            });
+            }
 
             // Merge nearby hordes.
             for (int index = 0; index < this.hordes.Count - 1; index++)

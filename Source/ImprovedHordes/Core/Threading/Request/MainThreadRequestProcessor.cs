@@ -14,7 +14,7 @@ namespace ImprovedHordes.Core.Threading.Request
 
         protected override void Update(float dt)
         {
-            while (requests.TryDequeue(out IMainThreadRequest request))
+            while (!requests.IsEmpty && requests.TryDequeue(out IMainThreadRequest request))
             {
                 requestsBeingProcessed.Add(request);
             }

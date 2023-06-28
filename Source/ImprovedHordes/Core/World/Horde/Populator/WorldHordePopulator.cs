@@ -9,7 +9,7 @@ using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Populator
 {
-    public sealed class WorldHordePopulator : MainThreadSynchronizedTask, IData
+    public sealed class WorldHordePopulator : Threaded, IData
     {
         private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
@@ -22,16 +22,8 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         {
             this.spawner = spawner;
 
-            this.players = tracker.GetPlayersSubscription().Subscribe();
+            this.players = tracker.GetPlayerTracker().Subscribe();
             this.clusters = tracker.GetClustersSubscription().Subscribe();
-        }
-
-        protected override void BeforeTaskRestart()
-        {
-        }
-
-        protected override void OnTaskFinish()
-        {
         }
 
         private float GetWorldHordeDensity(Dictionary<Type, List<ClusterSnapshot>> clusters)
@@ -47,7 +39,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
             return worldHordeDensity;
         }
 
-        protected override void UpdateAsyncVoid(float dt)
+        protected override void UpdateAsync(float dt)
         {
             if(!this.players.TryGet(out var players) || !this.clusters.TryGet(out var clusters))
                 return;

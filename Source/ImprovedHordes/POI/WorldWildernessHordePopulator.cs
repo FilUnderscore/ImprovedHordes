@@ -73,13 +73,13 @@ namespace ImprovedHordes.POI
             }
 
             bool inZone = false;
-            Parallel.ForEach(this.scanner.GetZones(), zone =>
+            foreach(var zone in this.scanner.GetZones())
             {
                 Vector3 zoneWorldPos = new Vector3(randomWorldPos.x, zone.GetBounds().center.y, randomWorldPos.y);
 
                 if (zone.GetBounds().Contains(zoneWorldPos))
                     inZone |= true;
-            });
+            }
 
             if(inZone)
             {
@@ -93,7 +93,7 @@ namespace ImprovedHordes.POI
 
             // Check for nearby players.
 
-            Parallel.ForEach(players, player =>
+            foreach(var player in players)
             {
                 Vector2 playerPos = new Vector2(player.location.x, player.location.z);
 
@@ -101,12 +101,12 @@ namespace ImprovedHordes.POI
                 {
                     nearby |= true;
                 }
-            });
+            }
 
             if (!nearby)
             {
                 // Check for nearby hordes.
-                Parallel.ForEach(clusters[typeof(Horde)], cluster =>
+                foreach(var cluster in clusters[typeof(Horde)])
                 {
                     Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
@@ -114,7 +114,7 @@ namespace ImprovedHordes.POI
                     {
                         nearby |= true;
                     }
-                });
+                }
             }
 
             pos = randomWorldPos;

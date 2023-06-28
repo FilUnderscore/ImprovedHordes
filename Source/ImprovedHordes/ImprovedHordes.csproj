@@ -137,7 +137,7 @@
     <Compile Include="Core\World\Horde\Populator\WorldHordePopulator.cs" />
     <Compile Include="Core\Threading\Request\MainThreadRequest.cs" />
     <Compile Include="Core\Threading\Request\MainThreadRequestProcessor.cs" />
-    <Compile Include="Core\Threading\MainThreadSynchronizedTask.cs" />
+    <Compile Include="Core\Threading\Threaded.cs" />
     <Compile Include="Core\Threading\MainThreaded.cs" />
     <Compile Include="Data\XML\XPathPatcher.cs" />
     <Compile Include="Command\Debug\ImprovedHordesDebugSubcommand.cs" />

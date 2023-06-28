@@ -108,7 +108,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         }
     }
 
-    internal sealed class HordeViewerDebugServer : MainThreadSynchronizedTask<WorldHordeState>
+    internal sealed class HordeViewerDebugServer : Threaded
     {
         private readonly int PORT = 9000;
 
@@ -130,7 +130,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.tracker = tracker;
             this.scanner = scanner;
 
-            this.players = tracker.GetPlayersSubscription().Subscribe();
+            this.players = tracker.GetPlayerTracker().Subscribe();
             this.clusters = tracker.GetClustersSubscription().Subscribe();
 
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
@@ -172,37 +172,27 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             }
         }
 
-        protected override void BeforeTaskRestart()
+        protected override void UpdateAsync(float dt)
         {
+            WorldHordeState state = new WorldHordeState(this.worldSize, this.scanner, this.players, this.clusters);
 
-        }
-
-        protected override void OnTaskFinish(WorldHordeState worldHordeState)
-        {
-            Parallel.ForEach(clients.ToArray(), client =>
+            foreach(var client in this.clients)
             {
                 try
                 {
                     BinaryWriter writer = new BinaryWriter(client.GetStream());
-                    worldHordeState.Encode(writer);
+                    state.Encode(writer);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     this.Logger.Warn("Client disconnected.");
                     this.clients.Remove(client);
                 }
-            });
+            }
         }
 
-        protected override WorldHordeState UpdateAsync(float dt)
+        protected override void OnShutdown()
         {
-            return new WorldHordeState(this.worldSize, this.scanner, this.players, this.clusters);
-        }
-
-        protected override void Shutdown()
-        {
-            base.Shutdown();
-
             foreach(var client in this.clients) 
             {
                 client.Close();
