@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using System;
 using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.Threading
@@ -44,7 +45,15 @@ namespace ImprovedHordes.Core.Threading
                 if (!CanRun() || GameManager.Instance.IsPaused())
                     return 1000;
 
-                UpdateAsync(0.1f);
+                try
+                {
+                    UpdateAsync(0.1f);
+                }
+                catch(Exception e)
+                {
+                    this.Logger.Error($"An exception occurred during {nameof(UpdateAsync)}: {e.Message} \nStacktrace: \n{e.StackTrace}");
+                }
+
                 return 100;
             }
 
