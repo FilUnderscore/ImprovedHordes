@@ -45,7 +45,7 @@ namespace ImprovedHordes.Core.Threading
                 if (!CanRun() || GameManager.Instance.IsPaused())
                     return 1000;
 
-                UpdateAsync(Time.fixedDeltaTime);
+                UpdateAsync(0.1f);
                 return 100;
             }
 
