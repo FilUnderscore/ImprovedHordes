@@ -8,7 +8,7 @@ namespace ImprovedHordes
         private static string VERSION;
 
         private static string BUILD_TYPE;
-        private static string EXPERIMENTAL_VERSION = "-alpha.7";
+        private static string EXPERIMENTAL_VERSION = "-alpha.8";
 
         static IHExperimentalManager()
         {
