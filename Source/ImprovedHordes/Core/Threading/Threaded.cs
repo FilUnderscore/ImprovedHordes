@@ -1,6 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace ImprovedHordes.Core.Threading
 {
@@ -12,7 +11,7 @@ namespace ImprovedHordes.Core.Threading
         protected readonly GameRandom Random;
 
         protected readonly ILoggerFactory LoggerFactory;
-        protected readonly Abstractions.Logging.ILogger Logger;
+        protected readonly ILogger Logger;
 
         private bool shutdown = false;
 
