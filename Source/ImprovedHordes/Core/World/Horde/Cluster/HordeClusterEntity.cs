@@ -249,9 +249,9 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             }
         }
 
-        public float GetSeeDistance()
+        public bool CanSee(Vector3 pos)
         {
-            return this.entity != null ? this.entity.GetSeeDistance() : 0.0f;
+            return this.entity != null ? this.entity.CanSee(pos) : false;
         }
 
         public void SetTarget(EntityPlayer target)

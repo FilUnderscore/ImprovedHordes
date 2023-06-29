@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.AI;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.Abstractions.World
 {
@@ -13,7 +14,7 @@ namespace ImprovedHordes.Core.Abstractions.World
         bool IsStunned();
         bool IsPlayer();
 
-        float GetSeeDistance();
+        bool CanSee(Vector3 pos);
         void SetTarget(EntityPlayer player); // TODO rewrite
     }
 }

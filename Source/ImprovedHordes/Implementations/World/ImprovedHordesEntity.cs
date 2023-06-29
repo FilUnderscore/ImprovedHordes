@@ -88,14 +88,14 @@ namespace ImprovedHordes.Implementations.World
             return false;
         }
 
-        public float GetSeeDistance()
+        public bool CanSee(Vector3 position)
         {
-            return this.entity.GetSeeDistance();
+            return this.entity.CanSee(position);
         }
 
         public void SetTarget(EntityPlayer player)
         {
-            this.entity.SetAttackTarget(player, player != null ? 600 : 0);
+            this.entity.SetAttackTarget(player, 600);
         }
     }
 }

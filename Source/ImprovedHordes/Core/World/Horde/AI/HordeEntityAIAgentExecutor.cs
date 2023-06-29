@@ -39,16 +39,17 @@ namespace ImprovedHordes.Core.World.Horde.AI
             return false;
         }
 
+        private bool CanSee(EntityPlayer player)
+        {
+            return this.Agent.CanSee(player.position);
+        }
+
         public override void Update(float dt)
         {
-            if(this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && distance <= this.Agent.GetSeeDistance())
+            if(this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && CanSee(nearby))
             {
                 this.Agent.SetTarget(nearby);
                 return;
-            }
-            else
-            {
-                this.Agent.SetTarget(null);
             }
 
             if (this.entityCommandGenerator != null)
