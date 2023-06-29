@@ -35,7 +35,7 @@ public class ImprovedHordesSimulation
 	public void read(DataInput in) throws IOException
 	{
 		int worldSize = in.readInt();
-
+		
 		Vector2i worldSizeV = new Vector2i(worldSize, worldSize);
 		WorldHordeState world = new WorldHordeState(worldSizeV);
 		

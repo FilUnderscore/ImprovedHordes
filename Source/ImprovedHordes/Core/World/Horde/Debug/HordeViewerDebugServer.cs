@@ -136,8 +136,9 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
         }
 
-        public void Start()
+        public void StartServer()
         {
+            this.Start();
             this.running = true;
 
             this.listener.Start();

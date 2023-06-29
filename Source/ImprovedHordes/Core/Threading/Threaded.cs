@@ -28,9 +28,9 @@ namespace ImprovedHordes.Core.Threading
             instances.Add(this);
         }
 
-        private void Start()
+        protected void Start()
         {
-            this.threadInfo = ThreadManager.StartThread($"IHThreaded-{this.GetType().Name}", ThreadStart, ThreadLoop, ThreadEnd, System.Threading.ThreadPriority.Lowest);
+            this.threadInfo = ThreadManager.StartThread($"IHThreaded-{this.GetType().Name}", ThreadStart, ThreadLoop, ThreadEnd, System.Threading.ThreadPriority.Lowest, _useRealThread: true);
         }
 
         private void ThreadStart(ThreadManager.ThreadInfo threadInfo)
@@ -46,6 +46,7 @@ namespace ImprovedHordes.Core.Threading
                     return 1000;
 
                 UpdateAsync(Time.fixedDeltaTime);
+                return 100;
             }
 
             return -1;

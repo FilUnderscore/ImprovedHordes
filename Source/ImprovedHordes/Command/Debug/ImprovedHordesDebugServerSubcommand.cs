@@ -26,7 +26,7 @@ namespace ImprovedHordes.Command.Debug
                 }
                 else
                 {
-                    debugServer.Start();
+                    debugServer.StartServer();
                     message = "Started debug server. Connect to 127.0.0.1 with IHDebugViewer to view World Horde state.";
                 }
             }
