@@ -46,7 +46,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         public override void Update(float dt)
         {
-            if(this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && CanSee(nearby))
+            if(this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && (CanSee(nearby) || (distance <= 10.0f && nearby.Stealth.ValuePercentUI >= 0.85f)))
             {
                 this.Agent.SetTarget(nearby);
                 return;

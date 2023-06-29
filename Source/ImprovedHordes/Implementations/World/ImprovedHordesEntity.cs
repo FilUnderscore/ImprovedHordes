@@ -90,7 +90,7 @@ namespace ImprovedHordes.Implementations.World
 
         public bool CanSee(Vector3 position)
         {
-            return this.entity.CanSee(position);
+            return this.entity.emodel != null && this.entity.emodel.GetModelTransform() != null && this.entity.CanSee(position);
         }
 
         public void SetTarget(EntityPlayer player)
