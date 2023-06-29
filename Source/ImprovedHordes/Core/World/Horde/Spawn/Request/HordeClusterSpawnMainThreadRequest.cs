@@ -135,15 +135,15 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 Vector3 closestLocation;
                 Vector3 closestDirection;
 
-                foreach (var location in this.playerGroup.GetLocations())
+                foreach (var player in this.playerGroup.GetPlayers())
                 {
-                    Vector3 direction = (this.hordeLocation - location).normalized;
+                    Vector3 direction = (this.hordeLocation - player.location).normalized;
                     float distance = WorldHordeTracker.MAX_VIEW_DISTANCE / 2;
 
-                    if (Vector3.Distance(spawnTargetLocation, location) < distance)
+                    if (Vector3.Distance(spawnTargetLocation, player.location) < distance)
                     {
                         closestDirection = direction;
-                        closestLocation = location;
+                        closestLocation = player.location;
 
                         playersNearby = true;
                         spawnTargetLocation += direction * distance;

@@ -238,9 +238,9 @@ namespace ImprovedHordes.Core.World.Horde
                 float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
                 Vector3 hordeLocation = horde.GetLocation();
 
-                foreach(var location in playerGroup.GetLocations())
+                foreach(var player in playerGroup.GetPlayers())
                 {
-                    if (Vector3.Distance(location, hordeLocation) <= distance)
+                    if (Vector3.Distance(player.location, hordeLocation) <= distance)
                         return true;
                 }
 

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde
 {
@@ -23,18 +22,6 @@ namespace ImprovedHordes.Core.World.Horde
         public List<PlayerSnapshot> GetPlayers()
         {
             return this.players;
-        }
-
-        public List<Vector3> GetLocations()
-        {
-            List<Vector3> locations = new List<Vector3>();
-
-            foreach(var player in this.players) 
-            {
-                locations.Add(player.location);
-            }
-
-            return locations;
         }
 
         public int GetGamestage()
