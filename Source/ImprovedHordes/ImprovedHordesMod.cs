@@ -58,6 +58,7 @@ namespace ImprovedHordes
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile));
 
+            this.settingLoader.RegisterTypeParser<bool>(new ImprovedHordesSettingTypeParserBool());
             this.settingLoader.RegisterTypeParser<int>(new ImprovedHordesSettingTypeParserInt());
             this.settingLoader.RegisterTypeParser<float>(new ImprovedHordesSettingTypeParserFloat());
             this.settingLoader.RegisterTypeParser<ulong>(new ImprovedHordesSettingTypeParserULong());

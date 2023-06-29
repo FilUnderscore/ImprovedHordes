@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions.World;
+﻿using ImprovedHordes.Core.Abstractions.Settings;
+using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 
@@ -6,6 +7,8 @@ namespace ImprovedHordes.Core.World.Horde.AI
 {
     public sealed class HordeEntityAIAgentExecutor : AIAgentExecutor<IEntity>
     {
+        private static readonly Setting<bool> AI_PLAYER_SENSING = new Setting<bool>("ai_player_sensing", true);
+
         private readonly HordeAIAgentExecutor hordeAIAgentExecutor;
         private bool loaded;
 
@@ -46,7 +49,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         public override void Update(float dt)
         {
-            if(this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && (CanSee(nearby) || (distance <= 10.0f && nearby.Stealth.ValuePercentUI >= 0.85f)))
+            if(AI_PLAYER_SENSING.Value && this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && (CanSee(nearby) || (distance <= 10.0f && nearby.Stealth.ValuePercentUI >= 0.85f)))
             {
                 this.Agent.SetTarget(nearby);
                 return;

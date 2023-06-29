@@ -173,6 +173,7 @@
     <Compile Include="Implementations\Data\Parsers\Horde\WorldHordeDataParser.cs" />
     <Compile Include="Implementations\Logging\ImprovedHordesLogger.cs" />
     <Compile Include="Implementations\Settings\ImprovedHordesSettingLoader.cs" />
+    <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserBool.cs" />
     <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserFloat.cs" />
     <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserInt.cs" />
     <Compile Include="Implementations\Settings\Parsers\ImprovedHordesSettingTypeParserULong.cs" />
