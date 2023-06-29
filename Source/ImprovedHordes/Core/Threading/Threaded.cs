@@ -93,6 +93,8 @@ namespace ImprovedHordes.Core.Threading
             {
                 instance.Shutdown();
             }
+
+            instances.Clear();
         }
     }
 }
