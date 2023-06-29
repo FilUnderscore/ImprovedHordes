@@ -9,13 +9,14 @@ namespace ImprovedHordes.Core.AI
 
         Vector3 GetLocation();
         IEntity GetTarget();
-
+        
         bool IsDead();
 
         void Sleep();
         void WakeUp();
 
         bool IsSleeping();
-        bool AnyPlayersNearby(out float distance);
+
+        bool AnyPlayersNearby(out float distance, out EntityPlayer nearby);
     }
 }

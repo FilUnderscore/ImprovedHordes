@@ -12,5 +12,8 @@ namespace ImprovedHordes.Core.Abstractions.World
 
         bool IsStunned();
         bool IsPlayer();
+
+        float GetSeeDistance();
+        void SetTarget(EntityPlayer player); // TODO rewrite
     }
 }

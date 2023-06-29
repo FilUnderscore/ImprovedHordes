@@ -1,4 +1,6 @@
-﻿using ImprovedHordes.Core.Abstractions.World;
+﻿using HarmonyLib;
+using ImprovedHordes.Core.Abstractions.World;
+using System.Reflection;
 using UnityEngine;
 
 namespace ImprovedHordes.Implementations.World
@@ -79,10 +81,21 @@ namespace ImprovedHordes.Implementations.World
             return this.entity.IsSleeping;
         }
 
-        public bool AnyPlayersNearby(out float distance)
+        public bool AnyPlayersNearby(out float distance, out EntityPlayer nearby)
         {
             distance = 0.0f;
+            nearby = null;
             return false;
+        }
+
+        public float GetSeeDistance()
+        {
+            return this.entity.GetSeeDistance();
+        }
+
+        public void SetTarget(EntityPlayer player)
+        {
+            this.entity.SetAttackTarget(player, player != null ? 600 : 0);
         }
     }
 }

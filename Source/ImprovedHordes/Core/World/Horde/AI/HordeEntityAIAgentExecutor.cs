@@ -41,6 +41,16 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         public override void Update(float dt)
         {
+            if(this.Agent.AnyPlayersNearby(out float distance, out EntityPlayer nearby) && distance <= this.Agent.GetSeeDistance())
+            {
+                this.Agent.SetTarget(nearby);
+                return;
+            }
+            else
+            {
+                this.Agent.SetTarget(null);
+            }
+
             if (this.entityCommandGenerator != null)
             {
                 if(!this.UpdateEntityCommand(dt)) // Can only be generated.

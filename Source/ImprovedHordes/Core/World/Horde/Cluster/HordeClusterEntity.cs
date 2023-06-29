@@ -210,19 +210,56 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         private bool nearby;
         private float nearbyDistance;
+        private EntityPlayer nearbyPlayer;
 
-        public bool AnyPlayersNearby(out float distance)
+        public bool AnyPlayersNearby(out float distance, out EntityPlayer nearby)
         {
             distance = this.nearbyDistance;
+            nearby = this.nearbyPlayer;
+
             return this.nearby;
         }
 
         public void SetPlayersNearby(IEnumerable<PlayerSnapshot> nearby)
         {
-            this.nearby = nearby.Any();
+            if (nearby.Any())
+            {
+                var nearbyPlayer = nearby.First();
+                var nearbyDist = Vector3.Distance(nearbyPlayer.location, this.GetLocation());
 
-            if(this.nearby)
-                this.nearbyDistance = nearby.Min(player => Vector3.Distance(player.location, this.GetLocation()));
+                for(int i = 1; i < nearby.Count(); i++)
+                {
+                    var otherPlayer = nearby.ElementAt(i);
+                    var otherDist = Vector3.Distance(otherPlayer.location, this.GetLocation());
+
+                    if (otherDist < nearbyDist)
+                    {
+                        nearbyDist = otherDist;
+                        nearbyPlayer = otherPlayer;
+                    }
+                }
+
+                this.nearbyDistance = nearbyDist;
+                this.nearbyPlayer = nearbyPlayer.player;
+                this.nearby = true;
+            }
+            else
+            {
+                this.nearby = false;
+            }
+        }
+
+        public float GetSeeDistance()
+        {
+            return this.entity != null ? this.entity.GetSeeDistance() : 0.0f;
+        }
+
+        public void SetTarget(EntityPlayer target)
+        {
+            if (this.entity == null)
+                return;
+
+            this.entity.SetTarget(target);
         }
     }
 }
