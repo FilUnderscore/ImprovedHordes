@@ -7,7 +7,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
 {
     public sealed class HordeEntityAIAgentExecutor : AIAgentExecutor<IEntity>
     {
-        private static readonly Setting<bool> AI_PLAYER_SENSING = new Setting<bool>("ai_player_sensing", true);
+        private static readonly Setting<bool> AI_PLAYER_SENSING = new Setting<bool>("ai_player_sensing", false);
 
         private readonly HordeAIAgentExecutor hordeAIAgentExecutor;
         private bool loaded;
