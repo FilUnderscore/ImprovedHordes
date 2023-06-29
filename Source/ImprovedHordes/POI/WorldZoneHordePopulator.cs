@@ -144,7 +144,7 @@ namespace ImprovedHordes.POI
             float densitySizeRatio = 1.0f;
 
             if (this.IsDensityInfluencedByZoneProperties())
-                 densitySizeRatio = Mathf.Min(maxBiomeDensity, Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount() * hordeCount * hordeCount)));
+                 densitySizeRatio = Mathf.Clamp(Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount() * hordeCount * hordeCount)), 0.0f, maxBiomeDensity);
     
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnParams(20), densitySizeRatio, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }
