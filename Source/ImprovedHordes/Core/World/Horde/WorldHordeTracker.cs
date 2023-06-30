@@ -18,7 +18,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
@@ -293,6 +292,39 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
+        private void UpdateHordeClusterEntity(HordeClusterEntity entity, PlayerHordeGroup playerHordeGroup)
+        {
+            if (!entity.IsAwaitingSpawnStateChange())
+            {
+                IEnumerable<PlayerSnapshot> nearby = playerHordeGroup.GetPlayers().Where(player =>
+                {
+                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                    return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
+                });
+
+                entity.SetPlayersNearby(nearby);
+                
+                if (entity.IsSpawned() && !nearby.Any())
+                {
+                    entity.RequestDespawn(this.LoggerFactory, this.mainThreadRequestProcessor, entityAlive =>
+                    {
+                        if (entityAlive == null || !entitiesTracked.TryRemove(entityAlive.GetEntityId()))
+                            this.Logger.Warn("Failed to untrack horde entity when despawning.");
+                    });
+                }
+                else if (!entity.IsSpawned() && nearby.Any())
+                {
+                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive =>
+                    {
+                        if (entityAlive != null)
+                            entitiesTracked.Add(entityAlive.GetEntityId());
+                        else
+                            this.Logger.Warn("Failed to track horde entity when spawning.");
+                    });
+                }
+            }
+        }
+
         private void UpdateHorde(WorldHorde horde, float dt, List<PlayerHordeGroup> playerGroups, List<WorldEventReportEvent> eventReports)
         {
             if (TryGetPlayerHordeGroupNear(playerGroups, horde, out PlayerHordeGroup playerHordeGroup))
@@ -303,44 +335,13 @@ namespace ImprovedHordes.Core.World.Horde
                 }
                 else
                 {
-                    bool anyNearby = false;
-
                     foreach(var cluster in horde.GetClusters())
                     {
                         TrySpawnCluster(cluster, horde, playerHordeGroup);
 
                         foreach (var entity in cluster.GetEntities())
                         {
-                            if (!entity.IsAwaitingSpawnStateChange())
-                            {
-                                IEnumerable<PlayerSnapshot> nearby = playerHordeGroup.GetPlayers().Where(player =>
-                                {
-                                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
-                                    return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
-                                });
-
-                                entity.SetPlayersNearby(nearby);
-                                anyNearby |= nearby.Any();
-
-                                if (entity.IsSpawned() && !nearby.Any())
-                                {
-                                    entity.RequestDespawn(this.LoggerFactory, this.mainThreadRequestProcessor, entityAlive =>
-                                    {
-                                        if (entityAlive == null || !entitiesTracked.TryRemove(entityAlive.GetEntityId()))
-                                            this.Logger.Warn("Failed to untrack horde entity when despawning.");
-                                    });
-                                }
-                                else if (!entity.IsSpawned() && nearby.Any())
-                                {
-                                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive =>
-                                    {
-                                        if (entityAlive != null)
-                                            entitiesTracked.Add(entityAlive.GetEntityId());
-                                        else
-                                            this.Logger.Warn("Failed to track horde entity when spawning.");
-                                    });
-                                }
-                            }
+                            UpdateHordeClusterEntity(entity, playerHordeGroup);
                         }
                     }
                 }
