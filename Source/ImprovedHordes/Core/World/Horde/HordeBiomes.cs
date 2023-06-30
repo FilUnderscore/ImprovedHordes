@@ -9,7 +9,7 @@ namespace ImprovedHordes.Core.World.Horde
         
         public static BiomeDefinition GetBiomeAt(Vector2 location)
         {
-            return GameManager.Instance.World.ChunkCache.ChunkProvider.GetBiomeProvider().GetBiomeAt((int)location.x, (int)location.y);
+            return GameManager.Instance.World?.ChunkCache?.ChunkProvider?.GetBiomeProvider()?.GetBiomeAt((int)location.x, (int)location.y);
         }
 
         public static float DetermineBiomeDensity(Vector3 location)
