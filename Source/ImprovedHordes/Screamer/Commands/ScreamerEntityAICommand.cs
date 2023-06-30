@@ -7,7 +7,8 @@ namespace ImprovedHordes.Screamer.Commands
 {
     public sealed class ScreamerEntityAICommand : EntityAICommand
     {
-        private const float SCREAM_DELAY = 18.0f;
+        private const float SCREAM_DELAY = 6.0f;
+        private const int MAX_SCREAMS = 3;
 
         private readonly WorldEventReporter worldEventReporter;
 
@@ -33,9 +34,8 @@ namespace ImprovedHordes.Screamer.Commands
             {
                 entity.PlaySound(entity.GetAlertSound());
                 this.worldEventReporter.Report(new WorldEvent(entity.GetLocation(), Mathf.Max((screamCount + 1) * 50f, 0f), true));
-
-                screamTicks = SCREAM_DELAY * (screamCount + 1) * (screamCount + 2);
-                screamCount = screamCount % 3;
+                screamTicks = SCREAM_DELAY * (screamCount + 1) * (screamCount + 2) * (screamCount + 3);
+                screamCount = (screamCount + 1) % MAX_SCREAMS;
             }
             else
             {
