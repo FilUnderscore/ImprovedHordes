@@ -98,11 +98,11 @@ namespace ImprovedHordes.Core.World.Event
                 cap = Mathf.Max(this.interest + other.interest, 100.0f) * other.strength;
             }
 
-            this.SetInterest(Mathf.Clamp(this.interest + other.interest, 0.0f, cap));
+            this.SetInterest(Mathf.Min(this.interest + other.interest, cap));
 
             double timeDiff = (other.time - this.time) / 2;
 
-            this.time = other.time - (timeDiff * ((100.0f - Mathf.Min(100.0f, this.interest)) / 100.0f));
+            this.time = other.time - (timeDiff * ((cap - Mathf.Max(cap, this.interest)) / cap));
             this.expire_time = GetExpireTime();
         }
     }

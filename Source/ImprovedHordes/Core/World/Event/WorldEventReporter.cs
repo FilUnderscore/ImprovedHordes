@@ -36,6 +36,7 @@ namespace ImprovedHordes.Core.World.Event
             this.MAP_SIZE_POW_2_LOG_N = Math.Pow(2, MAP_SIZE_LOG_N);
 
             AIDirectorChunkEventComponent_NotifyEvent_Patch.WorldEventReporter = this;
+            AIDirectorMarkerManagementComponent_NotifyNoise_Patch.WorldEventReporter = this;
         }
 
         protected override void UpdateAsync(float dt)
@@ -162,7 +163,46 @@ namespace ImprovedHordes.Core.World.Event
 
             static void Postfix(AIDirectorChunkEvent _chunkEvent)
             {
+                if (_chunkEvent.EventType == EnumAIDirectorChunkEvent.Sound || _chunkEvent.Value <= float.Epsilon)
+                    return;
+
                 WorldEventReporter.Report(new WorldEvent(_chunkEvent.Position, _chunkEvent.Value * 10));
+            }
+        }
+
+        [HarmonyPatch(typeof(AIDirectorMarkerManagementComponent))]
+        [HarmonyPatch(nameof(AIDirectorMarkerManagementComponent.NotifyNoise))]
+        private sealed class AIDirectorMarkerManagementComponent_NotifyNoise_Patch
+        {
+            public static WorldEventReporter WorldEventReporter;
+
+            private static void Postfix(AIDirectorMarkerManagementComponent __instance, Entity instigator, Vector3 position, string clipName, float volumeScale)
+            {
+                if (instigator == null || string.IsNullOrEmpty(clipName) || instigator.IsIgnoredByAI())
+                    return;
+
+                if (!AIDirectorData.FindNoise(clipName, out var noise))
+                    return;
+
+                var trackedPlayers = __instance.Director.GetComponent<AIDirectorPlayerManagementComponent>().trackedPlayers;
+
+                if (!trackedPlayers.dict.TryGetValue(instigator.entityId, out var directorPlayerState) || directorPlayerState == null)
+                    return;
+
+                float strength = 1.0f * (directorPlayerState.Player.Stealth.noiseVolume / 100.0f);
+
+                if (directorPlayerState.Player.IsCrouching)
+                {
+                    strength *= noise.muffledWhenCrouched;
+                    volumeScale *= strength;
+                }
+
+                float interest = noise.heatMapStrength * volumeScale * (10 * strength);
+
+                if (interest <= float.Epsilon)
+                    return;
+
+                WorldEventReporter.Report(new WorldEvent(global::World.worldToBlockPos(position), interest, strength));
             }
         }
     }
