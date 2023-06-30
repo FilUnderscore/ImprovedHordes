@@ -32,7 +32,7 @@ namespace ImprovedHordes.Screamer.Commands
             if (screamTicks <= 0.0 && !entity.IsStunned())
             {
                 entity.PlaySound(entity.GetAlertSound());
-                this.worldEventReporter.Report(new WorldEvent(entity.GetLocation(), Mathf.Clamp((screamCount + 1) * 33f, 0f, 100.0f)));
+                this.worldEventReporter.Report(new WorldEvent(entity.GetLocation(), Mathf.Max((screamCount + 1) * 50f, 0f), true));
 
                 screamTicks = SCREAM_DELAY * (screamCount + 1) * (screamCount + 2);
                 screamCount = screamCount % 3;

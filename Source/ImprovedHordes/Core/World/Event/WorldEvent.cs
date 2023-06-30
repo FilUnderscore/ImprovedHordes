@@ -18,10 +18,12 @@ namespace ImprovedHordes.Core.World.Event
         private double time;
         private double expire_time;
 
-        public WorldEvent(Vector3 blockPosition, float interest) : this(blockPosition, global::World.toChunkXZ(blockPosition), interest, 1.0f) { }
-        public WorldEvent(Vector3 blockPosition, float interest, float strength) : this(blockPosition, global::World.toChunkXZ(blockPosition), interest, strength) { }
+        private bool ignoreCap;
 
-        public WorldEvent(Vector3 blockPosition, Vector2i chunkLocation, float interest, float strength)
+        public WorldEvent(Vector3 blockPosition, float interest, bool ignoreCap = false) : this(blockPosition, global::World.toChunkXZ(blockPosition), interest, 1.0f, ignoreCap) { }
+        public WorldEvent(Vector3 blockPosition, float interest, float strength, bool ignoreCap = false) : this(blockPosition, global::World.toChunkXZ(blockPosition), interest, strength, ignoreCap) { }
+
+        public WorldEvent(Vector3 blockPosition, Vector2i chunkLocation, float interest, float strength, bool ignoreCap = false)
         {
             this.blockLocation = blockPosition;
             this.chunkLocation = chunkLocation;
@@ -83,16 +85,24 @@ namespace ImprovedHordes.Core.World.Event
         public void Add(WorldEvent other)
         {
             float cap = 100.0f;
-            if (other.strength < 1.0f)
+
+            if (!other.ignoreCap)
             {
-                cap *= other.strength;
+                if (other.strength < 1.0f)
+                {
+                    cap *= other.strength;
+                }
+            }
+            else
+            {
+                cap = Mathf.Max(this.interest + other.interest, 100.0f) * other.strength;
             }
 
             this.SetInterest(Mathf.Clamp(this.interest + other.interest, 0.0f, cap));
 
             double timeDiff = (other.time - this.time) / 2;
 
-            this.time = other.time - (timeDiff * ((100.0f - this.interest) / 100.0f));
+            this.time = other.time - (timeDiff * ((100.0f - Mathf.Min(100.0f, this.interest)) / 100.0f));
             this.expire_time = GetExpireTime();
         }
     }

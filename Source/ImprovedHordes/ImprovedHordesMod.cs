@@ -21,6 +21,7 @@ using ImprovedHordes.Implementations.Data;
 using System.IO;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Event;
 
 namespace ImprovedHordes
 {
@@ -42,6 +43,8 @@ namespace ImprovedHordes
 
         private ImprovedHordesCore core;
         private WorldPOIScanner poiScanner;
+
+        public event EventHandler<ImprovedHordesCoreInitializedEvent> OnCoreInitialized;
 
         public ImprovedHordesMod()
         {
@@ -151,6 +154,9 @@ namespace ImprovedHordes
             loaded = true;
 
             core.Start();
+
+            if (this.OnCoreInitialized != null)
+                this.OnCoreInitialized.Invoke(this, new ImprovedHordesCoreInitializedEvent(core));
         }
 
         private bool TryLoadData()
