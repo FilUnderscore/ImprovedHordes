@@ -146,8 +146,6 @@ namespace ImprovedHordes
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
 
-            this.settingLoader.LoadSettings();
-
             loaded = false;
             if(this.TryLoadData())
                 this.logger.Info("Loaded data.");

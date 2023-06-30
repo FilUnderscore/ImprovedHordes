@@ -16,11 +16,8 @@ namespace ImprovedHordes.Implementations.Settings
         {
             this.logger = loggerFactory.Create(typeof(ImprovedHordesSettingLoader));
             this.parser = new XmlFileParser(settingXmlFile);
-        }
 
-        public void LoadSettings()
-        {
-            Setting.LoadAll(this);
+            Setting.SetLoader(this);
         }
 
         public void RegisterTypeParser<T>(ISettingTypeParser<T> typeParser)
@@ -30,7 +27,7 @@ namespace ImprovedHordes.Implementations.Settings
 
         public bool Load<T>(string path, out T value)
         {
-            if(!settingTypeParsers.TryGetValue(typeof(T), out var settingTypeParser) || !(settingTypeParser is ISettingTypeParser<T> genericSettingTypeParser)) 
+            if (!settingTypeParsers.TryGetValue(typeof(T), out var settingTypeParser) || !(settingTypeParser is ISettingTypeParser<T> genericSettingTypeParser))
             {
                 this.logger.Warn($"No {nameof(ISettingTypeParser)} for type {typeof(T).Name}. Using default value.");
 
@@ -47,7 +44,7 @@ namespace ImprovedHordes.Implementations.Settings
                 entry = entry.GetEntries(subpaths[subpathIndex++])[0];
             }
 
-            if(genericSettingTypeParser.Parse(entry.GetValueAsString(), out T parsedValue))
+            if (genericSettingTypeParser.Parse(entry.GetValueAsString(), out T parsedValue))
             {
                 value = parsedValue;
                 return true;

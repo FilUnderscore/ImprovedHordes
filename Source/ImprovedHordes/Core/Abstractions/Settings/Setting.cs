@@ -1,30 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace ImprovedHordes.Core.Abstractions.Settings
 {
     public abstract class Setting
     {
-        private static readonly List<Setting> instances = new List<Setting>();
+        protected static ISettingLoader loader;
 
         public event EventHandler OnSettingUpdated;
 
-        public Setting()
-        {
-            instances.Add(this);
-        }
-
         public abstract void Load(ISettingLoader loader);
 
-        public static void LoadAll(ISettingLoader loader)
+        public static void SetLoader(ISettingLoader loader)
         {
-            foreach(var setting in instances)
-            {
-                setting.Load(loader);
-
-                if (setting.OnSettingUpdated != null)
-                    setting.OnSettingUpdated(setting, EventArgs.Empty);
-            }
+            Setting.loader = loader;
         }
     }
 
@@ -45,6 +33,8 @@ namespace ImprovedHordes.Core.Abstractions.Settings
         {
             this.path = path;
             this.value = defaultValue;
+
+            this.Load(loader);
         }
 
         public override void Load(ISettingLoader loader)
