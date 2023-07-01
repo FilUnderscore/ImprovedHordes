@@ -32,7 +32,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly IWorldRandom random;
 
         private readonly ThreadSubscription<HordeClusterSpawnState> spawnState;
-        private Vector3 hordeLocation;
 
         public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
         {
@@ -43,8 +42,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             this.cluster = cluster;
             this.playerGroup = playerGroup;
             this.spawnData = spawnData;
-
-            this.hordeLocation = this.horde.GetLocation();
 
             this.randomFactory = randomFactory;
             this.random = randomFactory.CreateRandom(this.cluster.GetHashCode());
@@ -118,8 +115,16 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 this.onSpawnedAction.Invoke();
         }
 
+        private const float SPAWN_DELAY = 10.0f;
+        private float spawnTicks;
+
         public void TickExecute(float dt)
         {
+            if (--spawnTicks > 0.0f) // Slight spawn delay prevents immediate stuttering when spawning large groups of enemies.
+                return;
+            else
+                spawnTicks = SPAWN_DELAY;
+
             if (GetWorldEntitiesAlive() >= GetMaxAllowedWorldEntitiesAlive()) // World is currently overpopulated, so skip this update.
                 return;
 
@@ -128,7 +133,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if (MAX_ENTITIES_SPAWNED_PER_PLAYER > -1 && this.horde.GetSpawnedHordeEntityCount() >= MAX_ENTITIES_SPAWNED_PER_PLAYER * this.playerGroup.GetCount()) // Cannot exceed the max number of entities per player for performance reasons.
                 return;
 
-            Vector3 spawnTargetLocation = this.hordeLocation;
+            Vector3 spawnTargetLocation = this.horde.GetLocation();
             bool playersNearby;
 
             do
@@ -140,16 +145,17 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
                 foreach (var player in this.playerGroup.GetPlayers())
                 {
-                    Vector3 direction = (this.hordeLocation - player.location).normalized;
-                    float distance = WorldHordeTracker.MAX_VIEW_DISTANCE / 2;
+                    Vector3 direction = (this.horde.GetLocation() - player.location).normalized;
+                    float distance = WorldHordeTracker.SPAWN_VIEW_DISTANCE;
+                    float playerDistance = Vector3.Distance(spawnTargetLocation, player.location);
 
-                    if (Vector3.Distance(spawnTargetLocation, player.location) < distance)
+                    if (playerDistance <= distance / 2)
                     {
                         closestDirection = direction;
                         closestLocation = player.location;
 
                         playersNearby = true;
-                        spawnTargetLocation += direction * distance;
+                        spawnTargetLocation += direction * distance; // <= distance will cause this loop to hang because direction does not increment location.
                         break;
                     }
                 }

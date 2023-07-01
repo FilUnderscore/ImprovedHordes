@@ -97,6 +97,14 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
+        public static int SPAWN_VIEW_DISTANCE
+        {
+            get
+            {
+                return (int)(MAX_VIEW_DISTANCE * 0.8f);
+            }
+        }
+
         private readonly IRandomFactory<IWorldRandom> randomFactory;
         private readonly IEntitySpawner entitySpawner;
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
@@ -234,7 +242,7 @@ namespace ImprovedHordes.Core.World.Horde
         {
             IEnumerable<PlayerHordeGroup> nearby = playerGroups.Where(playerGroup =>
             {
-                float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : SPAWN_VIEW_DISTANCE;
                 Vector3 hordeLocation = horde.GetLocation();
 
                 foreach(var player in playerGroup.GetPlayers())
@@ -298,7 +306,7 @@ namespace ImprovedHordes.Core.World.Horde
             {
                 IEnumerable<PlayerSnapshot> nearby = playerHordeGroup.GetPlayers().Where(player =>
                 {
-                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE - 20;
+                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE * 0.8f;
                     return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
                 });
 
