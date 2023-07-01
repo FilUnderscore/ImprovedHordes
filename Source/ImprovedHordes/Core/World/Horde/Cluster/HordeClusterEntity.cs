@@ -220,14 +220,14 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.nearby;
         }
 
-        public void SetPlayersNearby(IEnumerable<PlayerSnapshot> nearby)
+        public void SetPlayersNearby(ICollection<PlayerSnapshot> nearby)
         {
             if (nearby.Any())
             {
                 var nearbyPlayer = nearby.First();
                 var nearbyDist = Vector3.Distance(nearbyPlayer.location, this.GetLocation());
 
-                for(int i = 1; i < nearby.Count(); i++)
+                for(int i = 1; i < nearby.Count; i++)
                 {
                     var otherPlayer = nearby.ElementAt(i);
                     var otherDist = Vector3.Distance(otherPlayer.location, this.GetLocation());

@@ -43,15 +43,15 @@ namespace ImprovedHordes.Data.XML
 
         public Group GetEligibleRandomGroup(PlayerHordeGroup playerGroup, IRandom random)
         {
-            IEnumerable<Group> eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, random, this));
+            List<Group> eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, random, this)).ToList();
 
-            if (eligibleGroups.Count() == 0) // Try find eligible groups again but ignore weight.
-                eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, null, null));
+            if (eligibleGroups == null || eligibleGroups.Count == 0) // Try find eligible groups again but ignore weight.
+                eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, null, null)).ToList();
 
-            if (eligibleGroups.Count() == 0)
+            if (eligibleGroups == null || eligibleGroups.Count == 0)
                 return null;
 
-            return random.Random<Group>(eligibleGroups.ToList());
+            return random.Random<Group>(eligibleGroups);
         }
 
         public bool IsWithinWeightRange(Group group, float randomNormalizedWeight)
