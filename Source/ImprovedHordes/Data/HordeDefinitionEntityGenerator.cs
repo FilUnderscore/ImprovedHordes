@@ -35,7 +35,7 @@ namespace ImprovedHordes.Data
         {
             var eligibleGroupEntities = group.GetEligible(this.playerGroup, random);
 
-            if (eligibleGroupEntities == null) // Failed to get without chance. Ignore chances.
+            if (eligibleGroupEntities == null || eligibleGroupEntities.Count == 0) // Failed to get without chance. Ignore chances.
                 eligibleGroupEntities = group.GetEligible(this.playerGroup, null);
 
             foreach(var entity in eligibleGroupEntities)
@@ -51,6 +51,9 @@ namespace ImprovedHordes.Data
 
         private HordeDefinition.Group.Entity GetRandomEntity(IRandom random)
         {
+            if (maxEntitiesToSpawn.Count == 0)
+                return null;
+
             var keys = maxEntitiesToSpawn.Keys.ToList();
             HordeDefinition.Group.Entity randomEntity = random.Random(keys);
 
@@ -71,7 +74,7 @@ namespace ImprovedHordes.Data
 
             HordeDefinition.Group.Entity randomEntity = GetRandomEntity(random);
 
-            if(!(random is ImprovedHordesWorldRandom ihRandom) || !randomEntity.GetEntityClassId(ref this.lastEntityClassId, out int entityClassId, ihRandom.GetGameRandom()))
+            if(!(random is ImprovedHordesWorldRandom ihRandom) || randomEntity == null || !randomEntity.GetEntityClassId(ref this.lastEntityClassId, out int entityClassId, ihRandom.GetGameRandom()))
             {
                 this.logger.Warn($"Could not get entity class ID for Horde Entity. Perhaps the entity class is invalid or the entity group does not exist?");
                 return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);

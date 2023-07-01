@@ -148,7 +148,7 @@ namespace ImprovedHordes.Data.XML
 
                 public int GetCount(int gs, int minCount, int maxCount)
                 {
-                    if (this.max == null && this.increaseEvery != null)
+                    if (this.max == null && this.increaseEvery != null && this.increaseEvery > 0.0f)
                     {
                         return GetCountRelativeToMinIncrease(gs, minCount, maxCount);
                     }
