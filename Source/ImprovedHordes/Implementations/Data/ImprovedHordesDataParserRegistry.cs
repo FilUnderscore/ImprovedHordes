@@ -51,7 +51,7 @@ namespace ImprovedHordes.Implementations.Data
 
             this.RegisterDataParser<WorldPOIScanner.POIZone>(new POIZoneDataParser(poiScanner));
 
-            this.RegisterDataParser<WorldZoneWanderingEnemyAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneWanderingEnemyAICommandGenerator>((loader) => new WorldZoneWanderingEnemyAICommandGenerator(poiScanner)));
+            this.RegisterDataParser<WorldZoneWanderingEnemyAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneWanderingEnemyAICommandGenerator>((loader) => new WorldZoneWanderingEnemyAICommandGenerator(poiScanner, loader.Load<WorldPOIScanner.POIZone>())));
             this.RegisterDataParser<WorldWildernessWanderingEnemyAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldWildernessWanderingEnemyAICommandGenerator>((loader) => new WorldWildernessWanderingEnemyAICommandGenerator(poiScanner)));
             this.RegisterDataParser<WorldZoneScreamerAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneScreamerAICommandGenerator>((loader) => new WorldZoneScreamerAICommandGenerator(loader.Load<WorldPOIScanner.POIZone>()), (screamerCommandGenerator, saver) => saver.Save<WorldPOIScanner.POIZone>(screamerCommandGenerator.GetState().GetPOIZone())));
 

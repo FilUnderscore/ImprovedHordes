@@ -8,6 +8,8 @@ namespace ImprovedHordes.Screamer
 {
     public sealed class WorldZoneScreamerAICommandGenerator : AIStateCommandGenerator<ScreamerAIState, AICommand>
     {
+        private const float ZONE_WANDER_RANGE_MULTIPLIER = 0.25f;
+
         public WorldZoneScreamerAICommandGenerator(WorldPOIScanner.POIZone zone) : base(new ScreamerAIState(zone))
         {
         }
@@ -44,7 +46,7 @@ namespace ImprovedHordes.Screamer
 
             if(state.GetWanderState() != ScreamerAIState.WanderState.WANDERING)
             {
-                command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetPOIZone()), (_) =>
+                command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetPOIZone(), ZONE_WANDER_RANGE_MULTIPLIER, null), (_) =>
                 {
                     state.SetWanderState(ScreamerAIState.WanderState.WANDERING);
                 });

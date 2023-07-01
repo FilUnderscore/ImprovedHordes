@@ -92,6 +92,8 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void Despawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
+            this.clusters.ForEach(cluster => cluster.SetSpawnState(HordeCluster.SpawnState.DESPAWNING));
+
             mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this, () =>
             {
                 this.clusters.ForEach(cluster => cluster.SetSpawnState(HordeCluster.SpawnState.DESPAWNED));

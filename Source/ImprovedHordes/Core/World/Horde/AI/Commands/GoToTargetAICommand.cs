@@ -10,12 +10,12 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public GoToTargetAICommand(Vector3 target) : base()
         {
-            this.target = ToGround(target);
+            this.UpdateTarget(target);
         }
 
         public GoToTargetAICommand(Vector3 target, double expiryTimeSeconds) : base(expiryTimeSeconds)
         {
-            this.target = ToGround(target);
+            this.UpdateTarget(target);
         }
 
         public override bool CanExecute(IAIAgent agent)
@@ -47,6 +47,11 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
         private Vector2 ToXZ(Vector3 v)
         {
             return new Vector2(v.x, v.z);
+        }
+
+        protected void UpdateTarget(Vector3 target)
+        {
+            this.target = ToGround(target);
         }
     }
 }

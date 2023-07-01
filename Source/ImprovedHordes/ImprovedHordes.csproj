@@ -189,7 +189,7 @@
     <Compile Include="POI\WorldWildernessHordePopulator.cs" />
     <Compile Include="POI\WorldZoneHordePopulator.cs" />
     <Compile Include="Screamer\Commands\ScreamerEntityAICommand.cs" />
-    <Compile Include="Screamer\Commands\ZoneWanderAICommand.cs" />
+    <Compile Include="POI\Commands\ZoneWanderAICommand.cs" />
     <Compile Include="Screamer\ScreamerAIState.cs" />
     <Compile Include="Screamer\ScreamerEntityAICommandGenerator.cs" />
     <Compile Include="Screamer\ScreamerHorde.cs" />

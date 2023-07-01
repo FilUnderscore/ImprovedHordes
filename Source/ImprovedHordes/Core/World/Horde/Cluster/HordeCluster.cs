@@ -18,7 +18,8 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         {
             SPAWNED,
             SPAWNING,
-            DESPAWNED
+            DESPAWNED,
+            DESPAWNING
         }
 
         private readonly IHorde horde;

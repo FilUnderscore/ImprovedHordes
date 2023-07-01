@@ -17,6 +17,12 @@ namespace ImprovedHordes.Wandering.Enemy
             this.wanderingState = WanderingState.IDLE;
         }
 
+        public WanderingEnemyAIState(WorldPOIScanner.POIZone targetZone) : base()
+        {
+            this.targetZone = targetZone;
+            this.wanderingState = WanderingState.WANDER;
+        }
+
         public enum WanderingState
         {
             WANDER,

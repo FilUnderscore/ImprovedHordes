@@ -120,6 +120,12 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         public void TickExecute(float dt)
         {
+            if (this.cluster.GetSpawnState() != HordeCluster.SpawnState.SPAWNING) // If the cluster state changes from spawning, then cancel further spawns.
+            {
+                this.Cancel();
+                return;
+            }
+
             if (--spawnTicks > 0.0f) // Slight spawn delay prevents immediate stuttering when spawning large groups of enemies.
                 return;
             else
@@ -187,6 +193,12 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         public int GetRemaining()
         {
             return this.size - this.index;
+        }
+
+        public void Cancel()
+        {
+            this.index = this.size;
+            this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, true));
         }
     }
 }

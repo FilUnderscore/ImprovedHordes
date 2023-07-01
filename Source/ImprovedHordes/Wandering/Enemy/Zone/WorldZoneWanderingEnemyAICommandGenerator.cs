@@ -2,15 +2,19 @@
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
+using ImprovedHordes.Screamer.Commands;
 
 namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
+        private const float ZONE_WANDER_RANGE_MULTIPLIER = 0.5f;
+        private const int ZONE_WANDER_COUNT = 5;
+
         private const float SLEEP_CHANCE = 0.3f;
         private readonly WorldPOIScanner scanner;
         
-        public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner) : base(new WanderingEnemyAIState())
+        public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner, WorldPOIScanner.POIZone zone) : base(new WanderingEnemyAIState(zone))
         {
             this.scanner = scanner;
         }
@@ -27,28 +31,25 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
                     state.SetTargetZone(zone);
                     state.SetWanderingState(WanderingEnemyAIState.WanderingState.MOVING);
 
-                    // Set wander time once per zone.
-                    float wanderTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f + worldRandom.RandomRange(48) * 100.0f;
-                    state.SetRemainingWanderTime(wanderTime);
-
                     bool sleep = worldRandom.RandomChance(SLEEP_CHANCE);
 
                     if (sleep)
                     {
-                        command = new GeneratedAICommand<AICommand>(new SleepingAICommand(wanderTime));
+                        float sleepTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f + worldRandom.RandomRange(48) * 100.0f;
+
+                        command = new GeneratedAICommand<AICommand>(new SleepingAICommand(sleepTime));
                         return true;
                     }
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
-                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetTargetZone(), ZONE_WANDER_RANGE_MULTIPLIER, ZONE_WANDER_COUNT), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);
                     }, (wanderCommand) =>
                     {
                         // On interrupt, change to moving.
-                        state.SetRemainingWanderTime(((WanderAICommand)wanderCommand).GetWanderTime());
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.MOVING);
                     });
 
@@ -74,6 +75,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
                     command = new GeneratedAICommand<AICommand>(zoneTargetCommand, (_) =>
                     {
+                        // On complete, change to wander.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.WANDER);
                     });
 

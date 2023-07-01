@@ -18,7 +18,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
         public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone)
         {
-            return new WorldZoneWanderingEnemyAICommandGenerator(this.scanner);
+            return new WorldZoneWanderingEnemyAICommandGenerator(this.scanner, zone);
         }
 
         protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
