@@ -23,7 +23,7 @@ namespace ImprovedHordes.Screamer.Commands
 
         private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, IWorldRandom random, float rangeMultiplier)
         {
-            Vector2 targetPos2 = zone.GetCenter() + (zone.GetBounds().size.magnitude * rangeMultiplier) * random.RandomOnUnitCircle;
+            Vector2 targetPos2 = zone.GetCenter() + ((zone.GetBounds().size.magnitude / 2.0f) * rangeMultiplier) * random.RandomOnUnitCircle;
             float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y);
 
             return new Vector3(targetPos2.x, y, targetPos2.y);

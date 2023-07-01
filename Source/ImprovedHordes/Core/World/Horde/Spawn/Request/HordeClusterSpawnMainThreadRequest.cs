@@ -161,7 +161,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                         closestLocation = player.location;
 
                         playersNearby = true;
-                        spawnTargetLocation += direction * distance; // <= distance will cause this loop to hang because direction does not increment location.
+                        spawnTargetLocation += direction * (distance - playerDistance); // <= distance will cause this loop to hang because direction does not increment location.
                         break;
                     }
                 }
