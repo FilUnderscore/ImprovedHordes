@@ -71,7 +71,7 @@ namespace ImprovedHordes.Data.XML
                 this.weightStart = weightStart;
 
                 if (entry.GetAttribute("weight", out string weightValue))
-                    this.weight = float.Parse(weightValue);
+                    this.weight = Mathf.Max(0.0f, float.Parse(weightValue));
                 else
                     this.weight = 1.0f;
 
@@ -120,12 +120,12 @@ namespace ImprovedHordes.Data.XML
                 public GS(XmlEntry entry)
                 {
                     if(entry.GetAttribute("min", out string minValue))
-                        this.min = int.Parse(minValue);
+                        this.min = Math.Max(0, int.Parse(minValue));
 
                     if(entry.GetAttribute("max", out string maxValue))
-                        this.max = int.Parse(maxValue);
+                        this.max = Math.Max(0, int.Parse(maxValue));
                     else if(entry.GetAttribute("increaseEvery", out string increaseEvery))
-                        this.increaseEvery = float.Parse(increaseEvery);
+                        this.increaseEvery = Mathf.Max(0.0f, float.Parse(increaseEvery));
 
                     entry.GetEntries("entity").ForEach(entityEntry =>
                     {
@@ -138,12 +138,6 @@ namespace ImprovedHordes.Data.XML
 
                         this.entities.AddRange(gs.GetEntities());
                     });
-                }
-
-                public GS(int min, int max)
-                {
-                    this.min = min;
-                    this.max = max;
                 }
 
                 public int GetCount(int gs, int minCount, int maxCount)
@@ -277,13 +271,13 @@ namespace ImprovedHordes.Data.XML
                         this.entityGroup = groupValue;
 
                     if (entry.GetAttribute("minCount", out string minCountValue))
-                        this.minCount = int.Parse(minCountValue);
+                        this.minCount = Math.Max(0, int.Parse(minCountValue));
 
                     if(entry.GetAttribute("maxCount", out string maxCountValue))
-                        this.maxCount = int.Parse(maxCountValue);
+                        this.maxCount = Math.Max(0, int.Parse(maxCountValue));
 
                     if (entry.GetAttribute("chance", out string chanceValue))
-                        this.chance = float.Parse(chanceValue);
+                        this.chance = Mathf.Max(0.0f, float.Parse(chanceValue));
                     else
                         this.chance = 1.0f;
                 }
