@@ -87,10 +87,5 @@ namespace ImprovedHordes.Data
         {
             return this.group.IsEligible(playerGroup, null, null);
         }
-
-        public override bool CanEntitiesBeDetermined()
-        {
-            return this.group != null;
-        }
     }
 }

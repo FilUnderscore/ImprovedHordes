@@ -1,5 +1,4 @@
 ﻿using ImprovedHordes.Core.Abstractions.Random;
-using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.World.Horde;
 using System;
 using System.Collections.Generic;

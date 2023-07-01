@@ -37,6 +37,9 @@ namespace ImprovedHordes.Implementations.World.Random
 
         public T Random<T>(IList<T> collection)
         {
+            if (collection == null || collection.Count == 0)
+                return default(T);
+
             int randomIndex = RandomRange(collection.Count);
             return collection[randomIndex];
         }

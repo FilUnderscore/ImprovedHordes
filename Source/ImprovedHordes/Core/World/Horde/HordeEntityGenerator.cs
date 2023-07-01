@@ -21,7 +21,5 @@ namespace ImprovedHordes.Core.World.Horde
         public abstract int GetEntityClassId(IRandom random);
 
         public abstract int DetermineEntityCount(float density);
-
-        public abstract bool CanEntitiesBeDetermined();
     }
 }
