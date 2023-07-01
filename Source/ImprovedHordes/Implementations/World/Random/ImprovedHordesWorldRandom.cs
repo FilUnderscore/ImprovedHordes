@@ -51,9 +51,17 @@ namespace ImprovedHordes.Implementations.World.Random
             return this.random;
         }
 
+        public float RandomFloat
+        {
+            get
+            {
+                return this.random.RandomFloat;
+            }
+        }
+
         public bool RandomChance(float pct)
         {
-            return this.random.RandomFloat <= pct;
+            return RandomFloat <= pct;
         }
     }
 }

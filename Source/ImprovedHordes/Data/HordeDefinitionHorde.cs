@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.World.Horde;
+﻿using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Data.XML;
 using ImprovedHordes.Implementations.Logging;
@@ -27,10 +28,10 @@ namespace ImprovedHordes.Data
 
         public abstract HordeCharacteristics CreateCharacteristics();
 
-        public HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup)
+        public HordeEntityGenerator CreateEntityGenerator(PlayerHordeGroup playerGroup, IRandom random)
         {
             if(ImprovedHordesLoggerFactory.TryGetInstance(out var loggerFactory))
-                return new HordeDefinitionEntityGenerator(loggerFactory, playerGroup, this.definition);
+                return new HordeDefinitionEntityGenerator(loggerFactory, playerGroup, random, this.definition);
 
             return null;
         }

@@ -4,7 +4,7 @@
 		<merge />
 		<groups> <!-- Define possible groups for wandering hordes-->
 			<group name="Zombies">
-				<gs min="0" increaseEvery="5"> <!-- 3 zombies @ GS 0, 20 zombies @ GS 55 (1/3 of 165), 10 zombies @ GS 110 (2/3 of 165), 0 zombies @ GS 165+ -->
+				<gs min="0" increaseEvery="5"> <!-- Increase entity count by 1 every 5 game stages -->
 					<entity time="day" biomes="wasteland" group="ZombiesWasteland" minCount="3" maxCount="8"/>
 					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="3" maxCount="8"/>
 			
@@ -16,17 +16,17 @@
 					<entity time="day" biomes="wasteland" group="IHZombiesAllFeralWasteland" minCount="1" maxCount="10"/>
 					<entity time="night" biomes="wasteland" group="ZombiesWastelandNight" minCount="1" maxCount="10"/>
 				
-					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="10"/>
-					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="10"/>
+					<entity time="day" chance="0.8" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeral" minCount="1" maxCount="10"/>
+					<entity time="night" chance="0.8" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllFeralNight" minCount="1" maxCount="10"/>
 				</gs>
 				
 				<!-- Radiated Zombies -->
 				<gs min="180" increaseEvery="5">
-					<entity time="day" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="20"/>
-					<entity time="night" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="20"/>
+					<entity time="day" chance="0.4" biomes="wasteland" group="IHZombiesAllRadiatedWasteland" minCount="1" maxCount="20"/>
+					<entity time="night" chance="0.4" biomes="wasteland" group="IHZombiesAllRadiatedWastelandNight" minCount="1" maxCount="20"/>
 				
-					<entity time="day" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="20"/>
-					<entity time="night" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="20"/>
+					<entity time="day" chance="0.2" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiated" minCount="1" maxCount="20"/>
+					<entity time="night" chance="0.2" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="20"/>
 				</gs>
 			</group>
 		</groups>
@@ -35,7 +35,7 @@
 	<horde type="wandering_animal">
 		<merge />
 		<groups>
-			<group name="Stags" chance="0.5">
+			<group name="Stags" weight="0.5">
 				<entity name="animalStag" minCount="1" maxCount="2"/>
 				<entity name="animalDoe" minCount="2" maxCount="4"/>
 			</group>
@@ -48,7 +48,7 @@
 				<entity name="animalRabbit" minCount="2" maxCount="4"/>
 			</group>
 			
-			<group name="Boars" chance="0.5">
+			<group name="Boars" weight="0.5">
 				<entity name="animalBoar" minCount="3" maxCount="4"/>
 			</group>
 		</groups>
@@ -57,26 +57,26 @@
 	<horde type="wandering_animal_enemy">
 		<merge />
 		<groups>
-			<group name="Wolves" chance="0.1">
+			<group name="Wolves" weight="0.1">
 				<entity biomes="desert,snow" name="animalCoyote" minCount="1" maxCount="2"/>
 				<entity biomes="pine_forest,burnt_forest" name="animalWolf" minCount="2" maxCount="4"/>
 
-				<entity time="night" biomes="pine_forest,desert,wasteland,burnt_forest" name="animalDireWolf" minCount="1" maxCount="2"/>
+				<entity time="night" chance="0.25" biomes="pine_forest,desert,wasteland,burnt_forest" name="animalDireWolf" minCount="1" maxCount="2"/>
 				<entity biomes="snow" name="animalMountainLion" minCount="1" maxCount="2"/>
 			</group>
 			
-			<group name="Bears" chance="0.05">
+			<group name="Bears" weight="0.05">
 				<entity biomes="pine_forest,snow" name="animalBear" minCount="1" maxCount="2"/>
 					
 				<entity time="night" biomes="wasteland,burnt_forest" name="animalZombieBear" minCount="1" maxCount="2"/>
 			</group>
 			
 						
-			<group name="ZombieDogs" chance="0.2">
-				<entity biomes="wasteland" name="animalZombieDog" minCount="1" maxCount="10"/>
+			<group name="ZombieDogs" weight="0.2">
+				<entity chance="0.1" biomes="wasteland,pine_forest" name="animalZombieDog" minCount="1" maxCount="10"/>
 			</group>
 			
-			<group name="Vultures" chance="0.2">
+			<group name="Vultures" weight="0.2">
 				<entity biomes="wasteland,desert,burnt_forest" name="animalZombieVulture" minCount="1" maxCount="6"/>
 				
 				<entity biomes="wasteland" name="animalZombieVultureRadiated" minCount="1" maxCount="2"/>

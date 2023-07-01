@@ -1,5 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
@@ -26,12 +28,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly Action<IEntity> onSpawnAction;
         private readonly Action onSpawnedAction;
 
-        private readonly GameRandom random;
+        private readonly IRandomFactory<IWorldRandom> randomFactory;
+        private readonly IWorldRandom random;
 
         private readonly ThreadSubscription<HordeClusterSpawnState> spawnState;
         private Vector3 hordeLocation;
 
-        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
+        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
         {
             this.logger = loggerFactory.Create(typeof(HordeClusterSpawnMainThreadRequest));
             this.spawner = spawner;
@@ -43,15 +46,15 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
             this.hordeLocation = this.horde.GetLocation();
 
-            this.generator = DetermineEntityGenerator(playerGroup);
+            this.randomFactory = randomFactory;
+            this.random = randomFactory.CreateRandom(this.cluster.GetHashCode());
+            this.generator = DetermineEntityGenerator(playerGroup, this.random);
 
             this.size = this.generator.DetermineEntityCount(cluster.GetDensity());
             this.index = 0;
 
             this.onSpawnAction = onSpawnAction;
             this.onSpawnedAction = onSpawned;
-
-            this.random = GameRandomManager.Instance.CreateGameRandom(GameManager.Instance.World.Seed + cluster.GetHashCode()); // Allocate a random for consistent hordes using a predictable seed (hash code in this case).
 
             this.spawnState = new ThreadSubscription<HordeClusterSpawnState>();
         }
@@ -61,13 +64,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             return new HordeClusterSpawnRequest(this.horde, this.cluster, this.playerGroup, this.spawnData, this.spawnState.Subscribe());
         }
 
-        private HordeEntityGenerator DetermineEntityGenerator(PlayerHordeGroup playerGroup)
+        private HordeEntityGenerator DetermineEntityGenerator(PlayerHordeGroup playerGroup, IRandom random)
         {
             HordeEntityGenerator generator = this.cluster.GetPreviousHordeEntityGenerator();
 
             if(generator == null || !generator.IsStillValidFor(playerGroup)) 
             {
-                return this.cluster.GetHorde().CreateEntityGenerator(playerGroup);
+                return this.cluster.GetHorde().CreateEntityGenerator(playerGroup, random);
             }
             else
             {
@@ -109,7 +112,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         public void OnCleanup()
         {
-            GameRandomManager.Instance.FreeGameRandom(this.random);
+            this.randomFactory.FreeRandom(this.random);
 
             if (this.onSpawnedAction != null)
                 this.onSpawnedAction.Invoke();

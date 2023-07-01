@@ -1,4 +1,6 @@
-﻿namespace ImprovedHordes.Core.World.Horde
+﻿using ImprovedHordes.Core.Abstractions.Random;
+
+namespace ImprovedHordes.Core.World.Horde
 {
     public abstract class HordeEntityGenerator
     {
@@ -16,8 +18,10 @@
 
         public abstract bool IsStillValidFor(PlayerHordeGroup playerGroup);
 
-        public abstract int GetEntityClassId(GameRandom random);
+        public abstract int GetEntityClassId(IRandom random);
 
         public abstract int DetermineEntityCount(float density);
+
+        public abstract bool CanEntitiesBeDetermined();
     }
 }

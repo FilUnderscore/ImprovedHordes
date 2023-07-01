@@ -1,26 +1,26 @@
 <ihhordes>
 	<append xpath="/entitygroups">
 		<entitygroup name="IHZombiesAllFeral">
-			<entity name="zombieBoeFeral"/>
-			<entity name="zombieJoeFeral"/>
-			<entity name="zombieSteveFeral"/>
-			<entity name="zombieTomClarkFeral"/>
-			<entity name="zombieMoeFeral"/>
-			<entity name="zombieYoFeral"/>
-			<entity name="zombieBusinessManFeral"/>
-			<entity name="zombieArleneFeral"/>
-			<entity name="zombieDarleneFeral"/>
-			<entity name="zombieMarleneFeral"/>
-			<entity name="zombieSkateboarderFeral"/>
-			<entity name="zombieBikerFeral" prob="0.3"/>
-			<entity name="zombiePartyGirlFeral" prob="0.3"/>
-			<entity name="zombieUtilityWorkerFeral" prob="0.3"/>
-			<entity name="zombieJanitorFeral" prob="0.2"/>
-			<entity name="zombieNurseFeral" prob="0.3"/>
-			<entity name="zombieLabFeral" prob="0.3"/>
-			<entity name="zombieSteveCrawlerFeral"/>
-			<entity name="zombieFatHawaiianFeral" prob="0.3"/>
-			<entity name="zombieFemaleFatFeral" prob="0.3"/>
+			zombieBoeFeral
+			zombieJoeFeral
+			zombieSteveFeral
+			zombieTomClarkFeral
+			zombieMoeFeral
+			zombieYoFeral
+			zombieBusinessManFeral
+			zombieArleneFeral
+			zombieDarleneFeral
+			zombieMarleneFeral
+			zombieSkateboarderFeral
+			zombieBikerFeral, .3
+			zombiePartyGirlFeral, .3
+			zombieUtilityWorkerFeral, .3
+			zombieJanitorFeral, .2
+			zombieNurseFeral, .3
+			zombieLabFeral, .3
+			zombieSteveCrawlerFeral, .3
+			zombieFatHawaiianFeral, .3
+			zombieFemaleFatFeral, .3
 		</entitygroup>
 		
 		<entitygroup name="IHZombiesAllRadiated">

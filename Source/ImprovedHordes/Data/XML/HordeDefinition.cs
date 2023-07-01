@@ -1,4 +1,6 @@
-﻿using ImprovedHordes.Core.World.Horde;
+﻿using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.World.Horde;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,7 @@ namespace ImprovedHordes.Data.XML
     public sealed class HordeDefinition
     {
         private readonly string type;
+        private readonly float totalWeight;
 
         internal readonly List<HordeDefinition> merge = new List<HordeDefinition>();
         private readonly List<Group> groups = new List<Group>();
@@ -17,10 +20,16 @@ namespace ImprovedHordes.Data.XML
         {
             this.type = type;
 
+            float totalWeight = 0.0f;
+
             entry.GetEntries("groups")[0].GetEntries("group").ForEach(groupEntry =>
             {
-                this.groups.Add(new Group(groupEntry));
+                Group group = new Group(groupEntry, totalWeight);
+                totalWeight += group.GetWeight();
+                this.groups.Add(group);
             });
+
+            this.totalWeight = totalWeight;
         }
 
         public string GetHordeType()
@@ -33,28 +42,38 @@ namespace ImprovedHordes.Data.XML
             return merge.Contains(other);
         }
 
-        public Group GetEligibleRandomGroup(PlayerHordeGroup playerGroup)
+        public Group GetEligibleRandomGroup(PlayerHordeGroup playerGroup, IRandom random)
         {
-            IEnumerable<Group> eligibleGroups = groups.Where(group => group.IsEligible(playerGroup));
+            IEnumerable<Group> eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, random, this));
 
-            if (eligibleGroups.Count() == 0) // Try again while ignoring chances.
-                eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, true));
+            if (eligibleGroups.Count() == 0) // Try find eligible groups again but ignore weight.
+                eligibleGroups = groups.Where(group => group.IsEligible(playerGroup, null, null));
 
             if (eligibleGroups.Count() == 0)
                 return null;
 
-            return eligibleGroups.ToList().RandomObject();
+            return random.Random<Group>(eligibleGroups.ToList());
+        }
+
+        public bool IsWithinWeightRange(Group group, float randomNormalizedWeight)
+        {
+            float weight = randomNormalizedWeight * this.totalWeight;
+            return group.IsWithinWeightRange(weight);
         }
 
         public sealed class Group
         {
-            private readonly float? chance;
+            private readonly float weightStart, weight;
             private readonly List<Entity> entities = new List<Entity>();
             
-            public Group(XmlEntry entry)
+            public Group(XmlEntry entry, float weightStart)
             {
-                if(entry.GetAttribute("chance", out string chanceValue))
-                    this.chance = float.Parse(chanceValue);
+                this.weightStart = weightStart;
+
+                if (entry.GetAttribute("weight", out string weightValue))
+                    this.weight = float.Parse(weightValue);
+                else
+                    this.weight = 1.0f;
 
                 entry.GetEntries("entity").ForEach(entityEntry =>
                 {
@@ -69,22 +88,32 @@ namespace ImprovedHordes.Data.XML
                 });
             }
 
-            public bool IsEligible(PlayerHordeGroup playerGroup, bool ignoreRandom = false)
+            public float GetWeight()
             {
-                return this.entities.Where(entity => entity.IsEligible(playerGroup)).Any() && 
-                    (ignoreRandom || chance == null || GameManager.Instance.World.GetGameRandom().RandomFloat <= this.chance);
+                return this.weight;
             }
 
-            public List<Entity> GetEligible(PlayerHordeGroup playerGroup)
+            public bool IsWithinWeightRange(float weight)
             {
-                return this.entities.Where(entity => entity.IsEligible(playerGroup)).ToList();
+                return weight >= this.weightStart && weight < this.weightStart + this.weight;
+            }
+
+            public bool IsEligible(PlayerHordeGroup playerGroup, IRandom random, HordeDefinition definition)
+            {
+                return this.entities.Where(entity => entity.IsEligible(playerGroup, random)).Any() && 
+                    (random == null || definition == null || definition.IsWithinWeightRange(this, random.RandomFloat));
+            }
+
+            public List<Entity> GetEligible(PlayerHordeGroup playerGroup, IRandom random)
+            {
+                return this.entities.Where(entity => entity.IsEligible(playerGroup, random)).ToList();
             }
 
             public sealed class GS
             {
                 private readonly int min;
                 private readonly int? max;
-                private readonly float? increaseEvery; 
+                private readonly float? increaseEvery;
 
                 private readonly List<Entity> entities = new List<Entity>();
 
@@ -226,6 +255,7 @@ namespace ImprovedHordes.Data.XML
                 private readonly string entityGroup;
 
                 private readonly int minCount, maxCount;
+                private readonly float chance;
 
                 public Entity(XmlEntry entry) : this(null, entry) { }
 
@@ -251,6 +281,11 @@ namespace ImprovedHordes.Data.XML
 
                     if(entry.GetAttribute("maxCount", out string maxCountValue))
                         this.maxCount = int.Parse(maxCountValue);
+
+                    if (entry.GetAttribute("chance", out string chanceValue))
+                        this.chance = float.Parse(chanceValue);
+                    else
+                        this.chance = 1.0f;
                 }
 
                 public int GetCount(int gs)
@@ -263,11 +298,12 @@ namespace ImprovedHordes.Data.XML
                     return this.gs.GetCount(gs, minCount, maxCount);
                 }
 
-                public bool IsEligible(PlayerHordeGroup playerGroup)
+                public bool IsEligible(PlayerHordeGroup playerGroup, IRandom random)
                 {
                     return (this.gs == null || this.gs.IsEligible(playerGroup)) &&
                         IsTimeOfDay(this.time) &&
-                        (this.biomes == null || this.biomes.Contains(playerGroup.GetBiome()));
+                        (this.biomes == null || this.biomes.Contains(playerGroup.GetBiome()) &&
+                        (random == null || random.RandomChance(this.chance)));
                 }
 
                 public bool GetEntityClassId(ref int lastEntityClassId, out int entityClassId, GameRandom random)

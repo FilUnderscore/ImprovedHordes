@@ -1,6 +1,8 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Data.XML;
+using ImprovedHordes.Implementations.World.Random;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,23 +20,23 @@ namespace ImprovedHordes.Data
 
         private int lastEntityClassId;
 
-        public HordeDefinitionEntityGenerator(ILoggerFactory loggerFactory, PlayerHordeGroup playerGroup, HordeDefinition definition) : base(playerGroup)
+        public HordeDefinitionEntityGenerator(ILoggerFactory loggerFactory, PlayerHordeGroup playerGroup, IRandom random, HordeDefinition definition) : base(playerGroup)
         {
             this.logger = loggerFactory.Create(typeof(HordeDefinitionEntityGenerator));
-            this.group = definition.GetEligibleRandomGroup(playerGroup);
-            
+            this.group = definition.GetEligibleRandomGroup(playerGroup, random);
+
             if (this.group != null)
-                this.CalculateEntitiesToSpawn();
+                this.CalculateEntitiesToSpawn(random);
             else
                 this.logger.Warn($"No eligible '{definition.GetHordeType()}' horde groups for player group {playerGroup}. Using placeholder entity class '{PLACEHOLDER_ENTITY_CLASS}'.");
         }
 
-        private void CalculateEntitiesToSpawn()
+        private void CalculateEntitiesToSpawn(IRandom random)
         {
-            var eligibleGroupEntities = group.GetEligible(this.playerGroup);
+            var eligibleGroupEntities = group.GetEligible(this.playerGroup, random);
 
-            if (eligibleGroupEntities == null)
-                return;
+            if (eligibleGroupEntities == null) // Failed to get without chance. Ignore chances.
+                eligibleGroupEntities = group.GetEligible(this.playerGroup, null);
 
             foreach(var entity in eligibleGroupEntities)
             {
@@ -47,10 +49,10 @@ namespace ImprovedHordes.Data
             return Mathf.RoundToInt(maxEntitiesToSpawn.Sum(entityDefinitionEntry => entityDefinitionEntry.Value) * density);
         }
 
-        private HordeDefinition.Group.Entity GetRandomEntity(GameRandom random)
+        private HordeDefinition.Group.Entity GetRandomEntity(IRandom random)
         {
             var keys = maxEntitiesToSpawn.Keys.ToList();
-            HordeDefinition.Group.Entity randomEntity = keys[random.RandomRange(keys.Count)];
+            HordeDefinition.Group.Entity randomEntity = random.Random(keys);
 
             if (maxEntitiesToSpawn[randomEntity] <= 0 && maxEntitiesToSpawn.Count > 1)
             {
@@ -62,14 +64,14 @@ namespace ImprovedHordes.Data
             return randomEntity;
         }
 
-        public override int GetEntityClassId(GameRandom random)
+        public override int GetEntityClassId(IRandom random)
         {
             if (this.group == null)
                 return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);
 
             HordeDefinition.Group.Entity randomEntity = GetRandomEntity(random);
 
-            if(!randomEntity.GetEntityClassId(ref this.lastEntityClassId, out int entityClassId, random))
+            if(!(random is ImprovedHordesWorldRandom ihRandom) || !randomEntity.GetEntityClassId(ref this.lastEntityClassId, out int entityClassId, ihRandom.GetGameRandom()))
             {
                 this.logger.Warn($"Could not get entity class ID for Horde Entity. Perhaps the entity class is invalid or the entity group does not exist?");
                 return EntityClass.FromString(PLACEHOLDER_ENTITY_CLASS);
@@ -80,7 +82,12 @@ namespace ImprovedHordes.Data
 
         public override bool IsStillValidFor(PlayerHordeGroup playerGroup)
         {
-            return this.group.IsEligible(playerGroup, true);
+            return this.group.IsEligible(playerGroup, null, null);
+        }
+
+        public override bool CanEntitiesBeDetermined()
+        {
+            return this.group != null;
         }
     }
 }
