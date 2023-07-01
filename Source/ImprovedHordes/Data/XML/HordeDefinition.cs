@@ -152,7 +152,7 @@ namespace ImprovedHordes.Data.XML
                     {
                         return GetCountRelativeToMinIncrease(gs, minCount, maxCount);
                     }
-                    else if(this.max != null && this.increaseEvery == null)
+                    else if(this.max != null && this.max > 0 && this.increaseEvery == null)
                     {
                         return GetCountRelativeToMinMax(gs, minCount, maxCount);
                     }
