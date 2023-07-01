@@ -306,7 +306,7 @@ namespace ImprovedHordes.Core.World.Horde
             {
                 IEnumerable<PlayerSnapshot> nearby = playerHordeGroup.GetPlayers().Where(player =>
                 {
-                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : MAX_VIEW_DISTANCE * 0.8f;
+                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : SPAWN_VIEW_DISTANCE;
                     return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
                 });
 
