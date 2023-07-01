@@ -66,5 +66,13 @@ namespace ImprovedHordes.Implementations.World.Random
         {
             return RandomFloat <= pct;
         }
+
+        public Vector2 RandomOnUnitCircle
+        {
+            get
+            {
+                return this.random.RandomOnUnitCircle;
+            }
+        }
     }
 }

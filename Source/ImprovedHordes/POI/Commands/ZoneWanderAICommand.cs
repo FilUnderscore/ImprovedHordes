@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
 using UnityEngine;
@@ -8,19 +9,21 @@ namespace ImprovedHordes.Screamer.Commands
     public sealed class ZoneWanderAICommand : GoToTargetAICommand
     {
         private readonly WorldPOIScanner.POIZone zone;
+        private readonly IWorldRandom random;
         private readonly float rangeMultiplier;
         private int? wanderCount;
 
-        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, float rangeMultiplier, int? wanderCount) : base(GetNextTarget(zone, rangeMultiplier))
+        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, IWorldRandom random, float rangeMultiplier, int? wanderCount) : base(GetNextTarget(zone, random, rangeMultiplier))
         {
             this.zone = zone;
+            this.random = random;
             this.rangeMultiplier = rangeMultiplier;
             this.wanderCount = wanderCount;
         }
 
-        private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, float rangeMultiplier)
+        private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, IWorldRandom random, float rangeMultiplier)
         {
-            Vector2 targetPos2 = zone.GetCenter() + (zone.GetBounds().size.magnitude * rangeMultiplier) * GameManager.Instance.World.GetGameRandom().RandomOnUnitCircle;
+            Vector2 targetPos2 = zone.GetCenter() + (zone.GetBounds().size.magnitude * rangeMultiplier) * random.RandomOnUnitCircle;
             float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y);
 
             return new Vector3(targetPos2.x, y, targetPos2.y);
@@ -36,7 +39,7 @@ namespace ImprovedHordes.Screamer.Commands
                 if (this.wanderCount != null)
                     this.wanderCount--;
                 
-                this.UpdateTarget(GetNextTarget(this.zone, this.rangeMultiplier));
+                this.UpdateTarget(GetNextTarget(this.zone, this.random, this.rangeMultiplier));
             }
 
             return false;

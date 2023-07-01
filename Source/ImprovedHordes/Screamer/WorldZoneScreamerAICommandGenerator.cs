@@ -46,7 +46,7 @@ namespace ImprovedHordes.Screamer
 
             if(state.GetWanderState() != ScreamerAIState.WanderState.WANDERING)
             {
-                command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetPOIZone(), ZONE_WANDER_RANGE_MULTIPLIER, null), (_) =>
+                command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetPOIZone(), worldRandom, ZONE_WANDER_RANGE_MULTIPLIER, null), (_) =>
                 {
                     state.SetWanderState(ScreamerAIState.WanderState.WANDERING);
                 });

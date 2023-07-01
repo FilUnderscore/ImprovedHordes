@@ -43,7 +43,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
-                    command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetTargetZone(), ZONE_WANDER_RANGE_MULTIPLIER, ZONE_WANDER_COUNT), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetTargetZone(), worldRandom, ZONE_WANDER_RANGE_MULTIPLIER, ZONE_WANDER_COUNT), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);

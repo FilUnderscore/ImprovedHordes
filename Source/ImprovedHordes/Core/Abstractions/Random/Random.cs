@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.Abstractions.Random
 {
@@ -10,5 +11,7 @@ namespace ImprovedHordes.Core.Abstractions.Random
 
         int RandomRange(int maxExclusive);
         T Random<T>(IList<T> collection);
+
+        Vector2 RandomOnUnitCircle { get; }
     }
 }
