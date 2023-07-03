@@ -145,7 +145,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if(!TryCalculateHordeEntitySpawnPosition(out Vector3 spawnLocation))
             {
                 // Retry spawns until players are far enough.
-                this.Cancel();
+                this.playerGroup.GetPlayerClosestTo(spawnLocation, out float distance);
+
+                if(distance > WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
+                {
+                    this.Cancel();
+                }
+
                 return;
             }
 
@@ -171,8 +177,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         public void Cancel()
         {
-            this.index = this.size;
             this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, true));
+            this.index = this.size;
         }
 
         private bool TryCalculateHordeEntitySpawnPosition(out Vector3 spawnLocation)
@@ -184,20 +190,26 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private bool TryCalculateDirectionalHordeEntitySpawnPosition(out Vector3 spawnLocation) // TODO get this to work properly
         {
             int minSpawnDistance = WorldHordeTracker.MIN_SPAWN_VIEW_DISTANCE;
+            int maxSpawnDistance = WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE;
+
             Vector3 spawnTargetLocation = this.horde.GetLocation();
 
             do
             {
                 PlayerSnapshot closestPlayer = this.playerGroup.GetPlayerClosestTo(spawnTargetLocation, out float playerDistance);
+                Vector3 direction = (spawnTargetLocation - closestPlayer.location).normalized;
 
-                if (playerDistance >= minSpawnDistance)
+                if (playerDistance >= minSpawnDistance - 1 && playerDistance <= maxSpawnDistance + 1) // Be slightly lenient because floats don't play well with ints in this setting.
                     break;
 
-                Vector3 direction = (spawnTargetLocation - closestPlayer.location).normalized;
-                spawnTargetLocation += direction * (WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE - playerDistance); // Careful, this can cause the loop to hang if not properly checked.
+                spawnTargetLocation += direction * (maxSpawnDistance - playerDistance); // Careful, this can cause the loop to hang if not properly checked.
+
+#if DEBUG
+                Log.Out("Dir " + direction + " " + playerDistance);
+#endif
             } while (true);
 
-            int maxSpreadLimit = Math.Min(WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE - WorldHordeTracker.MIN_SPAWN_VIEW_DISTANCE, this.spawnData.SpreadDistanceLimit);
+            int maxSpreadLimit = Math.Min(maxSpawnDistance - minSpawnDistance, this.spawnData.SpreadDistanceLimit);
             return TryGetRandomSpreadSpawnPositionAt(spawnTargetLocation, maxSpreadLimit, out spawnLocation);
         }
 
@@ -206,7 +218,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnTargetLocation, 0, spreadLimit, -1, true, out spawnLocation, false))
             {
                 spawnLocation = spawnTargetLocation;
-                return false;
+                return true;
             }
 
             return true;

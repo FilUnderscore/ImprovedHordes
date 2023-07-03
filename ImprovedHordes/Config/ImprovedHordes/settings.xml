@@ -11,7 +11,7 @@
 	
 	<!-- Horde Biome Spawn Settings -->
 	<horde_biome_multiplier>0.1</horde_biome_multiplier> <!-- Biome multiplier. Higher = more hordes. -->
-	<horde_biome_curve_scale>5.0</horde_biome_curve_scale> <!-- Biome Curve Scale. Higher = more hordes in the wasteland. -->
+	<horde_biome_curve_scale>2.0</horde_biome_curve_scale> <!-- Biome Curve Scale. Higher = more hordes in the wasteland. -->
 	
 	<!-- Horde Merge Distances -->
 	<loaded_merge_distance>10</loaded_merge_distance>

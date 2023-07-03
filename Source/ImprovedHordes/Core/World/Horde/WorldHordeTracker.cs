@@ -334,6 +334,11 @@ namespace ImprovedHordes.Core.World.Horde
 
                         return false;
                     }
+                    else if(spawnState.complete && spawnState.remaining != 0)
+                    {
+                        this.Logger.Warn("This should not happen");
+                        horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
+                    }
                 }
 
                 return true;

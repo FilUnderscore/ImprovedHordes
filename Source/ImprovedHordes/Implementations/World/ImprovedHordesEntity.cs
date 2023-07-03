@@ -7,6 +7,8 @@ namespace ImprovedHordes.Implementations.World
 {
     public sealed class ImprovedHordesEntity : IEntity
     {
+        private static readonly FieldInfo SEE_CACHE_FIELD = AccessTools.DeclaredField(typeof(EntityAlive), "seeCache");
+
         private readonly EntityAlive entity;
 
         public ImprovedHordesEntity(EntityAlive entity)
@@ -62,6 +64,9 @@ namespace ImprovedHordes.Implementations.World
 
         public void Stop()
         {
+            if (SEE_CACHE_FIELD == null || SEE_CACHE_FIELD.GetValue(this.entity) == null)
+                return;
+
             this.entity.ClearInvestigatePosition();
         }
 
