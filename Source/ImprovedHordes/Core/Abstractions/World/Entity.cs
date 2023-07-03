@@ -15,6 +15,8 @@ namespace ImprovedHordes.Core.Abstractions.World
         bool IsPlayer();
 
         bool CanSee(Vector3 pos);
+        bool CanSee(EntityPlayer player); // TODO rewrite
+
         void SetTarget(EntityPlayer player); // TODO rewrite
     }
 }

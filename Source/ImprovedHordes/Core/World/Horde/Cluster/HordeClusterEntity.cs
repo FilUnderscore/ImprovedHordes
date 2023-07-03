@@ -270,6 +270,11 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.entity != null ? this.entity.CanSee(pos) : false;
         }
 
+        public bool CanSee(EntityPlayer player)
+        {
+            return this.entity != null ? this.entity.CanSee(player) : false;
+        }
+
         public void SetTarget(EntityPlayer target)
         {
             if (this.entity == null)

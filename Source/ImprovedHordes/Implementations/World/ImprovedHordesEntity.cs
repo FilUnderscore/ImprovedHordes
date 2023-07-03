@@ -108,6 +108,11 @@ namespace ImprovedHordes.Implementations.World
             return this.entity.emodel != null && this.entity.emodel.GetModelTransform() != null && this.entity.CanSee(position);
         }
 
+        public bool CanSee(EntityPlayer player)
+        {
+            return this.entity.emodel != null && this.entity.emodel.GetModelTransform() != null && this.entity.CanSee(player);
+        }
+
         public void SetTarget(EntityPlayer player)
         {
             this.entity.SetAttackTarget(player, 600);
