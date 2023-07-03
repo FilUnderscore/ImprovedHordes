@@ -6,7 +6,8 @@ namespace ImprovedHordes.Core.World.Horde
     public static class HordeBiomes
     {
         private static readonly Setting<float> HORDE_BIOME_MULTIPLIER = new Setting<float>("horde_biome_multiplier", 0.1f);
-        
+        private static readonly Setting<float> HORDE_BIOME_CURVE_SCALE = new Setting<float>("horde_biome_curve_scale", 5.0f);
+
         public static BiomeDefinition GetBiomeAt(Vector2 location)
         {
             return GameManager.Instance.World?.ChunkCache?.ChunkProvider?.GetBiomeProvider()?.GetBiomeAt((int)location.x, (int)location.y);
@@ -41,7 +42,7 @@ namespace ImprovedHordes.Core.World.Horde
             if (biome == null)
                 return biomeMultiplier;
 
-            return biomeMultiplier + Mathf.Pow(5.0f, biome.Difficulty - 4.0f);
+            return biomeMultiplier + Mathf.Pow(HORDE_BIOME_CURVE_SCALE.Value, biome.Difficulty - 4.0f);
         }
     }
 }

@@ -8,8 +8,6 @@ namespace ImprovedHordes.Screamer
 {
     public sealed class WorldZoneScreamerAICommandGenerator : AIStateCommandGenerator<ScreamerAIState, AICommand>
     {
-        private const float ZONE_WANDER_RANGE_MULTIPLIER = 0.25f;
-
         public WorldZoneScreamerAICommandGenerator(WorldPOIScanner.POIZone zone) : base(new ScreamerAIState(zone))
         {
         }

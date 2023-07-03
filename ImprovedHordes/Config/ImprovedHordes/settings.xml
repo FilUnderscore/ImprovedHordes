@@ -9,7 +9,9 @@
 	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. (Horde biome size) -->
 	<max_world_density>350.0</max_world_density> <!-- Max World Horde Density. (Number of hordes in world) -->
 	
+	<!-- Horde Biome Spawn Settings -->
 	<horde_biome_multiplier>0.1</horde_biome_multiplier> <!-- Biome multiplier. Higher = more hordes. -->
+	<horde_biome_curve_scale>5.0</horde_biome_curve_scale> <!-- Biome Curve Scale. Higher = more hordes in the wasteland. -->
 	
 	<!-- Horde Merge Distances -->
 	<loaded_merge_distance>10</loaded_merge_distance>
