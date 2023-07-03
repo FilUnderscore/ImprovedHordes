@@ -116,7 +116,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 this.onSpawnedAction.Invoke();
         }
 
-        private const float SPAWN_DELAY = 10.0f;
+        private const float SPAWN_DELAY = 2.0f;
         private float spawnTicks;
 
         public void TickExecute(float dt)
@@ -144,17 +144,16 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
             if(!TryCalculateHordeEntitySpawnPosition(out Vector3 spawnLocation))
             {
-                this.logger.Warn($"Bad spawn request for horde at {spawnLocation}");
-
-                this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, true));
-
-                // Cancel spawn if player is too far.
-                this.index = this.size;
-
+                // Retry spawns until players are far enough.
+                this.Cancel();
                 return;
             }
 
-            this.onSpawnAction.Invoke(spawner.SpawnAt(this.generator.GetEntityClassId(this.random), spawnLocation));
+            IEntity entity = spawner.SpawnAt(this.generator.GetEntityClassId(this.random), spawnLocation);
+
+            if(this.onSpawnAction != null)
+                this.onSpawnAction.Invoke(entity);
+     
             this.index++;
 
             this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, this.index >= this.size));

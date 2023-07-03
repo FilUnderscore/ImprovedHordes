@@ -10,7 +10,7 @@ namespace ImprovedHordes.POI
         private static int HIGHEST_COUNT;
         private float avgZoneDensity;
 
-        private const float TOWN_WEIGHT = 4.0f;
+        private const float TOWN_WEIGHT = 3.0f;
         private readonly Core.Abstractions.Logging.ILogger logger;
 
         private readonly List<POI> pois = new List<POI>();

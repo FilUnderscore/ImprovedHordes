@@ -1,5 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImprovedHordes.Core.Threading.Request
 {
@@ -53,13 +55,34 @@ namespace ImprovedHordes.Core.Threading.Request
             requests.Enqueue(request);
         }
 
-        public int GetRequestCount()
+        public Dictionary<Type, int> GetRequestCounts()
         {
-            return this.requestsBeingProcessed.Count;
+            Dictionary<Type, int> requestCounts = new Dictionary<Type, int>();
+            List<IMainThreadRequest> requests = this.requestsBeingProcessed.ToList();
+
+            foreach(var request in requests)
+            {
+                Type requestType = request.GetType();
+
+                if(requestCounts.TryGetValue(requestType, out _))
+                {
+                    requestCounts[requestType] += 1;
+                }
+                else
+                {
+                    requestCounts.Add(requestType, 1);
+                }
+            }
+
+            return requestCounts;
         }
 
         protected override void Shutdown()
         {
+            requestsBeingProcessed.Clear();
+            requestsToRemove.Clear();
+
+            while (requests.TryDequeue(out _)) { }
         }
     }
 }
