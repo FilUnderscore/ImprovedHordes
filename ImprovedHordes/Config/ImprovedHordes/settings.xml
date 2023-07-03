@@ -29,7 +29,4 @@
 	<!-- Events -->
 	<event_chunk_radius>3</event_chunk_radius>
 	<event_interest_distance_multiplier>0.5</event_interest_distance_multiplier>
-	
-	<!-- AI -->
-	<ai_player_sensing>false</ai_player_sensing>
 </improved_hordes>
