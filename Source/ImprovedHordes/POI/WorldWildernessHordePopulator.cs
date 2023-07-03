@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
 using ImprovedHordes.Core.Abstractions.Settings;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
@@ -53,12 +54,9 @@ namespace ImprovedHordes.POI
             return new Vector2i(regionX, regionY);
         }
 
-        public override bool CanPopulate(float dt, out Vector2 pos, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, GameRandom random)
+        public override bool CanPopulate(float dt, out Vector2 pos, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
         {
-            float randomX = random.RandomFloat * worldSize - worldSize / 2.0f;
-            float randomY = random.RandomFloat * worldSize - worldSize / 2.0f;
-
-            Vector2 randomWorldPos = new Vector2(randomX, randomY);
+            Vector2 randomWorldPos = worldRandom.RandomLocation2;
 
             // Check if any hordes spawned in this area recently.
             if (lastSpawned.TryGetValue(GetRegionFromPosition(randomWorldPos), out ulong spawnTime))
@@ -121,11 +119,11 @@ namespace ImprovedHordes.POI
             return !nearby;
         }
 
-        public override void Populate(Vector2 pos, WorldHordeSpawner spawner, GameRandom random)
+        public override void Populate(Vector2 pos, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
             float maxBiomeDensity = HordeBiomes.DetermineBiomeDensity(pos);
 
-            float density = random.RandomFloat * maxBiomeDensity;
+            float density = worldRandom.RandomFloat * maxBiomeDensity;
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(), CreateEntityAICommandGenerator());
 
             // Respawn delay for this region.

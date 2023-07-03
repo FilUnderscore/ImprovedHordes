@@ -30,8 +30,10 @@ namespace ImprovedHordes.Implementations.World.Random
         {
             get
             {
-                Vector2 result = this.random.RandomInsideUnitCircle;
-                return new Vector2(result.x * worldSize, result.y * worldSize);
+                float randomX = RandomFloat * worldSize - worldSize / 2.0f;
+                float randomY = RandomFloat * worldSize - worldSize / 2.0f;
+
+                return new Vector2(randomX, randomY);
             }
         }
 

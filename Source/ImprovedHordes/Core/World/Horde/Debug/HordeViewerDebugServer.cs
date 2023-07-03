@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.POI;
 using UnityEngine;
@@ -124,7 +126,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
 
-        public HordeViewerDebugServer(ILoggerFactory loggerFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory)
+        public HordeViewerDebugServer(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory, randomFactory)
         {
             this.worldSize = worldSize;
             this.tracker = tracker;

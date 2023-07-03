@@ -8,9 +8,6 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
-        private const float ZONE_WANDER_RANGE_MULTIPLIER = 0.5f;
-        private const int ZONE_WANDER_COUNT = 5;
-
         private const float SLEEP_CHANCE = 0.3f;
         private readonly WorldPOIScanner scanner;
         
@@ -43,7 +40,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
-                    command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetTargetZone(), worldRandom, ZONE_WANDER_RANGE_MULTIPLIER, ZONE_WANDER_COUNT), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetTargetZone(), worldRandom, true), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);

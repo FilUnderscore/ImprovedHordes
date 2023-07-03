@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
 using ImprovedHordes.Core.Abstractions.Settings;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
@@ -38,23 +39,17 @@ namespace ImprovedHordes.POI
             return this.scanner.HasScanCompleted();
         }
 
-        public override void Populate(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, GameRandom random)
+        public override void Populate(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
             if (zone != null)
             {
-                SpawnHordesAt(zone, spawner, random);
+                SpawnHordesAt(zone, spawner, worldRandom);
             }
         }
 
-        protected WorldPOIScanner.POIZone GetRandomZone(GameRandom random)
+        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
         {
-            var zones = this.scanner.GetZones();
-            return zones[random.RandomRange(zones.Count)];
-        }
-
-        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, GameRandom random)
-        {
-            WorldPOIScanner.POIZone randomZone = this.GetRandomZone(random);
+            WorldPOIScanner.POIZone randomZone = worldRandom.Random<WorldPOIScanner.POIZone>(this.scanner.GetZones());
 
             if(randomZone.GetDensity() < this.GetMinimumDensity())
             {
@@ -112,17 +107,14 @@ namespace ImprovedHordes.POI
             return 0.0f;
         }
 
-        private void SpawnHordesAt(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, GameRandom random)
+        private void SpawnHordesAt(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
-            Vector3 zoneCenter = zone.GetBounds().center;
-            int maxRadius = Mathf.RoundToInt(zone.GetBounds().size.magnitude) / 4;
-
-            float biomeFactor = HordeBiomes.DetermineBiomeFactor(zoneCenter);
+            float biomeFactor = HordeBiomes.DetermineBiomeFactor(zone.GetCenter());
             int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.FloorToInt(CalculateHordeCount(zone))) * (biomeFactor / 2));
             
             for (int i = 0; i < hordeCount; i++)
             {
-                Vector2 zoneSpawnLocation = new Vector2(zoneCenter.x, zoneCenter.z) + random.RandomInsideUnitCircle * maxRadius;
+                zone.GetLocationOutside(worldRandom, out Vector2 zoneSpawnLocation);
                 SpawnHordeAt(zoneSpawnLocation, zone, spawner, hordeCount * 2);
             }
 

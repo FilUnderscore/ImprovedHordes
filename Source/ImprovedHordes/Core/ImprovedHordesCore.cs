@@ -19,6 +19,7 @@ namespace ImprovedHordes.Core
         private const uint DATA_FILE_VERSION = 6;
 
         private readonly ILoggerFactory loggerFactory;
+        private readonly IRandomFactory<IWorldRandom> randomFactory;
         private readonly Abstractions.Logging.ILogger logger;
 
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
@@ -34,6 +35,7 @@ namespace ImprovedHordes.Core
         public ImprovedHordesCore(int worldSize, ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner)
         {
             this.loggerFactory = loggerFactory;
+            this.randomFactory = randomFactory;
             this.logger = loggerFactory.Create(typeof(ImprovedHordesCore));
 
             this.mainThreadRequestProcessor = new MainThreadRequestProcessor();
@@ -41,11 +43,11 @@ namespace ImprovedHordes.Core
             this.logger.Info("Initializing.");
 
             this.worldSize = worldSize;
-            this.worldEventReporter = new WorldEventReporter(loggerFactory, this.worldSize);
+            this.worldEventReporter = new WorldEventReporter(loggerFactory, randomFactory, this.worldSize);
 
             this.tracker = new WorldHordeTracker(loggerFactory, randomFactory, entitySpawner, this.mainThreadRequestProcessor, this.worldEventReporter);
             this.spawner = new WorldHordeSpawner(loggerFactory, randomFactory, entitySpawner, this.tracker, this.mainThreadRequestProcessor);
-            this.populator = new WorldHordePopulator(loggerFactory, this.tracker, this.spawner);
+            this.populator = new WorldHordePopulator(loggerFactory, randomFactory, this.tracker, this.spawner);
         }
 
         public void Start()
@@ -91,6 +93,11 @@ namespace ImprovedHordes.Core
         public ILoggerFactory GetLoggerFactory()
         {
             return this.loggerFactory;
+        }
+
+        public IRandomFactory<IWorldRandom> GetRandomFactory()
+        {
+            return this.randomFactory;
         }
 
         public WorldHordePopulator GetWorldHordePopulator()

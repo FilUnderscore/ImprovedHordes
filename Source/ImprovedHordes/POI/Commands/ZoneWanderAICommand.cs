@@ -10,36 +10,59 @@ namespace ImprovedHordes.Screamer.Commands
     {
         private readonly WorldPOIScanner.POIZone zone;
         private readonly IWorldRandom random;
-        private readonly float rangeMultiplier;
-        private int? wanderCount;
+        private readonly bool useWanderCount;
 
-        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, IWorldRandom random, float rangeMultiplier, int? wanderCount) : base(GetNextTarget(zone, random, rangeMultiplier))
+        private int wanderCount;
+
+        private float wanderTicks = 0.0f;
+
+        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, IWorldRandom random, bool useWanderCount) : base(GetNextTarget(zone, random, out int wanderCount, out float wanderTicks))
         {
             this.zone = zone;
             this.random = random;
-            this.rangeMultiplier = rangeMultiplier;
+            this.useWanderCount = useWanderCount;
+
             this.wanderCount = wanderCount;
+            this.wanderTicks = wanderTicks;
         }
 
-        private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, IWorldRandom random, float rangeMultiplier)
+        private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, IWorldRandom random, out int wanderCount, out float wanderTicks)
         {
-            Vector2 targetPos2 = zone.GetCenter() + ((zone.GetBounds().size.magnitude / 2.0f) * rangeMultiplier) * random.RandomOnUnitCircle;
-            float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y);
+            zone.GetLocationOutside(random, out Vector2 targetPos2);
+            float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y) + 1.0f;
+
+            float zoneSize = zone.GetBounds().size.magnitude / 2.0f;
+
+            wanderCount = Mathf.CeilToInt(Mathf.Sqrt(zone.GetCount()));
+            wanderTicks = (1.0f + random.RandomFloat) * (zoneSize / zone.GetDensity()) / zone.GetCount();
 
             return new Vector3(targetPos2.x, y, targetPos2.y);
         }
 
+        public override void Execute(IAIAgent agent, float dt)
+        {
+            if ((this.wanderTicks -= dt) > 0.0f)
+            {
+                if(agent.IsMoving())
+                    agent.Stop();
+    
+                return;
+            }
+
+            base.Execute(agent, dt);
+        }
+
         public override bool IsComplete(IAIAgent agent)
         {
-            if(this.wanderCount != null && this.wanderCount.Value <= 0)
+            if(this.useWanderCount && this.wanderCount <= 0)
                 return base.IsComplete(agent);
 
             if(base.IsComplete(agent))
             {
-                if (this.wanderCount != null)
+                if (this.useWanderCount)
                     this.wanderCount--;
                 
-                this.UpdateTarget(GetNextTarget(this.zone, this.random, this.rangeMultiplier));
+                this.UpdateTarget(GetNextTarget(this.zone, this.random, out this.wanderCount, out this.wanderTicks));
             }
 
             return false;

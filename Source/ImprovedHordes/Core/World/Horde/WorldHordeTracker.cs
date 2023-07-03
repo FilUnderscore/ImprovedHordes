@@ -139,7 +139,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private bool flushFlag = false;
 
-        public WorldHordeTracker(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory)
+        public WorldHordeTracker(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory, randomFactory)
         {
             this.playerTracker = new WorldPlayerTracker();
             this.snapshots = this.playerTracker.Subscribe();
@@ -405,7 +405,7 @@ namespace ImprovedHordes.Core.World.Horde
 
             if (horde.Spawned)
             {
-                horde.UpdatePosition(this.mainThreadRequestProcessor);
+                horde.UpdatePosition(this.mainThreadRequestProcessor, entitiesTracked);
             }
             else
             {

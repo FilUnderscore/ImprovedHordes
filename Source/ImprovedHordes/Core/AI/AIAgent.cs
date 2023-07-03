@@ -6,6 +6,8 @@ namespace ImprovedHordes.Core.AI
     public interface IAIAgent
     {
         void MoveTo(Vector3 location, float dt);
+        void Stop();
+        bool IsMoving();
 
         Vector3 GetLocation();
         IEntity GetTarget();

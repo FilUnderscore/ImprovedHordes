@@ -1,8 +1,8 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
 using System.Collections.Generic;
-using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Populator
 {
@@ -13,7 +13,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
             return true;
         }
 
-        public abstract void Populate(float dt, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, WorldHordeSpawner spawner, GameRandom random);
+        public abstract void Populate(float dt, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, WorldHordeSpawner spawner, IWorldRandom worldRandom);
 
         public abstract IData Load(IDataLoader loader);
         public abstract void Save(IDataSaver saver);
@@ -23,13 +23,13 @@ namespace ImprovedHordes.Core.World.Horde.Populator
 
     public abstract class HordePopulator<TaskReturnValue> : HordePopulator
     {
-        public override void Populate(float dt, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, WorldHordeSpawner spawner, GameRandom random)
+        public override void Populate(float dt, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
-            if (CanPopulate(dt, out TaskReturnValue returnValue, players, clusters, random))
-                Populate(returnValue, spawner, random);
+            if (CanPopulate(dt, out TaskReturnValue returnValue, players, clusters, worldRandom))
+                Populate(returnValue, spawner, worldRandom);
         }
 
-        public abstract bool CanPopulate(float dt, out TaskReturnValue returnValue, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, GameRandom random);
-        public abstract void Populate(TaskReturnValue returnValue, WorldHordeSpawner spawner, GameRandom random);
+        public abstract bool CanPopulate(float dt, out TaskReturnValue returnValue, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom);
+        public abstract void Populate(TaskReturnValue returnValue, WorldHordeSpawner spawner, IWorldRandom worldRandom);
     }
 }

@@ -18,7 +18,7 @@ namespace ImprovedHordes.Command.Debug
             if (ImprovedHordesMod.TryGetInstance(out var instance))
             {
                 if(debugServer == null)
-                    debugServer = new HordeViewerDebugServer(instance.GetCore().GetLoggerFactory(), instance.GetCore().GetWorldSize(), instance.GetCore().GetWorldHordeTracker(), instance.GetPOIScanner());
+                    debugServer = new HordeViewerDebugServer(instance.GetCore().GetLoggerFactory(), instance.GetCore().GetRandomFactory(), instance.GetCore().GetWorldSize(), instance.GetCore().GetWorldHordeTracker(), instance.GetPOIScanner());
 
                 if (debugServer.Started)
                 {

@@ -1,11 +1,12 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
 using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Populator
 {
@@ -18,7 +19,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
 
         private readonly List<HordePopulator> populators = new List<HordePopulator>();
 
-        public WorldHordePopulator(ILoggerFactory loggerFactory, WorldHordeTracker tracker, WorldHordeSpawner spawner) : base(loggerFactory)
+        public WorldHordePopulator(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHordeTracker tracker, WorldHordeSpawner spawner) : base(loggerFactory, randomFactory)
         {
             this.spawner = spawner;
 

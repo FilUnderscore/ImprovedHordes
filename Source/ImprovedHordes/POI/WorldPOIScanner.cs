@@ -1,4 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -55,8 +56,8 @@ namespace ImprovedHordes.POI
 
                     if(closeEnough)
                     {
-                        poi.MarkZoned();
-                        other.MarkZoned();
+                        poi.MarkZoned(other);
+                        other.MarkZoned(poi);
                     }
                 }
             }
@@ -250,6 +251,31 @@ namespace ImprovedHordes.POI
             {
                 return (float)this.GetCount() / HIGHEST_COUNT;
             }
+
+            public void GetLocationOutside(IWorldRandom worldRandom, out Vector2 location)
+            {
+                List<POI> remainingPOIs = this.pois.ToList();
+                POI randomPOI;
+
+                do
+                {
+                    randomPOI = worldRandom.Random<POI>(this.pois);
+
+                    if (!randomPOI.IsPlayerConvertedPOI())
+                    {
+                        randomPOI.GetLocationOutside(worldRandom, out location);
+                        remainingPOIs.Clear();
+
+                        return;
+                    }
+
+                    remainingPOIs.Remove(randomPOI);
+                } while (remainingPOIs.Count > 0);
+
+                // If all zone POIs have land claim blocks nearby, then spawn on the outskirts of the zone.
+                float size = this.GetBounds().size.magnitude / 2;
+                location = this.GetCenter() + worldRandom.RandomOnUnitCircle * size;
+            }
         }
 
         public sealed class POI
@@ -257,15 +283,20 @@ namespace ImprovedHordes.POI
             private PrefabInstance prefab;
             private float weight;
 
+            private POI closestPOI;
+
             public POI(PrefabInstance prefab)
             {
                 this.prefab = prefab;
                 this.weight = 0.0f;
             }
 
-            public void MarkZoned()
+            public void MarkZoned(POI other)
             {
                 this.weight += 1.0f;
+
+                if (this.closestPOI == null || Vector2.Distance(this.GetLocation(), other.GetLocation()) < Vector2.Distance(closestPOI.GetLocation(), other.GetLocation()))
+                    this.closestPOI = other;
             }
 
             public float GetWeight()
@@ -281,6 +312,30 @@ namespace ImprovedHordes.POI
             public Bounds GetBounds()
             {
                 return this.prefab.GetAABB();
+            }
+
+            public void GetLocationOutside(IWorldRandom worldRandom, out Vector2 location)
+            {
+                float minRange = this.GetBounds().size.magnitude / 2;
+
+                if(this.closestPOI == null)
+                {
+                    location = this.GetLocation() + worldRandom.RandomOnUnitCircle * minRange;
+                    return;
+                }
+
+                float closestPOIDistance = Vector2.Distance(this.GetLocation(), this.closestPOI.GetLocation());
+                float closestPOIMinRange = this.closestPOI.GetBounds().size.magnitude / 2;
+
+                float maxRange = closestPOIDistance - closestPOIMinRange;
+
+                float range = worldRandom.RandomFloat * (maxRange - minRange) + minRange;
+                location = this.GetLocation() + worldRandom.RandomOnUnitCircle * range;
+            }
+
+            public bool IsPlayerConvertedPOI()
+            {
+                return GameManager.Instance.World.GetLandClaimOwner(new Vector3i(this.GetBounds().center), null) != EnumLandClaimOwner.None;
             }
         }
     }

@@ -25,6 +25,9 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 
         public override void Execute(IAIAgent agent, float dt)
         {
+            if (agent.IsMoving())
+                return;
+
             agent.MoveTo(this.target, dt);
         }
 
@@ -36,6 +39,22 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
         public override bool IsComplete(IAIAgent agent)
         {
             return Vector2.Distance(ToXZ(agent.GetLocation()), ToXZ(this.target)) <= MIN_DISTANCE_TO_TARGET;
+        }
+
+        public override void OnCompleted(IAIAgent agent)
+        {
+            if (!agent.IsMoving())
+                return;
+
+            agent.Stop();
+        }
+
+        public override void OnInterrupted(IAIAgent agent)
+        {
+            if (!agent.IsMoving())
+                return;
+
+            agent.Stop();
         }
 
         private static Vector3 ToGround(Vector3 v)

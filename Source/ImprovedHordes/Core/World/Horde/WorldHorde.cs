@@ -1,4 +1,5 @@
-﻿using ImprovedHordes.Core.Abstractions.Data;
+﻿using ConcurrentCollections;
+using ImprovedHordes.Core.Abstractions.Data;
 using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
@@ -103,7 +104,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private HordeUpdateRequest previousRequest;
 
-        public void UpdatePosition(MainThreadRequestProcessor mainThreadRequestProcessor)
+        public void UpdatePosition(MainThreadRequestProcessor mainThreadRequestProcessor, ConcurrentHashSet<int> entitiesTracked)
         {
             if(previousRequest != null)
             {
@@ -113,6 +114,8 @@ namespace ImprovedHordes.Core.World.Horde
                 this.location = previousRequest.GetPosition();
                 previousRequest.GetDead().ForEach(deadEntity =>
                 {
+                    entitiesTracked.TryRemove(deadEntity.GetEntityId());
+
                     deadEntity.GetCluster().RemoveEntity(this, deadEntity);
                     deadEntity.GetCluster().NotifyDensityRemoved();
 
@@ -297,6 +300,10 @@ namespace ImprovedHordes.Core.World.Horde
 
             this.location += direction * speed;
         }
+
+        public void Stop() { }
+
+        public bool IsMoving() { return false; }
 
         public void Interrupt(params AICommand[] commands)
         {

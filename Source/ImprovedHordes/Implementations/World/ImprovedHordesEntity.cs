@@ -60,6 +60,16 @@ namespace ImprovedHordes.Implementations.World
             AstarManager.Instance.AddLocationLine(this.GetLocation(), location, 64);
         }
 
+        public void Stop()
+        {
+            this.entity.ClearInvestigatePosition();
+        }
+
+        public bool IsMoving()
+        {
+            return this.entity.HasInvestigatePosition;
+        }
+
         public bool IsPlayer()
         {
             return this.entity is EntityPlayer;

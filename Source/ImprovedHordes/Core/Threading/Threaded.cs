@@ -1,4 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
+using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.World.Random;
 using System;
 using System.Collections.Generic;
 
@@ -9,19 +11,17 @@ namespace ImprovedHordes.Core.Threading
         private static readonly List<Threaded> instances = new List<Threaded>();
 
         private ThreadManager.ThreadInfo threadInfo;
-        protected readonly GameRandom Random;
+        protected readonly IWorldRandom Random;
 
         protected readonly ILoggerFactory LoggerFactory;
         protected readonly ILogger Logger;
 
         private bool shutdown = false;
 
-        public Threaded(ILoggerFactory loggerFactory)
+        public Threaded(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory)
         {
             this.LoggerFactory = loggerFactory;
-
-            int gameSeed = GameManager.Instance.World.Seed;
-            this.Random = GameRandomManager.Instance.CreateGameRandom(gameSeed + this.GetType().FullName.GetHashCode());
+            this.Random = randomFactory.CreateRandom(this.GetType().FullName.GetHashCode());
 
             this.Logger = loggerFactory.Create(this.GetType());
 

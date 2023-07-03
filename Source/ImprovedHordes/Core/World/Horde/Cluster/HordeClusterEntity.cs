@@ -75,6 +75,22 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             }
         }
 
+        public void Stop()
+        {
+            if (!this.spawned)
+                return;
+
+            this.entity.Stop();
+        }
+
+        public bool IsMoving()
+        {
+            if (!this.spawned)
+                return false;
+
+            return this.entity.IsMoving();
+        }
+
         private void MoveToSpawned(Vector3 location)
         {
             Vector3 directionWithinLoadDistance = (location - this.GetLocation()).normalized;
