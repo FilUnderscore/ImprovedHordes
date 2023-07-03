@@ -23,7 +23,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
         protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
         {
-            return Mathf.FloorToInt(zone.GetBounds().size.magnitude / WorldHordeTracker.MAX_VIEW_DISTANCE);
+            return Mathf.FloorToInt(zone.GetBounds().size.magnitude / WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE);
         }
     }
 }

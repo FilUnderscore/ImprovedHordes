@@ -89,7 +89,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 16);
 
-        public static int MAX_VIEW_DISTANCE
+        public static int MAX_UNLOAD_VIEW_DISTANCE
         {
             get
             {
@@ -97,11 +97,19 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
-        public static int SPAWN_VIEW_DISTANCE
+        public static int MIN_SPAWN_VIEW_DISTANCE
         {
             get
             {
-                return (int)(MAX_VIEW_DISTANCE * 0.8f);
+                return (int)(MAX_UNLOAD_VIEW_DISTANCE * 0.8f);
+            }
+        }
+
+        public static int MAX_SPAWN_VIEW_DISTANCE
+        {
+            get
+            {
+                return (int)(MAX_UNLOAD_VIEW_DISTANCE * 0.9f);
             }
         }
 
@@ -242,13 +250,43 @@ namespace ImprovedHordes.Core.World.Horde
         {
             IEnumerable<PlayerHordeGroup> nearby = playerGroups.Where(playerGroup =>
             {
-                float distance = horde.IsSpawned() ? MAX_VIEW_DISTANCE : SPAWN_VIEW_DISTANCE;
-                Vector3 hordeLocation = horde.GetLocation();
+                float distance = (horde.Spawning || horde.Spawned) ? MAX_UNLOAD_VIEW_DISTANCE : MAX_SPAWN_VIEW_DISTANCE;
 
-                foreach(var player in playerGroup.GetPlayers())
+                if (!horde.Spawned || horde.Spawning)
                 {
-                    if (Vector3.Distance(player.location, hordeLocation) <= distance)
-                        return true;
+                    // Since the horde is not loaded, check if any players in the current group are near the horde's central location.
+
+                    Vector3 hordeLocation = horde.GetLocation();
+
+                    foreach (var player in playerGroup.GetPlayers())
+                    {
+                        if (Vector3.Distance(player.location, hordeLocation) <= distance)
+                            return true;
+                    }
+                }
+                else
+                {
+                    // Since the horde is spawned, check if any players in the current group are near any spawned entities nearby.
+
+                    foreach(var cluster in horde.GetClusters())
+                    {
+                        if (!cluster.Spawned)
+                            continue;
+
+                        foreach(var entity in cluster.GetEntities())
+                        {
+                            if (entity.IsAwaitingSpawnStateChange() || !entity.IsSpawned())
+                                continue;
+
+                            Vector3 entityLocation = entity.GetLocation();
+
+                            foreach(var player in playerGroup.GetPlayers())
+                            {
+                                if (Vector3.Distance(player.location, entityLocation) <= distance)
+                                    return true;
+                            }
+                        }
+                    }
                 }
 
                 return false;
@@ -275,7 +313,7 @@ namespace ImprovedHordes.Core.World.Horde
             });
         }
 
-        private void TrySpawnCluster(HordeCluster cluster, WorldHorde horde, PlayerHordeGroup playerHordeGroup)
+        private bool TrySpawnCluster(HordeCluster cluster, WorldHorde horde, PlayerHordeGroup playerHordeGroup)
         {
             if (cluster.TryGetSpawnRequest(out var spawnRequest))
             {
@@ -285,7 +323,7 @@ namespace ImprovedHordes.Core.World.Horde
                     {
                         this.Logger.Warn("Failed to spawn horde cluster, retrying.");
 
-                        cluster.SetSpawnState(Cluster.HordeCluster.SpawnState.DESPAWNED);
+                        cluster.SetSpawnStateFlags(HordeCluster.SpawnState.DESPAWNED);
                         horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
                         {
                             if (entity != null)
@@ -294,10 +332,15 @@ namespace ImprovedHordes.Core.World.Horde
                                 this.Logger.Warn("Failed to track horde entity when spawning.");
                         });
 
-                        return;
+                        return false;
                     }
                 }
+
+                return true;
             }
+
+            // Cluster has never been spawned.
+            return false;
         }
 
         private void UpdateHordeClusterEntity(HordeClusterEntity entity, PlayerHordeGroup playerHordeGroup)
@@ -306,7 +349,7 @@ namespace ImprovedHordes.Core.World.Horde
             {
                 IEnumerable<PlayerSnapshot> nearby = playerHordeGroup.GetPlayers().Where(player =>
                 {
-                    float distance = entity.IsSpawned() ? MAX_VIEW_DISTANCE : SPAWN_VIEW_DISTANCE;
+                    float distance = entity.IsSpawned() ? MAX_UNLOAD_VIEW_DISTANCE : MAX_SPAWN_VIEW_DISTANCE;
                     return Vector3.Distance(player.location, entity.GetLocation()) <= distance;
                 });
 
@@ -337,7 +380,7 @@ namespace ImprovedHordes.Core.World.Horde
         {
             if (TryGetPlayerHordeGroupNear(playerGroups, horde, out PlayerHordeGroup playerHordeGroup))
             {
-                if (!horde.IsSpawned())
+                if (!horde.Spawned && !horde.Spawning)
                 {
                     TrySpawnHorde(horde, playerHordeGroup);
                 }
@@ -345,21 +388,22 @@ namespace ImprovedHordes.Core.World.Horde
                 {
                     foreach(var cluster in horde.GetClusters())
                     {
-                        TrySpawnCluster(cluster, horde, playerHordeGroup);
-
-                        foreach (var entity in cluster.GetEntities())
+                        if (TrySpawnCluster(cluster, horde, playerHordeGroup))
                         {
-                            UpdateHordeClusterEntity(entity, playerHordeGroup);
+                            foreach (var entity in cluster.GetEntities())
+                            {
+                                UpdateHordeClusterEntity(entity, playerHordeGroup);
+                            }
                         }
                     }
                 }
             }
-            else if(horde.IsSpawned())
+            else if(horde.Spawned && !horde.Spawning)
             {
                 horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
             }
 
-            if (horde.IsSpawned())
+            if (horde.Spawned)
             {
                 horde.UpdatePosition(this.mainThreadRequestProcessor);
             }
@@ -416,7 +460,7 @@ namespace ImprovedHordes.Core.World.Horde
                     var other = players[j];
                     Vector2 otherLocation = new Vector2(other.location.x, other.location.z);
 
-                    if(Vector2.Distance(playerLocation, otherLocation) <= MAX_VIEW_DISTANCE)
+                    if(Vector2.Distance(playerLocation, otherLocation) <= MAX_UNLOAD_VIEW_DISTANCE)
                     {
                         playerGroup.AddPlayer(other);
                     }
@@ -452,7 +496,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                             if (!otherHorde.IsDead())
                             {
-                                int mergeDistance = horde.IsSpawned() ? MERGE_DISTANCE_LOADED.Value : MERGE_DISTANCE_UNLOADED.Value;
+                                int mergeDistance = (horde.Spawning || horde.Spawned) ? MERGE_DISTANCE_LOADED.Value : MERGE_DISTANCE_UNLOADED.Value;
                                 bool nearby = Vector3.Distance(horde.GetLocation(), otherHorde.GetLocation()) <= mergeDistance;
 
                                 if (nearby)

@@ -78,7 +78,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         private void MoveToSpawned(Vector3 location)
         {
             Vector3 directionWithinLoadDistance = (location - this.GetLocation()).normalized;
-            Vector3 locationWithinLoadDistance = (directionWithinLoadDistance * WorldHordeTracker.MAX_VIEW_DISTANCE) + this.GetLocation();
+            Vector3 locationWithinLoadDistance = (directionWithinLoadDistance * WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE) + this.GetLocation();
 
             this.entity.MoveTo(locationWithinLoadDistance, 0);
         }

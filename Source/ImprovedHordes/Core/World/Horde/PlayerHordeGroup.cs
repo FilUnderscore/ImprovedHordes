@@ -74,5 +74,26 @@ namespace ImprovedHordes.Core.World.Horde
         {
             return $"[gamestage={this.GetGamestage()}, biome={this.GetBiome()}]";
         }
+
+        public PlayerSnapshot GetPlayerClosestTo(Vector3 location, out float distance)
+        {
+            PlayerSnapshot closest = this.players[0];
+            float closestDistance = Vector3.Distance(closest.location, location);
+
+            for (int i = 1; i < this.players.Count; i++)
+            {
+                PlayerSnapshot player = this.players[i];
+                float playerDistance = Vector3.Distance(location, player.location);
+
+                if(playerDistance < closestDistance)
+                {
+                    closest = player;
+                    closestDistance = playerDistance;
+                }
+            }
+
+            distance = closestDistance;
+            return closest;
+        }
     }
 }

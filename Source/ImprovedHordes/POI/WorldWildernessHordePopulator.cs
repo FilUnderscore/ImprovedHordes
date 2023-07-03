@@ -29,7 +29,7 @@ namespace ImprovedHordes.POI
         {
             get
             {
-                return WorldHordeTracker.MAX_VIEW_DISTANCE * WorldHordeTracker.MAX_VIEW_DISTANCE;
+                return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE * WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
             }
         }
 
@@ -47,8 +47,8 @@ namespace ImprovedHordes.POI
         {
             float biomeFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeFactor(pos) : 1.0f;
 
-            int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 16)));
-            int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * (MAX_VIEW_DISTANCE / 16)));
+            int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * (MAX_UNLOAD_VIEW_DISTANCE / 16)));
+            int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * (MAX_UNLOAD_VIEW_DISTANCE / 16)));
 
             return new Vector2i(regionX, regionY);
         }

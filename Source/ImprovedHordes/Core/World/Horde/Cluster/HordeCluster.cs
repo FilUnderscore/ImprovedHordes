@@ -14,12 +14,13 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 {
     public sealed class HordeCluster : ISaveable<HordeClusterData>
     {
+        [Flags]
         public enum SpawnState
         {
-            SPAWNED,
-            SPAWNING,
-            DESPAWNED,
-            DESPAWNING
+            SPAWNED = 1,
+            SPAWNING = 2,
+            DESPAWNED = 4,
+            DESPAWNING = 8
         }
 
         private readonly IHorde horde;
@@ -64,15 +65,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public void RequestSpawn(WorldHorde horde, HordeSpawnParams spawnParams, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
         {
-            if (this.spawnState != SpawnState.DESPAWNED)
+            if (this.Spawned && this.Spawning)
             {
-                if(this.spawnState == SpawnState.SPAWNING)
-                {
-                    throw new InvalidOperationException("Cannot request horde cluster spawn when already spawning.");
-                }
-
-                return;
+                throw new InvalidOperationException("Cannot request another horde cluster spawn when already spawning.");
             }
+
+            this.SetSpawnStateFlags(SpawnState.SPAWNING);
 
             this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnParams, entity =>
             {
@@ -83,12 +81,13 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
                 if (onSpawn != null)
                     onSpawn(entity);
+
+                if (!this.Spawned)
+                    this.SetSpawnStateFlags(this.spawnState | SpawnState.SPAWNED);
             }, () =>
             {
-                this.spawnState = SpawnState.SPAWNED;
+                this.SetSpawnStateFlags(SpawnState.SPAWNED);
             });
-
-            this.spawnState = SpawnState.SPAWNING;
         }
 
         public bool TryGetSpawnRequest(out HordeClusterSpawnRequest spawnRequest)
@@ -149,14 +148,30 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.entities;
         }
 
-        public void SetSpawnState(SpawnState spawnState)
+        public void SetSpawnStateFlags(SpawnState spawnState)
         {
             this.spawnState = spawnState;
         }
 
-        public SpawnState GetSpawnState()
+        private bool IsFlagSet(SpawnState state)
         {
-            return this.spawnState;
+            return (this.spawnState & state) == state;
+        }
+
+        public bool Spawning // A cluster can remain in a spawned-spawning state, but a horde cannot.
+        {
+            get
+            {
+                return this.IsFlagSet(SpawnState.SPAWNING);
+            }
+        }
+
+        public bool Spawned
+        {
+            get
+            {
+                return this.IsFlagSet(SpawnState.SPAWNED);
+            }
         }
 
         public int GetEntitiesSpawned()

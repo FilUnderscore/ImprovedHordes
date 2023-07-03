@@ -39,7 +39,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         public void Update(float dt)
         {
-            if(!this.horde.IsSpawned())
+            if(!this.horde.Spawning && !this.horde.Spawned)
             {
                 this.hordeExecutor.Update(dt);
             }

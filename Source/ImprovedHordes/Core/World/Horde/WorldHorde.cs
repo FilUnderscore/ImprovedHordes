@@ -92,11 +92,11 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void Despawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            this.clusters.ForEach(cluster => cluster.SetSpawnState(HordeCluster.SpawnState.DESPAWNING));
+            this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(HordeCluster.SpawnState.DESPAWNING));
 
             mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this, () =>
             {
-                this.clusters.ForEach(cluster => cluster.SetSpawnState(HordeCluster.SpawnState.DESPAWNED));
+                this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(HordeCluster.SpawnState.DESPAWNED));
                 this.AIExecutor.NotifyEntities(false, null);
             }));
         }
@@ -149,9 +149,20 @@ namespace ImprovedHordes.Core.World.Horde
             return this.clusters.Count == 0;
         }
 
-        public bool IsSpawned()
+        public bool Spawning
         {
-            return this.clusters.Any(cluster => cluster.GetSpawnState() != HordeCluster.SpawnState.DESPAWNED);
+            get
+            {
+                return this.clusters.Any(cluster => cluster.Spawning) && !this.Spawned;
+            }
+        }
+
+        public bool Spawned
+        {
+            get
+            {
+                return this.clusters.Any(cluster => cluster.Spawned);
+            }
         }
 
         private void AddClusters(List<HordeCluster> clusters)
@@ -175,7 +186,7 @@ namespace ImprovedHordes.Core.World.Horde
             this.AddClusters(horde.clusters);
             horde.merged = true;
 
-            if(horde.IsSpawned())
+            if(horde.Spawned)
             {
                 horde.AIExecutor.NotifyEntities(false, null);
             }
@@ -253,7 +264,7 @@ namespace ImprovedHordes.Core.World.Horde
             }
 
             // Respawn horde.
-            if(this.IsSpawned())
+            if(this.Spawned)
                 this.Despawn(loggerFactory, mainThreadRequestProcessor);
 
             return true;

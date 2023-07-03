@@ -24,7 +24,7 @@ namespace ImprovedHordes.POI
         {
             get
             {
-                return WorldHordeTracker.MAX_VIEW_DISTANCE * WorldHordeTracker.MAX_VIEW_DISTANCE;
+                return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE * WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
             }
         }
 
