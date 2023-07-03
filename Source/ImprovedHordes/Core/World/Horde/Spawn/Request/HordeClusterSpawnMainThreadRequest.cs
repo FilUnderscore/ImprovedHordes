@@ -123,6 +123,10 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             if (!this.cluster.Spawning) // If the cluster state changes from spawning, then cancel further spawns.
             {
+#if DEBUG
+                this.logger.Warn("Cluster stopped spawning.");
+#endif
+
                 this.Cancel();
                 return;
             }
@@ -149,8 +153,16 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
                 if(distance > WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
                 {
+#if DEBUG
+                    this.logger.Warn("Failed to spawn horde");
+#endif
+
                     this.Cancel();
                 }
+
+#if DEBUG
+                this.logger.Warn("Could not calculate spawns");
+#endif
 
                 return;
             }

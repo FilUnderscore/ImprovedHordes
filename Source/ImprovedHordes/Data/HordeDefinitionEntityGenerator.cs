@@ -3,6 +3,7 @@ using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Data.XML;
 using ImprovedHordes.Implementations.World.Random;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -46,7 +47,7 @@ namespace ImprovedHordes.Data
 
         public override int DetermineEntityCount(float density)
         {
-            return Mathf.RoundToInt(maxEntitiesToSpawn.Sum(entityDefinitionEntry => entityDefinitionEntry.Value) * density);
+            return Math.Max(1, Mathf.CeilToInt(maxEntitiesToSpawn.Sum(entityDefinitionEntry => entityDefinitionEntry.Value) * density));
         }
 
         private HordeDefinition.Group.Entity GetRandomEntity(IRandom random)
