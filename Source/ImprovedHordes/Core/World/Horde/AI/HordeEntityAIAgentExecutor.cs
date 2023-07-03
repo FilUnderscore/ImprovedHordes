@@ -42,7 +42,7 @@ namespace ImprovedHordes.Core.World.Horde.AI
 
         private bool CanSee(EntityPlayer player)
         {
-            return this.Agent.CanSee(player.position);
+            return this.Agent.CanSee(player);
         }
 
         public override void Update(float dt)

@@ -110,6 +110,9 @@ namespace ImprovedHordes.Implementations.World
 
         public bool CanSee(EntityPlayer player)
         {
+            if (SEE_CACHE_FIELD == null || SEE_CACHE_FIELD.GetValue(this.entity) == null)
+                return CanSee(player.position);
+
             return this.entity.emodel != null && this.entity.emodel.GetModelTransform() != null && this.entity.CanSee(player);
         }
 
