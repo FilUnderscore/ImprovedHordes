@@ -152,24 +152,31 @@ namespace ImprovedHordes.Command
         {
             message += "\nCurrent POI Zone Info:";
 
-            const float MIN_ZONE_EDGE_DISTANCE = 20.0f;
+            if (GameManager.Instance.World.GetPrimaryPlayer() != null)
+            {
+                const float MIN_ZONE_EDGE_DISTANCE = 20.0f;
 
-            Vector3 playerPos = GameManager.Instance.World.GetPrimaryPlayer().position;
-            ICollection<WorldPOIScanner.POIZone> nearbyZones = mod.GetPOIScanner().GetZones().Where(z => Vector3.Distance(playerPos, z.GetBounds().ClosestPoint(playerPos)) <= MIN_ZONE_EDGE_DISTANCE).ToList();
+                Vector3 playerPos = GameManager.Instance.World.GetPrimaryPlayer().position;
+                ICollection<WorldPOIScanner.POIZone> nearbyZones = mod.GetPOIScanner().GetZones().Where(z => Vector3.Distance(playerPos, z.GetBounds().ClosestPoint(playerPos)) <= MIN_ZONE_EDGE_DISTANCE).ToList();
 
-            if(!nearbyZones.Any())
+                if (!nearbyZones.Any())
+                {
+                    message += "\n    Not currently near a POI zone.";
+                    return;
+                }
+
+                WorldPOIScanner.POIZone zone = nearbyZones.First();
+                Bounds zoneBounds = zone.GetBounds();
+
+                message += $"\n    Size: {zoneBounds.size.magnitude / 2}";
+                message += $"\n    Center: {zoneBounds.center}";
+                message += $"\n    POI Count: {zone.GetCount()}";
+                message += $"\n    Density: {zone.GetDensity()}";
+            }
+            else
             {
                 message += "\n    Not currently near a POI zone.";
-                return;
             }
-
-            WorldPOIScanner.POIZone zone = nearbyZones.First();
-            Bounds zoneBounds = zone.GetBounds();
-
-            message += $"\n    Size: {zoneBounds.size.magnitude / 2}";
-            message += $"\n    Center: {zoneBounds.center}";
-            message += $"\n    POI Count: {zone.GetCount()}";
-            message += $"\n    Density: {zone.GetDensity()}";
         }
 
         private void GetPlayerStats(ImprovedHordesMod mod, ref string message)
