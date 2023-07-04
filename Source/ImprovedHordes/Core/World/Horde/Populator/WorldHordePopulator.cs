@@ -12,7 +12,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
 {
     public sealed class WorldHordePopulator : Threaded, IData
     {
-        private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
+        private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
 
         private readonly WorldHordeSpawner spawner;
@@ -23,7 +23,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         {
             this.spawner = spawner;
 
-            this.players = tracker.GetPlayerTracker().Subscribe();
+            this.playerGroups = tracker.GetPlayerTracker().Subscribe();
             this.clusters = tracker.GetClustersSubscription().Subscribe();
         }
 
@@ -42,7 +42,7 @@ namespace ImprovedHordes.Core.World.Horde.Populator
 
         protected override void UpdateAsync(float dt)
         {
-            if(!this.players.TryGet(out var players) || !this.clusters.TryGet(out var clusters))
+            if(!this.playerGroups.TryGet(out var playerGroups) || !this.clusters.TryGet(out var clusters))
                 return;
 
             if (GetWorldHordeDensity(clusters) >= WorldHordeTracker.MAX_WORLD_DENSITY.Value)
@@ -50,10 +50,10 @@ namespace ImprovedHordes.Core.World.Horde.Populator
 
             foreach(var populator in this.populators)
             {
-                if (!populator.CanRun(players, clusters))
+                if (!populator.CanRun(playerGroups, clusters))
                     continue;
 
-                populator.Populate(dt, players, clusters, this.spawner, this.Random);
+                populator.Populate(dt, playerGroups, clusters, this.spawner, this.Random);
             }
         }
 

@@ -26,6 +26,14 @@ namespace ImprovedHordes.POI
 
         private readonly Dictionary<Vector2i, ulong> lastSpawned = new Dictionary<Vector2i, ulong>();
 
+        private int MAX_VIEW_DISTANCE
+        {
+            get
+            {
+                return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
+            }
+        }
+
         private int MAX_VIEW_DISTANCE_SQUARED
         {
             get
@@ -54,7 +62,7 @@ namespace ImprovedHordes.POI
             return new Vector2i(regionX, regionY);
         }
 
-        public override bool CanPopulate(float dt, out Vector2 pos, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
+        public override bool CanPopulate(float dt, out Vector2 pos, List<PlayerHordeGroup> playerGroups, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
         {
             Vector2 randomWorldPos = worldRandom.RandomLocation2;
 
@@ -91,11 +99,11 @@ namespace ImprovedHordes.POI
 
             // Check for nearby players.
 
-            foreach(var player in players)
+            foreach(var playerGroup in playerGroups)
             {
-                Vector2 playerPos = new Vector2(player.location.x, player.location.z);
+                playerGroup.GetPlayerClosestTo(randomWorldPos, out float distance);
 
-                if ((randomWorldPos - playerPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * ((sparsityFactor / biomeFactor) / 2))
+                if (distance <= MAX_VIEW_DISTANCE * ((sparsityFactor / biomeFactor) / 2))
                 {
                     nearby |= true;
                 }

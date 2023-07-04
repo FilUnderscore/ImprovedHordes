@@ -11,6 +11,7 @@ namespace ImprovedHordes.Command
 {
     internal class ImprovedHordesStatsSubcommand : ExecutableSubcommandBase
     {
+        private ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
 
         public ImprovedHordesStatsSubcommand() : base("stats")
@@ -23,6 +24,7 @@ namespace ImprovedHordes.Command
             Cluster = 1,
             Request = 2,
             Zone = 4,
+            Player = 8,
             All = ~0
         }
 
@@ -71,6 +73,11 @@ namespace ImprovedHordes.Command
                 {
                     GetZoneStats(mod, ref message);
                 }
+
+                if(IsStatFlagSet(flags, StatFlag.Player))
+                {
+                    GetPlayerStats(mod, ref message);
+                }
             }
             else
             {
@@ -82,9 +89,6 @@ namespace ImprovedHordes.Command
 
         private void GetClusterStats(ImprovedHordesMod mod, ref string message)
         {
-            int totalCount = 0;
-            float totalDensity = 0.0f;
-
             message = "\nWorld Horde Clusters Being Tracked:";
 
             if (this.clusters == null)
@@ -92,6 +96,9 @@ namespace ImprovedHordes.Command
 
             if (this.clusters.TryGet(out var clusters))
             {
+                int totalCount = 0;
+                float totalDensity = 0.0f;
+
                 foreach (var clusterEntry in clusters)
                 {
 #if !DEBUG
@@ -112,9 +119,13 @@ namespace ImprovedHordes.Command
                     message += $" (Total Density: {totalClusterTypeDensity})";
                     totalDensity += totalClusterTypeDensity;
                 }
-            }
 
-            message += $"\nTotal Count: {totalCount} (Total Density: {totalDensity})";
+                message += $"\nTotal Count: {totalCount} (Total Density: {totalDensity})";
+            }
+            else
+            {
+                message += "\n    Failed to retrieve latest cluster information.";
+            }
         }
 
         private void GetRequestStats(ImprovedHordesMod mod, ref string message)
@@ -159,6 +170,39 @@ namespace ImprovedHordes.Command
             message += $"\n    Center: {zoneBounds.center}";
             message += $"\n    POI Count: {zone.GetCount()}";
             message += $"\n    Density: {zone.GetDensity()}";
+        }
+
+        private void GetPlayerStats(ImprovedHordesMod mod, ref string message)
+        {
+            message += "\nCurrent Player Horde Groups Being Tracked:";
+
+            if (this.playerGroups == null)
+                this.playerGroups = mod.GetCore().GetWorldHordeTracker().GetPlayerTracker().Subscribe();
+
+            if(this.playerGroups.TryGet(out var playerGroups))
+            {
+                foreach(var playerGroup in playerGroups)
+                {
+                    message += $"\n";
+
+                    int gamestage = playerGroup.GetGamestage();
+                    string biome = playerGroup.GetBiome();
+                    
+                    List<PlayerSnapshot> players = playerGroup.GetPlayers();
+
+                    for(int i = 0; i < players.Count; i++)
+                    {
+                        message += $"{players[i].player.EntityName} ({players[i].player.gameStage})" + (i < players.Count - 1 ? ", " : "");
+                    }
+
+                    message += $"\n    Gamestage: {gamestage}";
+                    message += $"\n    Biome: {biome}";
+                }
+            }
+            else
+            {
+                message += "\n    Failed to retrieve latest player group information.";
+            }
         }
 
         public override (string name, bool optional)[] GetArgs()

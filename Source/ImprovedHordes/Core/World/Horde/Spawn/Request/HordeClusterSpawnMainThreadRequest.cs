@@ -1,5 +1,4 @@
-﻿using AnimationOrTween;
-using ImprovedHordes.Core.Abstractions.Logging;
+﻿using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
@@ -231,6 +230,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnTargetLocation, 0, spreadLimit, -1, true, out spawnLocation, false))
             {
                 spawnLocation = spawnTargetLocation;
+                spawnLocation.y = GameManager.Instance.World.GetHeightAt(spawnLocation.x, spawnLocation.z); // Fix entities falling off of world when getting random spawn position fails.
+
                 return true;
             }
 

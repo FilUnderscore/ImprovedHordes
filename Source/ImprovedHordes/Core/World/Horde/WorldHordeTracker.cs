@@ -50,16 +50,16 @@ namespace ImprovedHordes.Core.World.Horde
 
     public sealed class WorldPlayerTracker : MainThreaded
     {
-        private ThreadSubscription<List<PlayerSnapshot>> snapshots;
+        private ThreadSubscription<List<PlayerHordeGroup>> playerGroups;
 
         public WorldPlayerTracker()
         {
-            this.snapshots = new ThreadSubscription<List<PlayerSnapshot>>();
+            this.playerGroups = new ThreadSubscription<List<PlayerHordeGroup>>();
         }
 
-        public ThreadSubscriber<List<PlayerSnapshot>> Subscribe()
+        public ThreadSubscriber<List<PlayerHordeGroup>> Subscribe()
         {
-            return this.snapshots.Subscribe();
+            return this.playerGroups.Subscribe();
         }
 
         protected override void Shutdown()
@@ -75,7 +75,31 @@ namespace ImprovedHordes.Core.World.Horde
                 snapshots.Add(new PlayerSnapshot(player, player.position));
             }
 
-            this.snapshots.Update(snapshots);
+            List<PlayerHordeGroup> playerHordeGroups = new List<PlayerHordeGroup>();
+
+            // Assemble player horde groups from snapshots.
+            for (int i = 0; i < snapshots.Count; i++)
+            {
+                var player = snapshots[i];
+                Vector2 playerLocation = new Vector2(player.location.x, player.location.z);
+
+                PlayerHordeGroup playerGroup = new PlayerHordeGroup(player);
+
+                for (int j = i + 1; j < snapshots.Count; j++)
+                {
+                    var other = snapshots[j];
+                    Vector2 otherLocation = new Vector2(other.location.x, other.location.z);
+
+                    if (Vector2.Distance(playerLocation, otherLocation) <= WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
+                    {
+                        playerGroup.AddPlayer(other);
+                    }
+                }
+
+                playerHordeGroups.Add(playerGroup);
+            }
+
+            this.playerGroups.Update(playerHordeGroups);
         }
     }
 
@@ -128,7 +152,7 @@ namespace ImprovedHordes.Core.World.Horde
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
 
         private readonly WorldPlayerTracker playerTracker;
-        private readonly ThreadSubscriber<List<PlayerSnapshot>> snapshots;
+        private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
 
         private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
 
@@ -142,7 +166,7 @@ namespace ImprovedHordes.Core.World.Horde
         public WorldHordeTracker(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, MainThreadRequestProcessor mainThreadRequestProcessor, WorldEventReporter reporter) : base(loggerFactory, randomFactory)
         {
             this.playerTracker = new WorldPlayerTracker();
-            this.snapshots = this.playerTracker.Subscribe();
+            this.playerGroups = this.playerTracker.Subscribe();
 
             this.randomFactory = randomFactory;
             this.entitySpawner = entitySpawner;
@@ -220,12 +244,12 @@ namespace ImprovedHordes.Core.World.Horde
         {
             this.UpdateHordesList();
 
-            if (!this.snapshots.TryGet(out var snapshots))
+            if (!this.playerGroups.TryGet(out var playerGroups))
                 return;
 
             this.UpdateClusterSnapshots();
             
-            int eventsProcessed = UpdateTrackerAsync(snapshots, this.eventsToReport.ToList(), dt);
+            int eventsProcessed = UpdateTrackerAsync(playerGroups, this.eventsToReport.ToList(), dt);
 
             if (eventsProcessed > 0)
                 this.eventsToReport.RemoveRange(0, eventsProcessed);
@@ -448,32 +472,8 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
-        private int UpdateTrackerAsync(List<PlayerSnapshot> players, List<WorldEventReportEvent> eventReports, float dt)
+        private int UpdateTrackerAsync(List<PlayerHordeGroup> playerHordeGroups, List<WorldEventReportEvent> eventReports, float dt)
         {
-            List<PlayerHordeGroup> playerHordeGroups = new List<PlayerHordeGroup>();
-
-            // Assemble player horde groups from snapshots.
-            for(int i = 0; i < players.Count; i++)
-            {
-                var player = players[i];
-                Vector2 playerLocation = new Vector2(player.location.x, player.location.z);
-
-                PlayerHordeGroup playerGroup = new PlayerHordeGroup(player);
-
-                for(int j = i + 1; j < players.Count; j++)
-                {
-                    var other = players[j];
-                    Vector2 otherLocation = new Vector2(other.location.x, other.location.z);
-
-                    if(Vector2.Distance(playerLocation, otherLocation) <= MAX_UNLOAD_VIEW_DISTANCE)
-                    {
-                        playerGroup.AddPlayer(other);
-                    }
-                }
-
-                playerHordeGroups.Add(playerGroup);
-            }
-
             foreach(var horde in this.hordes)
             {
                 UpdateHorde(horde, dt, playerHordeGroups, eventReports);

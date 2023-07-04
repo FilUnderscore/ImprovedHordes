@@ -20,7 +20,15 @@ namespace ImprovedHordes.POI
         private readonly Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.POIZone, ulong>();
 
         protected readonly WorldPOIScanner scanner;
-        
+
+        private int MAX_VIEW_DISTANCE
+        {
+            get
+            {
+                return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
+            }
+        }
+
         private int MAX_VIEW_DISTANCE_SQUARED
         {
             get
@@ -34,7 +42,7 @@ namespace ImprovedHordes.POI
             this.scanner = scanner;
         }
 
-        public override bool CanRun(List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters)
+        public override bool CanRun(List<PlayerHordeGroup> playerGroups, Dictionary<Type, List<ClusterSnapshot>> clusters)
         {
             return this.scanner.HasScanCompleted();
         }
@@ -47,7 +55,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerSnapshot> players, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
+        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerHordeGroup> playerGroups, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
         {
             WorldPOIScanner.POIZone randomZone = worldRandom.Random<WorldPOIScanner.POIZone>(this.scanner.GetZones());
 
@@ -71,9 +79,11 @@ namespace ImprovedHordes.POI
             bool nearby = false;
 
             // Check for nearby players.
-            foreach(var player in players)
+            foreach(var playerGroup in playerGroups)
             {
-                if ((randomZone.GetBounds().center - player.location).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
+                playerGroup.GetPlayerClosestTo(randomZone.GetBounds().center, out float distance);
+
+                if (distance <= MAX_VIEW_DISTANCE)
                 {
                     nearby |= true;
                 }

@@ -19,14 +19,14 @@ namespace ImprovedHordes.Core.World.Horde.Debug
     internal readonly struct WorldHordeState
     {
         private readonly int worldSize;
-        private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
+        private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
         private readonly List<WorldPOIScanner.POIZone> zones;
 
-        public WorldHordeState(int worldSize, WorldPOIScanner scanner, ThreadSubscriber<List<PlayerSnapshot>> players, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
+        public WorldHordeState(int worldSize, WorldPOIScanner scanner, ThreadSubscriber<List<PlayerHordeGroup>> playerGroups, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
         {
             this.worldSize = worldSize;
-            this.players = players;
+            this.playerGroups = playerGroups;
             this.clusters = clusters;
             this.zones = scanner.GetZones();
         }
@@ -35,19 +35,24 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             writer.Write(this.worldSize);
 
-            if (this.players.TryGet(out var players))
+            if (this.playerGroups.TryGet(out var playerGroups))
             {
-                writer.Write(players.Count);
-                foreach (var player in players)
+                foreach (var playerGroup in playerGroups)
                 {
-                    Vector3 location = player.location;
+                    var players = playerGroup.GetPlayers();
 
-                    writer.Write(location.x);
-                    writer.Write(location.y);
-                    writer.Write(location.z);
+                    writer.Write(players.Count);
+                    foreach (var player in players)
+                    {
+                        Vector3 location = player.location;
 
-                    writer.Write(player.player.gameStage);
-                    EncodeString(writer, player.player.biomeStandingOn?.m_sBiomeName);
+                        writer.Write(location.x);
+                        writer.Write(location.y);
+                        writer.Write(location.z);
+
+                        writer.Write(player.player.gameStage);
+                        EncodeString(writer, player.player.biomeStandingOn?.m_sBiomeName);
+                    }
                 }
             }
             else
@@ -123,7 +128,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly List<TcpClient> clients = new List<TcpClient>();
         private bool running = false;
 
-        private readonly ThreadSubscriber<List<PlayerSnapshot>> players;
+        private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
 
         public HordeViewerDebugServer(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory, randomFactory)
@@ -132,7 +137,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.tracker = tracker;
             this.scanner = scanner;
 
-            this.players = tracker.GetPlayerTracker().Subscribe();
+            this.playerGroups = tracker.GetPlayerTracker().Subscribe();
             this.clusters = tracker.GetClustersSubscription().Subscribe();
 
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
@@ -177,7 +182,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
 
         protected override void UpdateAsync(float dt)
         {
-            WorldHordeState state = new WorldHordeState(this.worldSize, this.scanner, this.players, this.clusters);
+            WorldHordeState state = new WorldHordeState(this.worldSize, this.scanner, this.playerGroups, this.clusters);
 
             foreach(var client in this.clients)
             {

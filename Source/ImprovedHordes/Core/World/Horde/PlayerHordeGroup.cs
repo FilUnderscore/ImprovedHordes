@@ -28,16 +28,26 @@ namespace ImprovedHordes.Core.World.Horde
         {
             float gamestage = 0;
 
+            float startingWeight = GameStageDefinition.StartingWeight;
             float diminishingReturns = GameStageDefinition.DiminishingReturns;
-            float difficultyBonus = GameStageDefinition.DifficultyBonus;
 
-            foreach(var player in this.players)
+            this.players.Sort((a, b) =>
             {
-                gamestage += player.player.gameStage * difficultyBonus;
-                difficultyBonus *= diminishingReturns;
+                if (a.player.gameStage > b.player.gameStage)
+                    return -1;
+                else if (a.player.gameStage < b.player.gameStage)
+                    return 1;
+                else
+                    return 0;
+            });
+
+            foreach (var player in this.players)
+            {
+                gamestage += player.player.gameStage * startingWeight;
+                startingWeight *= diminishingReturns;
             }
 
-            return Mathf.RoundToInt(gamestage);
+            return Mathf.FloorToInt(gamestage);
         }
 
         public int GetCount()
@@ -73,6 +83,32 @@ namespace ImprovedHordes.Core.World.Horde
         public override string ToString()
         {
             return $"[gamestage={this.GetGamestage()}, biome={this.GetBiome()}]";
+        }
+
+        private Vector2 ToXZ(Vector3 v)
+        {
+            return new Vector2(v.x, v.z);
+        }
+
+        public PlayerSnapshot GetPlayerClosestTo(Vector2 location, out float distance)
+        {
+            PlayerSnapshot closest = this.players[0];
+            float closestDistance = Vector2.Distance(ToXZ(closest.location), location);
+
+            for (int i = 1; i < this.players.Count; i++)
+            {
+                PlayerSnapshot player = this.players[i];
+                float playerDistance = Vector2.Distance(location, ToXZ(player.location));
+
+                if (playerDistance < closestDistance)
+                {
+                    closest = player;
+                    closestDistance = playerDistance;
+                }
+            }
+
+            distance = closestDistance;
+            return closest;
         }
 
         public PlayerSnapshot GetPlayerClosestTo(Vector3 location, out float distance)
