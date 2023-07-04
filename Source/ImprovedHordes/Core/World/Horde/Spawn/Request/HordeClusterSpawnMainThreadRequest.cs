@@ -221,7 +221,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 #endif
             } while (true);
 
-            int maxSpreadLimit = Math.Min((maxSpawnDistance - minSpawnDistance) / 2, this.spawnData.SpreadDistanceLimit);
+            int maxSpreadLimit = Math.Min(targetSpawnDistance - minSpawnDistance, this.spawnData.SpreadDistanceLimit);
             return TryGetRandomSpreadSpawnPositionAt(spawnTargetLocation, maxSpreadLimit, out spawnLocation);
         }
 
@@ -230,7 +230,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnTargetLocation, 0, spreadLimit, -1, true, out spawnLocation, false))
             {
                 spawnLocation = spawnTargetLocation;
-                spawnLocation.y = GameManager.Instance.World.GetHeightAt(spawnLocation.x, spawnLocation.z); // Fix entities falling off of world when getting random spawn position fails.
+                spawnLocation.y = GameManager.Instance.World.GetHeightAt(spawnLocation.x, spawnLocation.z) + 1.0f; // Fix entities falling off of world when getting random spawn position fails.
 
                 return true;
             }
