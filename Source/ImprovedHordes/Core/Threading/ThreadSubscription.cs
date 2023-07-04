@@ -33,13 +33,14 @@ namespace ImprovedHordes.Core.Threading
     public sealed class ThreadSubscriber<T>
     {
         private readonly ConcurrentQueue<T> history = new ConcurrentQueue<T>();
-        
+        private T previous;
+
         public bool TryGet(out T next)
         {
             if(history.IsEmpty)
             {
-                next = default(T);
-                return false;
+                next = previous;
+                return previous != null;
             }
 
             return history.TryDequeue(out next);
@@ -51,6 +52,7 @@ namespace ImprovedHordes.Core.Threading
                 history.TryDequeue(out _);
 
             history.Enqueue(item);
+            previous = item;
         }
     }
 }

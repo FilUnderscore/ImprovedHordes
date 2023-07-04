@@ -47,8 +47,8 @@ namespace ImprovedHordes.POI
         {
             float biomeFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeFactor(pos) : 1.0f;
 
-            int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * (MAX_UNLOAD_VIEW_DISTANCE / 16)));
-            int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * (MAX_UNLOAD_VIEW_DISTANCE / 16)));
+            int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * MAX_UNLOAD_VIEW_DISTANCE / 4));
+            int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * MAX_UNLOAD_VIEW_DISTANCE / 4));
 
             return new Vector2i(regionX, regionY);
         }
@@ -69,24 +69,16 @@ namespace ImprovedHordes.POI
                 }
             }
 
-            bool inZone = false;
             foreach(var zone in this.scanner.GetZones())
             {
                 Vector3 zoneWorldPos = new Vector3(randomWorldPos.x, zone.GetBounds().center.y, randomWorldPos.y);
 
                 if (zone.GetBounds().Contains(zoneWorldPos))
-                    inZone |= true;
+                {
+                    pos = Vector3.zero;
+                    return false;
+                }
             }
-
-            if(inZone)
-            {
-                pos = Vector3.zero;
-                return false;
-            }
-
-            bool nearby = false;
-
-            float biomeFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeFactor(randomWorldPos) : 1.0f;
 
             // Check for nearby players.
 
@@ -94,28 +86,27 @@ namespace ImprovedHordes.POI
             {
                 playerGroup.GetPlayerClosestTo(randomWorldPos, out float distance);
 
-                if (distance * distance <= MAX_VIEW_DISTANCE_SQUARED * ((sparsityFactor / biomeFactor) / 2))
+                if (distance * distance <= MAX_VIEW_DISTANCE_SQUARED)
                 {
-                    nearby |= true;
+                    pos = Vector3.zero;
+                    return false;
                 }
             }
 
-            if (!nearby)
+            // Check for nearby hordes.
+            foreach (var cluster in clusters[typeof(Horde)])
             {
-                // Check for nearby hordes.
-                foreach(var cluster in clusters[typeof(Horde)])
-                {
-                    Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
+                Vector2 clusterPos = new Vector2(cluster.location.x, cluster.location.z);
 
-                    if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED * (sparsityFactor / biomeFactor))
-                    {
-                        nearby |= true;
-                    }
+                if ((randomWorldPos - clusterPos).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
+                {
+                    pos = Vector3.zero;
+                    return false;
                 }
             }
 
             pos = randomWorldPos;
-            return !nearby;
+            return true;
         }
 
         public override void Populate(Vector2 pos, WorldHordeSpawner spawner, IWorldRandom worldRandom)

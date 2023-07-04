@@ -35,7 +35,7 @@
 	<horde type="wandering_animal">
 		<merge />
 		<groups>
-			<group name="Stags" weight="0.5">
+			<group name="Stags" weight="0.25">
 				<entity name="animalStag" minCount="1" maxCount="2"/>
 				<entity name="animalDoe" minCount="2" maxCount="4"/>
 			</group>
@@ -48,7 +48,7 @@
 				<entity name="animalRabbit" minCount="2" maxCount="4"/>
 			</group>
 			
-			<group name="Boars" weight="0.5">
+			<group name="Boars" weight="0.25">
 				<entity name="animalBoar" minCount="3" maxCount="4"/>
 			</group>
 		</groups>
@@ -73,11 +73,11 @@
 			
 						
 			<group name="ZombieDogs" weight="0.2">
-				<entity chance="0.1" biomes="wasteland,pine_forest" name="animalZombieDog" minCount="1" maxCount="10"/>
+				<entity chance="0.1" biomes="wasteland,pine_forest" name="animalZombieDog" minCount="1" maxCount="5"/>
 			</group>
 			
-			<group name="Vultures" weight="0.2">
-				<entity biomes="wasteland,desert,burnt_forest" name="animalZombieVulture" minCount="1" maxCount="6"/>
+			<group name="Vultures" weight="0.01">
+				<entity biomes="wasteland,desert,burnt_forest" name="animalZombieVulture" minCount="1" maxCount="3"/>
 				
 				<entity biomes="wasteland" name="animalZombieVultureRadiated" minCount="1" maxCount="2"/>
 			</group>

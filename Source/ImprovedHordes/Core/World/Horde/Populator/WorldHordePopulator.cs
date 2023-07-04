@@ -16,12 +16,14 @@ namespace ImprovedHordes.Core.World.Horde.Populator
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
 
         private readonly WorldHordeSpawner spawner;
+        private readonly float worldSize;
 
         private readonly List<HordePopulator> populators = new List<HordePopulator>();
 
-        public WorldHordePopulator(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHordeTracker tracker, WorldHordeSpawner spawner) : base(loggerFactory, randomFactory)
+        public WorldHordePopulator(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHordeTracker tracker, WorldHordeSpawner spawner, float worldSize) : base(loggerFactory, randomFactory)
         {
             this.spawner = spawner;
+            this.worldSize = worldSize;
 
             this.playerGroups = tracker.GetPlayerTracker().Subscribe();
             this.clusters = tracker.GetClustersSubscription().Subscribe();
@@ -45,7 +47,9 @@ namespace ImprovedHordes.Core.World.Horde.Populator
             if(!this.playerGroups.TryGet(out var playerGroups) || !this.clusters.TryGet(out var clusters))
                 return;
 
-            if (GetWorldHordeDensity(clusters) >= WorldHordeTracker.MAX_WORLD_DENSITY.Value)
+            float worldSizeKM = worldSize / 1000;
+
+            if (GetWorldHordeDensity(clusters) >= (WorldHordeTracker.DENSITY_PER_KM_SQUARED.Value * worldSizeKM * worldSizeKM))
                 return;
 
             foreach(var populator in this.populators)

@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Event
 {
+    public enum WorldEventType
+    {
+        Surrounding,
+        Originating
+    }
+
     public sealed class WorldEvent
     {
         private const float TIME_SCALE = 1e1f;

@@ -14,6 +14,18 @@ namespace ImprovedHordes.Core.World.Event
 {
     public sealed class WorldEventReporter : Threaded
     {
+        private readonly struct WorldEventReport
+        {
+            public readonly WorldEventType Type;
+            public readonly WorldEvent Event;
+
+            public WorldEventReport(WorldEventType type, WorldEvent worldEvent)
+            {
+                this.Type = type;
+                this.Event = worldEvent;
+            }
+        }
+
         private static readonly Setting<int> EVENT_CHUNK_RADIUS = new Setting<int>("event_chunk_radius", 3);
         private static readonly Setting<float> EVENT_INTEREST_DISTANCE_MULTIPLIER = new Setting<float>("event_interest_distance_multiplier", 0.25f);
 
@@ -21,12 +33,11 @@ namespace ImprovedHordes.Core.World.Event
         private readonly double MAP_SIZE_LOG_N, MAP_SIZE_POW_2_LOG_N;
 
         // Shared
-        private readonly ConcurrentQueue<WorldEvent> eventsToStore = new ConcurrentQueue<WorldEvent>();
-        private readonly ConcurrentQueue<Vector3> eventsToReportKeys = new ConcurrentQueue<Vector3>();
+        private readonly ConcurrentQueue<WorldEventReport> eventsToStore = new ConcurrentQueue<WorldEventReport>();
 
         // Personal
         private readonly Dictionary<Vector2i, WorldEvent> eventHistory = new Dictionary<Vector2i, WorldEvent>();
-        private List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
+        private readonly Queue<Vector3> eventsToReportKeys = new Queue<Vector3>();
 
         private readonly List<Vector2i> eventsToRemove = new List<Vector2i>();
 
@@ -43,15 +54,38 @@ namespace ImprovedHordes.Core.World.Event
 
         protected override void UpdateAsync(float dt)
         {
-            while (eventsToStore.TryDequeue(out WorldEvent worldEvent))
+            while (eventsToStore.TryDequeue(out WorldEventReport worldEventReport))
             {
+                WorldEvent worldEvent = worldEventReport.Event;
+                WorldEvent worldEventToReport;
+
                 if (eventHistory.TryGetValue(worldEvent.GetChunkLocation(), out WorldEvent chunkHistoryEvent))
                 {
                     chunkHistoryEvent.Add(worldEvent);
+                    worldEventToReport = chunkHistoryEvent;
                 }
                 else
                 {
                     eventHistory.Add(worldEvent.GetChunkLocation(), worldEvent);
+                    worldEventToReport = worldEvent;
+                }
+
+                if (worldEventReport.Type == WorldEventType.Originating)
+                    eventsToReportKeys.Enqueue(worldEventToReport.GetLocation());
+            }
+
+            while (eventsToReportKeys.Count > 0)
+            {
+                Vector3 key = eventsToReportKeys.Dequeue();
+
+                if(eventHistory.TryGetValue(global::World.toChunkXZ(key), out WorldEvent worldEvent))
+                {
+                    float interest = worldEvent.GetInterestLevel();
+                    this.OnWorldEventReport?.Invoke(this, new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
+                }
+                else
+                {
+                    this.Logger.Warn($"Failed to report event with key {key}");
                 }
             }
 
@@ -68,25 +102,6 @@ namespace ImprovedHordes.Core.World.Event
                 this.eventHistory.Remove(eventToRemove);
             }
             eventsToRemove.Clear();
-
-            while (eventsToReportKeys.TryDequeue(out Vector3 key))
-            {
-                if(eventHistory.TryGetValue(global::World.toChunkXZ(key), out WorldEvent worldEvent))
-                {
-                    float interest = worldEvent.GetInterestLevel();
-                    eventsToReport.Add(new WorldEventReportEvent(key, interest, CalculateInterestDistance(interest)));
-                }
-            }
-
-            if (this.OnWorldEventReport != null)
-            {
-                foreach (var eventToReport in eventsToReport)
-                {
-                    this.OnWorldEventReport.Invoke(this, eventToReport);
-                }
-            }
-
-            eventsToReport.Clear();
         }
 
         public void Report(WorldEvent worldEvent)
@@ -96,14 +111,12 @@ namespace ImprovedHordes.Core.World.Event
                 float interest = worldEvent.GetInterestLevel();
 
                 ConcurrentDictionary<Vector2i, float> nearby = GetNearbyChunks(worldEvent.GetLocation(), EVENT_CHUNK_RADIUS.Value);
-
                 foreach(var entry in nearby)
                 {
-                    eventsToStore.Enqueue(new WorldEvent(worldEvent.GetLocation(), entry.Key, interest * entry.Value, entry.Value));
+                    eventsToStore.Enqueue(new WorldEventReport(WorldEventType.Surrounding, new WorldEvent(worldEvent.GetLocation(), entry.Key, interest * entry.Value, entry.Value)));
                 }
 
-                eventsToStore.Enqueue(worldEvent);
-                eventsToReportKeys.Enqueue(worldEvent.GetLocation());
+                eventsToStore.Enqueue(new WorldEventReport(WorldEventType.Originating, worldEvent));
             });
         }
 
@@ -191,7 +204,7 @@ namespace ImprovedHordes.Core.World.Event
                 if (!trackedPlayers.dict.TryGetValue(instigator.entityId, out var directorPlayerState) || directorPlayerState == null)
                     return;
 
-                float strength = 1.0f * (directorPlayerState.Player.Stealth.noiseVolume / 100.0f);
+                float strength = 1.0f * ((directorPlayerState.Player.Stealth.noiseVolume + 1.0f) / 100.0f);
 
                 if (directorPlayerState.Player.IsCrouching)
                 {

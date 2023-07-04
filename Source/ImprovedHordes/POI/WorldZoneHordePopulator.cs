@@ -7,9 +7,7 @@ using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
-using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.POI
 {
@@ -26,14 +24,6 @@ namespace ImprovedHordes.POI
             get
             {
                 return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
-            }
-        }
-
-        private int MAX_VIEW_DISTANCE_SQUARED
-        {
-            get
-            {
-                return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE * WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
             }
         }
 
@@ -76,33 +66,32 @@ namespace ImprovedHordes.POI
                 }
             }
 
-            bool nearby = false;
+            randomZone.GetLocationOutside(worldRandom, out Vector2 spawnLocation);
 
             // Check for nearby players.
             foreach(var playerGroup in playerGroups)
             {
-                playerGroup.GetPlayerClosestTo(randomZone.GetBounds().center, out float distance);
+                playerGroup.GetPlayerClosestTo(spawnLocation, out float distance);
 
                 if (distance <= MAX_VIEW_DISTANCE)
                 {
-                    nearby |= true;
+                    zone = null;
+                    return false;
                 }
             }
 
-            if (!nearby)
+            // Check for nearby hordes.
+            foreach (var cluster in clusters[typeof(Horde)])
             {
-                // Check for nearby hordes.
-                foreach(var cluster in clusters[typeof(Horde)])
+                if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= (randomZone.GetBounds().size.sqrMagnitude / 2))
                 {
-                    if ((randomZone.GetBounds().center - cluster.location).sqrMagnitude <= MAX_VIEW_DISTANCE_SQUARED)
-                    {
-                        nearby |= true;
-                    }
+                    zone = null;
+                    return false;
                 }
             }
 
             zone = randomZone;
-            return !nearby;
+            return true;
         }
 
         protected abstract int CalculateHordeCount(WorldPOIScanner.POIZone zone);

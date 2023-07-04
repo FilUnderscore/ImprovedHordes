@@ -109,7 +109,7 @@ namespace ImprovedHordes.Core.World.Horde
         private readonly Setting<int> MERGE_DISTANCE_UNLOADED = new Setting<int>("unloaded_merge_distance", 100);
 
         public static readonly Setting<float> MAX_HORDE_DENSITY = new Setting<float>("max_horde_density", 2.0f);
-        public static readonly Setting<float> MAX_WORLD_DENSITY = new Setting<float>("max_world_density", 500.0f);
+        public static readonly Setting<float> DENSITY_PER_KM_SQUARED = new Setting<float>("density_per_km_squared", 9.3f);
 
         public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 16);
 
