@@ -7,7 +7,6 @@ using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
@@ -25,14 +24,6 @@ namespace ImprovedHordes.POI
         private readonly bool biomeAffectsSparsity;
 
         private readonly Dictionary<Vector2i, ulong> lastSpawned = new Dictionary<Vector2i, ulong>();
-
-        private int MAX_VIEW_DISTANCE
-        {
-            get
-            {
-                return WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE;
-            }
-        }
 
         private int MAX_VIEW_DISTANCE_SQUARED
         {
@@ -103,7 +94,7 @@ namespace ImprovedHordes.POI
             {
                 playerGroup.GetPlayerClosestTo(randomWorldPos, out float distance);
 
-                if (distance <= MAX_VIEW_DISTANCE * ((sparsityFactor / biomeFactor) / 2))
+                if (distance * distance <= MAX_VIEW_DISTANCE_SQUARED * ((sparsityFactor / biomeFactor) / 2))
                 {
                     nearby |= true;
                 }
