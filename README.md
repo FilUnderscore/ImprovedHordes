@@ -30,7 +30,9 @@ These will be coming soon. Stay tuned for updates.
 
 **Do not download the whole repository and attempt to install the ImprovedHordes folder from the dev branch, as it will not work due to no compiled DLL being present. Follow the installation instructions below.**
 
-Download and extract the latest release from the [Releases](https://github.com/FilUnderscore/ImprovedHordes/releases) page, then just drag and drop the ImprovedHordes folder into the `Mods` folder in your 7 Days to Die install folder. Settings can be modified in the `Config/ImprovedHordes/settings.xml` file in the mod's folder.
+Download and extract the latest release from the [Releases](https://github.com/FilUnderscore/ImprovedHordes/releases) page, then just drag and drop the ImprovedHordes folder into the `Mods` folder in your 7 Days to Die install folder. 
+
+Settings can be modified in the `Config/ImprovedHordes/settings.xml` file in the mod's folder.
 
 ### Client-only
 Disable EAC so the game can load the Improved Hordes DLL.
