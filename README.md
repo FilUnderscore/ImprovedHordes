@@ -57,4 +57,4 @@ This will work with any mod that does not modify the vanilla AI.
 ![Image showing a horde full of radiated zombies in the wasteland running towards the camera with trees in the backdrop](https://i.imgur.com/Xe0Z5Gi.png)
 ![Image showing a horde full of hazmat and radiated zombies running across the ruined landscape of the wasteland in the dusk of night](https://i.imgur.com/wmzdxMK.png)
 
-## [Terms Of Use](https://github.com/FilUnderscore/ImprovedHordes/blob/dev/LICENSE)
+## [Terms of Use](https://github.com/FilUnderscore/ImprovedHordes/blob/dev/LICENSE)
