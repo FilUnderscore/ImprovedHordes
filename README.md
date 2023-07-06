@@ -52,9 +52,9 @@ For information such as changing mod settings or creating your own custom wander
 This will work with any mod that does not modify the vanilla AI.
 
 ## Screenshots
-![Horde full of walking zombies wandering in the forest across a sand path](https://i.imgur.com/Qggsojb.png)
-![Horde full of feral and radiated zombies running in between a forest full of trees in the light of day](https://i.imgur.com/a4BjjWn.png)
-![Horde full of radiated zombies in the wasteland running towards the camera with trees in the backdrop](https://i.imgur.com/Xe0Z5Gi.png)
-![Horde full of hazmat and radiated zombies running across the ruined landscape of the wasteland in the dusk of night](https://i.imgur.com/wmzdxMK.png)
+![Image showing a horde full of walking zombies wandering in the forest across a sand path](https://i.imgur.com/Qggsojb.png)
+![Image showing a horde full of feral and radiated zombies running in between a forest full of trees in the light of day](https://i.imgur.com/a4BjjWn.png)
+![Image showing a horde full of radiated zombies in the wasteland running towards the camera with trees in the backdrop](https://i.imgur.com/Xe0Z5Gi.png)
+![Image showing a horde full of hazmat and radiated zombies running across the ruined landscape of the wasteland in the dusk of night](https://i.imgur.com/wmzdxMK.png)
 
 ## [Terms Of Use](https://github.com/FilUnderscore/ImprovedHordes/blob/dev/LICENSE)
