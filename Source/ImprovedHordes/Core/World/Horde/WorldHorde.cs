@@ -93,11 +93,11 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void Despawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
-            this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(HordeCluster.SpawnState.DESPAWNING));
+            this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNING));
 
             mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this, () =>
             {
-                this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(HordeCluster.SpawnState.DESPAWNED));
+                this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNED));
                 this.AIExecutor.NotifyEntities(false, null);
             }));
         }
@@ -117,7 +117,6 @@ namespace ImprovedHordes.Core.World.Horde
                     entitiesTracked.TryRemove(deadEntity.GetEntityId());
 
                     deadEntity.GetCluster().RemoveEntity(this, deadEntity);
-                    deadEntity.GetCluster().NotifyDensityRemoved();
 
                     if (deadEntity.GetCluster().IsDead())
                         clusters.Remove(deadEntity.GetCluster());

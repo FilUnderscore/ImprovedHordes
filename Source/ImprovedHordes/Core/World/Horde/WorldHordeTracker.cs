@@ -347,7 +347,7 @@ namespace ImprovedHordes.Core.World.Horde
                     {
                         this.Logger.Warn("Failed to spawn horde cluster, retrying.");
 
-                        cluster.SetSpawnStateFlags(HordeCluster.SpawnState.DESPAWNED);
+                        cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNED);
                         horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
                         {
                             if (entity != null)

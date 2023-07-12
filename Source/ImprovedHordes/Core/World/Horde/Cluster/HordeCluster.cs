@@ -14,37 +14,27 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 {
     public sealed class HordeCluster : ISaveable<HordeClusterData>
     {
-        [Flags]
-        public enum SpawnState
-        {
-            SPAWNED = 1,
-            SPAWNING = 2,
-            DESPAWNED = 4,
-            DESPAWNING = 8
-        }
-
         private readonly IHorde horde;
         private HordeEntityGenerator previousHordeEntityGenerator;
 
-        private float density;
-        private float densityPerEntity;
+        private HordeClusterDensity density;
         private HordeClusterSpawnRequest? spawnRequest; // Used to keep track of spawning.
 
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
-        private SpawnState spawnState = SpawnState.DESPAWNED;
+        private EHordeClusterSpawnState spawnState = EHordeClusterSpawnState.DESPAWNED;
 
         public HordeCluster(IHorde horde, float density, IAICommandGenerator<EntityAICommand> entityCommandGenerator)
         {
             this.horde = horde;
-            this.density = density;
+            this.density = new HordeClusterDensity(density);
             this.entityCommandGenerator = entityCommandGenerator;
         }
 
         public HordeCluster(HordeClusterData data)
         {
             this.horde = data.GetHorde();
-            this.density = data.GetDensity();
+            this.density = new HordeClusterDensity(data.GetDensity());
             this.entityCommandGenerator = data.GetEntityCommandGenerator();
         }
 
@@ -70,7 +60,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
                 throw new InvalidOperationException("Cannot request another horde cluster spawn when already spawning.");
             }
 
-            this.SetSpawnStateFlags(SpawnState.SPAWNING);
+            this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNING);
 
             this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnParams, entity =>
             {
@@ -83,10 +73,10 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
                     onSpawn(entity);
 
                 if (!this.Spawned)
-                    this.SetSpawnStateFlags(this.spawnState | SpawnState.SPAWNED);
+                    this.SetSpawnStateFlags(this.spawnState | EHordeClusterSpawnState.SPAWNED);
             }, () =>
             {
-                this.SetSpawnStateFlags(SpawnState.SPAWNED);
+                this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNED);
             });
         }
 
@@ -104,28 +94,18 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public float GetDensity() 
         {
-            return this.density;
-        }
-
-        public float GetDensityPerEntity() 
-        {
-            return this.densityPerEntity;
-        }
-
-        public void NotifyDensityRemoved()
-        {
-            this.density -= this.densityPerEntity;
+            return this.density.Density;
         }
 
         public void Decay(float dt)
         {
             const float decayRate = 0.001f;
-            this.density -= decayRate * dt;
+            this.density.Remove(decayRate * dt);
         }
 
         public bool IsDead()
         {
-            return this.density <= float.Epsilon;
+            return this.density.Density <= float.Epsilon;
         }
 
         public void AddEntity(WorldHorde worldHorde, HordeClusterEntity entity)
@@ -133,7 +113,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             worldHorde.SetSpawnedHordeEntityCount(worldHorde.GetSpawnedHordeEntityCount() + 1);
 
             this.entities.Add(entity);
-            this.densityPerEntity = this.density / this.entities.Count;
+            this.density.UpdateDensityPerEntity(this.entities.Count);
         }
 
         public void RemoveEntity(WorldHorde worldHorde, HordeClusterEntity entity) 
@@ -141,6 +121,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             worldHorde.SetSpawnedHordeEntityCount(worldHorde.GetSpawnedHordeEntityCount() - 1);
 
             this.entities.Remove(entity);
+            this.density.RemoveEntity();
         }
 
         public List<HordeClusterEntity> GetEntities()
@@ -148,12 +129,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.entities;
         }
 
-        public void SetSpawnStateFlags(SpawnState spawnState)
+        public void SetSpawnStateFlags(EHordeClusterSpawnState spawnState)
         {
             this.spawnState = spawnState;
         }
 
-        private bool IsFlagSet(SpawnState state)
+        private bool IsFlagSet(EHordeClusterSpawnState state)
         {
             return (this.spawnState & state) == state;
         }
@@ -162,7 +143,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         {
             get
             {
-                return this.IsFlagSet(SpawnState.SPAWNING);
+                return this.IsFlagSet(EHordeClusterSpawnState.SPAWNING);
             }
         }
 
@@ -170,7 +151,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         {
             get
             {
-                return this.IsFlagSet(SpawnState.SPAWNED);
+                return this.IsFlagSet(EHordeClusterSpawnState.SPAWNED);
             }
         }
 
@@ -194,7 +175,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public HordeClusterData GetData()
         {
-            return new HordeClusterData(this.horde, this.density, this.entityCommandGenerator);
+            return new HordeClusterData(this.horde, this.density.Density, this.entityCommandGenerator);
         }
     }
 }
