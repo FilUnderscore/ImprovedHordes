@@ -63,17 +63,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         private HordeEntityGenerator DetermineEntityGenerator(PlayerHordeGroup playerGroup, IRandom random)
         {
-            HordeEntityGenerator generator = this.cluster.GetPreviousHordeEntityGenerator();
-
-            if(generator == null || !generator.IsStillValidFor(playerGroup)) 
-            {
-                return this.cluster.GetHorde().CreateEntityGenerator(playerGroup, random);
-            }
-            else
-            {
-                generator.SetPlayerGroup(playerGroup);
-                return generator;
-            }
+            // TODO: this.cluster.GetPreviousHordeEntityGenerator();
+            return this.cluster.GetHorde().CreateEntityGenerator(playerGroup, random);
         }
 
         private int GetWorldEntitiesAlive()

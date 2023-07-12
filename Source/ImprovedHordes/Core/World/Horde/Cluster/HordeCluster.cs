@@ -15,14 +15,13 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
     public sealed class HordeCluster : ISaveable<HordeClusterData>
     {
         private readonly IHorde horde;
-        private HordeEntityGenerator previousHordeEntityGenerator;
-
-        private HordeClusterDensity density;
-        private HordeClusterSpawnRequest? spawnRequest; // Used to keep track of spawning.
-
+        private readonly HordeClusterDensity density;
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
-        private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
+
+        private HordeClusterSpawnRequest? spawnRequest; // Used to keep track of spawning.
         private EHordeClusterSpawnState spawnState = EHordeClusterSpawnState.DESPAWNED;
+
+        private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
 
         public HordeCluster(IHorde horde, float density, IAICommandGenerator<EntityAICommand> entityCommandGenerator)
         {
@@ -41,16 +40,6 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         public IHorde GetHorde()
         {
             return this.horde;
-        }
-
-        public HordeEntityGenerator GetPreviousHordeEntityGenerator()
-        {
-            return this.previousHordeEntityGenerator;
-        }
-
-        public void SetPreviousHordeEntityGenerator(HordeEntityGenerator hordeEntityGenerator)
-        {
-            this.previousHordeEntityGenerator = hordeEntityGenerator;
         }
 
         public void RequestSpawn(WorldHorde horde, HordeSpawnParams spawnParams, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
