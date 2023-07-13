@@ -212,7 +212,7 @@ namespace ImprovedHordes
 
         private static void GameUpdate()
         {
-            if (Instance.core == null)
+            if (Instance.core == null || GameManager.Instance.IsPaused())
                 return;
 
             Instance.core.Update();
