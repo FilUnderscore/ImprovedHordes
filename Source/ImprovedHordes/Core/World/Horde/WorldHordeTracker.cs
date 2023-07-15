@@ -93,6 +93,23 @@ namespace ImprovedHordes.Core.World.Horde
                     if (Vector2.Distance(playerLocation, otherLocation) <= WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
                     {
                         playerGroup.AddPlayer(other);
+                        snapshots.RemoveAt(j--);
+                    }
+                    else
+                    {
+                        var playerGroupPlayers = playerGroup.GetPlayers();
+
+                        for (int k = 1; k < playerGroupPlayers.Count; k++) // Ignore first group player since we've already checked them.
+                        {
+                            other = playerGroupPlayers[k];
+                            otherLocation = new Vector2(other.location.x, other.location.z);
+
+                            if (Vector2.Distance(playerLocation, otherLocation) <= WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
+                            {
+                                playerGroup.AddPlayer(other);
+                                snapshots.RemoveAt(j--);
+                            }
+                        }
                     }
                 }
 
