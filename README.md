@@ -1,4 +1,5 @@
 ![Improved Hordes Banner](https://i.imgur.com/Fokjo0o.png)
+[![latest version](https://img.shields.io/github/v/release/FilUnderscore/ImprovedHordes?include_prereleases)](https://github.com/FilUnderscore/ImprovedHordes/releases)
 # Horde alert, Survivor!
 There's been a sudden abundance of Zombies all over the place. Screamers are now popping up in major towns, and we're finding sleepers on the road. Stay safe out there.
 
@@ -50,6 +51,11 @@ For information such as changing mod settings or creating your own custom wander
 
 ## Mod Support
 This will work with any mod that does not modify the vanilla AI.
+
+## Donations
+You are already showing a lot of support just by enjoying the mod, but if you really appreciate my work and want to show extra support in the form of a donation, feel free to buy me a coffee on Ko-fi.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R3N9KGV) 
 
 ## Screenshots
 ![Image showing a horde full of walking zombies wandering in the forest across a sand path](https://i.imgur.com/Qggsojb.png)
