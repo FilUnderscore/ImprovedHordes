@@ -1,4 +1,5 @@
 ![Improved Hordes Banner](https://i.imgur.com/Fokjo0o.png)
+[![latest version](https://img.shields.io/github/v/release/FilUnderscore/ImprovedHordes?include_prereleases)](https://github.com/FilUnderscore/ImprovedHordes/releases) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R3N9KGV)
 # Horde alert, Survivor!
 There's been a sudden abundance of Zombies all over the place. Screamers are now popping up in major towns, and we're finding sleepers on the road. Stay safe out there.
 
