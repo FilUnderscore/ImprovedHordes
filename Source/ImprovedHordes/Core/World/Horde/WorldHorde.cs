@@ -292,7 +292,7 @@ namespace ImprovedHordes.Core.World.Horde
             return null;
         }
 
-        public void MoveTo(Vector3 location, float dt)
+        public void MoveTo(Vector3 location, bool aggro, float dt)
         {
             float speed = this.GetCharacteristics().GetCharacteristic<WalkSpeedHordeCharacteristic>().GetWalkSpeed() * dt;
             Vector3 direction = (location - this.location).normalized;

@@ -63,11 +63,11 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.spawned ? this.entity.IsDead() : false;
         }
 
-        public void MoveTo(Vector3 location, float dt)
+        public void MoveTo(Vector3 location, bool aggro, float dt)
         {
             if(this.spawned)
             {
-                this.MoveToSpawned(location);
+                this.MoveToSpawned(location, aggro);
             }
             else
             {
@@ -91,12 +91,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.entity.IsMoving();
         }
 
-        private void MoveToSpawned(Vector3 location)
+        private void MoveToSpawned(Vector3 location, bool aggro)
         {
             Vector3 directionWithinLoadDistance = (location - this.GetLocation()).normalized;
             Vector3 locationWithinLoadDistance = (directionWithinLoadDistance * WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE) + this.GetLocation();
 
-            this.entity.MoveTo(locationWithinLoadDistance, 0);
+            this.entity.MoveTo(locationWithinLoadDistance, aggro, 0);
         }
 
         private void MoveToDespawned(Vector3 location, float dt)

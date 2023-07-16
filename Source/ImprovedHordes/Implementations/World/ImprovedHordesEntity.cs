@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using GamePath;
+using HarmonyLib;
 using ImprovedHordes.Core.Abstractions.World;
 using System.Reflection;
 using UnityEngine;
@@ -56,10 +57,10 @@ namespace ImprovedHordes.Implementations.World
             this.entity.PlayOneShot(soundName);
         }
 
-        public void MoveTo(Vector3 location, float dt)
+        public void MoveTo(Vector3 location, bool aggro, float dt)
         {
-            this.entity.SetInvestigatePosition(location, 6000, false);
-            AstarManager.Instance.AddLocationLine(this.GetLocation(), location, 64);
+            this.entity.FindPath(location, aggro ? this.entity.GetMoveSpeedAggro() : this.entity.GetMoveSpeed(), true, null);
+            this.movingTicks = 60.0f;
         }
 
         public void Stop()
@@ -67,12 +68,14 @@ namespace ImprovedHordes.Implementations.World
             if (SEE_CACHE_FIELD == null || SEE_CACHE_FIELD.GetValue(this.entity) == null)
                 return;
 
-            this.entity.ClearInvestigatePosition();
+            this.entity.moveHelper.Stop();
+            this.movingTicks = 0.0f;
         }
 
+        private float movingTicks;
         public bool IsMoving()
         {
-            return this.entity.HasInvestigatePosition;
+            return PathFinderThread.Instance.IsCalculatingPath(this.entity.entityId) || (--movingTicks > 0.0f);
         }
 
         public bool IsPlayer()

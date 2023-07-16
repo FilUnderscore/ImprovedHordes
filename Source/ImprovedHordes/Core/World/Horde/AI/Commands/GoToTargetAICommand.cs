@@ -7,15 +7,18 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
     {
         private const int MIN_DISTANCE_TO_TARGET = 5;
         private Vector3 target;
+        private bool aggro;
 
-        public GoToTargetAICommand(Vector3 target) : base()
+        public GoToTargetAICommand(Vector3 target, bool aggro = false) : base()
         {
             this.UpdateTarget(target);
+            this.aggro = aggro;
         }
 
-        public GoToTargetAICommand(Vector3 target, double expiryTimeSeconds) : base(expiryTimeSeconds)
+        public GoToTargetAICommand(Vector3 target, bool aggro, double expiryTimeSeconds) : base(expiryTimeSeconds)
         {
             this.UpdateTarget(target);
+            this.aggro = aggro;
         }
 
         public override bool CanExecute(IAIAgent agent)
@@ -28,7 +31,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
             if (agent.IsMoving())
                 return;
 
-            agent.MoveTo(this.target, dt);
+            agent.MoveTo(this.target, this.aggro, dt);
         }
 
         public override int GetObjectiveScore(IAIAgent agent)
