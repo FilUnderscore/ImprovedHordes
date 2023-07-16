@@ -154,7 +154,7 @@
     <Compile Include="Core\World\Horde\Horde.cs" />
     <Compile Include="Core\ImprovedHordesCore.cs" />
     <Compile Include="Event\ImprovedHordesCoreInitializedEvent.cs" />
-    <Compile Include="IHExperimentalManager.cs" />
+    <Compile Include="IHVersionManager.cs" />
     <Compile Include="Implementations\Data\ImprovedHordesDataLoader.cs" />
     <Compile Include="Implementations\Data\ImprovedHordesDataParserRegistry.cs" />
     <Compile Include="Implementations\Data\ImprovedHordesDataSaver.cs" />

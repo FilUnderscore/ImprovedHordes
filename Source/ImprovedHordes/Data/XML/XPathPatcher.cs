@@ -8,12 +8,12 @@ namespace ImprovedHordes.Data.XML
 {
     public class XPathPatcher
     {
-        public static void LoadAndPatchXMLFile(Mod modInstance, string directory, string fileName, Action<XmlFile> callback)
+        public static void LoadAndPatchXMLFile(Mod modInstance, string directory, string fileName, Action<XmlFile> callback, Action<Mod> modCallback)
         {
-            ThreadManager.RunCoroutineSync(LoadAndPatchFile(modInstance, directory, fileName, callback));
+            ThreadManager.RunCoroutineSync(LoadAndPatchFile(modInstance, directory, fileName, callback, modCallback));
         }
 
-        private static IEnumerator LoadAndPatchFile(Mod modInstance, string directory, string fileName, Action<XmlFile> callback)
+        private static IEnumerator LoadAndPatchFile(Mod modInstance, string directory, string fileName, Action<XmlFile> callback, Action<Mod> modCallback)
         {
             string modPath = modInstance.Path;
             Exception xmlLoadException = null;

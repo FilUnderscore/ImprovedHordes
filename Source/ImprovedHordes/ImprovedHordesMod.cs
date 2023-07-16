@@ -29,7 +29,7 @@ namespace ImprovedHordes
     {
         private static ImprovedHordesMod Instance;
 
-        private Mod modInstance;
+        private IHVersionManager versionManager;
 
         private readonly Harmony harmony;
 
@@ -45,6 +45,8 @@ namespace ImprovedHordes
 
         public event EventHandler<ImprovedHordesCoreInitializedEvent> OnCoreInitialized;
 
+        public event EventHandler OnFirstInit;
+
         public ImprovedHordesMod()
         {
             this.harmony = new Harmony("filunderscore.improvedhordes");
@@ -55,10 +57,11 @@ namespace ImprovedHordes
         public void InitMod(Mod _modInstance)
         {
             Instance = this;
-            Instance.modInstance = _modInstance;
+            
+            this.versionManager = new IHVersionManager(this, _modInstance);
 
-            XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
-            XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile));
+            XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile), addonMod => versionManager.RegisterAddonMod(addonMod));
+            XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile), addonMod => versionManager.RegisterAddonMod(addonMod));
 
             this.settingLoader.RegisterTypeParser<bool>(new ImprovedHordesSettingTypeParserBool());
             this.settingLoader.RegisterTypeParser<int>(new ImprovedHordesSettingTypeParserInt());
@@ -68,9 +71,19 @@ namespace ImprovedHordes
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
         }
 
-        public static bool TryGetInstance(out ImprovedHordesMod instance)
+        internal static bool TryGetInstance(out ImprovedHordesMod instance)
         {
             instance = Instance;
+
+            return Instance != null;
+        }
+
+        public static bool TryGetInstance(Mod addonMod, out ImprovedHordesMod instance)
+        {
+            instance = Instance;
+
+            if (addonMod != null && instance != null)
+                instance.versionManager.RegisterAddonMod(addonMod);
 
             return Instance != null;
         }
@@ -103,10 +116,6 @@ namespace ImprovedHordes
 
                 ModEvents.GameUpdate.RegisterHandler(GameUpdate);
                 ModEvents.GameShutdown.RegisterHandler(GameShutdown);
-
-#if EXPERIMENTAL || DEBUG
-            new IHExperimentalManager(this.modInstance);
-#endif
             }
             else
             {
@@ -145,8 +154,10 @@ namespace ImprovedHordes
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
             core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
 
-            if(this.TryLoadData())
+            if (this.TryLoadData())
                 this.logger.Info("Loaded data.");
+            else
+                this.OnFirstInit?.Invoke(this, EventArgs.Empty);
             
             core.Start();
 
@@ -166,11 +177,16 @@ namespace ImprovedHordes
                     using (BinaryReader reader = new BinaryReader(stream))
                     {
                         IDataLoader dataLoader = new ImprovedHordesDataLoader(this.loggerFactory, this.dataParserRegistry, reader);
-                        core.Load(dataLoader);
+                        
+                        if(reader.ReadInt32() != this.versionManager.GetAddonListHashCode())
+                        {
+                            this.logger.Info("Detected add-on changes.");
+                            return false;
+                        }
+
+                        return core.Load(dataLoader);
                     }
                 }
-
-                return true;
             }
             catch (Exception e)
             {
@@ -190,6 +206,8 @@ namespace ImprovedHordes
                     using(BinaryWriter writer = new BinaryWriter(stream))
                     {
                         IDataSaver saver = new ImprovedHordesDataSaver(this.dataParserRegistry, writer);
+
+                        writer.Write(this.versionManager.GetAddonListHashCode());
                         core.Save(saver);
                     }
                 }

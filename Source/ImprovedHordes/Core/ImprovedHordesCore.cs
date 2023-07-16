@@ -55,7 +55,7 @@ namespace ImprovedHordes.Core
             Threaded.StartAll();
         }
 
-        public void Load(IDataLoader dataLoader) 
+        public bool Load(IDataLoader dataLoader) 
         {
             ushort loaded_data_magic = dataLoader.Load<ushort>();
             uint loaded_data_version = dataLoader.Load<uint>();
@@ -63,16 +63,18 @@ namespace ImprovedHordes.Core
             if(loaded_data_magic != DATA_FILE_MAGIC)
             {
                 this.logger.Warn($"Data file magic mismatch. Expected {DATA_FILE_MAGIC}, read {loaded_data_magic}.");
-                return;
+                return false;
             }
             else if(loaded_data_version < DATA_FILE_VERSION)
             {
                 this.logger.Warn($"Data file version has changed. Previous version {loaded_data_version} < current version {DATA_FILE_VERSION}.");
-                return;
+                return false;
             }
 
             this.tracker.Load(dataLoader);
             this.populator.Load(dataLoader);
+
+            return true;
         }
 
         public void Save(IDataSaver dataSaver) 
