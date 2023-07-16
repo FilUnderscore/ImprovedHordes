@@ -1,6 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ImprovedHordes.Implementations.Data.Parsers
 {
@@ -25,9 +26,10 @@ namespace ImprovedHordes.Implementations.Data.Parsers
 
         public void Save(IDataSaver saver, BinaryWriter writer, Dictionary<K, V> obj)
         {
-            writer.Write(obj.Count);
+            var copy = obj.ToDictionary(k => k.Key, v => v.Value);
+            writer.Write(copy.Count);
 
-            foreach(var entry in obj)
+            foreach(var entry in copy)
             {
                 saver.Save<K>(entry.Key);
                 saver.Save<V>(entry.Value);
