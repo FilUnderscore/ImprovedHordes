@@ -59,23 +59,22 @@ namespace ImprovedHordes.Implementations.World
 
         public void MoveTo(Vector3 location, bool aggro, float dt)
         {
-            this.entity.FindPath(location, aggro ? this.entity.GetMoveSpeedAggro() : this.entity.GetMoveSpeed(), true, null);
+            this.entity.FindPath(this.entity.world.FindSupportingBlockPos(location), aggro ? this.entity.GetMoveSpeedAggro() : this.entity.GetMoveSpeed(), aggro, null);
             this.movingTicks = 60.0f;
         }
 
         public void Stop()
         {
-            if (SEE_CACHE_FIELD == null || SEE_CACHE_FIELD.GetValue(this.entity) == null)
-                return;
+            if(this.entity.moveHelper != null)
+                this.entity.moveHelper.Stop();
 
-            this.entity.moveHelper.Stop();
             this.movingTicks = 0.0f;
         }
 
         private float movingTicks;
         public bool IsMoving()
         {
-            return PathFinderThread.Instance.IsCalculatingPath(this.entity.entityId) || (--movingTicks > 0.0f);
+            return PathFinderThread.Instance.IsCalculatingPath(this.entity.entityId) || ((movingTicks -= 0.1f) > 0.0f);
         }
 
         public bool IsPlayer()
@@ -121,7 +120,7 @@ namespace ImprovedHordes.Implementations.World
 
         public void SetTarget(EntityPlayer player)
         {
-            this.entity.SetAttackTarget(player, 600);
+            this.entity.SetAttackTarget(player, 200);
         }
     }
 }
