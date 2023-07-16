@@ -48,7 +48,7 @@ namespace ImprovedHordes
             SendChatMessage($"{VERSION} {BUILD_TYPE} Build.");
 
             if(TryGetAddonsListAsString(out string addonsListString))
-                SendChatMessage($"Add-ons: {addonsListString}");
+                SendChatMessage($"{addonsListString}", "Add-ons");
 
 #if EXPERIMENTAL
             const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
@@ -84,9 +84,9 @@ namespace ImprovedHordes
             return hashCode;
         }
 
-        private static void SendChatMessage(string msg)
+        private static void SendChatMessage(string msg, string name = "Improved Hordes")
         {
-            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, "Improved Hordes", false, null);
+            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, name, false, null);
         }
     }
 }
