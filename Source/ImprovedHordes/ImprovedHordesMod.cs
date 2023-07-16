@@ -29,7 +29,6 @@ namespace ImprovedHordes
     {
         private static ImprovedHordesMod Instance;
 
-        private Mod modInstance;
         private IHVersionManager versionManager;
 
         private readonly Harmony harmony;
@@ -58,7 +57,6 @@ namespace ImprovedHordes
         public void InitMod(Mod _modInstance)
         {
             Instance = this;
-            Instance.modInstance = _modInstance;
             
             this.versionManager = new IHVersionManager(this, _modInstance);
 
@@ -73,9 +71,19 @@ namespace ImprovedHordes
             ModEvents.GameStartDone.RegisterHandler(GameStartDone);
         }
 
-        public static bool TryGetInstance(out ImprovedHordesMod instance)
+        internal static bool TryGetInstance(out ImprovedHordesMod instance)
         {
             instance = Instance;
+
+            return Instance != null;
+        }
+
+        public static bool TryGetInstance(Mod addonMod, out ImprovedHordesMod instance)
+        {
+            instance = Instance;
+
+            if (addonMod != null && instance != null)
+                instance.versionManager.RegisterAddonMod(addonMod);
 
             return Instance != null;
         }

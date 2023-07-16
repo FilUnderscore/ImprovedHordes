@@ -4,12 +4,8 @@ namespace ImprovedHordes
 {
     public sealed class IHVersionManager
     {
-        private const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
-
-        private static string VERSION;
-
+        private static string VERSION = "-beta.1";
         private static string BUILD_TYPE;
-        private static string EXPERIMENTAL_VERSION = "-beta.1";
 
         private readonly List<Mod> addons = new List<Mod>();
 
@@ -26,7 +22,7 @@ namespace ImprovedHordes
 
         public IHVersionManager(ImprovedHordesMod mod, Mod _modInstance)
         {
-            VERSION = _modInstance.Version.ToString();
+            VERSION = _modInstance.Version.ToString() + VERSION;
             mod.OnFirstInit += Mod_OnFirstInit;
         }
 
@@ -43,17 +39,19 @@ namespace ImprovedHordes
             ModEvents.PlayerSpawnedInWorld.RegisterHandler(PlayerSpawnedInWorld);
         }
 
+        // Called on first time initialization of a world/update.
         private void PlayerSpawnedInWorld(ClientInfo clientInfo, RespawnType respawnType, Vector3i pos)
         {
             // Post on first player login.
             ModEvents.PlayerSpawnedInWorld.UnregisterHandler(PlayerSpawnedInWorld);
 
-            SendChatMessage($"{VERSION + EXPERIMENTAL_VERSION} {BUILD_TYPE} Build.");
+            SendChatMessage($"{VERSION} {BUILD_TYPE} Build.");
 
             if(TryGetAddonsListAsString(out string addonsListString))
                 SendChatMessage($"Add-ons: {addonsListString}");
 
 #if EXPERIMENTAL
+            const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
             SendChatMessage($"Please report any bugs/performance issues at {ISSUE_REPORT_URL}");
 #endif
         }
