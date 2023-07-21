@@ -42,12 +42,7 @@ namespace ImprovedHordes.Screamer.Commands
         public override void Execute(IAIAgent agent, float dt)
         {
             if ((this.wanderTicks -= dt) > 0.0f)
-            {
-                if(agent.IsMoving())
-                    agent.Stop();
-    
                 return;
-            }
 
             base.Execute(agent, dt);
         }
@@ -63,6 +58,7 @@ namespace ImprovedHordes.Screamer.Commands
                     this.wanderCount--;
                 
                 this.UpdateTarget(GetNextTarget(this.zone, this.random, out _, out this.wanderTicks));
+                agent.Stop();
             }
 
             return false;
