@@ -5,7 +5,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
 {
     public class GoToTargetAICommand : AICommand
     {
-        private const int MIN_DISTANCE_TO_TARGET = 5;
+        private const int MIN_DISTANCE_TO_TARGET = 10;
         private Vector3 target;
         private bool aggro;
 
