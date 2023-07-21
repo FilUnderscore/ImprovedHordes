@@ -1,39 +1,81 @@
 ﻿using ImprovedHordes.Core.Abstractions.World;
+using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.POI;
 using UnityEngine;
 
 namespace ImprovedHordes.Implementations.World
 {
     public sealed class ImprovedHordesEntitySpawner : IEntitySpawner
     {
-        public IEntity SpawnAt(int entityClassId, Vector3 location)
+        private readonly WorldPOIScanner poiScanner;
+        private readonly IWorldRandom worldRandom;
+
+        public ImprovedHordesEntitySpawner(WorldPOIScanner poiScanner, IWorldRandom worldRandom)
         {
-            return SpawnAt(entityClassId, EntityFactory.nextEntityID++, location);
+            this.poiScanner = poiScanner;
+            this.worldRandom = worldRandom;
         }
 
-        public IEntity SpawnAt(int entityClassId, int entityId, Vector3 location)
+        public bool TrySpawnAt(int entityClassId, Vector3 location, out IEntity entity)
         {
+            return TrySpawnAt(entityClassId, EntityFactory.nextEntityID++, location, out entity);
+        }
+
+        public bool TrySpawnAt(int entityClassId, int entityId, Vector3 location, out IEntity entity)
+        {
+            location = FindSpawnLocationNear(location);
+
             if (GameManager.Instance.World.GetEntity(entityId) != null)
                 entityId = EntityFactory.nextEntityID++;
 
-            EntityAlive entity = EntityFactory.CreateEntity(entityClassId, entityId, location, Vector3.zero) as EntityAlive;
+            EntityAlive entityAlive = EntityFactory.CreateEntity(entityClassId, entityId, location, Vector3.zero) as EntityAlive;
 
-            if(entity != null)
+            if(entityAlive != null)
             {
-                GameManager.Instance.World.SpawnEntityInWorld(entity);
+                GameManager.Instance.World.SpawnEntityInWorld(entityAlive);
 
-                entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
+                entityAlive.SetSpawnerSource(EnumSpawnerSource.Dynamic);
                 
-                if (entity is EntityEnemy enemy)
+                if (entityAlive is EntityEnemy enemy)
                     enemy.IsHordeZombie = true;
 
-                entity.bIsChunkObserver = true;
-                entity.IsBloodMoon = false;
+                entityAlive.bIsChunkObserver = true;
+                entityAlive.IsBloodMoon = false;
 #if DEBUG
-                entity.AddNavObject("ih_horde_zombie_debug", "", "");
+                entityAlive.AddNavObject("ih_horde_zombie_debug", "", "");
 #endif
+
+                entity = new ImprovedHordesEntity(entityAlive);
+            }
+            else
+            {
+                entity = null;
             }
 
-            return new ImprovedHordesEntity(entity);
+            return entity != null;
+        }
+
+        private Vector3 FindSpawnLocationNear(Vector3 location)
+        {
+            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 15, -1, true, out Vector3 spawnLocation, false))
+            {
+                // Check for POI
+                WorldPOIScanner.POI poi = this.poiScanner.GetPOIAt(location);
+
+                if (poi == null)
+                {
+                    spawnLocation = location;
+                }
+                else
+                {
+                    poi.GetLocationOutside(this.worldRandom, out Vector2 spawnLocationXZ);
+                    spawnLocation = new Vector3(spawnLocationXZ.x, 0, spawnLocationXZ.y);
+                }
+
+                spawnLocation.y = GameManager.Instance.World.GetHeightAt(spawnLocation.x, spawnLocation.z) + 1.0f; // Fix entities falling off of world when getting random spawn position fails.
+            }
+
+            return spawnLocation;
         }
     }
 }

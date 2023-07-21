@@ -141,20 +141,16 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public bool Respawn(Abstractions.Logging.ILogger logger, IEntitySpawner spawner)
         {
-            float surfaceSpawnHeight = GameManager.Instance.World.GetHeightAt(this.location.x, this.location.z) + 1.0f;
-            this.location.y = surfaceSpawnHeight;
-
-            if(!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(this.location, 0, 10, -1, false, out Vector3 spawnLocation, false))
+            if(!spawner.TrySpawnAt(this.entityClassId, this.entityId, this.location, out this.entity))
             {
-                logger.Warn($"Failed to respawn HordeClusterEntity at {this.location}");
+                logger.Warn($"Failed to respawn HordeClusterEntity near {this.location}.");
                 this.awaitingSpawnStateChange = false;
 
                 return false;
             }
 
-            this.entity = spawner.SpawnAt(this.entityClassId, this.entityId, spawnLocation);
             this.entityId = this.entity.GetEntityId();
-            this.location = spawnLocation;
+            this.location = this.entity.GetLocation();
             this.spawned = true;
 
             if (this.hordeDespawned)

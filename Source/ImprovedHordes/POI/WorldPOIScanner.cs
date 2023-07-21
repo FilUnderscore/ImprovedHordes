@@ -193,6 +193,20 @@ namespace ImprovedHordes.POI
             return this.zones;
         }
 
+        public POI GetPOIAt(Vector3 location)
+        {
+            foreach(var zone in this.zones) 
+            {
+                foreach(var poi in zone.GetPOIs())
+                {
+                    if (poi.GetBounds().Contains(location))
+                        return poi;
+                }
+            }
+
+            return null;
+        }
+
         public sealed class POIZone
         {
             private List<POI> pois = new List<POI>();

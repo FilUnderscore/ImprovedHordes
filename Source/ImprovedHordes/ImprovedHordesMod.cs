@@ -143,8 +143,8 @@ namespace ImprovedHordes
 
             IRandomFactory<IWorldRandom> randomFactory = new ImprovedHordesWorldRandomFactory(worldSize, world);
 
-            core = new ImprovedHordesCore(worldSize, this.loggerFactory, randomFactory, new ImprovedHordesEntitySpawner());
             this.poiScanner = new WorldPOIScanner(this.loggerFactory);
+            core = new ImprovedHordesCore(worldSize, this.loggerFactory, randomFactory, new ImprovedHordesEntitySpawner(this.poiScanner, randomFactory.GetSharedRandom()));
             this.dataParserRegistry = new ImprovedHordesDataParserRegistry(randomFactory, this.poiScanner, core.GetWorldEventReporter(), world);
 
             core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));

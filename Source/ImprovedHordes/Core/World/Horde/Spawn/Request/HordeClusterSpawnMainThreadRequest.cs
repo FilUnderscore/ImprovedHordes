@@ -157,7 +157,11 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 return;
             }
 
-            IEntity entity = spawner.SpawnAt(this.generator.GetEntityClassId(this.random), spawnLocation);
+            if(!spawner.TrySpawnAt(this.generator.GetEntityClassId(this.random), spawnLocation, out IEntity entity))
+            {
+                this.logger.Warn($"Failed to spawn entity near {spawnLocation}.");
+                return;
+            }
 
             if(this.onSpawnAction != null)
                 this.onSpawnAction.Invoke(entity);
@@ -212,20 +216,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 #endif
             } while (true);
 
-            int maxSpreadLimit = Math.Min(targetSpawnDistance - minSpawnDistance, this.spawnData.SpreadDistanceLimit);
-            return TryGetRandomSpreadSpawnPositionAt(spawnTargetLocation, maxSpreadLimit, out spawnLocation);
-        }
-
-        private bool TryGetRandomSpreadSpawnPositionAt(Vector3 spawnTargetLocation, int spreadLimit, out Vector3 spawnLocation)
-        {
-            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(spawnTargetLocation, 0, spreadLimit, -1, true, out spawnLocation, false))
-            {
-                spawnLocation = spawnTargetLocation;
-                spawnLocation.y = GameManager.Instance.World.GetHeightAt(spawnLocation.x, spawnLocation.z) + 1.0f; // Fix entities falling off of world when getting random spawn position fails.
-
-                return true;
-            }
-
+            spawnLocation = spawnTargetLocation;
             return true;
         }
     }
