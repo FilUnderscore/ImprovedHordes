@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
@@ -12,6 +13,8 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
     public sealed class HordeClusterSpawnMainThreadRequest : IMainThreadRequest
     {
+        private static readonly Setting<float> MAX_SPAWN_CAPACITY_PERCENT = new Setting<float>("max_spawn_capacity_percent", 0.8f);
+
         private readonly Abstractions.Logging.ILogger logger;
         private readonly IEntitySpawner spawner;
 
@@ -126,7 +129,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             else
                 spawnTicks = SPAWN_DELAY;
 
-            if (GetWorldEntitiesAlive() >= GetMaxAllowedWorldEntitiesAlive()) // World is currently overpopulated, so skip this update.
+            if (GetWorldEntitiesAlive() >= GetMaxAllowedWorldEntitiesAlive() * MAX_SPAWN_CAPACITY_PERCENT.Value) // World is currently overpopulated, so skip this update.
                 return;
 
             int MAX_ENTITIES_SPAWNED_PER_PLAYER = WorldHordeTracker.MAX_ENTITIES_SPAWNED_PER_PLAYER.Value;

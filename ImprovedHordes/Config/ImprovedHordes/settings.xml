@@ -4,6 +4,7 @@
 
 	<!-- Entity Spawn Limit -->
 	<max_entities_spawned_per_player>16</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
+	<max_spawn_capacity_percent>0.8</max_spawn_capacity_percent> <!-- 80% of MaxSpawnedZombies/MaxSpawnedAnimals can be occupied by hordes. -->
 
 	<!-- World Spawn Limits -->
 	<max_horde_density>2.0</max_horde_density> <!-- Max Horde Density per Horde. (Horde biome size) -->
