@@ -62,9 +62,13 @@ namespace ImprovedHordes.POI
                 }
             }
 
+            float townWeight = Mathf.Min(TOWN_WEIGHT, toZone.Average(poi => poi.GetWeight()));
+            //this.logger.Info("Town Weight: " + townWeight);
+            //this.logger.Info("Avg: " + toZone.Average(poi => poi.GetWeight()));
+
             for(int i = 0; i < toZone.Count; i++)
             {
-                if (toZone[i].GetWeight() < TOWN_WEIGHT)
+                if (toZone[i].GetWeight() < townWeight)
                 {
                     toZone.RemoveAt(i--);
                 }
@@ -178,8 +182,14 @@ namespace ImprovedHordes.POI
 
             zones.AddRange(poiZones);
 
+            if(!zones.Any())
+            {
+                this.logger.Warn("Failed to detect POI zones in the world. This should only happen if there are no cities generated.");
+                return;
+            }
+
             // Calculate zone density.
-            HIGHEST_COUNT = poiZones.Max(z => z.GetCount());
+            HIGHEST_COUNT = zones.Max(z => z.GetCount());
             avgZoneDensity = zones.Average(z => z.GetDensity());
         }
 
