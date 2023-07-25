@@ -1,9 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.Data;
-using ImprovedHordes.Core.Abstractions.World;
-using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
-using ImprovedHordes.Core.Threading.Request;
-using ImprovedHordes.Core.World.Horde.AI;
 using ImprovedHordes.Core.World.Horde.Cluster.Data;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
@@ -42,7 +38,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.horde;
         }
 
-        public void RequestSpawn(WorldHorde horde, HordeSpawnParams spawnParams, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, HordeAIExecutor aiExecutor, Action<IEntity> onSpawn)
+        public void RequestSpawn(WorldHorde horde, HordeSpawnParams spawnParams, WorldHordeSpawner spawner, PlayerHordeGroup group)
         {
             if (this.Spawned && this.Spawning)
             {
@@ -51,19 +47,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
             this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNING);
 
-            this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnParams, entity =>
-            {
-                HordeClusterEntity clusterEntity = new HordeClusterEntity(this, entity, horde.GetCharacteristics());
-                this.AddEntity(horde, clusterEntity);
-
-                aiExecutor.AddEntity(clusterEntity, worldRandom, this.entityCommandGenerator, mainThreadRequestProcessor);
-
-                if (onSpawn != null)
-                    onSpawn(entity);
-
-                if (!this.Spawned)
-                    this.SetSpawnStateFlags(this.spawnState | EHordeClusterSpawnState.SPAWNED);
-            }, () =>
+            this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnParams, () =>
             {
                 this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNED);
             });
@@ -97,12 +81,13 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.density.Density <= float.Epsilon;
         }
 
-        public void AddEntity(WorldHorde worldHorde, HordeClusterEntity entity)
+        public void AddEntity(HordeClusterEntity entity)
         {
-            worldHorde.SetSpawnedHordeEntityCount(worldHorde.GetSpawnedHordeEntityCount() + 1);
-
             this.entities.Add(entity);
             this.density.UpdateDensityPerEntity(this.entities.Count);
+
+            if (!this.Spawned)
+                this.SetSpawnStateFlags(this.spawnState | EHordeClusterSpawnState.SPAWNED);
         }
 
         public void RemoveEntity(WorldHorde worldHorde, HordeClusterEntity entity) 

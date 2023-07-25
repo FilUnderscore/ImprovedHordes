@@ -105,6 +105,7 @@
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnState.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeDespawnRequest.cs" />
+    <Compile Include="Core\World\Horde\Spawn\Request\HordeEntityDespawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeEntitySpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeUpdateRequest.cs" />
     <Compile Include="Data\HordeDefinitionHorde.cs" />
@@ -121,7 +122,7 @@
     <Compile Include="Core\World\Horde\AI\HordeAIAgentExecutor.cs" />
     <Compile Include="Core\World\Horde\AI\HordeEntityAIAgentExecutor.cs" />
     <Compile Include="Core\World\Horde\Populator\HordePopulator.cs" />
-    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnMainThreadRequest.cs" />
+    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterEntityGenerateSpawnRequest.cs" />
     <Compile Include="Core\World\Horde\WorldHorde.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeCluster.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeClusterEntity.cs" />

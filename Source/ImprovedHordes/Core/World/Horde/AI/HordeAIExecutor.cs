@@ -29,6 +29,15 @@ namespace ImprovedHordes.Core.World.Horde.AI
             this.NotifyEntity(executor, true, mainThreadRequestProcessor);
         }
 
+        public void RemoveEntity(HordeClusterEntity entity, MainThreadRequestProcessor mainThreadRequestProcessor)
+        {
+            if(!this.executors.TryGetValue(entity, out var executor))
+                return;
+
+            NotifyEntity(executor, false, mainThreadRequestProcessor);
+            this.executors.Remove(entity);
+        }
+
         public void NotifyEntities(bool loaded, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             foreach (var executor in this.executors.Values)

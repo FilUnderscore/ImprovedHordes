@@ -1,7 +1,5 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
-using ImprovedHordes.Core.Abstractions.Settings;
-using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
@@ -11,16 +9,14 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
-    public sealed class HordeClusterSpawnMainThreadRequest : IMainThreadRequest
+    public sealed class HordeClusterEntityGenerateSpawnRequest : IMainThreadRequest
     {
-        private static readonly Setting<float> MAX_SPAWN_CAPACITY_PERCENT = new Setting<float>("max_spawn_capacity_percent", 0.8f);
-
         private readonly Abstractions.Logging.ILogger logger;
-        private readonly IEntitySpawner spawner;
 
         private readonly HordeEntityGenerator generator;
 
         private readonly WorldHorde horde;
+
         private readonly HordeCluster cluster;
         private readonly PlayerHordeGroup playerGroup;
         private readonly HordeSpawnParams spawnData;
@@ -28,7 +24,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly int size;
         private int index;
 
-        private readonly Action<IEntity> onSpawnAction;
         private readonly Action onSpawnedAction;
 
         private readonly IRandomFactory<IWorldRandom> randomFactory;
@@ -36,12 +31,12 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         private readonly ThreadSubscription<HordeClusterSpawnState> spawnState;
 
-        public HordeClusterSpawnMainThreadRequest(ILoggerFactory loggerFactory, IEntitySpawner spawner, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action<IEntity> onSpawnAction, Action onSpawned)
+        public HordeClusterEntityGenerateSpawnRequest(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action onSpawned)
         {
-            this.logger = loggerFactory.Create(typeof(HordeClusterSpawnMainThreadRequest));
-            this.spawner = spawner;
-
+            this.logger = loggerFactory.Create(typeof(HordeClusterEntityGenerateSpawnRequest));
+            
             this.horde = horde;
+
             this.cluster = cluster;
             this.playerGroup = playerGroup;
             this.spawnData = spawnData;
@@ -53,7 +48,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             this.size = this.generator.DetermineEntityCount(cluster.GetDensity());
             this.index = 0;
 
-            this.onSpawnAction = onSpawnAction;
             this.onSpawnedAction = onSpawned;
 
             this.spawnState = new ThreadSubscription<HordeClusterSpawnState>();
@@ -70,32 +64,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             return this.cluster.GetHorde().CreateEntityGenerator(playerGroup, random);
         }
 
-        private int GetWorldEntitiesAlive()
-        {
-            switch(this.cluster.GetHorde().GetHordeType())
-            {
-                case HordeType.ANIMAL:
-                    return GameStats.GetInt(EnumGameStats.AnimalCount);
-                case HordeType.ENEMY:
-                    return GameStats.GetInt(EnumGameStats.EnemyCount);
-                default:
-                    return 0;
-            }
-        }
-
-        private int GetMaxAllowedWorldEntitiesAlive()
-        {
-            switch(this.cluster.GetHorde().GetHordeType())
-            {
-                case HordeType.ANIMAL:
-                    return GamePrefs.GetInt(EnumGamePrefs.MaxSpawnedAnimals);
-                case HordeType.ENEMY:
-                    return GamePrefs.GetInt(EnumGamePrefs.MaxSpawnedZombies);
-                default:
-                    return 0;
-            }
-        }
-
         public bool IsDone()
         {
             return this.index >= this.size;
@@ -104,9 +72,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         public void OnCleanup()
         {
             this.randomFactory.FreeRandom(this.random);
-
-            if (this.onSpawnedAction != null)
-                this.onSpawnedAction.Invoke();
+            this.onSpawnedAction?.Invoke();
         }
 
         private const float SPAWN_DELAY = 2.0f;
@@ -129,16 +95,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             else
                 spawnTicks = SPAWN_DELAY;
 
-            if (GetWorldEntitiesAlive() >= GetMaxAllowedWorldEntitiesAlive() * MAX_SPAWN_CAPACITY_PERCENT.Value) // World is currently overpopulated, so skip this update.
-                return;
-
-            int MAX_ENTITIES_SPAWNED_PER_PLAYER = WorldHordeTracker.MAX_ENTITIES_SPAWNED_PER_PLAYER.Value;
-
-            if (MAX_ENTITIES_SPAWNED_PER_PLAYER > -1 && this.horde.GetSpawnedHordeEntityCount() >= MAX_ENTITIES_SPAWNED_PER_PLAYER * this.playerGroup.GetCount()) // Cannot exceed the max number of entities per player for performance reasons.
-            {
-                return;
-            }
-
             if(!TryCalculateHordeEntitySpawnPosition(out Vector3 spawnLocation))
             {
                 // Retry spawns until players are far enough.
@@ -160,17 +116,10 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 return;
             }
 
-            if(!spawner.TrySpawnAt(this.generator.GetEntityClassId(this.random), spawnLocation, out IEntity entity))
-            {
-                this.logger.Warn($"Failed to spawn entity near {spawnLocation}.");
-                return;
-            }
-
-            if(this.onSpawnAction != null)
-                this.onSpawnAction.Invoke(entity);
-     
+            HordeClusterEntity entity = new HordeClusterEntity(cluster, this.generator.GetEntityClassId(this.random), spawnLocation, this.horde.GetCharacteristics());
+            this.cluster.AddEntity(entity);
+            
             this.index++;
-
             this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, this.index >= this.size));
         }
 
@@ -196,7 +145,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             return TryCalculateDirectionalHordeEntitySpawnPosition(out spawnLocation);
         }
 
-        private bool TryCalculateDirectionalHordeEntitySpawnPosition(out Vector3 spawnLocation) // TODO get this to work properly
+        private bool TryCalculateDirectionalHordeEntitySpawnPosition(out Vector3 spawnLocation)
         {
             int minSpawnDistance = WorldHordeTracker.MIN_SPAWN_VIEW_DISTANCE;
             int maxSpawnDistance = WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE;

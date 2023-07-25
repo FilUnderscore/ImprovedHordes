@@ -71,17 +71,17 @@ namespace ImprovedHordes.Core.World.Horde
             return this.location;
         }
 
-        public void RequestSpawns(WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, Action<IEntity> onSpawn)
+        public void RequestSpawns(WorldHordeSpawner spawner, PlayerHordeGroup group)
         {
             foreach(var cluster in this.clusters)
             {
-                RequestSpawn(cluster, spawner, group, mainThreadRequestProcessor, worldRandom, onSpawn);
+                RequestSpawn(cluster, spawner, group);
             }
         }
 
-        public void RequestSpawn(HordeCluster cluster, WorldHordeSpawner spawner, PlayerHordeGroup group, MainThreadRequestProcessor mainThreadRequestProcessor, IWorldRandom worldRandom, Action<IEntity> onSpawn)
+        public void RequestSpawn(HordeCluster cluster, WorldHordeSpawner spawner, PlayerHordeGroup group)
         {
-            cluster.RequestSpawn(this, this.spawnData.SpawnParams, spawner, group, mainThreadRequestProcessor, worldRandom, this.AIExecutor, onSpawn);
+            cluster.RequestSpawn(this, this.spawnData.SpawnParams, spawner, group);
         }
 
         private void AddCluster(HordeCluster cluster)
@@ -94,7 +94,7 @@ namespace ImprovedHordes.Core.World.Horde
         public void Despawn(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNING));
-
+            
             mainThreadRequestProcessor.Request(new HordeDespawnRequest(loggerFactory, this, () =>
             {
                 this.clusters.ForEach(cluster => cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNED));
@@ -360,6 +360,18 @@ namespace ImprovedHordes.Core.World.Horde
         public WorldHordeData GetData()
         {
             return new WorldHordeData(this.location, this.spawnData, this.clusters, this.characteristics, this.commandGenerator);
+        }
+
+        public void AddSpawnedEntity(MainThreadRequestProcessor mainThreadRequestProcessor, HordeClusterEntity entity)
+        {
+            this.SetSpawnedHordeEntityCount(this.GetSpawnedHordeEntityCount() + 1);
+            this.AIExecutor.AddEntity(entity, this.randomFactory.GetSharedRandom(), entity.GetCluster().GetEntityCommandGenerator(), mainThreadRequestProcessor);
+        }
+
+        public void RemoveSpawnedEntity(MainThreadRequestProcessor mainThreadRequestProcessor, HordeClusterEntity entity)
+        {
+            this.SetSpawnedHordeEntityCount(this.GetSpawnedHordeEntityCount() - 1);
+            this.AIExecutor.RemoveEntity(entity, mainThreadRequestProcessor);
         }
     }
 }

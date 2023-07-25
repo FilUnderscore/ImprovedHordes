@@ -9,11 +9,13 @@ using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
+using ImprovedHordes.Core.World.Horde.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
+using ImprovedHordes.Data.XML;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -129,6 +131,7 @@ namespace ImprovedHordes.Core.World.Horde
         public static readonly Setting<float> DENSITY_PER_KM_SQUARED = new Setting<float>("density_per_km_squared", 9.3f);
 
         public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 16);
+        public static readonly Setting<float> MAX_SPAWN_CAPACITY_PERCENT = new Setting<float>("max_spawn_capacity_percent", 0.8f);
 
         public static int MAX_UNLOAD_VIEW_DISTANCE
         {
@@ -162,7 +165,7 @@ namespace ImprovedHordes.Core.World.Horde
         private readonly ConcurrentQueue<WorldHorde> toAdd = new ConcurrentQueue<WorldHorde>();
         private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
 
-        private readonly ConcurrentQueue<HordeClusterSpawnMainThreadRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterSpawnMainThreadRequest>();
+        private readonly ConcurrentQueue<HordeClusterEntityGenerateSpawnRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterEntityGenerateSpawnRequest>();
         private readonly ConcurrentHashSet<int> entitiesTracked = new ConcurrentHashSet<int>();
 
         // Personal (main-thread), updated after task is completed.
@@ -316,7 +319,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                         foreach(var entity in cluster.GetEntities())
                         {
-                            if (entity.IsAwaitingSpawnStateChange() || !entity.IsSpawned())
+                            if (entity.IsAwaitingSpawnStateChange())
                                 continue;
 
                             Vector3 entityLocation = entity.GetLocation();
@@ -345,13 +348,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         private void TrySpawnHorde(WorldHorde horde, PlayerHordeGroup playerHordeGroup)
         {
-            horde.RequestSpawns(this.spawner, playerHordeGroup, mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
-            {
-                if (entity != null)
-                    entitiesTracked.Add(entity.GetEntityId());
-                else
-                    this.Logger.Warn("Failed to track horde entity when spawning.");
-            });
+            horde.RequestSpawns(this.spawner, playerHordeGroup);
         }
 
         private bool TrySpawnCluster(HordeCluster cluster, WorldHorde horde, PlayerHordeGroup playerHordeGroup)
@@ -365,13 +362,7 @@ namespace ImprovedHordes.Core.World.Horde
                         this.Logger.Warn("Failed to spawn horde cluster, retrying.");
 
                         cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNED);
-                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup, this.mainThreadRequestProcessor, this.randomFactory.GetSharedRandom(), entity =>
-                        {
-                            if (entity != null)
-                                entitiesTracked.Add(entity.GetEntityId());
-                            else
-                                this.Logger.Warn("Failed to track horde entity when spawning.");
-                        });
+                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup);
 
                         return false;
                     }
@@ -389,7 +380,7 @@ namespace ImprovedHordes.Core.World.Horde
             return false;
         }
 
-        private void UpdateHordeClusterEntity(HordeClusterEntity entity, PlayerHordeGroup playerHordeGroup)
+        private void UpdateHordeClusterEntity(WorldHorde horde, HordeClusterEntity entity, PlayerHordeGroup playerHordeGroup)
         {
             if (!entity.IsAwaitingSpawnStateChange())
             {
@@ -403,20 +394,24 @@ namespace ImprovedHordes.Core.World.Horde
                 
                 if (entity.IsSpawned() && !nearby.Any())
                 {
-                    entity.RequestDespawn(this.LoggerFactory, this.mainThreadRequestProcessor, entityAlive =>
+                    entity.RequestDespawn(this.mainThreadRequestProcessor, entityAlive =>
                     {
                         if (entityAlive == null || !entitiesTracked.TryRemove(entityAlive.GetEntityId()))
                             this.Logger.Warn("Failed to untrack horde entity when despawning.");
+
+                        horde.RemoveSpawnedEntity(this.mainThreadRequestProcessor, entity);
                     });
                 }
                 else if (!entity.IsSpawned() && nearby.Any())
                 {
-                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, entityAlive =>
+                    entity.RequestSpawn(this.LoggerFactory, this.entitySpawner, this.mainThreadRequestProcessor, horde, playerHordeGroup, entityAlive =>
                     {
                         if (entityAlive != null)
                             entitiesTracked.Add(entityAlive.GetEntityId());
                         else
                             this.Logger.Warn("Failed to track horde entity when spawning.");
+
+                        horde.AddSpawnedEntity(this.mainThreadRequestProcessor, entity); 
                     });
                 }
             }
@@ -438,7 +433,7 @@ namespace ImprovedHordes.Core.World.Horde
                         {
                             foreach (var entity in cluster.GetEntities())
                             {
-                                UpdateHordeClusterEntity(entity, playerHordeGroup);
+                                UpdateHordeClusterEntity(horde, entity, playerHordeGroup);
                             }
                         }
                     }
@@ -540,7 +535,7 @@ namespace ImprovedHordes.Core.World.Horde
             }
 
             // Submit spawn requests.
-            while (this.clusterSpawnRequests.TryDequeue(out HordeClusterSpawnMainThreadRequest request))
+            while (this.clusterSpawnRequests.TryDequeue(out HordeClusterEntityGenerateSpawnRequest request))
             {
                 this.mainThreadRequestProcessor.Request(request);
             }
