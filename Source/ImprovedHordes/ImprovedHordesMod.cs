@@ -136,6 +136,9 @@ namespace ImprovedHordes
             if (!SingletonMonoBehaviour<ConnectionManager>.Instance.IsServer)
                 return;
 
+            // AI pathing null fix.
+            new ThreadSafeAStarPathFinderThread().StartWorkerThreads();
+
             // Patch patches / register game event handlers.
             this.Patch(true);
 
