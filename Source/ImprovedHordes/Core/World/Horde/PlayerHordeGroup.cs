@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ImprovedHordes.Core.Abstractions.Settings;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,17 +7,43 @@ namespace ImprovedHordes.Core.World.Horde
 {
     public readonly struct PlayerHordeGroup
     {
+        private static readonly Setting<int> MAX_HORDES_SPAWNED_PER_PLAYER_GROUP = new Setting<int>("max_hordes_spawned_per_player_group", 3);
+
         private readonly List<PlayerSnapshot> players;
-        
+        private readonly PlayerHordeTracker tracker;
+
         public PlayerHordeGroup(PlayerSnapshot player)
         {
             this.players = new List<PlayerSnapshot>();
+            this.tracker = MAX_HORDES_SPAWNED_PER_PLAYER_GROUP.Value > -1 ? player.tracker : null;
+
             this.AddPlayer(player);
         }
 
         public void AddPlayer(PlayerSnapshot player)
         {
             this.players.Add(player);
+        }
+
+        public void AddActiveHorde(WorldHorde horde)
+        {
+            if (this.tracker == null)
+                return;
+
+            this.tracker.ActiveHordes.Add(horde);
+        }
+
+        public void RemoveActiveHorde(WorldHorde horde)
+        {
+            if (this.tracker == null || !this.tracker.ActiveHordes.Contains(horde))
+                return;
+
+            this.tracker.ActiveHordes.Remove(horde);
+        }
+
+        public bool IsPlayerGroupExceedingHordeLimit(WorldHorde horde)
+        {
+            return this.tracker != null && !this.tracker.ActiveHordes.Contains(horde) && this.tracker.ActiveHordes.Count >= MAX_HORDES_SPAWNED_PER_PLAYER_GROUP.Value;
         }
 
         public List<PlayerSnapshot> GetPlayers()
@@ -82,7 +109,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         public override string ToString()
         {
-            return $"[gamestage={this.GetGamestage()}, biome={this.GetBiome()}]";
+            return $"[gamestage={this.GetGamestage()}, biome={this.GetBiome()}, activeHordes={this.tracker.ActiveHordes.Count}]";
         }
 
         private Vector2 ToXZ(Vector3 v)

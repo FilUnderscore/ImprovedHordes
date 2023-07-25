@@ -9,13 +9,10 @@ using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Event;
-using ImprovedHordes.Core.World.Horde.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using ImprovedHordes.Core.World.Horde.Spawn;
-using ImprovedHordes.Core.World.Horde.Spawn.Request;
-using ImprovedHordes.Data.XML;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,14 +21,21 @@ using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
 {
+    public sealed class PlayerHordeTracker
+    {
+        public readonly List<WorldHorde> ActiveHordes = new List<WorldHorde>();
+    }
+
     public readonly struct PlayerSnapshot
     {
         public readonly EntityPlayer player;
+        public readonly PlayerHordeTracker tracker;
         public readonly Vector3 location;
 
-        public PlayerSnapshot(EntityPlayer player, Vector3 location)
+        public PlayerSnapshot(EntityPlayer player, PlayerHordeTracker tracker, Vector3 location)
         {
             this.player = player;
+            this.tracker = tracker;
             this.location = location;
         }
     }
@@ -54,6 +58,9 @@ namespace ImprovedHordes.Core.World.Horde
     {
         private ThreadSubscription<List<PlayerHordeGroup>> playerGroups;
 
+        // Used to track the number of spawned hordes for player groups / individual players.
+        private readonly Dictionary<int, PlayerHordeTracker> playerHordeTrackers = new Dictionary<int, PlayerHordeTracker>();
+
         public WorldPlayerTracker()
         {
             this.playerGroups = new ThreadSubscription<List<PlayerHordeGroup>>();
@@ -74,7 +81,10 @@ namespace ImprovedHordes.Core.World.Horde
 
             foreach (var player in GameManager.Instance.World.Players.list)
             {
-                snapshots.Add(new PlayerSnapshot(player, player.position));
+                if (!playerHordeTrackers.TryGetValue(player.entityId, out PlayerHordeTracker playerHordeTracker))
+                    playerHordeTrackers.Add(player.entityId, playerHordeTracker = new PlayerHordeTracker());
+
+                snapshots.Add(new PlayerSnapshot(player, playerHordeTracker, player.position));
             }
 
             List<PlayerHordeGroup> playerHordeGroups = new List<PlayerHordeGroup>();
@@ -99,10 +109,14 @@ namespace ImprovedHordes.Core.World.Horde
                     }
                     else
                     {
+                        // Compare whether the current player (j) is near any other players in the newly formed group.
                         var playerGroupPlayers = playerGroup.GetPlayers();
 
                         for (int k = 1; k < playerGroupPlayers.Count; k++) // Ignore first group player since we've already checked them.
                         {
+                            player = other;
+                            playerLocation = otherLocation;
+
                             other = playerGroupPlayers[k];
                             otherLocation = new Vector2(other.location.x, other.location.z);
 
@@ -130,7 +144,7 @@ namespace ImprovedHordes.Core.World.Horde
         public static readonly Setting<float> MAX_HORDE_DENSITY = new Setting<float>("max_horde_density", 2.0f);
         public static readonly Setting<float> DENSITY_PER_KM_SQUARED = new Setting<float>("density_per_km_squared", 9.3f);
 
-        public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 16);
+        public static readonly Setting<int> MAX_ENTITIES_SPAWNED_PER_PLAYER = new Setting<int>("max_entities_spawned_per_player", 16);        
         public static readonly Setting<float> MAX_SPAWN_CAPACITY_PERCENT = new Setting<float>("max_spawn_capacity_percent", 0.8f);
 
         public static int MAX_UNLOAD_VIEW_DISTANCE
@@ -163,13 +177,11 @@ namespace ImprovedHordes.Core.World.Horde
         
         // Shared
         private readonly ConcurrentQueue<WorldHorde> toAdd = new ConcurrentQueue<WorldHorde>();
-        private readonly ConcurrentQueue<WorldHorde> toRemove = new ConcurrentQueue<WorldHorde>();
-
-        private readonly ConcurrentQueue<HordeClusterEntityGenerateSpawnRequest> clusterSpawnRequests = new ConcurrentQueue<HordeClusterEntityGenerateSpawnRequest>();
         private readonly ConcurrentHashSet<int> entitiesTracked = new ConcurrentHashSet<int>();
 
         // Personal (main-thread), updated after task is completed.
         private readonly List<WorldHorde> hordes = new List<WorldHorde>();
+        private readonly Queue<WorldHorde> toRemove = new Queue<WorldHorde>();
 
         private readonly WorldPlayerTracker playerTracker;
         private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
@@ -233,10 +245,11 @@ namespace ImprovedHordes.Core.World.Horde
             }
 
             // Remove dead/merged hordes.
-            while (toRemove.TryDequeue(out WorldHorde cluster))
+            while (toRemove.Count > 0)
             {
-                cluster.Cleanup(this.randomFactory);
-                hordes.Remove(cluster);
+                WorldHorde horde = toRemove.Dequeue();
+                horde.Cleanup(this.randomFactory);
+                hordes.Remove(horde);
             }
         }
 
@@ -333,6 +346,7 @@ namespace ImprovedHordes.Core.World.Horde
                     }
                 }
 
+                playerGroup.RemoveActiveHorde(horde);
                 return false;
             });
 
@@ -349,6 +363,7 @@ namespace ImprovedHordes.Core.World.Horde
         private void TrySpawnHorde(WorldHorde horde, PlayerHordeGroup playerHordeGroup)
         {
             horde.RequestSpawns(this.spawner, playerHordeGroup);
+            playerHordeGroup.AddActiveHorde(horde);
         }
 
         private bool TrySpawnCluster(HordeCluster cluster, WorldHorde horde, PlayerHordeGroup playerHordeGroup)
@@ -370,6 +385,7 @@ namespace ImprovedHordes.Core.World.Horde
                     {
                         this.Logger.Warn("This should not happen " + spawnState.remaining + " spawned " + spawnState.spawned);
                         horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
+                        playerHordeGroup.RemoveActiveHorde(horde);
                     }
                 }
 
@@ -419,7 +435,9 @@ namespace ImprovedHordes.Core.World.Horde
 
         private void UpdateHorde(WorldHorde horde, float dt, List<PlayerHordeGroup> playerGroups, List<WorldEventReportEvent> eventReports)
         {
-            if (TryGetPlayerHordeGroupNear(playerGroups, horde, out PlayerHordeGroup playerHordeGroup))
+            bool playerGroupNear = TryGetPlayerHordeGroupNear(playerGroups, horde, out PlayerHordeGroup playerHordeGroup);
+
+            if (playerGroupNear && !playerHordeGroup.IsPlayerGroupExceedingHordeLimit(horde))
             {
                 if (!horde.Spawned && !horde.Spawning)
                 {
@@ -456,6 +474,9 @@ namespace ImprovedHordes.Core.World.Horde
             if (horde.IsDead())
             {
                 toRemove.Enqueue(horde);
+
+                if(playerGroupNear)
+                    playerHordeGroup.RemoveActiveHorde(horde);
             }
             else
             {
@@ -532,12 +553,6 @@ namespace ImprovedHordes.Core.World.Horde
                         }
                     }
                 }
-            }
-
-            // Submit spawn requests.
-            while (this.clusterSpawnRequests.TryDequeue(out HordeClusterEntityGenerateSpawnRequest request))
-            {
-                this.mainThreadRequestProcessor.Request(request);
             }
 
             return eventReports.Count;

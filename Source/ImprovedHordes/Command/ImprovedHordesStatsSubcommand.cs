@@ -204,6 +204,10 @@ namespace ImprovedHordes.Command
 
                     message += $"\n    Gamestage: {gamestage}";
                     message += $"\n    Biome: {biome}";
+
+#if DEBUG
+                    message += message += $"\n    Debug Info: {playerGroup}";
+#endif
                 }
             }
             else
