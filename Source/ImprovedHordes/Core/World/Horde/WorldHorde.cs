@@ -12,7 +12,6 @@ using ImprovedHordes.Core.World.Horde.Cluster;
 using ImprovedHordes.Core.World.Horde.Data;
 using ImprovedHordes.Core.World.Horde.Spawn;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -117,6 +116,7 @@ namespace ImprovedHordes.Core.World.Horde
                     entitiesTracked.TryRemove(deadEntity.GetEntityId());
 
                     deadEntity.GetCluster().RemoveEntity(this, deadEntity);
+                    this.RemoveSpawnedEntity(mainThreadRequestProcessor, deadEntity);
 
                     if (deadEntity.GetCluster().IsDead())
                         clusters.Remove(deadEntity.GetCluster());
@@ -339,11 +339,6 @@ namespace ImprovedHordes.Core.World.Horde
             return this.entityCount;
         }
 
-        public void SetSpawnedHordeEntityCount(int entityCount)
-        {
-            this.entityCount = entityCount;
-        }
-
         public void Cleanup(IRandomFactory<IWorldRandom> randomFactory)
         {
             randomFactory.FreeRandom(this.worldRandom);
@@ -364,13 +359,13 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void AddSpawnedEntity(MainThreadRequestProcessor mainThreadRequestProcessor, HordeClusterEntity entity)
         {
-            this.SetSpawnedHordeEntityCount(this.GetSpawnedHordeEntityCount() + 1);
+            this.entityCount += 1;
             this.AIExecutor.AddEntity(entity, this.randomFactory.GetSharedRandom(), entity.GetCluster().GetEntityCommandGenerator(), mainThreadRequestProcessor);
         }
 
         public void RemoveSpawnedEntity(MainThreadRequestProcessor mainThreadRequestProcessor, HordeClusterEntity entity)
         {
-            this.SetSpawnedHordeEntityCount(this.GetSpawnedHordeEntityCount() - 1);
+            this.entityCount -= 1;
             this.AIExecutor.RemoveEntity(entity, mainThreadRequestProcessor);
         }
     }

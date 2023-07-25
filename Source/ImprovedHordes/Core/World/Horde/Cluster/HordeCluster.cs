@@ -92,8 +92,6 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
         public void RemoveEntity(WorldHorde worldHorde, HordeClusterEntity entity) 
         {
-            worldHorde.SetSpawnedHordeEntityCount(worldHorde.GetSpawnedHordeEntityCount() - 1);
-
             this.entities.Remove(entity);
             this.density.RemoveEntity();
         }
