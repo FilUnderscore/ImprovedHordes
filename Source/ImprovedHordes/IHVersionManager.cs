@@ -23,6 +23,11 @@ namespace ImprovedHordes
         public IHVersionManager(ImprovedHordesMod mod, Mod _modInstance)
         {
             VERSION = _modInstance.Version.ToString() + VERSION;
+
+#if !RELEASE
+            Log.Out($"[Improved Hordes] Currently running version {VERSION}.");
+#endif
+
             mod.OnFirstInit += Mod_OnFirstInit;
         }
 
