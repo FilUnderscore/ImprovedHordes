@@ -95,28 +95,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             else
                 spawnTicks = SPAWN_DELAY;
 
-            if(!TryCalculateHordeEntitySpawnPosition(out Vector3 spawnLocation))
-            {
-                // Retry spawns until players are far enough.
-                this.playerGroup.GetPlayerClosestTo(spawnLocation, out float distance);
-
-                if(distance > WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
-                {
-#if DEBUG
-                    this.logger.Warn("Failed to spawn horde");
-#endif
-
-                    this.Cancel();
-                }
-
-#if DEBUG
-                this.logger.Warn("Could not calculate spawns");
-#endif
-
-                return;
-            }
-
-            HordeClusterEntity entity = new HordeClusterEntity(cluster, this.generator.GetEntityClassId(this.random), spawnLocation, this.horde.GetCharacteristics());
+            HordeClusterEntity entity = new HordeClusterEntity(cluster, this.generator.GetEntityClassId(this.random), this.horde.GetLocation(), this.horde.GetCharacteristics());
             this.cluster.AddEntity(entity);
             
             this.index++;
@@ -137,39 +116,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             this.spawnState.Update(new HordeClusterSpawnState(this.index, this.size - this.index, true));
             this.index = this.size;
-        }
-
-        private bool TryCalculateHordeEntitySpawnPosition(out Vector3 spawnLocation)
-        {
-            // Calculate direction for extra entities.
-            return TryCalculateDirectionalHordeEntitySpawnPosition(out spawnLocation);
-        }
-
-        private bool TryCalculateDirectionalHordeEntitySpawnPosition(out Vector3 spawnLocation)
-        {
-            int minSpawnDistance = WorldHordeTracker.MIN_SPAWN_VIEW_DISTANCE;
-            int maxSpawnDistance = WorldHordeTracker.MAX_SPAWN_VIEW_DISTANCE;
-            int targetSpawnDistance = (minSpawnDistance + maxSpawnDistance) / 2;
-
-            Vector3 spawnTargetLocation = this.horde.GetLocation();
-
-            do
-            {
-                PlayerSnapshot closestPlayer = this.playerGroup.GetPlayerClosestTo(spawnTargetLocation, out float playerDistance);
-                Vector3 direction = (spawnTargetLocation - closestPlayer.location).normalized;
-
-                if (playerDistance >= minSpawnDistance - 1 && playerDistance <= maxSpawnDistance + 1) // Be slightly lenient because floats don't play well with ints in this setting.
-                    break;
-
-                spawnTargetLocation += direction * (targetSpawnDistance - playerDistance); // Careful, this can cause the loop to hang if not properly checked.
-
-#if DEBUG
-                Log.Out("Dir " + direction + " " + playerDistance);
-#endif
-            } while (true);
-
-            spawnLocation = spawnTargetLocation;
-            return true;
         }
     }
 }

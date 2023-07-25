@@ -33,19 +33,19 @@ namespace ImprovedHordes.POI
             DynamicPrefabDecorator dynamicPrefabDecorator = GameManager.Instance.World.ChunkClusters[0].ChunkProvider.GetDynamicPrefabDecorator();
             List<PrefabInstance> prefabs = dynamicPrefabDecorator.GetPOIPrefabs();
 
-            foreach(var prefab in prefabs)
+            foreach (var prefab in prefabs)
             {
                 this.pois.Add(new POI(prefab));
             }
 
             List<POI> toZone = new List<POI>(this.pois);
             List<POIZone> poiZones = new List<POIZone>();
-            
+
             // Get avg weight first of POIS
-            for(int i = 0; i < toZone.Count - 1; i++)
+            for (int i = 0; i < toZone.Count - 1; i++)
             {
                 var poi = toZone[i];
-                for(int j = i + 1; j < toZone.Count; j++) 
+                for (int j = i + 1; j < toZone.Count; j++)
                 {
                     var other = toZone[j];
 
@@ -54,7 +54,7 @@ namespace ImprovedHordes.POI
 
                     bool closeEnough = distance <= sizeCombined;
 
-                    if(closeEnough)
+                    if (closeEnough)
                     {
                         poi.MarkZoned(other);
                         other.MarkZoned(poi);
@@ -66,7 +66,7 @@ namespace ImprovedHordes.POI
             //this.logger.Info("Town Weight: " + townWeight);
             //this.logger.Info("Avg: " + toZone.Average(poi => poi.GetWeight()));
 
-            for(int i = 0; i < toZone.Count; i++)
+            for (int i = 0; i < toZone.Count; i++)
             {
                 if (toZone[i].GetWeight() < townWeight)
                 {
@@ -74,16 +74,16 @@ namespace ImprovedHordes.POI
                 }
             }
 
-            for(int i = 0; i < toZone.Count - 1; i++)
+            for (int i = 0; i < toZone.Count - 1; i++)
             {
                 POIZone zone = new POIZone(toZone[i]);
 
-                for(int j = i + 1; j < toZone.Count; j++)
+                for (int j = i + 1; j < toZone.Count; j++)
                 {
                     float distance = Vector2.Distance(toZone[i].GetLocation(), toZone[j].GetLocation());
                     bool nearby = distance <= Mathf.Min(toZone[i].GetBounds().size.magnitude, toZone[j].GetBounds().size.magnitude) / 2f;
 
-                    if(nearby)
+                    if (nearby)
                     {
                         float higherWeight = (toZone[i].GetWeight() + toZone[j].GetWeight()) / 2.0f;
                         if (toZone[j].GetWeight() >= higherWeight)
@@ -138,30 +138,30 @@ namespace ImprovedHordes.POI
             {
                 merge = false;
 
-                for(int i = 0; i < poiZones.Count - 1; i++)
+                for (int i = 0; i < poiZones.Count - 1; i++)
                 {
                     var zone = poiZones[i];
                     var zonePOI = zone.GetPOIs();
-                    
-                    for(int j = i + 1; j < poiZones.Count; j++)
+
+                    for (int j = i + 1; j < poiZones.Count; j++)
                     {
                         bool done = false;
 
                         var other = poiZones[j];
                         var otherPOI = other.GetPOIs();
 
-                        for(int zp = 0; zp < zonePOI.Count; zp++)
+                        for (int zp = 0; zp < zonePOI.Count; zp++)
                         {
                             var zPOI = zonePOI[zp];
 
-                            for(int op = 0; op < otherPOI.Count; op++)
+                            for (int op = 0; op < otherPOI.Count; op++)
                             {
                                 var oPOI = otherPOI[op];
 
                                 float distance = Vector2.Distance(zPOI.GetLocation(), oPOI.GetLocation());
                                 bool nearby = distance <= (zPOI.GetBounds().size.magnitude + oPOI.GetBounds().size.magnitude);
 
-                                if(nearby)
+                                if (nearby)
                                 {
                                     zone.Merge(other);
                                     poiZones.RemoveAt(j--);
@@ -182,7 +182,7 @@ namespace ImprovedHordes.POI
 
             zones.AddRange(poiZones);
 
-            if(!zones.Any())
+            if (!zones.Any())
             {
                 this.logger.Warn("Failed to detect POI zones in the world. This should only happen if there are no cities generated.");
                 return;
@@ -205,9 +205,9 @@ namespace ImprovedHordes.POI
 
         public POI GetPOIAt(Vector3 location)
         {
-            foreach(var zone in this.zones) 
+            foreach (var zone in this.zones)
             {
-                foreach(var poi in zone.GetPOIs())
+                foreach (var poi in zone.GetPOIs())
                 {
                     if (poi.GetBounds().Contains(location))
                         return poi;
@@ -263,7 +263,7 @@ namespace ImprovedHordes.POI
             {
                 Bounds bounds = this.pois[0].GetBounds();
 
-                for(int i = 1; i < this.pois.Count; i++)
+                for (int i = 1; i < this.pois.Count; i++)
                 {
                     bounds.Encapsulate(this.pois[i].GetBounds());
                 }
@@ -342,7 +342,7 @@ namespace ImprovedHordes.POI
             {
                 float minRange = this.GetBounds().size.magnitude / 2;
 
-                if(this.closestPOI == null)
+                if (this.closestPOI == null)
                 {
                     location = this.GetLocation() + worldRandom.RandomOnUnitCircle * minRange;
                     return;
@@ -359,7 +359,8 @@ namespace ImprovedHordes.POI
 
             public bool IsPlayerConvertedPOI()
             {
-                return GameManager.Instance.World.GetLandClaimOwner(new Vector3i(this.GetBounds().center), null) != EnumLandClaimOwner.None;
+                Vector3i position = new Vector3i(this.GetBounds().center);
+                return GameManager.Instance.World.GetLandClaimOwner(position, GameManager.Instance.GetPersistentLocalPlayer()) != EnumLandClaimOwner.None || GameManager.Instance.World.IsWithinTraderArea(position);
             }
         }
     }
