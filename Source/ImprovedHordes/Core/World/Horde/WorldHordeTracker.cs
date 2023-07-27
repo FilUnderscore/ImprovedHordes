@@ -122,7 +122,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                             if (Vector2.Distance(playerLocation, otherLocation) <= WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
                             {
-                                playerGroup.AddPlayer(other);
+                                playerGroup.AddPlayer(player);
                                 snapshots.RemoveAt(j--);
                             }
                         }

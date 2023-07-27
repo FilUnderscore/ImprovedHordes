@@ -31,7 +31,7 @@
 			</group>
 
 			<group name="ZombieDogs" weight="0.1">
-				<entity chance="0.1" biomes="wasteland" name="animalZombieDog" minCount="5" maxCount="15"/>
+				<entity biomes="wasteland" name="animalZombieDog" minCount="5" maxCount="15"/>
 			</group>
 		</groups>
 	</horde>
