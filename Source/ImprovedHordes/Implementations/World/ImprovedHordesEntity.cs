@@ -57,10 +57,10 @@ namespace ImprovedHordes.Implementations.World
             this.entity.PlayOneShot(soundName);
         }
 
-        public void MoveTo(Vector3 location, bool aggro, float dt)
+        public void MoveTo(Vector3 location, bool canRun, bool canBreak, float dt)
         {
-            this.entity.FindPath(this.entity.world.FindSupportingBlockPos(location), aggro ? this.entity.GetMoveSpeedAggro() : this.entity.GetMoveSpeed(), aggro, null);
-            this.movingTicks = 60.0f;
+            this.entity.FindPath(this.entity.world.FindSupportingBlockPos(location), canRun ? this.entity.GetMoveSpeedAggro() : this.entity.GetMoveSpeed(), canBreak, null);
+            this.movingTicks = 20.0f;
         }
 
         public void Stop()

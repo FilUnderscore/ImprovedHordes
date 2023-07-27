@@ -3,12 +3,12 @@ using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
 using ImprovedHordes.Screamer.Commands;
+using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
-        private const float SLEEP_CHANCE = 0.3f;
         private readonly WorldPOIScanner scanner;
         
         public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner, WorldPOIScanner.POIZone zone) : base(new WanderingEnemyAIState(zone))
@@ -27,16 +27,6 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
                     state.SetTargetZone(zone);
                     state.SetWanderingState(WanderingEnemyAIState.WanderingState.MOVING);
-
-                    bool sleep = worldRandom.RandomChance(SLEEP_CHANCE);
-
-                    if (sleep)
-                    {
-                        float sleepTime = 100.0f + state.GetTargetZone().GetCount() * 2.0f + worldRandom.RandomRange(48) * 100.0f;
-
-                        command = new GeneratedAICommand<AICommand>(new SleepingAICommand(sleepTime));
-                        return true;
-                    }
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
@@ -68,9 +58,9 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
                 else
                 {
                     var zone = state.GetTargetZone();
-                    var zoneTargetCommand = new GoToTargetAICommand(zone.GetBounds().center);
+                    zone.GetLocationOutside(worldRandom, out Vector2 location);
 
-                    command = new GeneratedAICommand<AICommand>(zoneTargetCommand, (_) =>
+                    command = new GeneratedAICommand<AICommand>(new GoToTargetAICommand(location, true, false), (_) =>
                     {
                         // On complete, change to wander.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.WANDER);

@@ -5,7 +5,7 @@ namespace ImprovedHordes.Core.AI
 {
     public interface IAIAgent
     {
-        void MoveTo(Vector3 location, bool aggro, float dt);
+        void MoveTo(Vector3 location, bool canRun, bool canBreak, float dt);
         void Stop();
         bool IsMoving();
 

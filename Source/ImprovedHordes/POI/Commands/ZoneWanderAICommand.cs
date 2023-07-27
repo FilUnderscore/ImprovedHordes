@@ -16,14 +16,24 @@ namespace ImprovedHordes.Screamer.Commands
 
         private float wanderTicks = 0.0f;
 
-        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, IWorldRandom random, bool useWanderCount) : base(GetNextTarget(zone, random, out int wanderCount, out float wanderTicks))
+        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, IWorldRandom random, bool useWanderCount) : base(GetNextTarget(zone, random, out int wanderCount, out float wanderTicks), false, false)
         {
             this.zone = zone;
             this.random = random;
             this.useWanderCount = useWanderCount;
 
-            this.wanderCount = wanderCount;
-            this.wanderTicks = wanderTicks;
+            float wanderChance = zone.GetDensity();
+
+            if (random.RandomFloat <= wanderChance) // Random chance for the horde to wander around the zone depending on the density.
+            {
+                this.wanderCount = wanderCount;
+                this.wanderTicks = wanderTicks;
+            }
+            else
+            {
+                this.wanderCount = 0;
+                this.wanderTicks = 0;
+            }
         }
 
         private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, IWorldRandom random, out int wanderCount, out float wanderTicks)
