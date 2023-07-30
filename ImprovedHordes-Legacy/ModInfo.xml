@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<xml>
   <ModInfo>
-    <Name value="Improved Hordes Legacy" />
-    <Description value="Improves existing hordes by reworking their core behaviours." />
-    <Author value="FilUnderscore" />
-    <Version value="1.2.2" />
-    <Website value="https://github.com/FilUnderscore/ImprovedHordes" />
+      <Name value="ImprovedHordes-Legacy" />
+      <Version value="1.2.2" />
+      <DisplayName value="Improved Hordes Legacy" />
+      <Description value="Improves existing hordes by reworking their core behaviours." />
+      <Author value="FilUnderscore" />
+      <Website value="https://github.com/FilUnderscore/ImprovedHordes" />
   </ModInfo>
-</xml>

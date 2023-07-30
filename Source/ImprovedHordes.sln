@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31515.178
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImprovedHordes", "ImprovedHordes.csproj", "{86109C52-7C00-47C3-957A-17770ACC0F73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImprovedHordes-Legacy", "ImprovedHordes-Legacy.csproj", "{86109C52-7C00-47C3-957A-17770ACC0F73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
