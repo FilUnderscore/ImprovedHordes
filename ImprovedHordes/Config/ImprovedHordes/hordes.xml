@@ -29,10 +29,6 @@
 					<entity time="night" chance="0.2" biomes="pine_forest,snow,desert,burnt_forest" group="IHZombiesAllRadiatedNight" minCount="1" maxCount="20"/>
 				</gs>
 			</group>
-
-			<group name="ZombieDogs" weight="0.1">
-				<entity biomes="wasteland" name="animalZombieDog" minCount="5" maxCount="15"/>
-			</group>
 		</groups>
 	</horde>
 	
