@@ -70,7 +70,7 @@ namespace ImprovedHordes
             ModPath = mod.Path;
             XmlFilesDir = string.Format("{0}/Config/ImprovedHordes-Legacy", mod.Path);
 
-            this.LoadXml();
+            this.LoadXml(mod);
             this.LoadSettings(mod);
         }
 
@@ -125,11 +125,11 @@ namespace ImprovedHordes
             Log("Loaded settings.");
         }
 
-        public void LoadXml()
+        public void LoadXml(Mod instance)
         {
             Log("Loading Xml Configs in {0}", XmlFilesDir);
 
-            XPath.XPathPatcher.LoadAndPatchXMLFile(this.ModPath, "Config/ImprovedHordes-Legacy", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
+            XPath.XPathPatcher.LoadAndPatchXMLFile(instance, this.ModPath, "Config/ImprovedHordes-Legacy", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile));
 
             Log("Loaded all Xml configs.");
         }

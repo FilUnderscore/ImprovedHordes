@@ -9,12 +9,12 @@ namespace ImprovedHordes.XPath
 {
     public class XPathPatcher
     {
-        public static void LoadAndPatchXMLFile(string modPath, string directory, string fileName, Action<XmlFile> callback)
+        public static void LoadAndPatchXMLFile(Mod instance, string modPath, string directory, string fileName, Action<XmlFile> callback)
         {
-            ThreadManager.RunCoroutineSync(LoadAndPatchFile(modPath, directory, fileName, callback));
+            ThreadManager.RunCoroutineSync(LoadAndPatchFile(instance, modPath, directory, fileName, callback));
         }
 
-        private static IEnumerator LoadAndPatchFile(string modPath, string directory, string fileName, Action<XmlFile> callback)
+        private static IEnumerator LoadAndPatchFile(Mod instance, string modPath, string directory, string fileName, Action<XmlFile> callback)
         {
             Exception xmlLoadException = null;
 
@@ -38,7 +38,7 @@ namespace ImprovedHordes.XPath
                 MicroStopwatch msw = new MicroStopwatch(true);
                 foreach(Mod loadedMod in ModManager.GetLoadedMods())
                 {
-                    if (loadedMod.ApiInstance is ImprovedHordesMod)
+                    if (loadedMod == instance)
                         continue;
 
                     string path = loadedMod.Path + "/" + directory + "/" + fileName;
@@ -56,17 +56,17 @@ namespace ImprovedHordes.XPath
                             }
                             catch(Exception ex)
                             {
-                                Error($"Loading XML patch file {file.Directory}/{file.Filename} from mod {loadedMod.ModInfo.Name} failed: {ex}");
+                                Error($"Loading XML patch file {file.Directory}/{file.Filename} from mod {loadedMod.Name} failed: {ex}");
                                 continue;
                             }
 
-                            XmlPatcher.PatchXml(file, patchXml, loadedMod.ModInfo.Name.ToString());
+                            XmlPatcher.PatchXml(file, patchXml, loadedMod.Name);
 
-                            Log("Patched XML from mod " + loadedMod.ModInfo.Name);
+                            Log("Patched XML from mod " + loadedMod.Name);
                         }
                         catch(Exception ex)
                         {
-                            Error($"Patching {file.Directory}/{file.Filename} from mod {loadedMod.ModInfo.Name?.ToString()} failed: {ex}");
+                            Error($"Patching {file.Directory}/{file.Filename} from mod {loadedMod.Name} failed: {ex}");
                         }
 
                         if(msw.ElapsedMicroseconds > 50L)

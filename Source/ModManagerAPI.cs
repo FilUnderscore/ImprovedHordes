@@ -35,7 +35,7 @@ namespace CustomModManager.API
         {
             if (!IsModManagerLoaded())
             {
-                Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Attempted to create mod settings while mod manager is not installed.");
+                Log.Warning($"[{modInstance.Name}] [Mod Manager API] Attempted to create mod settings while mod manager is not installed.");
                 return null;
             }
 
@@ -45,7 +45,7 @@ namespace CustomModManager.API
             }
             catch
             {
-                Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to locate ModSettings instance in Mod Manager. Perhaps an out-of-date API version is being used?");
+                Log.Warning($"[{modInstance.Name}] [Mod Manager API] Failed to locate ModSettings instance in Mod Manager. Perhaps an out-of-date API version is being used?");
 
                 return null;
             }
@@ -73,7 +73,7 @@ namespace CustomModManager.API
                 }
                 catch
                 {
-                    Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to create Mod Setting instance. Perhaps an out-of-date API version is being used?");
+                    Log.Warning($"[{modInstance.Name}] [Mod Manager API] Failed to create Mod Setting instance. Perhaps an out-of-date API version is being used?");
                 }
 
                 return null;
@@ -90,7 +90,7 @@ namespace CustomModManager.API
                 }
                 catch
                 {
-                    Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to create Mod Setting instance. Perhaps an out-of-date API version is being used?");
+                    Log.Warning($"[{modInstance.Name}] [Mod Manager API] Failed to create Mod Setting instance. Perhaps an out-of-date API version is being used?");
                 }
 
                 return null;
@@ -114,7 +114,7 @@ namespace CustomModManager.API
                 }
                 catch
                 {
-                    Log.Warning($"[{modInstance.ModInfo.Name.Value}] [Mod Manager API] Failed to create Mod Setting tab. Perhaps an out-of-date API version is being used?");
+                    Log.Warning($"[{modInstance.Name}] [Mod Manager API] Failed to create Mod Setting tab. Perhaps an out-of-date API version is being used?");
                 }
             }
 
@@ -139,7 +139,7 @@ namespace CustomModManager.API
                     }
                     catch
                     {
-                        Log.Warning($"[{settingsInstance.modInstance.ModInfo.Name.Value}] [Mod Manager API] [Mod Settings] Failed to set allowed values for mod setting {this.key}");
+                        Log.Warning($"[{settingsInstance.modInstance.Name}] [Mod Manager API] [Mod Settings] Failed to set allowed values for mod setting {this.key}");
                     }
 
                     return this;
@@ -153,7 +153,7 @@ namespace CustomModManager.API
                     }
                     catch
                     {
-                        Log.Warning($"[{settingsInstance.modInstance.ModInfo.Name.Value}] [Mod Manager API] [Mod Settings] Failed to set tab key {tabKey} for mod setting {this.key}");
+                        Log.Warning($"[{settingsInstance.modInstance.Name}] [Mod Manager API] [Mod Settings] Failed to set tab key {tabKey} for mod setting {this.key}");
                     }
 
                     return this;
@@ -167,7 +167,7 @@ namespace CustomModManager.API
                     }
                     catch
                     {
-                        Log.Warning($"[{settingsInstance.modInstance.ModInfo.Name.Value}] [Mod Manager API] [Mod Settings] Failed to set minimum/maximum/increment values for mod setting {this.key}");
+                        Log.Warning($"[{settingsInstance.modInstance.Name}] [Mod Manager API] [Mod Settings] Failed to set minimum/maximum/increment values for mod setting {this.key}");
                     }
 
                     return this;
@@ -181,7 +181,7 @@ namespace CustomModManager.API
                     }
                     catch
                     {
-                        Log.Warning($"[{settingsInstance.modInstance.ModInfo.Name.Value}] [Mod Manager API] [Mod Settings] Failed to set wrap flag for mod setting {this.key}");
+                        Log.Warning($"[{settingsInstance.modInstance.Name}] [Mod Manager API] [Mod Settings] Failed to set wrap flag for mod setting {this.key}");
                     }
 
                     return this;

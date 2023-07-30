@@ -318,12 +318,13 @@ namespace ImprovedHordes.Horde
                 ImprovedHordesManager.Instance.World.SpawnEntityInWorld(entity);
 
                 entity.SetSpawnerSource(EnumSpawnerSource.Dynamic);
+                entity.SetCVar("player_group_gs", group.GetGroupGamestage()); // Set entity CVar with player group gamestage.
 
                 this.SetAttributes(entity);
                 this.OnSpawn(entity, group, horde);
 
 #if DEBUG
-                entity.AddNavObject("ih_horde_zombie_debug", "");
+                entity.AddNavObject("ih_horde_zombie_debug", "", "");
 #endif
             }
             else

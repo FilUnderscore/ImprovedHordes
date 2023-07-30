@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Xml;
-
 using static ImprovedHordes.Utils.Logger;
 
 namespace ImprovedHordes.Horde.Data
@@ -12,79 +9,58 @@ namespace ImprovedHordes.Horde.Data
         // TODO: Rewrite XML Element reading, have parsers that allow for deeper nodes and element attribute parsing. E.g. XML base struct that can be inherited and build upon, for hordes, for entities etc.
         public static void LoadHordes(XmlFile xmlFile)
         {
-            XmlElement documentElement = xmlFile.XmlDoc.DocumentElement;
+            XmlFileParser parser = new XmlFileParser(xmlFile);
 
-            if (documentElement.ChildNodes.Count == 0)
-                throw new Exception("[Improved Hordes Legacy] No element <hordes> found.");
-            
-            IEnumerator enumerator = documentElement.ChildNodes.GetEnumerator();
-
-            try
+            parser.GetEntries("horde").ForEach(hordeEntry =>
             {
-                while(enumerator.MoveNext())
+                if (!hordeEntry.GetAttribute("type", out string type))
+                    throw new Exception("[Improved Hordes Legacy] Attribute 'type' missing on horde tag.");
+
+                HordeGroupList hordeGroupList = new HordeGroupList(type);
+                HordesList.hordes.Add(type, hordeGroupList);
+
+                hordeEntry.GetEntries("hordegroup").ForEach(hordeGroupEntry =>
                 {
-                    XmlNode current = (XmlNode)enumerator.Current;
+                    hordeGroupEntry.GetAttribute("horde", out string horde);
+                    
+                    if(!hordeGroupEntry.GetAttribute("name", out string hordegroupName))
+                        throw new Exception("[Improved Hordes Legacy] Attribute 'name' missing on hordegroup tag.");
 
-                    if(current.NodeType == XmlNodeType.Element && current.Name.Equals("horde"))
+                    if (horde != null && HordesList.hordes.ContainsKey(horde) && HordesList.hordes[horde].hordes.ContainsKey(hordegroupName)) // To avoid repetition of hordes if needed.
                     {
-                        XmlElement hordeElement = (XmlElement)current;
+                        var referencedHorde = HordesList.hordes[horde].hordes[hordegroupName];
+                        hordeGroupList.hordes.Add(hordegroupName, referencedHorde);
 
-                        string type = hordeElement.HasAttribute("type") ? hordeElement.GetAttribute("type") : throw new Exception("[Improved Hordes Legacy] Attribute 'type' missing on horde tag.");
-                        HordeGroupList hordeGroupList = new HordeGroupList(type);
-                        HordesList.hordes.Add(type, hordeGroupList);
-                        
-                        foreach(XmlNode childNode in hordeElement.ChildNodes)
-                        {
-                            if(childNode.NodeType == XmlNodeType.Element && childNode.Name.Equals("hordegroup"))
-                            {
-                                XmlElement hordegroupElement = (XmlElement)childNode;
-
-                                string horde = hordegroupElement.HasAttribute("horde") ? hordegroupElement.GetAttribute("horde") : null;
-                                string hordegroupName = hordegroupElement.HasAttribute("name") ? hordegroupElement.GetAttribute("name") : throw new Exception("[Improved Hordes Legacy] Attribute 'name' missing on hordegroup tag.");
-
-                                if (horde != null && HordesList.hordes.ContainsKey(horde) && HordesList.hordes[horde].hordes.ContainsKey(hordegroupName)) // To avoid repetition of hordes if needed.
-                                {
-                                    var referencedHorde = HordesList.hordes[horde].hordes[hordegroupName];
-                                    hordeGroupList.hordes.Add(hordegroupName, referencedHorde);
-
-                                    continue;
-                                }
-
-                                string parent = hordegroupElement.HasAttribute("parent") ? hordegroupElement.GetAttribute("parent") : null;
-                                RuntimeEval.Value<float> weight = ParseIfExists<float>(hordegroupElement, "weight");
-                                RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordegroupElement, "prefWeekDay", str => ParsePrefWeekDays(str));
-                                RuntimeEval.Value<int> maxWeeklyOccurrences = ParseIfExists<int>(hordegroupElement, "maxWeeklyOccurrences");
-
-                                HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, weight, prefWeekDays, maxWeeklyOccurrences);
-
-                                EvaluateChildNodes(hordegroupElement, group);
-
-                                hordeGroupList.hordes.Add(hordegroupName, group);
-                            }
-                        }
-
-                        hordeGroupList.SortParentsAndChildrenOut();
-
-                        if(hordeGroupList.hordes.Count == 0)
-                        {
-                            throw new Exception(String.Format("[Improved Hordes Legacy] Empty hordes are not allowed. Horde type: {0}", type));
-                        }
+                        return;
                     }
+
+                    hordeGroupEntry.GetAttribute("parent", out string parent);
+                    RuntimeEval.Value<float> weight = ParseIfExists<float>(hordeGroupEntry, "weight");
+                    RuntimeEval.Value<HashSet<int>> prefWeekDays = ParseIfExists<HashSet<int>>(hordeGroupEntry, "prefWeekDay", str => ParsePrefWeekDays(str));
+                    RuntimeEval.Value<int> maxWeeklyOccurrences = ParseIfExists<int>(hordeGroupEntry, "maxWeeklyOccurrences");
+
+                    HordeGroup group = new HordeGroup(hordeGroupList, parent, hordegroupName, weight, prefWeekDays, maxWeeklyOccurrences);
+
+                    EvaluateChildNodes(hordeGroupEntry, group);
+
+                    hordeGroupList.hordes.Add(hordegroupName, group);
+                });
+
+                hordeGroupList.SortParentsAndChildrenOut();
+
+                if (hordeGroupList.hordes.Count == 0)
+                {
+                    throw new Exception(string.Format("[Improved Hordes Legacy] Empty hordes are not allowed. Horde type: {0}", type));
                 }
-            }
-            finally
-            {
-                if (enumerator is IDisposable disposable)
-                    disposable.Dispose();
-            }
+            });
         }
 
-        private static RuntimeEval.Value<T> ParseIfExists<T>(XmlElement element, string attribute, Func<string, T> parser = null)
+        private static RuntimeEval.Value<T> ParseIfExists<T>(XmlEntry entry, string attribute, Func<string, T> parser = null)
         {
             RuntimeEval.Value<T> value = null;
 
-            if (element.HasAttribute(attribute))
-                value = RuntimeEval.Value<T>.Parse(element.GetAttribute(attribute), parser);
+            if (entry.GetAttribute(attribute, out string attributeStr))
+                value = RuntimeEval.Value<T>.Parse(attributeStr, parser);
 
             return value;
         }
@@ -111,44 +87,37 @@ namespace ImprovedHordes.Horde.Data
             return weekDays;
         }
 
-        private static void EvaluateChildNodes(XmlElement parentElement, HordeGroup group, GS gs = null)
+        private static void EvaluateChildNodes(XmlEntry parentEntry, HordeGroup group, GS gs = null)
         {
-            foreach (XmlNode childEntityNode in parentElement.ChildNodes)
+            parentEntry.GetEntries("entity").ForEach(entityEntry =>
             {
-                if (childEntityNode.NodeType == XmlNodeType.Element)
-                {
-                    XmlElement element = (XmlElement)childEntityNode;
+                EvaluateEntityNode(entityEntry, group, gs);
+            });
 
-                    if (childEntityNode.Name.Equals("entity"))
-                    {
-                        EvaluateEntityNode(element, group, gs);
-                    }
-                    else if (childEntityNode.Name.Equals("gs"))
-                    {
-                        EvaluateGSThenEntityNode(element, group);
-                    }
-                }
-            }
+            parentEntry.GetEntries("gs").ForEach(gsEntry =>
+            {
+                EvaluateGSThenEntityNode(gsEntry, group);
+            });
         }
 
-        private static void EvaluateEntityNode(XmlElement entityElement, HordeGroup group, GS gs = null)
+        private static void EvaluateEntityNode(XmlEntry entityEntry, HordeGroup group, GS gs = null)
         {
-            string entityName = entityElement.HasAttribute("name") ? entityElement.GetAttribute("name") : null;
-            string entityGroup = entityElement.HasAttribute("group") ? entityElement.GetAttribute("group") : null;
-            string horde = entityElement.HasAttribute("horde") ? entityElement.GetAttribute("horde") : null;
+            entityEntry.GetAttribute("name", out string entityName);
+            entityEntry.GetAttribute("group", out string entityGroup);
+            entityEntry.GetAttribute("horde", out string horde);
 
             if (entityName != null && entityGroup != null)
                 throw new Exception(String.Format("[Improved Hordes Legacy] Horde group {0} has double defined entity with name {1} and group {2}, only one can be defined.", group.name, entityName, entityGroup));
 
-            RuntimeEval.Value<HashSet<string>> biomes = ParseIfExists<HashSet<string>>(entityElement, "biomes", str => ParseBiomes(str));
-            RuntimeEval.Value<float> chance = ParseIfExists<float>(entityElement, "chance");
+            RuntimeEval.Value<HashSet<string>> biomes = ParseIfExists<HashSet<string>>(entityEntry, "biomes", str => ParseBiomes(str));
+            RuntimeEval.Value<float> chance = ParseIfExists<float>(entityEntry, "chance");
 
-            RuntimeEval.Value<int> minCount = ParseIfExists<int>(entityElement, "minCount");
-            RuntimeEval.Value<int> maxCount = ParseIfExists<int>(entityElement, "maxCount");
+            RuntimeEval.Value<int> minCount = ParseIfExists<int>(entityEntry, "minCount");
+            RuntimeEval.Value<int> maxCount = ParseIfExists<int>(entityEntry, "maxCount");
 
-            RuntimeEval.Value<ETimeOfDay> timeOfDay = ParseIfExists<ETimeOfDay>(entityElement, "time", str => ParseTimeOfDay(str));
+            RuntimeEval.Value<ETimeOfDay> timeOfDay = ParseIfExists<ETimeOfDay>(entityEntry, "time", str => ParseTimeOfDay(str));
 
-            RuntimeEval.Value<POITags> tags = ParseIfExists<POITags>(entityElement, "tags", str => POITags.Parse(str));
+            RuntimeEval.Value<POITags> tags = ParseIfExists<POITags>(entityEntry, "tags", str => POITags.Parse(str));
 
             HordeGroupEntity entity = new HordeGroupEntity(gs, entityName, entityGroup, horde, biomes, chance, minCount, maxCount, timeOfDay, tags);
 
@@ -188,18 +157,18 @@ namespace ImprovedHordes.Horde.Data
             return biomes;
         }
 
-        private static void EvaluateGSThenEntityNode(XmlElement gsElement, HordeGroup group)
+        private static void EvaluateGSThenEntityNode(XmlEntry gsEntry, HordeGroup group)
         {
-            RuntimeEval.Value<int> minGS = ParseIfExists<int>(gsElement, "min");
-            RuntimeEval.Value<int> maxGS = ParseIfExists<int>(gsElement, "max");
-            RuntimeEval.Value<int> countDecGS = ParseIfExists<int>(gsElement, "countDecGS");
+            RuntimeEval.Value<int> minGS = ParseIfExists<int>(gsEntry, "min");
+            RuntimeEval.Value<int> maxGS = ParseIfExists<int>(gsEntry, "max");
+            RuntimeEval.Value<int> countDecGS = ParseIfExists<int>(gsEntry, "countDecGS");
 
-            RuntimeEval.Value<float> countIncPerGS = ParseIfExists<float>(gsElement, "countIncPerGS"); 
-            RuntimeEval.Value<float> countDecPerPostGS = ParseIfExists<float>(gsElement, "countDecPerPostGS");
+            RuntimeEval.Value<float> countIncPerGS = ParseIfExists<float>(gsEntry, "countIncPerGS"); 
+            RuntimeEval.Value<float> countDecPerPostGS = ParseIfExists<float>(gsEntry, "countDecPerPostGS");
 
             GS gs = new GS(minGS, maxGS, countDecGS, countIncPerGS, countDecPerPostGS);
 
-            EvaluateChildNodes(gsElement, group, gs);
+            EvaluateChildNodes(gsEntry, group, gs);
         }
     }
 }

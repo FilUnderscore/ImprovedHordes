@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImprovedHordes.Horde.Data;
+using System;
 using System.Collections.Generic;
 using System.Xml;
 
@@ -12,7 +13,7 @@ namespace ImprovedHordes
 
         public Settings(XmlFile file)
         {
-            this.node = new IHSettingsNode(file.XmlDoc.DocumentElement);
+            this.node = new IHSettingsNode(new XmlFileParser(file));
         }
 
         private Settings(IHSettingsNode node)
@@ -22,7 +23,7 @@ namespace ImprovedHordes
 
         public int GetInt(string name, int defaultValue)
         {
-            if (int.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out int value))
+            if (int.TryParse(this.node.GetSubnode(name).GetElement().GetValueAsString(), out int value))
                 return value;
 
             Warning("[Settings] Failed to parse {0}. Returning default value.", name);
@@ -31,7 +32,7 @@ namespace ImprovedHordes
 
         public float GetFloat(string name, float defaultValue)
         {
-            if (float.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out float value))
+            if (float.TryParse(this.node.GetSubnode(name).GetElement().GetValueAsString(), out float value))
                 return value;
 
             Warning("[Settings] Failed to parse {0]. Returning default value.", name);
@@ -80,7 +81,7 @@ namespace ImprovedHordes
 
         public bool GetBool(string name, bool defaultValue)
         {
-            if (bool.TryParse(this.node.GetSubnode(name).GetElement().InnerText, out bool value))
+            if (bool.TryParse(this.node.GetSubnode(name).GetElement().GetValueAsString(), out bool value))
                 return value;
  
             Warning("[Settings] Failed to parse {0}. Returning default value.", name);
@@ -100,10 +101,10 @@ namespace ImprovedHordes
 
     public class IHSettingsNode
     {
-        private readonly XmlElement element;
+        private readonly XmlEntry element;
         private readonly Dictionary<string, IHSettingsNode> children = new Dictionary<string, IHSettingsNode>();
     
-        public IHSettingsNode(XmlElement element)
+        public IHSettingsNode(XmlEntry element)
         {
             this.element = element;
             
@@ -112,16 +113,13 @@ namespace ImprovedHordes
 
         private void ParseChildren()
         {
-            foreach(XmlNode node in element.ChildNodes)
+            this.element.GetAllEntries().ForEach(childEntry =>
             {
-                if(node.NodeType == XmlNodeType.Element)
-                {
-                    children.Add(node.Name, new IHSettingsNode((XmlElement)node));
-                }
-            }
+                children.Add(childEntry.Name, new IHSettingsNode(childEntry));
+            });
         }
 
-        public XmlElement GetElement()
+        public XmlEntry GetElement()
         {
             return this.element;
         }

@@ -50,6 +50,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -77,6 +78,7 @@
     <Compile Include="Horde\AI\Events\HordeKilledEvent.cs" />
     <Compile Include="Horde\AI\HordeAICommand.cs" />
     <Compile Include="Horde\AI\HordeAIEntity.cs" />
+    <Compile Include="Horde\Data\XmlFileParser.cs" />
     <Compile Include="Horde\Heat\Events\AreaHeatTickEvent.cs" />
     <Compile Include="Horde\Heat\HordeHeatPatrolManager.cs" />
     <Compile Include="Horde\Heat\PatrolHordeSpawner.cs" />
