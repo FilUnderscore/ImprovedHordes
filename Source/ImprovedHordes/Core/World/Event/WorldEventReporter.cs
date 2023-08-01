@@ -49,7 +49,7 @@ namespace ImprovedHordes.Core.World.Event
             this.MAP_SIZE_POW_2_LOG_N = Math.Pow(2, MAP_SIZE_LOG_N);
 
             AIDirectorChunkEventComponent_NotifyEvent_Patch.WorldEventReporter = this;
-            AIDirectorMarkerManagementComponent_NotifyNoise_Patch.WorldEventReporter = this;
+            AIDirector_NotifyNoise_Patch.WorldEventReporter = this;
         }
 
         protected override void UpdateAsync(float dt)
@@ -185,13 +185,13 @@ namespace ImprovedHordes.Core.World.Event
             }
         }
 
-        [HarmonyPatch(typeof(AIDirectorMarkerManagementComponent))]
-        [HarmonyPatch(nameof(AIDirectorMarkerManagementComponent.NotifyNoise))]
-        private sealed class AIDirectorMarkerManagementComponent_NotifyNoise_Patch
+        [HarmonyPatch(typeof(AIDirector))]
+        [HarmonyPatch(nameof(AIDirector.NotifyNoise))]
+        private sealed class AIDirector_NotifyNoise_Patch
         {
             public static WorldEventReporter WorldEventReporter;
 
-            private static void Postfix(AIDirectorMarkerManagementComponent __instance, Entity instigator, Vector3 position, string clipName, float volumeScale)
+            private static void Postfix(AIDirector __instance, Entity instigator, Vector3 position, string clipName, float volumeScale)
             {
                 if (instigator == null || string.IsNullOrEmpty(clipName) || instigator.IsIgnoredByAI())
                     return;
@@ -199,7 +199,7 @@ namespace ImprovedHordes.Core.World.Event
                 if (!AIDirectorData.FindNoise(clipName, out var noise))
                     return;
 
-                var trackedPlayers = __instance.Director.GetComponent<AIDirectorPlayerManagementComponent>().trackedPlayers;
+                var trackedPlayers = __instance.GetComponent<AIDirectorPlayerManagementComponent>().trackedPlayers;
 
                 if (!trackedPlayers.dict.TryGetValue(instigator.entityId, out var directorPlayerState) || directorPlayerState == null)
                     return;
