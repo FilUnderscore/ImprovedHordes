@@ -2,6 +2,8 @@
 <improved_hordes>
 	<!-- https://github.com/FilUnderscore/ImprovedHordes/wiki/Settings -->
 
+	<thread_tick_ms>100</thread_tick_ms> <!-- Update rate for threads (100ms by default or 0.1s). Increase this value if you are experiencing performance issues. -->
+
 	<!-- Entity Spawn Limit -->
 	<max_entities_spawned_per_player>16</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
 	<max_hordes_spawned_per_player_group>3</max_hordes_spawned_per_player_group> <!-- -1 to disable. To calculate the max possible number of entities for a player group (given that both settings are greater than -1): max_hordes_spawned_per_player_group * max_entities_spawned_per_player -->

@@ -112,6 +112,9 @@ namespace ImprovedHordes.Implementations.World
 
         public bool CanSee(EntityPlayer player)
         {
+            if (player.IsSpectator) // Don't target invisible spectating players.
+                return false;
+
             if (SEE_CACHE_FIELD == null || SEE_CACHE_FIELD.GetValue(this.entity) == null)
                 return CanSee(player.position);
 
@@ -120,7 +123,7 @@ namespace ImprovedHordes.Implementations.World
 
         public void SetTarget(EntityPlayer player)
         {
-            this.entity.SetAttackTarget(player, 200);
+            this.entity.SetAttackTarget(player, 150);
         }
     }
 }

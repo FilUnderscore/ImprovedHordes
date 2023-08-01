@@ -1,20 +1,23 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
+using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ImprovedHordes.Core.Threading
 {
     public abstract class Threaded
     {
+        private static readonly Setting<int> THREAD_TICK_MS = new Setting<int>("thread_tick_ms", 100);
         private static readonly List<Threaded> instances = new List<Threaded>();
 
         private ThreadManager.ThreadInfo threadInfo;
         protected readonly IWorldRandom Random;
 
         protected readonly ILoggerFactory LoggerFactory;
-        protected readonly ILogger Logger;
+        protected readonly Abstractions.Logging.ILogger Logger;
 
         private bool shutdown = false;
 
@@ -37,24 +40,45 @@ namespace ImprovedHordes.Core.Threading
         {
             this.OnStart();
         }
-        
+
+        private float start;
+
         private int ThreadLoop(ThreadManager.ThreadInfo threadInfo)
         {
+            int threadTickMs = THREAD_TICK_MS.Value;
+            bool paused = false;
+
             while(!this.shutdown)
             {
-                if (!CanRun() || GameManager.Instance.IsPaused())
-                    return 1000;
+                float end = Time.time;
+                bool unpaused = !(!CanRun() || GameManager.Instance.IsPaused());
+
+                if (!unpaused)
+                {
+                    paused = true;
+                    return threadTickMs * 10;
+                }
+                else if(paused) // Since we were previously paused, don't calculate dt during that time.
+                {
+                    paused = false;
+                    start = Time.time;
+                }
 
                 try
                 {
-                    UpdateAsync(0.1f);
+                    float dt = end - start;
+                    start = Time.time;
+
+                    //this.Logger.Info("DeltaTime: " + dt);
+
+                    UpdateAsync(dt);
                 }
                 catch(Exception e)
                 {
                     this.Logger.Error($"An exception occurred during {nameof(UpdateAsync)}: {e.Message} \nStacktrace: \n{e.StackTrace}");
                 }
 
-                return 100;
+                return threadTickMs;
             }
 
             return -1;
