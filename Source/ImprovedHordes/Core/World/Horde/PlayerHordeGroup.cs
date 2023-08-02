@@ -43,7 +43,14 @@ namespace ImprovedHordes.Core.World.Horde
 
         public bool IsPlayerGroupExceedingHordeLimit(WorldHorde horde)
         {
-            return this.tracker != null && !this.tracker.ActiveHordes.Contains(horde) && this.tracker.ActiveHordes.Count >= MAX_HORDES_SPAWNED_PER_PLAYER_GROUP.Value;
+            if(this.tracker != null && !this.tracker.ActiveHordes.Contains(horde) && this.tracker.ActiveHordes.Count >= MAX_HORDES_SPAWNED_PER_PLAYER_GROUP.Value)
+            {
+                // Try purge dead hordes.
+                int removed = this.tracker.ActiveHordes.RemoveAll(activeHorde => activeHorde == null || activeHorde.IsDead());
+                return this.tracker.ActiveHordes.Count - removed >= MAX_HORDES_SPAWNED_PER_PLAYER_GROUP.Value;
+            }
+
+            return false;
         }
 
         public List<PlayerSnapshot> GetPlayers()

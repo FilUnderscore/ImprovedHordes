@@ -221,15 +221,15 @@ namespace ImprovedHordes.Core.World.Horde
 
         public bool Split(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor, out List<WorldHorde> newHordes)
         {
-            if(!DoesHordeExceedBiomeDensity())
+            float biomeDensity = HordeBiomes.DetermineBiomeDensity(this.location);
+
+            if (this.GetDensity() <= biomeDensity)
             {
                 newHordes = null;
                 return false;
             }
 
             newHordes = new List<WorldHorde>();
-
-            float biomeDensity = HordeBiomes.DetermineBiomeDensity(this.location);
             float splitDensity = this.GetDensity() - biomeDensity;
 
             WorldHorde newHorde;
@@ -248,10 +248,12 @@ namespace ImprovedHordes.Core.World.Horde
                     do
                     {
                         newHorde = new WorldHorde(this.location, this.spawnData, this.randomFactory, this.commandGenerator);
-                        HordeCluster currentCluster = new HordeCluster(cluster.GetHorde(), Mathf.Min(clusterSplitDensity, biomeDensity), cluster.GetEntityCommandGenerator());
+
+                        float clusterDensity = Mathf.Min(clusterSplitDensity, biomeDensity);
+                        HordeCluster currentCluster = new HordeCluster(cluster.GetHorde(), clusterDensity, cluster.GetEntityCommandGenerator());
                         newHorde.AddCluster(currentCluster);
                         newHordes.Add(newHorde);
-                        clusterSplitDensity -= biomeDensity;
+                        clusterSplitDensity -= clusterDensity;
                     } while (clusterSplitDensity > 0.0f);
                 }
                 else
@@ -275,11 +277,6 @@ namespace ImprovedHordes.Core.World.Horde
         private float GetDensity()
         {
             return this.clusters.Sum(cluster => cluster.GetDensity());
-        }
-
-        private bool DoesHordeExceedBiomeDensity()
-        {
-            return this.GetDensity() > HordeBiomes.DetermineBiomeDensity(this.location);
         }
 
         public void Update(float dt)
