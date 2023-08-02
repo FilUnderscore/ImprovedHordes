@@ -16,7 +16,7 @@ namespace ImprovedHordes.Core
     public sealed class ImprovedHordesCore
     {
         private const ushort DATA_FILE_MAGIC = 0x4948;
-        private const uint DATA_FILE_VERSION = 6;
+        private const uint DATA_FILE_VERSION = 7;
 
         private readonly ILoggerFactory loggerFactory;
         private readonly IRandomFactory<IWorldRandom> randomFactory;

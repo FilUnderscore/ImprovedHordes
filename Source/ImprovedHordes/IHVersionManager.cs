@@ -4,7 +4,7 @@ namespace ImprovedHordes
 {
     public sealed class IHVersionManager
     {
-        private static string VERSION = "-beta.1";
+        private static string VERSION = "-beta.2";
         private static string BUILD_TYPE;
 
         private readonly List<Mod> addons = new List<Mod>();
