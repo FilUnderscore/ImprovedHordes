@@ -2,7 +2,7 @@
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Characteristics;
 
-namespace ImprovedHordes.Test
+namespace ImprovedHordes.Test.Models.Core.World.Horde
 {
     public sealed class TestHorde : IHorde
     {

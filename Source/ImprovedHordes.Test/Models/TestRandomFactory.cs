@@ -1,7 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World.Random;
 
-namespace ImprovedHordes.Test
+namespace ImprovedHordes.Test.Models
 {
     public sealed class TestRandomFactory : IRandomFactory<IWorldRandom>
     {
@@ -18,7 +18,7 @@ namespace ImprovedHordes.Test
 
         IWorldRandom IRandomFactory<IWorldRandom>.GetSharedRandom()
         {
-            return this.sharedRandom;
+            return sharedRandom;
         }
     }
 }

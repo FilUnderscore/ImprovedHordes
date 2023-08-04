@@ -1,7 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.World.Random;
 using UnityEngine;
 
-namespace ImprovedHordes.Test
+namespace ImprovedHordes.Test.Models
 {
     public sealed class TestWorldRandom : IWorldRandom
     {

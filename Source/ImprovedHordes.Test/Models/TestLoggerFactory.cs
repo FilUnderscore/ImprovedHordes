@@ -1,6 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 
-namespace ImprovedHordes.Test
+namespace ImprovedHordes.Test.Models
 {
     public sealed class TestLoggerFactory : ILoggerFactory
     {

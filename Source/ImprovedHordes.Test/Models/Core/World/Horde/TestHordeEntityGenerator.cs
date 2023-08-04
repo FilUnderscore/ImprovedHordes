@@ -2,7 +2,7 @@
 using ImprovedHordes.Core.World.Horde;
 using UnityEngine;
 
-namespace ImprovedHordes.Test
+namespace ImprovedHordes.Test.Models.Core.World.Horde
 {
     public sealed class TestHordeEntityGenerator : HordeEntityGenerator
     {
