@@ -202,8 +202,11 @@ namespace ImprovedHordes.Core.World.Horde
 
         public bool Split(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor, out List<WorldHorde> newHordes)
         {
-            float maxBiomeDensity = HordeBiomes.DetermineMaxBiomeDensity(this.location);
+            return this.Split(HordeBiomes.DetermineMaxBiomeDensity(this.location), loggerFactory, mainThreadRequestProcessor, out newHordes);
+        }
 
+        public bool Split(float maxBiomeDensity, ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor, out List<WorldHorde> newHordes)
+        {
             if (this.GetDensity() <= maxBiomeDensity)
             {
                 newHordes = null;
