@@ -45,10 +45,10 @@ namespace ImprovedHordes.POI
 
         private Vector2i GetRegionFromPosition(Vector2 pos)
         {
-            float biomeFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeFactor(pos) : 1.0f;
+            float biomeSparsityFactor = this.biomeAffectsSparsity ? HordeBiomes.DetermineBiomeSparsityFactor(pos) : 1.0f;
 
-            int regionX = Mathf.FloorToInt((pos.x * biomeFactor) / (this.sparsityFactor * MAX_UNLOAD_VIEW_DISTANCE / 4));
-            int regionY = Mathf.FloorToInt((pos.y * biomeFactor) / (this.sparsityFactor * MAX_UNLOAD_VIEW_DISTANCE / 4));
+            int regionX = Mathf.FloorToInt((pos.x * biomeSparsityFactor) / (this.sparsityFactor * MAX_UNLOAD_VIEW_DISTANCE / 4));
+            int regionY = Mathf.FloorToInt((pos.y * biomeSparsityFactor) / (this.sparsityFactor * MAX_UNLOAD_VIEW_DISTANCE / 4));
 
             return new Vector2i(regionX, regionY);
         }
@@ -111,9 +111,7 @@ namespace ImprovedHordes.POI
 
         public override void Populate(Vector2 pos, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
-            float maxBiomeDensity = HordeBiomes.DetermineBiomeDensity(pos);
-
-            float density = worldRandom.RandomFloat * maxBiomeDensity;
+            float density = worldRandom.RandomFloat;
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(), CreateEntityAICommandGenerator());
 
             // Respawn delay for this region.

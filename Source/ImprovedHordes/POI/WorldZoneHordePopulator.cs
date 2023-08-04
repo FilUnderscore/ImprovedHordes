@@ -108,8 +108,8 @@ namespace ImprovedHordes.POI
 
         private void SpawnHordesAt(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
-            float biomeFactor = HordeBiomes.DetermineBiomeFactor(zone.GetCenter());
-            int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.FloorToInt(CalculateHordeCount(zone))) * (biomeFactor / 2));
+            float biomeSparsityFactor = HordeBiomes.DetermineBiomeSparsityFactor(zone.GetCenter());
+            int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.FloorToInt(CalculateHordeCount(zone))) * (biomeSparsityFactor / 2));
             
             for (int i = 0; i < hordeCount; i++)
             {
@@ -131,11 +131,10 @@ namespace ImprovedHordes.POI
 
         private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount)
         {
-            float maxBiomeDensity = HordeBiomes.DetermineBiomeDensity(location);
             float densitySizeRatio = 1.0f;
 
             if (this.IsDensityInfluencedByZoneProperties())
-                 densitySizeRatio = Mathf.Clamp(Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount() * hordeCount * hordeCount)), 0.0f, maxBiomeDensity);
+                 densitySizeRatio = Mathf.Clamp(Mathf.Max(1.0f, zone.GetBounds().size.magnitude / (zone.GetCount() * zone.GetCount() * hordeCount * hordeCount)), 0.0f, 1.0f);
     
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnParams(20), densitySizeRatio, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }

@@ -5,20 +5,20 @@ namespace ImprovedHordes.Core.World.Horde
 {
     public static class HordeBiomes
     {
-        private static readonly Setting<float> HORDE_BIOME_MULTIPLIER = new Setting<float>("horde_biome_multiplier", 0.1f);
-        private static readonly Setting<float> HORDE_BIOME_CURVE_SCALE = new Setting<float>("horde_biome_curve_scale", 5.0f);
+        private static readonly Setting<float> HORDE_BIOME_MULTIPLIER = new Setting<float>("horde_biome_multiplier", 0.5f);
+        private static readonly Setting<float> HORDE_BIOME_CURVE_SCALE = new Setting<float>("horde_biome_curve_scale", 1.5f);
 
         public static BiomeDefinition GetBiomeAt(Vector2 location)
         {
             return GameManager.Instance.World?.ChunkCache?.ChunkProvider?.GetBiomeProvider()?.GetBiomeAt((int)location.x, (int)location.y);
         }
 
-        public static float DetermineBiomeDensity(Vector3 location)
+        public static float DetermineMaxBiomeDensity(Vector3 location)
         {
-            return DetermineBiomeDensity(new Vector2(location.x, location.z));
+            return DetermineMaxBiomeDensity(new Vector2(location.x, location.z));
         }
 
-        public static float DetermineBiomeDensity(Vector2 location)
+        public static float DetermineMaxBiomeDensity(Vector2 location)
         {
             BiomeDefinition biome = GetBiomeAt(location);
 
@@ -29,12 +29,12 @@ namespace ImprovedHordes.Core.World.Horde
             return 1.0f + (maxHordeDensity - (maxHordeDensity / biome.Difficulty));
         }
 
-        public static float DetermineBiomeFactor(Vector3 location)
+        public static float DetermineBiomeSparsityFactor(Vector3 location)
         {
-            return DetermineBiomeFactor(new Vector2(location.x, location.z));
+            return DetermineBiomeSparsityFactor(new Vector2(location.x, location.z));
         }
 
-        public static float DetermineBiomeFactor(Vector2 location)
+        public static float DetermineBiomeSparsityFactor(Vector2 location)
         {
             BiomeDefinition biome = GetBiomeAt(location);
             float biomeMultiplier = HORDE_BIOME_MULTIPLIER.Value;

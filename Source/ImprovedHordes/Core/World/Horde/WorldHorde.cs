@@ -36,7 +36,7 @@ namespace ImprovedHordes.Core.World.Horde
         private int entityCount = 0; // Shared by main thread requests.
         private bool sleeping = false;
 
-        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density * HordeBiomes.DetermineBiomeDensity(location), entityCommandGenerator), randomFactory, commandGenerator) { }
+        public WorldHorde(Vector3 location, HordeSpawnData spawnData, IHorde horde, float density, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator, IAICommandGenerator<EntityAICommand> entityCommandGenerator) : this(location, spawnData, new HordeCluster(horde, density * HordeBiomes.DetermineMaxBiomeDensity(location), entityCommandGenerator), randomFactory, commandGenerator) { }
 
         public WorldHorde(Vector3 location, HordeSpawnData spawnData, HordeCluster cluster, IRandomFactory<IWorldRandom> randomFactory, IAICommandGenerator<AICommand> commandGenerator) : this(location, spawnData, randomFactory, commandGenerator)
         {
@@ -127,25 +127,6 @@ namespace ImprovedHordes.Core.World.Horde
             mainThreadRequestProcessor.Request(previousRequest);
         }
 
-        // Biome horde decay.
-        public void UpdateDecay(float dt)
-        {
-            var currentBiome = HordeBiomes.GetBiomeAt(this.location);
-
-            if (currentBiome == this.spawnData.SpawnBiome)
-                return;
-
-            for(int i = 0; i < this.clusters.Count; i++)
-            {
-                var cluster = this.clusters[i];
-
-                cluster.Decay(dt);
-
-                if (cluster.IsDead())
-                    this.clusters.RemoveAt(i--);
-            }
-        }
-
         public bool IsDead()
         {
             return this.clusters.Count == 0;
@@ -212,7 +193,7 @@ namespace ImprovedHordes.Core.World.Horde
             float otherHordeDensity = other.clusters.Sum(cluster => cluster.GetDensity());
             float hordeDensity = this.clusters.Sum(cluster => cluster.GetDensity());
 
-            float maxHordeDensity = HordeBiomes.DetermineBiomeDensity(this.location);
+            float maxHordeDensity = HordeBiomes.DetermineMaxBiomeDensity(this.location);
             if (otherHordeDensity + hordeDensity > maxHordeDensity)
                 return false;
 
@@ -221,16 +202,16 @@ namespace ImprovedHordes.Core.World.Horde
 
         public bool Split(ILoggerFactory loggerFactory, MainThreadRequestProcessor mainThreadRequestProcessor, out List<WorldHorde> newHordes)
         {
-            float biomeDensity = HordeBiomes.DetermineBiomeDensity(this.location);
+            float maxBiomeDensity = HordeBiomes.DetermineMaxBiomeDensity(this.location);
 
-            if (this.GetDensity() <= biomeDensity)
+            if (this.GetDensity() <= maxBiomeDensity)
             {
                 newHordes = null;
                 return false;
             }
 
             newHordes = new List<WorldHorde>();
-            float splitDensity = this.GetDensity() - biomeDensity;
+            float splitDensity = this.GetDensity() - maxBiomeDensity;
 
             WorldHorde newHorde;
             for(int i = 0; i < this.clusters.Count; i++)
@@ -240,16 +221,16 @@ namespace ImprovedHordes.Core.World.Horde
 
                 var cluster = this.clusters[i];
 
-                if(cluster.GetDensity() > biomeDensity)
+                if(cluster.GetDensity() > maxBiomeDensity)
                 {
                     // Split cluster.
-                    float clusterSplitDensity = cluster.GetDensity() - biomeDensity;
+                    float clusterSplitDensity = cluster.GetDensity() - maxBiomeDensity;
 
                     do
                     {
                         newHorde = new WorldHorde(this.location, this.spawnData, this.randomFactory, this.commandGenerator);
 
-                        float clusterDensity = Mathf.Min(clusterSplitDensity, biomeDensity);
+                        float clusterDensity = Mathf.Min(clusterSplitDensity, maxBiomeDensity);
                         HordeCluster currentCluster = new HordeCluster(cluster.GetHorde(), clusterDensity, cluster.GetEntityCommandGenerator());
                         newHorde.AddCluster(currentCluster);
                         newHordes.Add(newHorde);
