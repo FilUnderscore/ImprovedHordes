@@ -5,11 +5,10 @@ using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.Threading.Request;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using System;
-using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
-    public sealed class HordeClusterEntityGenerateSpawnRequest : IMainThreadRequest
+    public sealed class HordeClusterGenerateRequest : IMainThreadRequest
     {
         private readonly Abstractions.Logging.ILogger logger;
 
@@ -31,9 +30,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 
         private readonly ThreadSubscription<HordeClusterSpawnState> spawnState;
 
-        public HordeClusterEntityGenerateSpawnRequest(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action onSpawned)
+        public HordeClusterGenerateRequest(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action onSpawned)
         {
-            this.logger = loggerFactory.Create(typeof(HordeClusterEntityGenerateSpawnRequest));
+            this.logger = loggerFactory.Create(typeof(HordeClusterGenerateRequest));
             
             this.horde = horde;
 

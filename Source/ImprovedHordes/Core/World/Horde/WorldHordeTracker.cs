@@ -366,36 +366,6 @@ namespace ImprovedHordes.Core.World.Horde
             playerHordeGroup.AddActiveHorde(horde);
         }
 
-        private bool TrySpawnCluster(HordeCluster cluster, WorldHorde horde, PlayerHordeGroup playerHordeGroup)
-        {
-            if (cluster.TryGetSpawnRequest(out var spawnRequest))
-            {
-                if (spawnRequest.State.TryGet(out var spawnState))
-                {
-                    if (spawnState.complete && spawnState.spawned == 0) // Failed to spawn, despawn the horde and try again.
-                    {
-                        this.Logger.Warn("Failed to spawn horde cluster, retrying.");
-
-                        cluster.SetSpawnStateFlags(EHordeClusterSpawnState.DESPAWNED);
-                        horde.RequestSpawn(cluster, this.spawner, playerHordeGroup);
-
-                        return false;
-                    }
-                    else if(spawnState.complete && spawnState.remaining != 0)
-                    {
-                        this.Logger.Warn("This should not happen " + spawnState.remaining + " spawned " + spawnState.spawned);
-                        horde.Despawn(this.LoggerFactory, this.mainThreadRequestProcessor);
-                        playerHordeGroup.RemoveActiveHorde(horde);
-                    }
-                }
-
-                return true;
-            }
-
-            // Cluster has never been spawned.
-            return false;
-        }
-
         private void UpdateHordeClusterEntity(WorldHorde horde, HordeClusterEntity entity, PlayerHordeGroup playerHordeGroup)
         {
             if (!entity.IsAwaitingSpawnStateChange())
@@ -447,12 +417,9 @@ namespace ImprovedHordes.Core.World.Horde
                 {
                     foreach(var cluster in horde.GetClusters())
                     {
-                        if (TrySpawnCluster(cluster, horde, playerHordeGroup))
+                        foreach (var entity in cluster.GetEntities())
                         {
-                            foreach (var entity in cluster.GetEntities())
-                            {
-                                UpdateHordeClusterEntity(horde, entity, playerHordeGroup);
-                            }
+                            UpdateHordeClusterEntity(horde, entity, playerHordeGroup);
                         }
                     }
                 }

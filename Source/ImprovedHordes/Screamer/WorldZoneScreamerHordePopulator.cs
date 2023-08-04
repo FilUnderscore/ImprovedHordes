@@ -40,7 +40,7 @@ namespace ImprovedHordes.Screamer
         }
 
         [HarmonyPatch(typeof(AIDirectorChunkEventComponent))]
-        [HarmonyPatch("SpawnScouts")]
+        [HarmonyPatch(nameof(AIDirectorChunkEventComponent.SpawnScouts))]
         class AIDirectorChunkEventComponent_SpawnScouts_Patch
         {
             static bool Prefix()

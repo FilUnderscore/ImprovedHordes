@@ -41,26 +41,26 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="LogLibrary">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\LogLibrary.dll</HintPath>
+      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\LogLibrary.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\7 Days To Die\7DaysToDie_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -102,8 +102,6 @@
     <Compile Include="Core\World\Horde\HordeBiomes.cs" />
     <Compile Include="Core\World\Horde\HordeType.cs" />
     <Compile Include="Core\World\Horde\Spawn\HordeSpawnData.cs" />
-    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
-    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnState.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeDespawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeEntityDespawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeEntitySpawnRequest.cs" />
@@ -122,7 +120,7 @@
     <Compile Include="Core\World\Horde\AI\HordeAIAgentExecutor.cs" />
     <Compile Include="Core\World\Horde\AI\HordeEntityAIAgentExecutor.cs" />
     <Compile Include="Core\World\Horde\Populator\HordePopulator.cs" />
-    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterEntityGenerateSpawnRequest.cs" />
+    <Compile Include="Core\World\Horde\Spawn\Request\HordeClusterSpawnRequest.cs" />
     <Compile Include="Core\World\Horde\WorldHorde.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeCluster.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeClusterEntity.cs" />

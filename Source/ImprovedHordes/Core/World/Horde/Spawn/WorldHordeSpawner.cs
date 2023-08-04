@@ -4,7 +4,6 @@ using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.Threading.Request;
-using ImprovedHordes.Core.World.Horde.AI;
 using ImprovedHordes.Core.World.Horde.Cluster;
 using ImprovedHordes.Core.World.Horde.Spawn.Request;
 using System;
@@ -49,12 +48,10 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             this.hordeTracker.Add(new WorldHorde(spawnLocation, new HordeSpawnData(spawnParams, spawnBiome), horde, density, this.randomFactory, commandGenerator, entityCommandGenerator));
         }
 
-        public HordeClusterSpawnRequest RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnParams, Action onSpawned)
+        public void RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnParams, Action onSpawned)
         {
-            HordeClusterEntityGenerateSpawnRequest mainThreadRequest = new HordeClusterEntityGenerateSpawnRequest(this.loggerFactory, this.randomFactory, horde, cluster, playerGroup, spawnParams, onSpawned);
+            HordeClusterSpawnRequest mainThreadRequest = new HordeClusterSpawnRequest(this.loggerFactory, this.randomFactory, horde, cluster, playerGroup, spawnParams, onSpawned);
             this.mainThreadRequestProcessor.Request(mainThreadRequest);
-
-            return mainThreadRequest.GetSpawnRequest();
         }
     }
 }

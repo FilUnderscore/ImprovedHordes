@@ -2,7 +2,6 @@
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.Cluster.Data;
 using ImprovedHordes.Core.World.Horde.Spawn;
-using ImprovedHordes.Core.World.Horde.Spawn.Request;
 using System;
 using System.Collections.Generic;
 
@@ -14,7 +13,6 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
         private readonly HordeClusterDensity density;
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
 
-        private HordeClusterSpawnRequest? spawnRequest; // Used to keep track of spawning.
         private EHordeClusterSpawnState spawnState = EHordeClusterSpawnState.DESPAWNED;
 
         private readonly List<HordeClusterEntity> entities = new List<HordeClusterEntity>();
@@ -47,22 +45,10 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
             this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNING);
 
-            this.spawnRequest = spawner.RequestSpawn(horde, this, group, spawnParams, () =>
+            spawner.RequestSpawn(horde, this, group, spawnParams, () =>
             {
                 this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNED);
             });
-        }
-
-        public bool TryGetSpawnRequest(out HordeClusterSpawnRequest spawnRequest)
-        {
-            if(this.spawnRequest == null)
-            {
-                spawnRequest = default;
-                return false;
-            }
-
-            spawnRequest = this.spawnRequest.Value;
-            return true;
         }
 
         public float GetDensity() 

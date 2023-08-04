@@ -59,7 +59,7 @@ namespace ImprovedHordes.POI
             {
                 ulong worldTime = GameManager.Instance.World.worldTime;
 
-                if (worldTime - spawnTime < (24000 * ZONE_HORDE_REPOPULATION_DAYS.Value))
+                if (worldTime - spawnTime < (24000UL * ZONE_HORDE_REPOPULATION_DAYS.Value))
                 {
                     zone = null;
                     return false;
