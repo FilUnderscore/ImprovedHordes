@@ -214,7 +214,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>robocopy "$(TargetDir) " "C:\\Program Files (x86)\\Steam\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e
+    <PostBuildEvent>robocopy "$(TargetDir) " "Z:\\SteamLibrary\\steamapps\\common\\7 Days To Die\\Mods\\$(ProjectName) " /s /e
 exit 0</PostBuildEvent>
   </PropertyGroup>
 </Project>

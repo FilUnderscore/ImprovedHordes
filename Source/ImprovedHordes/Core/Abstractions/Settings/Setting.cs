@@ -39,7 +39,7 @@ namespace ImprovedHordes.Core.Abstractions.Settings
 
         public override void Load(ISettingLoader loader)
         {
-            if (loader.Load<T>(this.path, out var newValue))
+            if (loader != null && loader.Load<T>(this.path, out var newValue))
                 this.value = newValue;
         }
     }

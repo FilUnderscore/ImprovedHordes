@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde
@@ -75,6 +76,57 @@ namespace ImprovedHordes.Core.World.Horde
         {
         }
 
+        public List<PlayerHordeGroup> GroupPlayers(int maxViewDistance, List<PlayerSnapshot> snapshots)
+        {
+            List<PlayerHordeGroup> playerHordeGroups = new List<PlayerHordeGroup>();
+
+            // Assemble player horde groups from snapshots.
+            for (int i = 0; i < snapshots.Count; i++)
+            {
+                var player = snapshots[i];
+                Vector2 playerLocation = new Vector2(player.location.x, player.location.z);
+                
+                PlayerHordeGroup playerGroup = new PlayerHordeGroup(player);
+
+                for (int j = i + 1; j < snapshots.Count; j++)
+                {
+                    var other = snapshots[j];
+                    Vector2 otherLocation = new Vector2(other.location.x, other.location.z);
+
+                    if (Vector2.Distance(playerLocation, otherLocation) <= maxViewDistance)
+                    {
+                        playerGroup.AddPlayer(other);
+                        snapshots.RemoveAt(j--);
+                    }
+                    else
+                    {
+                        // Compare whether the current player (j) is near any other players in the newly formed group.
+                        var playerGroupPlayers = playerGroup.GetPlayers();
+                        
+                        for (int k = 1; k < playerGroupPlayers.Count; k++) // Ignore first group player since we've already checked them.
+                        {
+                            player = other;
+                            playerLocation = otherLocation;
+
+                            other = playerGroupPlayers[k];
+                            otherLocation = new Vector2(other.location.x, other.location.z);
+
+                            if (Vector2.Distance(playerLocation, otherLocation) <= maxViewDistance)
+                            {
+                                playerGroup.AddPlayer(player);
+                                snapshots.RemoveAt(j);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                playerHordeGroups.Add(playerGroup);
+            }
+
+            return playerHordeGroups;
+        }
+
         protected override void Update(float dt)
         {
             List<PlayerSnapshot> snapshots = new List<PlayerSnapshot>();
@@ -87,52 +139,7 @@ namespace ImprovedHordes.Core.World.Horde
                 snapshots.Add(new PlayerSnapshot(player, playerHordeTracker, player.position));
             }
 
-            List<PlayerHordeGroup> playerHordeGroups = new List<PlayerHordeGroup>();
-
-            // Assemble player horde groups from snapshots.
-            for (int i = 0; i < snapshots.Count; i++)
-            {
-                var player = snapshots[i];
-                Vector2 playerLocation = new Vector2(player.location.x, player.location.z);
-
-                PlayerHordeGroup playerGroup = new PlayerHordeGroup(player);
-
-                for (int j = i + 1; j < snapshots.Count; j++)
-                {
-                    var other = snapshots[j];
-                    Vector2 otherLocation = new Vector2(other.location.x, other.location.z);
-
-                    if (Vector2.Distance(playerLocation, otherLocation) <= WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
-                    {
-                        playerGroup.AddPlayer(other);
-                        snapshots.RemoveAt(j--);
-                    }
-                    else
-                    {
-                        // Compare whether the current player (j) is near any other players in the newly formed group.
-                        var playerGroupPlayers = playerGroup.GetPlayers();
-
-                        for (int k = 1; k < playerGroupPlayers.Count; k++) // Ignore first group player since we've already checked them.
-                        {
-                            player = other;
-                            playerLocation = otherLocation;
-
-                            other = playerGroupPlayers[k];
-                            otherLocation = new Vector2(other.location.x, other.location.z);
-
-                            if (Vector2.Distance(playerLocation, otherLocation) <= WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE)
-                            {
-                                playerGroup.AddPlayer(player);
-                                snapshots.RemoveAt(j--);
-                            }
-                        }
-                    }
-                }
-
-                playerHordeGroups.Add(playerGroup);
-            }
-
-            this.playerGroups.Update(playerHordeGroups);
+            this.playerGroups.Update(GroupPlayers(WorldHordeTracker.MAX_UNLOAD_VIEW_DISTANCE, snapshots));
         }
     }
 

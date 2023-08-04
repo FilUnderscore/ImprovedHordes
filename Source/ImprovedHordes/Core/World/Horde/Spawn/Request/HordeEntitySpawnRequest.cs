@@ -102,6 +102,10 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
             }
             else
             {
+#if DEBUG
+                this.logger.Warn($"Bad entity spawn at {spawnLocation}");
+#endif
+
                 done = true; // Skip the spawn request since it's a bad entity spawn.
             }
         }
