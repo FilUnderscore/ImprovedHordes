@@ -25,11 +25,10 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
                 case WanderingEnemyAIState.WanderingState.IDLE:
                     // Set next target zone / location.
                     bool zoneOrWild = worldRandom.RandomChance(0.1f);
+                    WorldPOIScanner.POIZone zone;
 
-                    if(zoneOrWild)
+                    if(zoneOrWild && (zone = worldRandom.Random(this.worldPOIScanner.GetBiomeZones(this.Biome))) != null)
                     {
-                        var zone = worldRandom.Random(this.worldPOIScanner.GetBiomeZones(this.Biome));
-
                         state.SetTargetZone(zone);
                     }
                     else
