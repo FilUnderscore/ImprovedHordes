@@ -28,7 +28,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.worldSize = worldSize;
             this.playerGroups = playerGroups;
             this.clusters = clusters;
-            this.zones = scanner.GetZones();
+            this.zones = scanner.GetAllZones();
         }
 
         public void Encode(BinaryWriter writer)

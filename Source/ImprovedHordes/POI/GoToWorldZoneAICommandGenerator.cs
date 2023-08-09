@@ -7,15 +7,17 @@ namespace ImprovedHordes.POI
     public sealed class GoToWorldZoneAICommandGenerator : IAICommandGenerator<AICommand>
     {
         private readonly WorldPOIScanner scanner;
-        
-        public GoToWorldZoneAICommandGenerator(WorldPOIScanner scanner)
+        private readonly BiomeDefinition biome;
+
+        public GoToWorldZoneAICommandGenerator(WorldPOIScanner scanner, BiomeDefinition biome)
         {
             this.scanner = scanner;
+            this.biome = biome;
         }
 
         public bool GenerateNextCommand(IWorldRandom worldRandom, out GeneratedAICommand<AICommand> command)
         {
-            var zones = this.scanner.GetZones();
+            var zones = this.scanner.GetBiomeZones(this.biome);
             var zoneTargetCommand = new GoToTargetAICommand(worldRandom.Random(zones).GetBounds().center);
 
             command = new GeneratedAICommand<AICommand>(zoneTargetCommand, (c) =>

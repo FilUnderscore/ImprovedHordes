@@ -1,5 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.World.Random;
+using ImprovedHordes.Core.World.Horde;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,7 +17,9 @@ namespace ImprovedHordes.POI
         private readonly Core.Abstractions.Logging.ILogger logger;
 
         private readonly List<POI> pois = new List<POI>();
+
         private readonly List<POIZone> zones = new List<POIZone>();
+        private readonly Dictionary<BiomeDefinition, List<POIZone>> biomeZones = new Dictionary<BiomeDefinition, List<POIZone>>();
 
         public WorldPOIScanner(ILoggerFactory loggerFactory)
         {
@@ -180,6 +184,19 @@ namespace ImprovedHordes.POI
                 }
             } while (merge);
 
+            foreach(var zone in poiZones)
+            {
+                BiomeDefinition biome = HordeBiomes.GetBiomeAt(zone.GetCenter(), true);
+
+                if(!biomeZones.TryGetValue(biome, out var biomeZonesList))                
+                {
+                    biomeZones.Add(biome, biomeZonesList = new List<POIZone>());
+                }
+
+                biomeZones[biome].Add(zone);
+                zone.biome = biome;
+            }
+
             zones.AddRange(poiZones);
 
             if (!zones.Any())
@@ -198,9 +215,14 @@ namespace ImprovedHordes.POI
             return this.avgZoneDensity;
         }
 
-        public List<POIZone> GetZones()
+        public List<POIZone> GetAllZones()
         {
             return this.zones;
+        }
+
+        public List<POIZone> GetBiomeZones(BiomeDefinition biome)
+        {
+            return this.biomeZones[biome];
         }
 
         public POI GetPOIAt(Vector3 location)
@@ -220,6 +242,7 @@ namespace ImprovedHordes.POI
         public sealed class POIZone
         {
             private List<POI> pois = new List<POI>();
+            internal BiomeDefinition biome;
 
             public POIZone(POI poi)
             {
@@ -299,6 +322,11 @@ namespace ImprovedHordes.POI
                 // If all zone POIs have land claim blocks nearby, then spawn on the outskirts of the zone.
                 float size = this.GetBounds().size.magnitude / 2;
                 location = this.GetCenter() + worldRandom.RandomOnUnitCircle * size;
+            }
+
+            public BiomeDefinition GetBiome()
+            {
+                return this.biome;
             }
         }
 

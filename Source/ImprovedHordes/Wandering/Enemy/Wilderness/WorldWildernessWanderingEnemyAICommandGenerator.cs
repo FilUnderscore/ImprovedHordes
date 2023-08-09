@@ -8,11 +8,14 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
     public sealed class WorldWildernessWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
         private const float SLEEP_CHANCE = 0.7f;
-        private readonly WorldPOIScanner worldPOIScanner;
 
-        public WorldWildernessWanderingEnemyAICommandGenerator(WorldPOIScanner worldPOIScanner) : base(new WanderingEnemyAIState())
+        private readonly WorldPOIScanner worldPOIScanner;
+        public readonly BiomeDefinition Biome;
+
+        public WorldWildernessWanderingEnemyAICommandGenerator(WorldPOIScanner worldPOIScanner, BiomeDefinition biome) : base(new WanderingEnemyAIState())
         {
             this.worldPOIScanner = worldPOIScanner;
+            this.Biome = biome;
         }
 
         protected override bool GenerateNextCommandFromState(WanderingEnemyAIState state, IWorldRandom worldRandom, out GeneratedAICommand<AICommand> command)
@@ -25,7 +28,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
 
                     if(zoneOrWild)
                     {
-                        var zone = worldRandom.Random(this.worldPOIScanner.GetZones());
+                        var zone = worldRandom.Random(this.worldPOIScanner.GetBiomeZones(this.Biome));
 
                         state.SetTargetZone(zone);
                     }

@@ -69,7 +69,7 @@ namespace ImprovedHordes.POI
                 }
             }
 
-            foreach(var zone in this.scanner.GetZones())
+            foreach(var zone in this.scanner.GetAllZones())
             {
                 Vector3 zoneWorldPos = new Vector3(randomWorldPos.x, zone.GetBounds().center.y, randomWorldPos.y);
 
@@ -112,7 +112,9 @@ namespace ImprovedHordes.POI
         public override void Populate(Vector2 pos, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
             float density = worldRandom.RandomFloat;
-            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(), CreateEntityAICommandGenerator());
+            BiomeDefinition biome = HordeBiomes.GetBiomeAt(pos, true);
+
+            spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(pos), this.spawnData, density, CreateHordeAICommandGenerator(biome), CreateEntityAICommandGenerator(biome));
 
             // Respawn delay for this region.
             ulong worldTime = GameManager.Instance.World.worldTime;
@@ -129,12 +131,12 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public virtual IAICommandGenerator<AICommand> CreateHordeAICommandGenerator()
+        public virtual IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(BiomeDefinition biome)
         {
             return null;
         }
 
-        public virtual IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator()
+        public virtual IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator(BiomeDefinition biome)
         {
             return null;
         }

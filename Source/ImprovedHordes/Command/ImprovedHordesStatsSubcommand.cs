@@ -157,7 +157,7 @@ namespace ImprovedHordes.Command
                 const float MIN_ZONE_EDGE_DISTANCE = 20.0f;
 
                 Vector3 playerPos = GameManager.Instance.World.GetPrimaryPlayer().position;
-                ICollection<WorldPOIScanner.POIZone> nearbyZones = mod.GetPOIScanner().GetZones().Where(z => Vector3.Distance(playerPos, z.GetBounds().ClosestPoint(playerPos)) <= MIN_ZONE_EDGE_DISTANCE).ToList();
+                ICollection<WorldPOIScanner.POIZone> nearbyZones = mod.GetPOIScanner().GetAllZones().Where(z => Vector3.Distance(playerPos, z.GetBounds().ClosestPoint(playerPos)) <= MIN_ZONE_EDGE_DISTANCE).ToList();
 
                 if (!nearbyZones.Any())
                 {

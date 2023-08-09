@@ -10,10 +10,12 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
         private readonly WorldPOIScanner scanner;
-        
+        private readonly BiomeDefinition biome;
+
         public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner, WorldPOIScanner.POIZone zone) : base(new WanderingEnemyAIState(zone))
         {
             this.scanner = scanner;
+            this.biome = zone.GetBiome();
         }
 
         protected override bool GenerateNextCommandFromState(WanderingEnemyAIState state, IWorldRandom worldRandom, out GeneratedAICommand<AICommand> command)
@@ -22,7 +24,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
             {
                 case WanderingEnemyAIState.WanderingState.IDLE:
                     // Set next zone target and begin moving.
-                    var zones = this.scanner.GetZones();
+                    var zones = this.scanner.GetBiomeZones(this.biome);
                     var zone = worldRandom.Random(zones);
 
                     state.SetTargetZone(zone);

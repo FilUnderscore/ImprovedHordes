@@ -8,9 +8,15 @@ namespace ImprovedHordes.Core.World.Horde
         private static readonly Setting<float> HORDE_BIOME_MULTIPLIER = new Setting<float>("horde_biome_multiplier", 0.5f);
         private static readonly Setting<float> HORDE_BIOME_CURVE_SCALE = new Setting<float>("horde_biome_curve_scale", 1.5f);
 
-        public static BiomeDefinition GetBiomeAt(Vector2 location)
+        public static BiomeDefinition GetBiomeAt(Vector2 location, bool notNull = false)
         {
-            return GameManager.Instance.World?.ChunkCache?.ChunkProvider?.GetBiomeProvider()?.GetBiomeAt((int)location.x, (int)location.y);
+            BiomeDefinition biome = GameManager.Instance.World?.ChunkCache?.ChunkProvider?.GetBiomeProvider()?.GetBiomeAt((int)location.x, (int)location.y);
+
+            if (biome != null || !notNull)
+                return biome;
+
+            biome = GameManager.Instance.World.GetBiome("pine_forest");
+            return biome;
         }
 
         public static float DetermineMaxBiomeDensity(Vector3 location)

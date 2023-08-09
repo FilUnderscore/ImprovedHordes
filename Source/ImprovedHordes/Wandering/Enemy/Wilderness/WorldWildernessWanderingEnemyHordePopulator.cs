@@ -13,9 +13,9 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
         {
         }
 
-        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator()
+        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(BiomeDefinition biome)
         {
-            return new WorldWildernessWanderingEnemyAICommandGenerator(this.scanner);
+            return new WorldWildernessWanderingEnemyAICommandGenerator(this.scanner, biome);
         }
     }
 }

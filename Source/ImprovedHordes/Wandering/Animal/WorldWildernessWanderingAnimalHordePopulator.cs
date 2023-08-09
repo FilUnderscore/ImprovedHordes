@@ -13,7 +13,7 @@ namespace ImprovedHordes.Wandering.Animal
         {
         }
 
-        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator()
+        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(BiomeDefinition biome)
         {
             return new WorldWildernessWanderingAnimalAICommandGenerator();
         }

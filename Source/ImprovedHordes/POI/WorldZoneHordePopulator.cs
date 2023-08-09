@@ -47,7 +47,7 @@ namespace ImprovedHordes.POI
 
         public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerHordeGroup> playerGroups, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
         {
-            WorldPOIScanner.POIZone randomZone = worldRandom.Random<WorldPOIScanner.POIZone>(this.scanner.GetZones());
+            WorldPOIScanner.POIZone randomZone = worldRandom.Random<WorldPOIScanner.POIZone>(this.scanner.GetAllZones());
 
             if(randomZone.GetDensity() < this.GetMinimumDensity())
             {

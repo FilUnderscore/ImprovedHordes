@@ -15,12 +15,12 @@ namespace ImprovedHordes.Implementations.Data.Parsers.POI
 
         public WorldPOIScanner.POIZone Load(IDataLoader loader, BinaryReader reader)
         {
-            return this.worldPOIScanner.GetZones()[reader.ReadInt32()];
+            return this.worldPOIScanner.GetAllZones()[reader.ReadInt32()];
         }
 
         public void Save(IDataSaver saver, BinaryWriter writer, WorldPOIScanner.POIZone obj)
         {
-            writer.Write(this.worldPOIScanner.GetZones().IndexOf(obj));
+            writer.Write(this.worldPOIScanner.GetAllZones().IndexOf(obj));
         }
     }
 }
