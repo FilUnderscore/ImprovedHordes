@@ -10,7 +10,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
     public sealed class HordeCluster : ISaveable<HordeClusterData>
     {
         private readonly IHorde horde;
-        private readonly HordeClusterDensity density;
+        private HordeClusterDensity density; // Don't make this readonly or hordes will infinitely spawn...
         private readonly IAICommandGenerator<EntityAICommand> entityCommandGenerator;
 
         private EHordeClusterSpawnState spawnState = EHordeClusterSpawnState.DESPAWNED;
@@ -76,7 +76,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
                 this.SetSpawnStateFlags(this.spawnState | EHordeClusterSpawnState.SPAWNED);
         }
 
-        public void RemoveEntity(WorldHorde worldHorde, HordeClusterEntity entity) 
+        public void RemoveEntity(HordeClusterEntity entity) 
         {
             this.entities.Remove(entity);
             this.density.RemoveEntity();

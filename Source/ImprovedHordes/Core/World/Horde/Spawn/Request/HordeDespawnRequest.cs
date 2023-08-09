@@ -45,7 +45,10 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         {
             if (this.entities.Count == 0)
             {
+                // Assume horde is dead. This is a fallback in case we can't detect a dead cluster/horde any other way.
                 this.logger.Warn("Tried to despawn horde entities but no entities were spawned.");
+                this.horde.GetClusters().Clear();
+
                 return;
             }
 
@@ -55,7 +58,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 GameManager.Instance.World.RemoveEntity(entity.GetEntity().GetEntityId(), EnumRemoveEntityReason.Killed);
 
             entity.NotifyHordeDespawned();
-            entity.GetCluster().RemoveEntity(horde, entity);
+            entity.GetCluster().RemoveEntity(entity);
         }
     }
 }
