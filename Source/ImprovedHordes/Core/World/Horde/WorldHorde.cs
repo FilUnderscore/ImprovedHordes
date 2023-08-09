@@ -117,11 +117,9 @@ namespace ImprovedHordes.Core.World.Horde
 
                     deadEntity.GetCluster().RemoveEntity(deadEntity);
                     this.RemoveSpawnedEntity(mainThreadRequestProcessor, deadEntity);
-                    Log.Out("Dead " + deadEntity.GetCluster().GetDensity() + " E" + deadEntity.GetCluster().GetEntities().Count);
-
+                    
                     if (deadEntity.GetCluster().IsDead())
                     {
-                        Log.Out("Dead cluster");
                         clusters.Remove(deadEntity.GetCluster());
                     }
                 });
