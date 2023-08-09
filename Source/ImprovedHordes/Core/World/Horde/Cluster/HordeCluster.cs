@@ -76,10 +76,12 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
                 this.SetSpawnStateFlags(this.spawnState | EHordeClusterSpawnState.SPAWNED);
         }
 
-        public void RemoveEntity(HordeClusterEntity entity) 
+        public void RemoveEntity(HordeClusterEntity entity, bool killed)
         {
             this.entities.Remove(entity);
-            this.density.RemoveEntity();
+
+            if(killed)
+                this.density.RemoveEntity();
         }
 
         public List<HordeClusterEntity> GetEntities()

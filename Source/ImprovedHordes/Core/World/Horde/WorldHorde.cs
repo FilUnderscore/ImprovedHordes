@@ -115,7 +115,7 @@ namespace ImprovedHordes.Core.World.Horde
                 {
                     entitiesTracked.TryRemove(deadEntity.GetEntityId());
 
-                    deadEntity.GetCluster().RemoveEntity(deadEntity);
+                    deadEntity.GetCluster().RemoveEntity(deadEntity, true);
                     this.RemoveSpawnedEntity(mainThreadRequestProcessor, deadEntity);
                     
                     if (deadEntity.GetCluster().IsDead())

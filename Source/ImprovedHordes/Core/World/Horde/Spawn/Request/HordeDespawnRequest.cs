@@ -58,7 +58,7 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                 GameManager.Instance.World.RemoveEntity(entity.GetEntity().GetEntityId(), EnumRemoveEntityReason.Killed);
 
             entity.NotifyHordeDespawned();
-            entity.GetCluster().RemoveEntity(entity);
+            entity.GetCluster().RemoveEntity(entity, false);
         }
     }
 }
