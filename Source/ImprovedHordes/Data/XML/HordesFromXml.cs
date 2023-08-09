@@ -42,9 +42,9 @@ namespace ImprovedHordes.Data.XML
             cached.Add(hordeDefinition, entry);
         }
 
-        public static HordeDefinition GetHordeDefinition(string type)
+        public static bool TryGetHordeDefinition(string type, out HordeDefinition definition)
         {
-            return definitions[type];
+            return definitions.TryGetValue(type, out definition);
         }
     }
 }

@@ -12,7 +12,8 @@ namespace ImprovedHordes.Data
 
         public HordeDefinitionHorde(string type)
         {
-            this.definition = HordesFromXml.GetHordeDefinition(type);
+            if (!HordesFromXml.TryGetHordeDefinition(type, out this.definition))
+                Log.Error($"Could not find horde definition with type '{type}'.");
         }
 
         public virtual bool CanMergeWith(IHorde other)
