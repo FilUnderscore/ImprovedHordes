@@ -129,6 +129,25 @@ namespace ImprovedHordes.Core.World.Horde
             mainThreadRequestProcessor.Request(previousRequest);
         }
 
+        // Biome horde decay.
+        public void UpdateDecay(float dt)
+        {
+            var currentBiome = HordeBiomes.GetBiomeAt(this.location);
+
+            if (currentBiome == this.spawnData.SpawnBiome)
+                return;
+
+            for (int i = 0; i < this.clusters.Count; i++)
+            {
+                var cluster = this.clusters[i];
+
+                cluster.Decay(dt);
+
+                if (cluster.IsDead())
+                    this.clusters.RemoveAt(i--);
+            }
+        }
+
         public bool IsDead()
         {
             return this.clusters.Count == 0;

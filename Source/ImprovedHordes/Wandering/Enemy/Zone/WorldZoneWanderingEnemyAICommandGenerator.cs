@@ -9,6 +9,8 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 {
     public sealed class WorldZoneWanderingEnemyAICommandGenerator : AIStateCommandGenerator<WanderingEnemyAIState, AICommand>
     {
+        private const float BIOME_CROSS_CHANCE = 0.2f;
+
         private readonly WorldPOIScanner scanner;
         private readonly BiomeDefinition biome;
 
@@ -24,7 +26,9 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
             {
                 case WanderingEnemyAIState.WanderingState.IDLE:
                     // Set next zone target and begin moving.
-                    var zones = this.scanner.GetBiomeZones(this.biome);
+                    bool biomeCross = worldRandom.RandomChance(BIOME_CROSS_CHANCE);
+
+                    var zones = !biomeCross ? this.scanner.GetBiomeZones(this.biome) : this.scanner.GetAllZones();
                     var zone = worldRandom.Random(zones);
 
                     state.SetTargetZone(zone);
