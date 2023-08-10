@@ -222,7 +222,10 @@ namespace ImprovedHordes.POI
 
         public List<POIZone> GetBiomeZones(BiomeDefinition biome)
         {
-            return this.biomeZones[biome];
+            if(biome != null && this.biomeZones.TryGetValue(biome, out var biomeZoneList))
+                return biomeZoneList;
+
+            return this.GetAllZones();
         }
 
         public POI GetPOIAt(Vector3 location)
