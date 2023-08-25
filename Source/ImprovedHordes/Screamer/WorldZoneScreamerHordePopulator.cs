@@ -39,6 +39,7 @@ namespace ImprovedHordes.Screamer
             return this.scanner.GetAverageZoneDensity() / 2;
         }
 
+        /*
         [HarmonyPatch(typeof(AIDirectorChunkEventComponent))]
         [HarmonyPatch(nameof(AIDirectorChunkEventComponent.SpawnScouts))]
         class AIDirectorChunkEventComponent_SpawnScouts_Patch
@@ -49,5 +50,6 @@ namespace ImprovedHordes.Screamer
                 return false;
             }
         }
+        */
     }
 }
