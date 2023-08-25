@@ -131,9 +131,14 @@ namespace ImprovedHordes
             return $"{GameIO.GetSaveGameDir()}/ImprovedHordes.bin";
         }
 
+        private bool CanInitializeCore()
+        {
+            return SingletonMonoBehaviour<ConnectionManager>.Instance.IsServer && !GameUtils.IsPlaytesting() && !GameUtils.IsWorldEditor() && GamePrefs.GetString(EnumGamePrefs.GameWorld) != "Empty";
+        }
+
         private void InitializeCore(World world)
         {
-            if (!SingletonMonoBehaviour<ConnectionManager>.Instance.IsServer)
+            if (!this.CanInitializeCore())
                 return;
 
             // AI pathing null fix.
