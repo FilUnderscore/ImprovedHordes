@@ -178,7 +178,10 @@ namespace ImprovedHordes.Core.World.Event
 
             static void Postfix(AIDirectorChunkEvent _chunkEvent)
             {
-                if (_chunkEvent.EventType == EnumAIDirectorChunkEvent.Sound || _chunkEvent.Value <= float.Epsilon)
+                if (_chunkEvent == null || _chunkEvent.EventType == EnumAIDirectorChunkEvent.Sound || _chunkEvent.Value <= float.Epsilon)
+                    return;
+
+                if (WorldEventReporter == null)
                     return;
 
                 WorldEventReporter.Report(new WorldEvent(_chunkEvent.Position, _chunkEvent.Value * 10));
@@ -215,6 +218,9 @@ namespace ImprovedHordes.Core.World.Event
                 float interest = noise.heatMapStrength * volumeScale * (10 * strength);
 
                 if (interest <= float.Epsilon)
+                    return;
+
+                if (WorldEventReporter == null)
                     return;
 
                 WorldEventReporter.Report(new WorldEvent(global::World.worldToBlockPos(position), interest, strength));
