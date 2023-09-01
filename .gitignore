@@ -432,3 +432,4 @@ replay_pid*
 .settings/
 
 target/
+**/Dependencies/

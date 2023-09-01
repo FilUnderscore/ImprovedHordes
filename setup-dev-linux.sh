@@ -1,0 +1,16 @@
+echo "Setting up dependencies"
+echo "Downloading DepotDownloader"
+mkdir "temp"
+cd "temp"
+curl -JL "https://github.com/SteamRE/DepotDownloader/releases/latest/download/DepotDownloader-linux-x64.zip" -o "DepotDownloader-linux-x64.zip"
+echo "Extracting DepotDownloader"
+unzip "DepotDownloader-linux-x64.zip"
+echo "Downloading Latest Binaries"
+sudo chmod 777 ./DepotDownloader
+sudo ls
+sudo ./DepotDownloader -app 294420 -filelist "../setup-filelist.txt" -dir "../Dependencies"
+echo "Dependencies successfully downloaded"
+echo "Cleaning up"
+cd "../"
+rm -rf "Dependencies/.DepotDownloader"
+echo "Development Environment setup"
