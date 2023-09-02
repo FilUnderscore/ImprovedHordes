@@ -23,12 +23,28 @@ pipeline
     post {
         success {
             script {
+                GIT_COMMIT_HASH = sh (
+                    script: "sudo git log -n 1 --pretty=format:'%h'",
+                    returnStdout: true
+                ).trim()
+
+                GIT_COMMIT_COUNT = sh (
+                    script: "git rev-list --count ${env.BRANCH_NAME}",
+                    returnStdout: true
+                ).trim()
+
                 MODINFO_VERSION = sh (
                     script: "xmlstarlet sel -t -v '/ModInfo/Version/@value' ImprovedHordes/ModInfo.xml",
                     returnStdout: true
                 ).trim()
 
-                sh "sudo xmlstarlet edit --inplace --update '/ModInfo/Version/@value' --value '${MODINFO_VERSION}.1' ImprovedHordes/ModInfo.xml"
+                MANIFEST_VERSION = sh (
+                    script: "xmlstarlet sel -t -v '/ModManifest/Version/text()' ImprovedHordes/Manifest.xml",
+                    returnStdout: true
+                ).trim()
+
+                sh "sudo xmlstarlet edit --inplace --update '/ModInfo/Version/@value' --value '${MODINFO_VERSION}.${GIT_COMMIT_COUNT}' ImprovedHordes/ModInfo.xml"
+                sh "sudo xmlstarlet edit --inplace --update '/ModManifest/Version' --value '${MANIFEST_VERSION}+${env.BRANCH_NAME}.${GIT_COMMIT_COUNT}.${GIT_COMMIT_HASH}' ImprovedHordes/Manifest.xml"
             }
 
             sh "mv ImprovedHordes ImprovedHordes-temp"
