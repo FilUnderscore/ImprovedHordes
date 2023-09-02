@@ -16,6 +16,8 @@ pipeline
     }
     post {
         success {
+            sh "sudo ls"
+
             script {
                 GIT_COMMIT_HASH = sh (
                     script: "sudo git log -n 1 --pretty=format:'%h'",
