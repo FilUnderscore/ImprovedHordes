@@ -25,7 +25,7 @@ pipeline
                 ).trim()
 
                 GIT_COMMIT_COUNT = sh (
-                    script: "git rev-list --count ${env.BRANCH_NAME}",
+                    script: "git rev-list --count HEAD",
                     returnStdout: true
                 ).trim()
 
