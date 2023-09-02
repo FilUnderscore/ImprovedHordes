@@ -54,6 +54,11 @@ pipeline
 
         cleanup {
             deleteDir()
+            
+            // Delete tmp dir
+            dir("${workspace}@tmp") {
+                deleteDir()
+            }
         }
     }
 }
