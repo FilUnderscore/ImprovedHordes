@@ -41,11 +41,12 @@ pipeline
                 sh "sudo xmlstarlet edit --inplace --update '/ModManifest/Version' --value '${MANIFEST_VERSION}+${env.BRANCH_NAME}.${GIT_COMMIT_COUNT}.${GIT_COMMIT_HASH}' ImprovedHordes/Manifest.xml"
             }
 
+            sh "rm ImprovedHordes/Config/nav_objects.xml"
             sh "mv ImprovedHordes ImprovedHordes-temp"
             sh "mkdir ImprovedHordes"
             sh "mv ImprovedHordes-temp ImprovedHordes/ImprovedHordes"
             zip zipFile: 'ImprovedHordes.zip', archive: false, dir: 'ImprovedHordes'
-            archiveArtifacts artifacts: 'ImprovedHordes.zip', onlyIfSuccessful: true
+            archiveArtifacts artifacts: 'ImprovedHordes.zip', onlyIfSuccessful: true, fingerprint: true
 
             buildName "${MANIFEST_VERSION}+${GIT_COMMIT_COUNT}.${GIT_COMMIT_HASH}"
         }
