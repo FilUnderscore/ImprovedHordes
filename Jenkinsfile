@@ -52,6 +52,8 @@ pipeline
             sh "mv ImprovedHordes-temp ImprovedHordes/ImprovedHordes"
             zip zipFile: 'ImprovedHordes.zip', archive: false, dir: 'ImprovedHordes'
             archiveArtifacts artifacts: 'ImprovedHordes.zip', onlyIfSuccessful: true
+
+            buildName "${MANIFEST_VERSION}+${env.BRANCH_NAME}.${GIT_COMMIT_COUNT}.${GIT_COMMIT_HASH}"
         }
     }
 }
