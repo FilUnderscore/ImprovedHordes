@@ -22,6 +22,25 @@ pipeline
     }
     post {
         success {
+            script {
+                // Update build number in ModInfo file.
+                def slurper = new groovy.util.XmlSlurper().parseText(xmlOriginal)
+                def currentVersion = slurper.ModInfo.Version.@value
+                def buildNo = currentBuild.number
+                def split = currentVersion.split('\\.')
+                def newVersion = ""
+
+                for(int i = split.length; i < 3; i++) {
+                    newVersion += split[i] + "."
+                }
+                
+                newVersion += buildNo
+
+                slurper.ModInfo.Version.@value = "2.0.0" + currentBuild.number
+                def xmlModified = groovy.xml.XmlUtil.serialize(slurper)
+                new File("ImprovedHordes/ModInfo.xml") << xmlModified
+            }
+
             sh "mv ImprovedHordes ImprovedHordes-temp"
             sh "mkdir ImprovedHordes"
             sh "mv ImprovedHordes-temp ImprovedHordes/ImprovedHordes"
