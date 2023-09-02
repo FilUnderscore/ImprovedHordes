@@ -24,11 +24,11 @@ pipeline
         success {
             script {
                 MODINFO_VERSION = sh (
-                    script: "xmlstarlet sel -t -v '/ModInfo/Version/@value' ModInfo.xml",
+                    script: "xmlstarlet sel -t -v '/ModInfo/Version/@value' ImprovedHordes/ModInfo.xml",
                     returnStdout: true
                 ).trim()
 
-                sh "sudo xmlstarlet edit --inplace --update '/ModInfo/Version/@value' --value '${MODINFO_VERSION} + .1' ModInfo.xml"
+                sh "sudo xmlstarlet edit --inplace --update '/ModInfo/Version/@value' --value '${MODINFO_VERSION}.1' ImprovedHordes/ModInfo.xml"
             }
 
             sh "mv ImprovedHordes ImprovedHordes-temp"
