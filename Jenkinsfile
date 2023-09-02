@@ -23,24 +23,12 @@ pipeline
     post {
         success {
             script {
-                // Update build number in ModInfo file.
-                def xml = readFile "ImprovedHordes/ModInfo.xml"
-                def rootNode = new XmlParser().parseText(xml)
-                def versionNode = rootNode['Version']
-                def currentVersion = versionNode['@value']
-                def buildNo = currentBuild.number
-                def split = currentVersion.split('\\.')
-                def newVersion = ""
+                MODINFO_VERSION = sh (
+                    script: "xmlstarlet sel -t -v '/ModInfo/Version/@value' ModInfo.xml",
+                    returnStdout: true
+                ).trim()
 
-                for(int i = split.length; i < 3; i++) {
-                    newVersion += split[i] + "."
-                }
-                
-                newVersion += buildNo
-
-                versionNode['@value'] = "2.0.0" + currentBuild.number
-                def xmlModified = groovy.xml.XmlUtil.serialize(rootNode)
-                new File("ImprovedHordes/ModInfo.xml") << xmlModified
+                sh "sudo xmlstarlet edit --inplace --update '/ModInfo/Version/@value' --value '${MODINFO_VERSION} + .1' ModInfo.xml"
             }
 
             sh "mv ImprovedHordes ImprovedHordes-temp"
