@@ -3,12 +3,6 @@ pipeline
     agent any
     
     stages {
-        stage ('Checkout') {
-            steps {
-                deleteDir()
-                git url: 'https://github.com/FilUnderscore/ImprovedHordes.git', branch: env.BRANCH_NAME
-            }
-        }
         stage ('Setup Build Environment') {
             steps {
                 sh "sudo sh setup-dev-linux.sh"
@@ -54,6 +48,10 @@ pipeline
             archiveArtifacts artifacts: 'ImprovedHordes.zip', onlyIfSuccessful: true
 
             buildName "${MANIFEST_VERSION}+${GIT_COMMIT_COUNT}.${GIT_COMMIT_HASH}"
+        }
+
+        cleanup {
+            deleteDir()
         }
     }
 }
