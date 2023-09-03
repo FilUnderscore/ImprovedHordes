@@ -421,10 +421,15 @@ namespace ImprovedHordes.Core.World.Horde
                 }
                 else
                 {
-                    foreach(var cluster in horde.GetClusters())
+                    // Don't use a foreach loop since these lists can change at any time.
+                    // This way we ignore a Collection modified exception.
+                    for(int i = 0; i < horde.GetClusters().Count; i++)
                     {
-                        foreach (var entity in cluster.GetEntities())
+                        var cluster = horde.GetClusters()[i];
+
+                        for (int j = 0; j < cluster.GetEntities().Count; j++)
                         {
+                            var entity = cluster.GetEntities()[j];
                             UpdateHordeClusterEntity(horde, entity, playerHordeGroup);
                         }
                     }
