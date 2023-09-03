@@ -304,23 +304,26 @@ namespace ImprovedHordes.POI
 
             public void GetLocationOutside(IWorldRandom worldRandom, out Vector2 location)
             {
-                List<POI> remainingPOIs = this.pois.ToList();
-                POI randomPOI;
-
-                do
+                if (GameManager.Instance.World.ChunkClusters?[0]?.ChunkProvider?.GetDynamicPrefabDecorator() != null) // NRE fix for LCB/trader area detection.
                 {
-                    randomPOI = worldRandom.Random<POI>(this.pois);
+                    List<POI> remainingPOIs = this.pois.ToList();
+                    POI randomPOI;
 
-                    if (!randomPOI.IsPlayerConvertedPOI())
+                    do
                     {
-                        randomPOI.GetLocationOutside(worldRandom, out location);
-                        remainingPOIs.Clear();
+                        randomPOI = worldRandom.Random<POI>(this.pois);
 
-                        return;
-                    }
+                        if (!randomPOI.IsPlayerConvertedPOI())
+                        {
+                            randomPOI.GetLocationOutside(worldRandom, out location);
+                            remainingPOIs.Clear();
 
-                    remainingPOIs.Remove(randomPOI);
-                } while (remainingPOIs.Count > 0);
+                            return;
+                        }
+
+                        remainingPOIs.Remove(randomPOI);
+                    } while (remainingPOIs.Count > 0);
+                }
 
                 // If all zone POIs have land claim blocks nearby, then spawn on the outskirts of the zone.
                 float size = this.GetBounds().size.magnitude / 2;
