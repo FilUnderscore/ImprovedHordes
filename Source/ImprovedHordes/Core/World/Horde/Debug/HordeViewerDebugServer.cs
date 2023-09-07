@@ -12,7 +12,6 @@ using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.POI;
 using UnityEngine;
-using static ImprovedHordes.Core.World.Horde.WorldHordeTracker;
 
 namespace ImprovedHordes.Core.World.Horde.Debug
 {
@@ -184,8 +183,10 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         {
             WorldHordeState state = new WorldHordeState(this.worldSize, this.scanner, this.playerGroups, this.clusters);
 
-            foreach(var client in this.clients)
+            for(int i = 0; i < this.clients.Count; i++)
             {
+                var client = this.clients[i];
+
                 try
                 {
                     BinaryWriter writer = new BinaryWriter(client.GetStream());
