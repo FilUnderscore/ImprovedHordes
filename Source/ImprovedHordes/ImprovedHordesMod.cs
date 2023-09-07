@@ -142,7 +142,10 @@ namespace ImprovedHordes
                 return;
 
             // AI pathing null fix.
-            new ThreadSafeAStarPathFinderThread().StartWorkerThreads();
+            if (!UnityEngine.Debug.isDebugBuild) // For standard builds of 7DTD.
+                new ThreadedThreadSafeAStarPathFinderThread().StartWorkerThreads();
+            else // For debug builds of 7DTD. Fixes main thread access errors only present in the Debug build.
+                new CoroutinedThreadSafeAStarPathFinderThread().StartWorkerThreads();
 
             // Patch patches / register game event handlers.
             this.Patch(true);

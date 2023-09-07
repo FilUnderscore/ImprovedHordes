@@ -4,6 +4,7 @@ using ImprovedHordes.Core.Abstractions.Settings;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace ImprovedHordes.Core.Threading
@@ -33,7 +34,17 @@ namespace ImprovedHordes.Core.Threading
 
         protected void Start()
         {
-            this.threadInfo = ThreadManager.StartThread($"IHThreaded-{this.GetType().Name}", ThreadStart, ThreadLoop, ThreadEnd, System.Threading.ThreadPriority.Lowest, _useRealThread: true);
+            bool isDebug = UnityEngine.Debug.isDebugBuild;
+
+            if (!isDebug) // For standard builds of 7DTD.
+            {
+                this.threadInfo = ThreadManager.StartThread($"IHThreaded-{this.GetType().Name}", ThreadStart, ThreadLoop, ThreadEnd, System.Threading.ThreadPriority.Lowest, _useRealThread: true);
+            }
+            else // For debug builds of 7DTD. Conditional method groups are not supported in C# 7.3 so we can't stick this in one line.
+            {
+                this.stopwatch = Stopwatch.StartNew();
+                this.threadInfo = ThreadManager.StartThread($"IHThreaded-Debug-{this.GetType().Name}", ThreadStart, ThreadLoopDebug, ThreadEnd, System.Threading.ThreadPriority.Lowest, _useRealThread: true);
+            }
         }
 
         private void ThreadStart(ThreadManager.ThreadInfo threadInfo)
@@ -41,16 +52,16 @@ namespace ImprovedHordes.Core.Threading
             this.OnStart();
         }
 
+        private Stopwatch stopwatch;
         private float start;
 
-        private int ThreadLoop(ThreadManager.ThreadInfo threadInfo)
+        private int UpdateThread(Action resetTime, Func<float> getDeltaTime)
         {
             int threadTickMs = THREAD_TICK_MS.Value;
             bool paused = false;
 
-            while(!this.shutdown)
+            while (!this.shutdown)
             {
-                float end = Time.time;
                 bool unpaused = !(!CanRun() || GameManager.Instance.IsPaused());
 
                 if (!unpaused)
@@ -58,22 +69,20 @@ namespace ImprovedHordes.Core.Threading
                     paused = true;
                     return threadTickMs * 10;
                 }
-                else if(paused) // Since we were previously paused, don't calculate dt during that time.
+                else if (paused) // Since we were previously paused, don't calculate dt during that time.
                 {
                     paused = false;
-                    start = Time.time;
+                    resetTime();
                 }
 
                 try
                 {
-                    float dt = end - start;
-                    start = Time.time;
-
-                    //this.Logger.Info("DeltaTime: " + dt);
+                    float dt = getDeltaTime();
+                    resetTime();
 
                     UpdateAsync(dt);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     this.Logger.Error($"An exception occurred during {nameof(UpdateAsync)}: {e.Message} \nStacktrace: \n{e.StackTrace}");
                 }
@@ -82,6 +91,30 @@ namespace ImprovedHordes.Core.Threading
             }
 
             return -1;
+        }
+
+        private int ThreadLoop(ThreadManager.ThreadInfo _)
+        {
+            float end = Time.time;
+
+            return UpdateThread(() =>
+            {
+                start = Time.time;
+            }, () =>
+            {
+                return end - start;
+            });
+        }
+
+        private int ThreadLoopDebug(ThreadManager.ThreadInfo threadInfo) // Consistent with ThreadLoop however may be slightly slower for debug builds due to using Stopwatch.
+        {
+            return UpdateThread(() =>
+            {
+                this.stopwatch.Restart();
+            }, () =>
+            {
+                return this.stopwatch.ElapsedMilliseconds / 1000.0f;
+            });
         }
 
         private void ThreadEnd(ThreadManager.ThreadInfo threadInfo, bool exitForException)

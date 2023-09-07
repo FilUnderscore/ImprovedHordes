@@ -1,25 +1,25 @@
 ﻿using GamePath;
+using System.Collections;
 using System.Collections.Concurrent;
 using UnityEngine;
 
 namespace ImprovedHordes
 {
-    public sealed class ThreadSafeAStarPathFinderThread : PathFinderThread
+    public abstract class ThreadSafeAStarPathFinderThread : PathFinderThread
     {
         private readonly ConcurrentQueue<int> waitQueue = new ConcurrentQueue<int>();
         private readonly ConcurrentDictionary<int, PathInfo> finishedPaths = new ConcurrentDictionary<int, PathInfo>();
-
-        private ThreadManager.ThreadInfo threadInfo;
-        private bool running;
 
         public ThreadSafeAStarPathFinderThread()
         {
             Instance = this;
         }
 
+        protected abstract void Shutdown();
+
         public override void Cleanup()
         {
-            running = false;
+            this.Shutdown();
             while (this.waitQueue.TryDequeue(out _)) { }
             this.finishedPaths.Clear();
         }
@@ -28,45 +28,24 @@ namespace ImprovedHordes
 
         public override int GetQueueCount() => this.waitQueue.Count;
 
-        public override void StartWorkerThreads()
+        protected void Update()
         {
-            this.threadInfo = ThreadManager.StartThread("IH-ThreadSafeAStarPathFinder", StartThread, LoopThread, EndThread, System.Threading.ThreadPriority.Lowest, null, null, false);
-        }
-
-        private void StartThread(ThreadManager.ThreadInfo threadInfo)
-        {
-            running = true;
-        }
-
-        private int LoopThread(ThreadManager.ThreadInfo threadInfo)
-        {
-            while (running)
+            while (waitQueue.TryDequeue(out int entityId))
             {
-                while (waitQueue.TryDequeue(out int entityId))
+                if (this.finishedPaths.TryGetValue(entityId, out PathInfo pathInfo))
                 {
-                    if (this.finishedPaths.TryGetValue(entityId, out PathInfo pathInfo))
+                    if (pathInfo == null || pathInfo.entity == null || pathInfo.entity.navigator == null)
                     {
-                        if (pathInfo == null || pathInfo.entity == null || pathInfo.entity.navigator == null)
-                        {
-                            this.finishedPaths.TryRemove(entityId, out _);
-                            continue;
-                        }
-
-                        pathInfo.entity.navigator.GetPathTo(pathInfo);
-
-                        if (pathInfo.state == PathInfo.State.Queued)
-                            this.finishedPaths.TryRemove(entityId, out _);
+                        this.finishedPaths.TryRemove(entityId, out _);
+                        continue;
                     }
+
+                    pathInfo.entity.navigator.GetPathTo(pathInfo);
+
+                    if (pathInfo.state == PathInfo.State.Queued)
+                        this.finishedPaths.TryRemove(entityId, out _);
                 }
-
-                return 100;
             }
-
-            return -1;
-        }
-
-        private void EndThread(ThreadManager.ThreadInfo threadInfo, bool exitForException)
-        {
         }
 
         public override void FindPath(EntityAlive _entity, Vector3 _startPos, Vector3 _targetPos, float _speed, bool _canBreak, EAIBase _aiTask)
@@ -102,6 +81,67 @@ namespace ImprovedHordes
         public override void RemovePathsFor(int _entityId)
         {
             this.finishedPaths.TryRemove(_entityId, out _);
+        }
+    }
+
+    public sealed class ThreadedThreadSafeAStarPathFinderThread : ThreadSafeAStarPathFinderThread
+    {
+        private ThreadManager.ThreadInfo threadInfo;
+        private bool running;
+
+        public override void StartWorkerThreads()
+        {
+            this.threadInfo = ThreadManager.StartThread("IH-ThreadSafeAStarPathFinder", StartThread, LoopThread, EndThread, System.Threading.ThreadPriority.Lowest, null, null, false);
+        }
+
+        protected override void Shutdown()
+        {
+            this.running = false;
+        }
+
+        private void StartThread(ThreadManager.ThreadInfo threadInfo)
+        {
+            this.running = true;
+        }
+
+        private int LoopThread(ThreadManager.ThreadInfo threadInfo)
+        {
+            while (running)
+            {
+                this.Update();
+
+                return 100;
+            }
+
+            return -1;
+        }
+
+        private void EndThread(ThreadManager.ThreadInfo threadInfo, bool exitForException)
+        {
+        }
+    }
+
+    public sealed class CoroutinedThreadSafeAStarPathFinderThread : ThreadSafeAStarPathFinderThread
+    {
+        private Coroutine coroutine;
+
+        public override void StartWorkerThreads()
+        {
+            this.coroutine = GameManager.Instance.StartCoroutine(this.FindPaths());
+        }
+
+        private IEnumerator FindPaths()
+        {
+            while(true)
+            {
+                this.Update();
+                yield return null;
+            }
+        }
+
+        protected override void Shutdown()
+        {
+            GameManager.Instance.StopCoroutine(this.coroutine);
         }
     }
 }
