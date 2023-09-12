@@ -66,7 +66,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
                     var zone = state.GetTargetZone();
                     zone.GetLocationOutside(worldRandom, out Vector2 location);
 
-                    command = new GeneratedAICommand<AICommand>(new GoToTargetAICommand(location, true, false), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new GoToTargetAICommand(location), (_) =>
                     {
                         // On complete, change to wander.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.WANDER);

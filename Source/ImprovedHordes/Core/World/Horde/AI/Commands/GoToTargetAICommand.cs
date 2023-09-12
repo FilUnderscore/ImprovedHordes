@@ -9,7 +9,7 @@ namespace ImprovedHordes.Core.World.Horde.AI.Commands
         private Vector3 target;
         private bool canRun, canBreak;
 
-        public GoToTargetAICommand(Vector2 target, bool canRun = false, bool canBreak = false) : this(new Vector3(target.x, target.y), canRun, canBreak) {}
+        public GoToTargetAICommand(Vector2 target, bool canRun = false, bool canBreak = false) : this(new Vector3(target.x, 0, target.y), canRun, canBreak) {}
 
         public GoToTargetAICommand(Vector3 target, bool canRun = false, bool canBreak = false) : base()
         {
