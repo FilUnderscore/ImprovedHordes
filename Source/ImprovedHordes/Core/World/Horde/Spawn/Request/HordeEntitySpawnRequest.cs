@@ -125,10 +125,6 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
                     break;
 
                 previousSpawnPosition += direction * (targetSpawnDistance - playerDistance); // Careful, this can cause the loop to hang if not properly checked.
-
-#if DEBUG
-                Log.Out("EDir " + direction + " " + playerDistance);
-#endif
             } while (true);
 
             spawnPosition = previousSpawnPosition;
