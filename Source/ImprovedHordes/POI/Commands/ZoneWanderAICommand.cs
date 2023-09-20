@@ -59,9 +59,9 @@ namespace ImprovedHordes.Screamer.Commands
             {
                 if (this.useWanderCount)
                     this.wanderCount--;
-                
-                this.UpdateTarget(GetNextTarget(this.zone, this.random, out _, out _));
+
                 agent.Stop();
+                this.UpdateTarget(GetNextTarget(this.zone, this.random, out _, out _));
             }
 
             return false;

@@ -24,29 +24,16 @@ namespace ImprovedHordes.Screamer
                     state.SetRemainingWanderTime(wanderTime);
 
                     break;
-                case ScreamerAIState.WanderState.WANDERING:
-                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
-                    {
-                        // On complete, change to idle.
-                        state.SetWanderState(ScreamerAIState.WanderState.IDLE);
-                    }, (wanderCommand) =>
-                    {
-                        // On interrupt, change to moving.
-                        state.SetRemainingWanderTime(((WanderAICommand)wanderCommand).GetWanderTime());
-                        state.SetWanderState(ScreamerAIState.WanderState.MOVING);
-                    });
-
-                    return true;
                 case ScreamerAIState.WanderState.MOVING:
                     // Continue moving to next wander location within zone.
                     break;
             }
 
-            if(state.GetWanderState() != ScreamerAIState.WanderState.WANDERING)
+            if(state.GetWanderState() != ScreamerAIState.WanderState.IDLE)
             {
                 command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetPOIZone(), worldRandom, false), (_) =>
                 {
-                    state.SetWanderState(ScreamerAIState.WanderState.WANDERING);
+                    state.SetWanderState(ScreamerAIState.WanderState.IDLE);
                 });
 
                 return true;

@@ -2,6 +2,7 @@
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
+using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy.Wilderness
 {
@@ -51,7 +52,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
-                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetTargetLocation().Value, worldRandom, 20.0f, state.GetRemainingWanderTime()), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);
@@ -84,7 +85,9 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
                     if(state.GetTargetZone() != null)
                     {
                         var zone = state.GetTargetZone();
-                        targetCommand = new GoToTargetAICommand(zone.GetBounds().center);
+                        zone.GetLocationOutside(worldRandom, out Vector2 zoneLocation);
+                        targetCommand = new GoToTargetAICommand(zoneLocation);
+                        state.SetTargetLocation(zoneLocation);
                     }
                     else if(state.GetTargetLocation() != null)
                     {

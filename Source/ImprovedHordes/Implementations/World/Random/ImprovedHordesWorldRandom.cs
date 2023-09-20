@@ -76,5 +76,13 @@ namespace ImprovedHordes.Implementations.World.Random
                 return this.random.RandomOnUnitCircle;
             }
         }
+
+        public Vector2 RandomInsideUnitCircle
+        {
+            get
+            {
+                return this.random.RandomInsideUnitCircle;
+            }
+        }
     }
 }

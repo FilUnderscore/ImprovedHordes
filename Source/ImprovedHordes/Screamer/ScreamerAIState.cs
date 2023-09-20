@@ -7,7 +7,6 @@ namespace ImprovedHordes.Screamer
     {
         public enum WanderState
         {
-            WANDERING,
             MOVING,
             IDLE
         }

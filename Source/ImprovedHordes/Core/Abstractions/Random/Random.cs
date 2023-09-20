@@ -13,5 +13,6 @@ namespace ImprovedHordes.Core.Abstractions.Random
         T Random<T>(IList<T> collection);
 
         Vector2 RandomOnUnitCircle { get; }
+        Vector2 RandomInsideUnitCircle { get; }
     }
 }

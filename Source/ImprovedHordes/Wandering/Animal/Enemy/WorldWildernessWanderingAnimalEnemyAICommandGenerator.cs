@@ -27,7 +27,7 @@ namespace ImprovedHordes.Wandering.Animal.Enemy
 
                     break;
                 case WanderingAnimalAIState.WanderingState.WANDER:
-                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetRemainingWanderTime()), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new WanderAICommand(state.GetTargetLocation(), worldRandom, 30.0f, state.GetRemainingWanderTime()), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingAnimalAIState.WanderingState.IDLE);
