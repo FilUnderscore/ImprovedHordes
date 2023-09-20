@@ -15,15 +15,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
     {
         private readonly ILoggerFactory loggerFactory;
         private readonly IRandomFactory<IWorldRandom> randomFactory;
-        private readonly IEntitySpawner entitySpawner;
         private readonly WorldHordeTracker hordeTracker;
         private readonly MainThreadRequestProcessor mainThreadRequestProcessor;
 
-        public WorldHordeSpawner(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, IEntitySpawner entitySpawner, WorldHordeTracker hordeTracker, MainThreadRequestProcessor mainThreadRequestProcessor)
+        public WorldHordeSpawner(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHordeTracker hordeTracker, MainThreadRequestProcessor mainThreadRequestProcessor)
         {
             this.loggerFactory = loggerFactory;
             this.randomFactory = randomFactory;
-            this.entitySpawner = entitySpawner;
             this.hordeTracker = hordeTracker;
             this.mainThreadRequestProcessor = mainThreadRequestProcessor;
 
@@ -48,9 +46,9 @@ namespace ImprovedHordes.Core.World.Horde.Spawn
             this.hordeTracker.Add(new WorldHorde(spawnLocation, new HordeSpawnData(spawnParams, spawnBiome), horde, density, this.randomFactory, commandGenerator, entityCommandGenerator));
         }
 
-        public void RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnParams, Action onSpawned)
+        public void RequestSpawn(WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, Action onSpawned)
         {
-            HordeClusterSpawnRequest mainThreadRequest = new HordeClusterSpawnRequest(this.loggerFactory, this.randomFactory, horde, cluster, playerGroup, spawnParams, onSpawned);
+            HordeClusterSpawnRequest mainThreadRequest = new HordeClusterSpawnRequest(this.loggerFactory, this.randomFactory, horde, cluster, playerGroup, onSpawned);
             this.mainThreadRequestProcessor.Request(mainThreadRequest);
         }
     }

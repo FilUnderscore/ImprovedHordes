@@ -80,7 +80,7 @@ namespace ImprovedHordes.Core.World.Horde
 
         public void RequestSpawn(HordeCluster cluster, WorldHordeSpawner spawner, PlayerHordeGroup group)
         {
-            cluster.RequestSpawn(this, this.spawnData.SpawnParams, spawner, group);
+            cluster.RequestSpawn(this, spawner, group);
         }
 
         private void AddCluster(HordeCluster cluster)

@@ -9,15 +9,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
 {
     public sealed class HordeClusterSpawnRequest : IMainThreadRequest
     {
-        private readonly Abstractions.Logging.ILogger logger;
+        private readonly ILogger logger;
 
         private readonly HordeEntityGenerator generator;
 
         private readonly WorldHorde horde;
 
         private readonly HordeCluster cluster;
-        private readonly PlayerHordeGroup playerGroup;
-        private readonly HordeSpawnParams spawnData;
 
         private readonly int size;
         private int index;
@@ -27,15 +25,13 @@ namespace ImprovedHordes.Core.World.Horde.Spawn.Request
         private readonly IRandomFactory<IWorldRandom> randomFactory;
         private readonly IWorldRandom random;
 
-        public HordeClusterSpawnRequest(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, HordeSpawnParams spawnData, Action onSpawned)
+        public HordeClusterSpawnRequest(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, WorldHorde horde, HordeCluster cluster, PlayerHordeGroup playerGroup, Action onSpawned)
         {
             this.logger = loggerFactory.Create(typeof(HordeClusterSpawnRequest));
             
             this.horde = horde;
 
             this.cluster = cluster;
-            this.playerGroup = playerGroup;
-            this.spawnData = spawnData;
 
             this.randomFactory = randomFactory;
             this.random = randomFactory.CreateRandom(this.cluster.GetHashCode());

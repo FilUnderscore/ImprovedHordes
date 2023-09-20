@@ -36,7 +36,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
             return this.horde;
         }
 
-        public void RequestSpawn(WorldHorde horde, HordeSpawnParams spawnParams, WorldHordeSpawner spawner, PlayerHordeGroup group)
+        public void RequestSpawn(WorldHorde horde, WorldHordeSpawner spawner, PlayerHordeGroup group)
         {
             if (this.Spawned && this.Spawning)
             {
@@ -45,7 +45,7 @@ namespace ImprovedHordes.Core.World.Horde.Cluster
 
             this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNING);
 
-            spawner.RequestSpawn(horde, this, group, spawnParams, () =>
+            spawner.RequestSpawn(horde, this, group, () =>
             {
                 this.SetSpawnStateFlags(EHordeClusterSpawnState.SPAWNED);
             });
