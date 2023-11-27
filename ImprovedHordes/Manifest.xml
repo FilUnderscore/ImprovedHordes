@@ -2,5 +2,5 @@
 <ModManifest>
   <ManifestUrl>https://raw.githubusercontent.com/FilUnderscore/ImprovedHordes/dev/ImprovedHordes/Manifest.xml</ManifestUrl>
   <Version>2.0.0-beta.5</Version>
-  <GameVersion ReleaseType="Alpha" Major="21" Minor="1" Build="16" />
+  <GameVersion ReleaseType="Alpha" Major="21" Minor="2" Build="30" />
 </ModManifest>
