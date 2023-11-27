@@ -66,7 +66,7 @@ namespace ImprovedHordes.POI
                 }
             }
 
-            float townWeight = Mathf.Min(TOWN_WEIGHT, toZone.Average(poi => poi.GetWeight()));
+            float townWeight = toZone.Count > 0 ? Mathf.Min(TOWN_WEIGHT, toZone.Average(poi => poi.GetWeight())) : TOWN_WEIGHT;
             //this.logger.Info("Town Weight: " + townWeight);
             //this.logger.Info("Avg: " + toZone.Average(poi => poi.GetWeight()));
 
