@@ -7,7 +7,7 @@ namespace ImprovedHordes
     {
         private static Setting<bool> SILENCE_INIT_MSG = new Setting<bool>("silence_init_msg", false);
 
-        private static string VERSION = "-beta.5";
+        private static string VERSION;
         private static string BUILD_TYPE;
 
         private readonly List<Mod> addons = new List<Mod>();
@@ -25,7 +25,7 @@ namespace ImprovedHordes
 
         public IHVersionManager(ImprovedHordesMod mod, Mod _modInstance)
         {
-            VERSION = _modInstance.Version.ToString() + VERSION;
+            VERSION = _modInstance.Version.ToString();
 
 #if !RELEASE
             Log.Out($"[Improved Hordes] Currently running version {VERSION}.");
