@@ -85,6 +85,8 @@ pipeline
 
                 sh "sudo xmlstarlet edit --inplace --update '/ModInfo/Version/@value' --value '${MODINFO_VERSION}.${GIT_COMMIT_COUNT}' ImprovedHordes/ModInfo.xml"
                 sh "sudo xmlstarlet edit --inplace --update '/ModManifest/Version' --value '${MANIFEST_VERSION}+${env.BRANCH_NAME}.${GIT_COMMIT_COUNT}.${GIT_COMMIT_HASH}' ImprovedHordes/Manifest.xml"
+
+                sh "sudo xmlstarlet edit --inplace --update '/ModManifest/ManifestUrl' --value 'https://raw.githubusercontent.com/FilUnderscore/ImprovedHordes/${env.BRANCH_NAME}/ImprovedHordes/Manifest.xml' ImprovedHordes/Manifest.xml"
             }
 
             sh "rm ImprovedHordes/Config/nav_objects.xml"
