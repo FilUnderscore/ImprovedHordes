@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using ImprovedHordes.Core.Abstractions.Settings;
+using System.Collections.Generic;
 
 namespace ImprovedHordes
 {
     public sealed class IHVersionManager
     {
+        private static Setting<bool> SILENCE_INIT_MSG = new Setting<bool>("silence_init_msg", false);
+
         private static string VERSION = "-beta.5";
         private static string BUILD_TYPE;
 
@@ -91,7 +94,14 @@ namespace ImprovedHordes
 
         private static void SendChatMessage(string msg, string name = "Improved Hordes")
         {
-            GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, name, false, null);
+            if (!SILENCE_INIT_MSG.Value)
+            {
+                GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, name, false, null);
+            }
+            else
+            {
+                Log.Out($"[{name}] {msg}");
+            }
         }
     }
 }

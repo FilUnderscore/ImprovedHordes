@@ -3,6 +3,7 @@
 	<!-- https://github.com/FilUnderscore/ImprovedHordes/wiki/Settings -->
 
 	<thread_tick_ms>100</thread_tick_ms> <!-- Update rate for threads (100ms by default or 0.1s). Increase this value if you are experiencing performance issues. -->
+	<silence_init_msg>false</silence_init_msg> <!-- Whether the Improved Hordes mod initialization message should be shown on first world load. -->
 
 	<!-- Entity Spawn Limit -->
 	<max_entities_spawned_per_player>16</max_entities_spawned_per_player> <!-- -1 to disable. Note: This is still limited by the game's MaxEnemyCount and MaxAnimalCount settings. -->
@@ -28,6 +29,7 @@
 	
 	<wandering_enemy_wilderness_sparsity>32</wandering_enemy_wilderness_sparsity>
 	
+	<!-- Frequency of world horde repopulation (wilderness and city/town hordes) -->
 	<wilderness_horde_repopulation_days>7</wilderness_horde_repopulation_days>
 	<zone_horde_repopulation_days>7</zone_horde_repopulation_days>
 	
