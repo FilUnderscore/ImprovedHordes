@@ -1,5 +1,6 @@
 package filunderscore.improvedhordes.world;
 
+import java.awt.image.BufferedImage;
 import java.io.DataInput;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,8 @@ public class ImprovedHordesSimulation
 	public ConnectionStatus status = ConnectionStatus.NOT_CONNECTED;
 	public WorldHordeState world;
 	
+	public BufferedImage biomesImage;
+	
 	public void setFrame(ImprovedHordesFrame frame)
 	{
 		this.frame = frame;
@@ -37,7 +40,7 @@ public class ImprovedHordesSimulation
 		int worldSize = in.readInt();
 		
 		Vector2i worldSizeV = new Vector2i(worldSize, worldSize);
-		WorldHordeState world = new WorldHordeState(worldSizeV);
+		WorldHordeState world = new WorldHordeState(worldSizeV, biomesImage);
 		
 		int playerSize = in.readInt();
 		
