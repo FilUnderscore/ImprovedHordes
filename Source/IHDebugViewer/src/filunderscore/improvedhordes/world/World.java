@@ -69,6 +69,7 @@ public final class World
 		
 		for(PlayerSnapshot player : getPlayers())
 		{
+			player.setViewDistance(this.viewDistance);
 			player.draw(this, renderer, g);
 		}
 		

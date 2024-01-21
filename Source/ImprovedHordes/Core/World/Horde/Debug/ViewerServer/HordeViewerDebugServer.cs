@@ -29,6 +29,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly List<TcpClient> clients = new List<TcpClient>();
         private bool running = false;
 
+        private Task biomesTexTask;
         private byte[] biomesTexData;
         private int biomesTexHeight, biomesTexWidth;
 
@@ -51,7 +52,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
 
         private void LoadBiomesImage()
         {
-            Task.Run(() =>
+            this.biomesTexTask = Task.Run(() =>
             {
                 this.Logger.Info("Loading biomes.png.");
 
@@ -114,22 +115,30 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             {
                 this.Logger.Info($"Started debug server listening on port {PORT}.");
 
+                bool ready = false;
                 while (this.running)
                 {
-                    try
+                    if (ready)
                     {
-                        TcpClient client = this.listener.AcceptTcpClient();
-                        this.Logger.Info($"New client {(client.Client.RemoteEndPoint as IPEndPoint).Address} connected.");
+                        try
+                        {
+                            TcpClient client = this.listener.AcceptTcpClient();
+                            this.Logger.Info($"New client {(client.Client.RemoteEndPoint as IPEndPoint).Address} connected.");
 
-                        SendLoginPackets(client);
-                        this.clients.Add(client);
+                            SendLoginPackets(client);
+                            this.clients.Add(client);
+                        }
+                        catch (SocketException ex)
+                        {
+                            if (ex.SocketErrorCode == SocketError.Interrupted)
+                                break;
+
+                            this.Logger.Error($"Socket exception occurred while listening for new clients. {ex.Message}");
+                        }
                     }
-                    catch (SocketException ex)
+                    else
                     {
-                        if (ex.SocketErrorCode == SocketError.Interrupted)
-                            break;
-
-                        this.Logger.Error($"Socket exception occurred while listening for new clients. {ex.Message}");
+                        ready = this.biomesTexTask != null && this.biomesTexTask.IsCompleted;
                     }
                 }
                 this.Logger.Info("Shutdown debug server.");

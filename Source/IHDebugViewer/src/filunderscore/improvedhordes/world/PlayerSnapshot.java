@@ -15,6 +15,8 @@ public class PlayerSnapshot implements Drawable
 	public int gamestage;
 	public String biome;
 	
+	private int viewDistance;
+	
 	public PlayerSnapshot(Vector3 location, int gamestage, String biome)
 	{
 		this.location = location;
@@ -27,6 +29,11 @@ public class PlayerSnapshot implements Drawable
 		return String.format("Player [location: %s, gamestage: %d, biome: %s]", this.location, this.gamestage, this.biome);
 	}
 
+	public void setViewDistance(int viewDistance)
+	{
+		this.viewDistance = viewDistance;
+	}
+	
 	@Override
 	public void draw(World world, IHRenderer renderer, Graphics g) 
 	{
@@ -34,5 +41,11 @@ public class PlayerSnapshot implements Drawable
 		
 		g.setColor(Color.yellow);
 		g.fillOval((int)(scaled.scaledPosition.x - scaled.scaledSize.x / 1.5), (int)(scaled.scaledPosition.y - scaled.scaledSize.y / 1.5), scaled.scaledSize.x, scaled.scaledSize.y);
+
+		int viewDistanceBlocks = this.viewDistance * 16;
+		ScaledVector scaledViewDistanceBlocks = renderer.rescale(this.location.toVXZ(), new Vector2i(viewDistanceBlocks, viewDistanceBlocks));
+		
+		g.setColor(new Color(255, 255, 255, 128));
+		g.fillOval((int)(scaledViewDistanceBlocks.scaledPosition.x - scaledViewDistanceBlocks.scaledSize.x / 1.5), (int)(scaledViewDistanceBlocks.scaledPosition.y - scaledViewDistanceBlocks.scaledSize.y / 1.5), scaledViewDistanceBlocks.scaledSize.x, scaledViewDistanceBlocks.scaledSize.y);
 	}
 }

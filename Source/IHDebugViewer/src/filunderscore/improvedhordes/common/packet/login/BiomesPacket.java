@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import filunderscore.improvedhordes.common.packet.Packet;
@@ -25,39 +26,60 @@ public final class BiomesPacket extends Packet
 		int biomesImageHeight = in.readInt();
 		
 		byte[] biomesImageCompressedData = in.readBytes();
-		System.out.println("Received compressed biomes.png image: " + biomesImageCompressedData.length);
 		
-		byte[] biomesImageData = new byte[0];
-		
-		try(ByteArrayInputStream bin = new ByteArrayInputStream(biomesImageCompressedData))
+		// process biomes image on a separate thread
+		new Thread(new Runnable()
 		{
-			try(GZIPInputStream gin = new GZIPInputStream(bin))
+			@Override
+			public void run()
 			{
-				try(ByteArrayOutputStream out = new ByteArrayOutputStream())
+				try
 				{
-					out.write(gin.readAllBytes());
-					biomesImageData = out.toByteArray();
+					System.out.println("Received compressed biomes.png image: " + biomesImageCompressedData.length);
+					
+					byte[] biomesImageData = new byte[0];
+					
+					try(ByteArrayInputStream bin = new ByteArrayInputStream(biomesImageCompressedData))
+					{
+						try(GZIPInputStream gin = new GZIPInputStream(bin))
+						{
+							try(ByteArrayOutputStream out = new ByteArrayOutputStream())
+							{
+								out.write(gin.readAllBytes());
+								biomesImageData = out.toByteArray();
+							}
+						}
+					}
+					
+					BufferedImage biomesImage = new BufferedImage(biomesImageWidth, biomesImageHeight, BufferedImage.TYPE_INT_RGB);
+					
+					for(int y = 0; y < biomesImageHeight; y++)
+					{
+						for(int x = 0; x < biomesImageWidth * 3; x += 3)
+						{
+							byte r = biomesImageData[y * (biomesImageWidth * 3) + x];
+							byte g = biomesImageData[y * (biomesImageWidth * 3) + x + 1];
+							byte b = biomesImageData[y * (biomesImageWidth * 3) + x + 2];
+							
+							int rgb = (r << 16) | (g << 8) | b;
+							
+							// set pixels
+							biomesImage.setRGB(x / 3, y, rgb);
+						}
+					}
+
+					if(simulation.lock.tryLock(30, TimeUnit.SECONDS))
+					{
+						simulation.getWorld().setBiomesImage(biomesImage);
+						
+						simulation.lock.unlock();
+					}
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
 				}
 			}
-		}
-		
-		BufferedImage biomesImage = new BufferedImage(biomesImageWidth, biomesImageHeight, BufferedImage.TYPE_INT_RGB);
-		
-		for(int y = 0; y < biomesImageHeight; y++)
-		{
-			for(int x = 0; x < biomesImageWidth * 3; x += 3)
-			{
-				byte r = biomesImageData[y * (biomesImageWidth * 3) + x];
-				byte g = biomesImageData[y * (biomesImageWidth * 3) + x + 1];
-				byte b = biomesImageData[y * (biomesImageWidth * 3) + x + 2];
-				
-				int rgb = (r << 16) | (g << 8) | b;
-				
-				// set pixels
-				biomesImage.setRGB(x / 3, y, rgb);
-			}
-		}
-		
-		simulation.getWorld().setBiomesImage(biomesImage);
+		}).start();
 	}
 }
