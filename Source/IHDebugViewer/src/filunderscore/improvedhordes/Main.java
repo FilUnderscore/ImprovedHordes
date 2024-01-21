@@ -78,8 +78,8 @@ public class Main
 						
 						int rgb = (r << 16) | (g << 8) | b;
 						
-						// set pixels but flip y axis
-						biomesImage.setRGB(x / 3, biomesImageHeight - 1 - y, rgb);
+						// set pixels
+						biomesImage.setRGB(x / 3, y, rgb);
 					}
 				}
 				

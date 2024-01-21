@@ -1,6 +1,7 @@
 ﻿#if DEBUG
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -128,8 +129,8 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly List<TcpClient> clients = new List<TcpClient>();
         private bool running = false;
 
-        private readonly byte[] biomesTexData;
-        private readonly int biomesTexHeight, biomesTexWidth;
+        private byte[] biomesTexData;
+        private int biomesTexHeight, biomesTexWidth;
 
         private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
@@ -144,44 +145,64 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             this.clusters = tracker.GetClustersSubscription().Subscribe();
 
             // load biomes image
-            this.Logger.Info("Loading biomes.png.");
-
-            string biomesImagePath = PathAbstractions.WorldsSearchPaths.GetLocation(GamePrefs.GetString(EnumGamePrefs.GameWorld)).FullPath + "/biomes";
-            Texture2D biomesTex = !SdFile.Exists(biomesImagePath + ".tga") ? TextureUtils.LoadTexture(biomesImagePath + ".png") : TextureUtils.LoadTexture(biomesImagePath + ".tga");
-
-            byte[] biomesTexData = new byte[biomesTex.width * biomesTex.height * 3];
-
-            for (int y = 0; y < biomesTex.height; y++)
-            {
-                for (int x = 0; x < biomesTex.width * 3; x += 3)
-                {
-                    Color pixel = biomesTex.GetPixel(x / 3, y);
-
-                    biomesTexData[y * (biomesTex.width * 3) + x] = (byte)(pixel.r * 255.0f);
-                    biomesTexData[y * (biomesTex.width * 3) + x + 1] = (byte)(pixel.g * 255.0f);
-                    biomesTexData[y * (biomesTex.width * 3) + x + 2] = (byte)(pixel.b * 255.0f);
-                }
-            }
-
-            this.Logger.Info("Loaded biomes.png. Uncompressed length: " + biomesTexData.Length);
-
-            // compress biomes image
-            using (MemoryStream imageStream = new MemoryStream())
-            {
-                using (GZipStream compressionStream = new GZipStream(imageStream, CompressionLevel.Optimal))
-                {
-                    compressionStream.Write(biomesTexData, 0, biomesTexData.Length);
-                }
-
-                this.biomesTexData = imageStream.ToArray();
-            }
-
-            this.biomesTexWidth = biomesTex.width;
-            this.biomesTexHeight = biomesTex.height;
-
-            this.Logger.Info("Compressed biomes.png. Compressed length: " + this.biomesTexData.Length);
-
+            this.LoadBiomesImage();
+            
             this.listener = new TcpListener(IPAddress.Loopback, PORT);
+        }
+
+        private void LoadBiomesImage()
+        {
+            Task.Run(() =>
+            {
+                this.Logger.Info("Loading biomes.png.");
+
+                string biomesImagePath = PathAbstractions.WorldsSearchPaths.GetLocation(GamePrefs.GetString(EnumGamePrefs.GameWorld)).FullPath + "/biomes";
+                Bitmap biomesTex = new Bitmap(biomesImagePath + ".png");
+
+                byte[] biomesTexData = new byte[biomesTex.Width * biomesTex.Height * 3];
+
+                for (int y = 0; y < biomesTex.Height; y++)
+                {
+                    for (int x = 0; x < biomesTex.Width * 3; x += 3)
+                    {
+                        System.Drawing.Color pixel = biomesTex.GetPixel(x / 3, y);
+
+                        biomesTexData[y * (biomesTex.Width * 3) + x] = pixel.R;
+                        biomesTexData[y * (biomesTex.Width * 3) + x + 1] = pixel.G;
+                        biomesTexData[y * (biomesTex.Width * 3) + x + 2] = pixel.B;
+                    }
+                }
+
+                this.Logger.Info("Loaded biomes.png. Uncompressed length: " + biomesTexData.Length);
+
+                // compress biomes image
+                using (MemoryStream imageStream = new MemoryStream())
+                {
+                    using (GZipStream compressionStream = new GZipStream(imageStream, CompressionLevel.Optimal))
+                    {
+                        compressionStream.Write(biomesTexData, 0, biomesTexData.Length);
+                    }
+
+                    this.biomesTexData = imageStream.ToArray();
+                }
+
+                this.biomesTexWidth = biomesTex.Width;
+                this.biomesTexHeight = biomesTex.Height;
+
+                this.Logger.Info("Compressed biomes.png. Compressed length: " + this.biomesTexData.Length);
+            }).ContinueWith(t =>
+            {
+                if(t.Exception != null)
+                {
+                    this.Logger.Error("Task failed: " + t.Exception.Message);
+                    this.Logger.Error("ST: " + t.Exception.StackTrace);
+
+                    if(t.Exception.InnerException != null)
+                    {
+                        this.Logger.Exception(t.Exception.InnerException);
+                    }
+                }
+            });
         }
 
         public void StartServer()

@@ -11,6 +11,14 @@ namespace ImprovedHordes.Command.Debug
 
         public ImprovedHordesDebugServerSubcommand() : base("server")
         {
+            ModEvents.GameShutdown.RegisterHandler(GameShutdown);
+        }
+
+        private void GameShutdown()
+        {
+            // destroy debug server reference so we can start up another one in a different world
+            // in the same session
+            debugServer = null;
         }
 
         public override bool Execute(List<string> args, CommandSenderInfo _senderInfo, ref string message)
