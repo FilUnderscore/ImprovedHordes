@@ -28,7 +28,7 @@ public class PlayerSnapshot implements Drawable
 	}
 
 	@Override
-	public void draw(WorldHordeState world, IHRenderer renderer, Graphics g) 
+	public void draw(World world, IHRenderer renderer, Graphics g) 
 	{
 		ScaledVector scaled = renderer.rescale(this.location.toVXZ(), new Vector2i(50, 50));
 		

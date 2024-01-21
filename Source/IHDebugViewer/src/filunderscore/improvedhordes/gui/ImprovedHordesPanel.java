@@ -2,13 +2,10 @@ package filunderscore.improvedhordes.gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 
 import javax.swing.JPanel;
 
 import filunderscore.improvedhordes.util.Vector2i;
-import filunderscore.improvedhordes.util.Vector3;
 import filunderscore.improvedhordes.world.ImprovedHordesSimulation;
 import filunderscore.improvedhordes.world.ImprovedHordesSimulation.ConnectionStatus;
 
@@ -34,17 +31,22 @@ public class ImprovedHordesPanel extends JPanel// implements MouseWheelListener
 		this.size = panelSize;
 		this.setSize(this.size.x, this.size.y);
 		
-		if(this.simulation.world != null)
-			this.renderer.setSizes(this.simulation.world.GetWorldSize(), panelSize);
+		if(this.simulation.getWorld() != null)
+			this.renderer.setSizes(this.simulation.getWorld().GetWorldSize(), panelSize);
 	}
 	
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
 		
-		if(simulation.world != null && simulation.status == ConnectionStatus.CONNECTED)
+		if(simulation.getWorld() != null && simulation.status == ConnectionStatus.CONNECTED)
 		{
-			simulation.world.draw(this.renderer, g);
+			if(this.simulation.lock.tryLock())
+			{
+				simulation.getWorld().draw(this.renderer, g);
+				
+				this.simulation.lock.unlock();
+			}
 		}
 		else
 		{			

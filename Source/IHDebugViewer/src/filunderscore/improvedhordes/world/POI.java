@@ -27,7 +27,7 @@ public class POI implements Drawable
 	}
 
 	@Override
-	public void draw(WorldHordeState world, IHRenderer renderer, Graphics g) 
+	public void draw(World world, IHRenderer renderer, Graphics g) 
 	{
 		ScaledVector scaled = renderer.rescale(this.position, this.size);
 		

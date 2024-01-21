@@ -2,7 +2,7 @@ package filunderscore.improvedhordes.world;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,25 +10,25 @@ import filunderscore.improvedhordes.gui.IHRenderer;
 import filunderscore.improvedhordes.gui.IHRenderer.ScaledVector;
 import filunderscore.improvedhordes.util.Vector2i;
 
-public final class WorldHordeState
+public final class World
 {
 	private final Vector2i worldSize;
+	private final int viewDistance;
 	
 	private final List<PlayerSnapshot> players;
 	private final List<ClusterSnapshot> clusters;
 	private final List<POI> zones;
 	
-	private final BufferedImage biomesImage;
+	private Image biomesImage;
 	
-	public WorldHordeState(Vector2i worldSize, BufferedImage biomesImage)
+	public World(Vector2i worldSize, int viewDistance)
 	{
 		this.worldSize = worldSize;
+		this.viewDistance = viewDistance;
 		
 		this.players = new ArrayList<>();
 		this.clusters = new ArrayList<>();
 		this.zones = new ArrayList<>();
-		
-		this.biomesImage = biomesImage;
 	}
 	
 	public Vector2i GetWorldSize()
@@ -49,6 +49,11 @@ public final class WorldHordeState
 	public List<POI> getZones()
 	{
 		return this.zones;
+	}
+	
+	public void setBiomesImage(Image image)
+	{
+		this.biomesImage = image;
 	}
 	
 	public void draw(IHRenderer renderer, Graphics g)
@@ -75,6 +80,11 @@ public final class WorldHordeState
 	
 	private void drawBiomes(IHRenderer renderer, Graphics g)
 	{
+		if(this.biomesImage == null)
+		{
+			return;
+		}
+		
 		g.drawImage(this.biomesImage, 0, 0, renderer.getPanelSize().x, renderer.getPanelSize().y, null);
 	}
 	

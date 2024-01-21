@@ -21,5 +21,10 @@
 	    <artifactId>guava</artifactId>
 	    <version>32.0.1-jre</version>
 	</dependency>
+	<dependency>
+	    <groupId>org.reflections</groupId>
+	    <artifactId>reflections</artifactId>
+	    <version>0.10.2</version>
+	</dependency>
   </dependencies>
 </project>

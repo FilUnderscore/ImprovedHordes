@@ -147,10 +147,10 @@ public final class ImprovedHordesFrame extends JFrame
 
 	public void update()
 	{
-		if(simulation.world != null)
+		if(simulation.getWorld() != null)
 		{
-			this.playersList.setListData(simulation.world.getPlayers().toArray(size -> new PlayerSnapshot[size]));
-			this.clustersList.setListData(simulation.world.getClusters().toArray(size -> new ClusterSnapshot[size]));
+			this.playersList.setListData(simulation.getWorld().getPlayers().toArray(size -> new PlayerSnapshot[size]));
+			this.clustersList.setListData(simulation.getWorld().getClusters().toArray(size -> new ClusterSnapshot[size]));
 		}
 		
 		this.reconnectButton.setVisible(simulation.status == ConnectionStatus.LOST_CONNECTION || 

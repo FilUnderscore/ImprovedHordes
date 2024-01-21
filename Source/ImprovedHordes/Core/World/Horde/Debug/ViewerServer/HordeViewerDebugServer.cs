@@ -6,122 +6,22 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using ImprovedHordes.Core.Abstractions.Logging;
 using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
+using ImprovedHordes.Core.World.Horde.Debug.ViewerServer.Packet.Game;
+using ImprovedHordes.Core.World.Horde.Debug.ViewerServer.Packet.Login;
 using ImprovedHordes.POI;
-using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.Debug
 {
-    internal readonly struct WorldHordeState
-    {
-        private readonly int worldSize;
-        private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
-        private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
-        private readonly List<WorldPOIScanner.POIZone> zones;
-
-        public WorldHordeState(int worldSize, WorldPOIScanner scanner, ThreadSubscriber<List<PlayerHordeGroup>> playerGroups, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
-        {
-            this.worldSize = worldSize;
-            this.playerGroups = playerGroups;
-            this.clusters = clusters;
-            this.zones = scanner.GetAllZones();
-        }
-
-        public void Encode(BinaryWriter writer)
-        {
-            writer.Write(this.worldSize);
-
-            if (this.playerGroups.TryGet(out var playerGroups))
-            {
-                foreach (var playerGroup in playerGroups)
-                {
-                    var players = playerGroup.GetPlayers();
-
-                    writer.Write(players.Count);
-                    foreach (var player in players)
-                    {
-                        Vector3 location = player.location;
-
-                        writer.Write(location.x);
-                        writer.Write(location.y);
-                        writer.Write(location.z);
-
-                        writer.Write(player.player.gameStage);
-                        EncodeString(writer, player.player.biomeStandingOn?.m_sBiomeName);
-                    }
-                }
-            }
-            else
-            {
-                writer.Write(0);
-            }
-
-            if (this.clusters.TryGet(out var clusters))
-            {
-                writer.Write(clusters.Count);
-                foreach (var entry in clusters)
-                {
-                    EncodeString(writer, entry.Key.Name);
-                    writer.Write(entry.Value.Count);
-
-                    foreach (var cluster in entry.Value)
-                    {
-                        Vector3 location = cluster.location;
-
-                        writer.Write(location.x);
-                        writer.Write(location.y);
-                        writer.Write(location.z);
-
-                        writer.Write(cluster.density);
-                    }
-                }
-            }
-            else
-            {
-                writer.Write(0);
-            }
-
-            writer.Write(this.zones.Count);
-            foreach(var zone in this.zones)
-            {
-                writer.Write((int)zone.GetBounds().min.x);
-                writer.Write((int)zone.GetBounds().min.z);
-
-                writer.Write((int)zone.GetBounds().size.x);
-                writer.Write((int)zone.GetBounds().size.z);
-
-                writer.Write(0.0f);
-                writer.Write(0);
-                writer.Write(0.0f);
-                writer.Write(0.0f);
-            }
-        }
-
-        private void EncodeString(BinaryWriter writer, string str)
-        {
-            bool valid = str != null && str.Length > 0;
-
-            writer.Write(valid);
-
-            if (valid)
-            {
-                writer.Write(str.Length);
-                writer.Write(Encoding.UTF8.GetBytes(str));
-            }
-        }
-    }
-
     internal sealed class HordeViewerDebugServer : Threaded
     {
         private readonly int PORT = 9000;
 
         private readonly int worldSize;
-        private readonly WorldHordeTracker tracker;
         private readonly WorldPOIScanner scanner;
 
         private readonly TcpListener listener;
@@ -138,7 +38,6 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         public HordeViewerDebugServer(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory, randomFactory)
         {
             this.worldSize = worldSize;
-            this.tracker = tracker;
             this.scanner = scanner;
 
             this.playerGroups = tracker.GetPlayerTracker().Subscribe();
@@ -165,7 +64,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                 {
                     for (int x = 0; x < biomesTex.Width * 3; x += 3)
                     {
-                        System.Drawing.Color pixel = biomesTex.GetPixel(x / 3, y);
+                        Color pixel = biomesTex.GetPixel(x / 3, y);
 
                         biomesTexData[y * (biomesTex.Width * 3) + x] = pixel.R;
                         biomesTexData[y * (biomesTex.Width * 3) + x + 1] = pixel.G;
@@ -220,11 +119,10 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                     try
                     {
                         TcpClient client = this.listener.AcceptTcpClient();
-                        SendBiomesOverlayImage(client.GetStream());
+                        this.Logger.Info($"New client {(client.Client.RemoteEndPoint as IPEndPoint).Address} connected.");
 
+                        SendLoginPackets(client);
                         this.clients.Add(client);
-
-                        this.Logger.Info("New client connected.");
                     }
                     catch (SocketException ex)
                     {
@@ -246,23 +144,29 @@ namespace ImprovedHordes.Core.World.Horde.Debug
             }
         }
 
-        private void SendBiomesOverlayImage(Stream outputStream)
+        private void SendLoginPackets(TcpClient client)
         {
-            // send compressed biomes image
-            BinaryWriter writer = new BinaryWriter(outputStream);
+            BinaryWriter writer = new BinaryWriter(client.GetStream());
 
-            writer.Write(this.biomesTexWidth);
-            writer.Write(this.biomesTexHeight);
-
-            writer.Write(this.biomesTexData.Length);
-            writer.Write(this.biomesTexData);
-
-            this.Logger.Info($"Sent biomes.png. Compressed length: {this.biomesTexData.Length}");
+            new InitPacket(worldSize, GameStats.GetInt(EnumGameStats.AllowedViewDistance)).Send(writer);
+            new BiomesPacket(this.biomesTexWidth, this.biomesTexHeight, this.biomesTexData).Send(writer);
+            new ZonesPacket(this.scanner.GetAllZones()).Send(writer);
         }
 
         protected override void UpdateAsync(float dt)
         {
-            WorldHordeState state = new WorldHordeState(this.worldSize, this.scanner, this.playerGroups, this.clusters);
+            PlayersPacket playersPacket = null;
+            ClustersPacket clustersPacket = null;
+
+            if(this.playerGroups.TryGet(out var playerGroups))
+            {
+                playersPacket = new PlayersPacket(playerGroups);
+            }
+
+            if(this.clusters.TryGet(out var clusters))
+            {
+                clustersPacket = new ClustersPacket(clusters);
+            }
 
             for(int i = 0; i < this.clients.Count; i++)
             {
@@ -271,7 +175,16 @@ namespace ImprovedHordes.Core.World.Horde.Debug
                 try
                 {
                     BinaryWriter writer = new BinaryWriter(client.GetStream());
-                    state.Encode(writer);
+
+                    if (playersPacket != null)
+                    {
+                        playersPacket.Send(writer);
+                    }
+
+                    if (clustersPacket != null)
+                    {
+                        clustersPacket.Send(writer);
+                    }
                 }
                 catch (Exception)
                 {

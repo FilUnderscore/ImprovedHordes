@@ -100,6 +100,14 @@
     <Compile Include="Core\World\Horde\Cluster\HordeClusterDensity.cs" />
     <Compile Include="Core\World\Horde\Cluster\HordeClusterSpawnState.cs" />
     <Compile Include="Core\World\Horde\Data\WorldHordeData.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Game\ClustersPacket.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Game\PlayersPacket.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Login\BiomesPacket.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Login\InitPacket.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Login\ZonesPacket.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Packet.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\PacketBinaryWriter.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\Packet\Packets.cs" />
     <Compile Include="Core\World\Horde\HordeBiomes.cs" />
     <Compile Include="Core\World\Horde\HordeType.cs" />
     <Compile Include="Core\World\Horde\Spawn\HordeSpawnData.cs" />
@@ -108,7 +116,7 @@
     <Compile Include="Core\World\Horde\Spawn\Request\HordeEntitySpawnRequest.cs" />
     <Compile Include="Core\World\Horde\Spawn\Request\HordeUpdateRequest.cs" />
     <Compile Include="Data\HordeDefinitionHorde.cs" />
-    <Compile Include="Core\World\Horde\Debug\HordeViewerDebugServer.cs" />
+    <Compile Include="Core\World\Horde\Debug\ViewerServer\HordeViewerDebugServer.cs" />
     <Compile Include="Data\XML\HordesFromXml.cs" />
     <Compile Include="Data\XML\XmlFileParser.cs" />
     <Compile Include="Data\XML\HordeDefinition.cs" />

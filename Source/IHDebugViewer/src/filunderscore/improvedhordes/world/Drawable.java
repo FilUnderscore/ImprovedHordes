@@ -6,5 +6,5 @@ import filunderscore.improvedhordes.gui.IHRenderer;
 
 public interface Drawable 
 {
-	void draw(WorldHordeState world, IHRenderer renderer, Graphics g);
+	void draw(World world, IHRenderer renderer, Graphics g);
 }
