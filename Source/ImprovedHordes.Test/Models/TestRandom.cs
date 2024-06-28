@@ -13,6 +13,8 @@ namespace ImprovedHordes.Test.Models
 
         public Vector2 RandomOnUnitCircle => Vector2.zero;
 
+        public Vector2 RandomInsideUnitCircle => Vector2.zero;
+
         public T Random<T>(IList<T> collection)
         {
             return collection[0];
