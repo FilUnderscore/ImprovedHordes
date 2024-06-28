@@ -60,7 +60,7 @@ namespace ImprovedHordes.Data.XML
                                 continue;
                             }
 
-                            XmlPatcher.PatchXml(file, patchXml, loadedMod.Name);
+                            XmlPatcher.PatchXml(file, patchXml.XmlDoc.Root, patchXml, loadedMod);
 
                             Log.Out("Patched XML from mod " + loadedMod.Name);
                         }
