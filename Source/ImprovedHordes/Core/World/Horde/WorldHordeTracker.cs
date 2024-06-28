@@ -468,7 +468,7 @@ namespace ImprovedHordes.Core.World.Horde
 
                     IEnumerable<WorldEventReportEvent> nearbyReports = eventReports.Where(report =>
                     {
-                        return Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * sensitivity;
+                        return report != null && Vector3.Distance(report.GetLocation(), horde.GetLocation()) <= report.GetDistance() * sensitivity;
                     });
 
                     if (nearbyReports.Any())
