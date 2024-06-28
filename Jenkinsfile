@@ -5,6 +5,7 @@ pipeline
     parameters {
         string(name: 'version', defaultValue: params.version ? params.version : '2.0.0')
         string(name: 'prerelease_version', defaultValue: params.prerelease_version ? params.prerelease_version : '')
+		string(name: 'steam_branch', defaultValue: params.steam_branch ? params.steam_branch : '')
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '100', artifactNumToKeepStr: '100'))
@@ -12,7 +13,11 @@ pipeline
     stages {
         stage ('Setup Build Environment') {
             steps {
-                sh "sudo sh setup-dev-linux.sh"
+				script {
+					STEAM_BRANCH = (params.steam_branch == null || params.steam_branch.allWhitespace) ? '' : params.steam_branch
+				}
+			
+                sh "sudo sh setup-dev-linux.sh ${STEAM_BRANCH}"
             }
         }
         stage ('Build Release') {
