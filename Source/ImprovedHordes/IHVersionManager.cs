@@ -96,7 +96,7 @@ namespace ImprovedHordes
         {
             if (!SILENCE_INIT_MSG.Value)
             {
-                GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, name, false, null);
+                GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, name, null);
             }
             else
             {
