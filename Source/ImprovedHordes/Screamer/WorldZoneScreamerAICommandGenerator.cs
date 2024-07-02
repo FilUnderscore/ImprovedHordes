@@ -1,8 +1,7 @@
 ﻿using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
-using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
-using ImprovedHordes.Screamer.Commands;
+using ImprovedHordes.POI.Commands;
 
 namespace ImprovedHordes.Screamer
 {

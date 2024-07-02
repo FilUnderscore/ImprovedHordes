@@ -2,7 +2,7 @@
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
-using ImprovedHordes.Screamer.Commands;
+using ImprovedHordes.POI.Commands;
 using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy.Zone
