@@ -60,6 +60,8 @@ namespace ImprovedHordes
             
             this.versionManager = new IHVersionManager(this, _modInstance);
 
+            this.harmony.PatchAll();
+
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "hordes.xml", xmlFile => HordesFromXml.LoadHordes(xmlFile), addonMod => versionManager.RegisterAddonMod(addonMod));
             XPathPatcher.LoadAndPatchXMLFile(_modInstance, "Config/ImprovedHordes", "settings.xml", xmlFile => this.settingLoader = new ImprovedHordesSettingLoader(this.loggerFactory, xmlFile), addonMod => versionManager.RegisterAddonMod(addonMod));
 
@@ -108,22 +110,16 @@ namespace ImprovedHordes
             return maxSize.x - minSize.x;
         }
 
-        private void Patch(bool patch)
+        private void RegisterEventHandlers()
         {
-            if(patch)
-            {
-                harmony.PatchAll();
+            ModEvents.GameUpdate.RegisterHandler(GameUpdate);
+            ModEvents.GameShutdown.RegisterHandler(GameShutdown);
+        }
 
-                ModEvents.GameUpdate.RegisterHandler(GameUpdate);
-                ModEvents.GameShutdown.RegisterHandler(GameShutdown);
-            }
-            else
-            {
-                harmony.UnpatchSelf();
-
-                ModEvents.GameUpdate.UnregisterHandler(GameUpdate);
-                ModEvents.GameShutdown.UnregisterHandler(GameShutdown);
-            }
+        private void UnregisterEventHandlers()
+        {
+            ModEvents.GameUpdate.UnregisterHandler(GameUpdate);
+            ModEvents.GameShutdown.UnregisterHandler(GameShutdown);
         }
 
         private static string GetDataFile()
@@ -147,8 +143,8 @@ namespace ImprovedHordes
             else // For debug builds of 7DTD. Fixes main thread access errors only present in the Debug build.
                 new CoroutinedThreadSafeAStarPathFinderThread().StartWorkerThreads();
 
-            // Patch patches / register game event handlers.
-            this.Patch(true);
+            // Register game event handlers.
+            this.RegisterEventHandlers();
 
             int worldSize = GetWorldSize(world);
 
@@ -258,16 +254,26 @@ namespace ImprovedHordes
             Instance.core.Shutdown();
             Instance.core = null;
 
-            // Unpatch all patches / unregister all game event handlers.
-            Instance.Patch(false);
+            // Unregister all game event handlers.
+            Instance.UnregisterEventHandlers();
         }
 
-        [HarmonyPatch(typeof(World))]
-        [HarmonyPatch("Cleanup")]
-        private sealed class World_Cleanup_Patch
+        public static bool CanPatchesRun()
+        {
+            return Instance.CanInitializeCore();
+        }
+
+        [HarmonyPatch(typeof(GameManager))]
+        [HarmonyPatch("SaveAndCleanupWorld")]
+        private sealed class GameManager_SaveAndCleanupWorld_Patch
         {
             private static void Prefix() // Clean up on client world exit
             {
+                if(!CanPatchesRun())
+                {
+                    return;
+                }
+
                 GameShutdown();
             }
         }
@@ -278,6 +284,11 @@ namespace ImprovedHordes
         {
             private static void Prefix()
             {
+                if(!CanPatchesRun() || Instance.core == null)
+                {
+                    return;
+                }
+
                 if (Instance.TrySaveData())
                     Instance.logger.Info("Saved data.");
             }
