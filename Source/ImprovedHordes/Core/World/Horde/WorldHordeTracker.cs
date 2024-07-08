@@ -566,6 +566,11 @@ namespace ImprovedHordes.Core.World.Horde
 
             static bool Prefix(EntityAlive __instance, ref bool __result)
             {
+                if(!ImprovedHordesMod.CanPatchesRun())
+                {
+                    return true;
+                }
+
                 if (!Tracker.entitiesTracked.Contains(__instance.entityId))
                     return true;
 

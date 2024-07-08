@@ -178,6 +178,11 @@ namespace ImprovedHordes.Core.World.Event
 
             static void Postfix(AIDirectorChunkEvent _chunkEvent)
             {
+                if(!ImprovedHordesMod.CanPatchesRun())
+                {
+                    return;
+                }
+
                 if (_chunkEvent == null || _chunkEvent.EventType == EnumAIDirectorChunkEvent.Sound || _chunkEvent.Value <= float.Epsilon)
                     return;
 
@@ -196,6 +201,11 @@ namespace ImprovedHordes.Core.World.Event
 
             private static void Postfix(AIDirector __instance, Entity instigator, Vector3 position, string clipName, float volumeScale)
             {
+                if(!ImprovedHordesMod.CanPatchesRun())
+                {
+                    return;
+                }
+
                 if (instigator == null || string.IsNullOrEmpty(clipName) || instigator.IsIgnoredByAI())
                     return;
 
