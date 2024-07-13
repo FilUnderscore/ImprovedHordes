@@ -1,12 +1,12 @@
 ﻿using ImprovedHordes.Core.Abstractions.Settings;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ImprovedHordes
 {
     public sealed class IHVersionManager
     {
-        private static Setting<bool> SILENCE_INIT_MSG = new Setting<bool>("silence_init_msg", false);
-
         private static string VERSION;
         private static string BUILD_TYPE;
 
@@ -26,10 +26,6 @@ namespace ImprovedHordes
         public IHVersionManager(ImprovedHordesMod mod, Mod _modInstance)
         {
             VERSION = _modInstance.Version.ToString();
-
-#if !RELEASE
-            Log.Out($"[Improved Hordes] Currently running version {VERSION}.");
-#endif
 
             mod.OnFirstInit += Mod_OnFirstInit;
         }
@@ -53,15 +49,10 @@ namespace ImprovedHordes
             // Post on first player login.
             ModEvents.PlayerSpawnedInWorld.UnregisterHandler(PlayerSpawnedInWorld);
 
-            SendChatMessage($"{VERSION} {BUILD_TYPE} Build.");
+            GameManager.Instance.StartCoroutine(NotifyAllCoroutine());
 
-            if(TryGetAddonsListAsString(out string addonsListString))
-                SendChatMessage($"{addonsListString}", "Add-ons");
-
-#if EXPERIMENTAL
-            const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
-            SendChatMessage($"Please report any bugs/performance issues at {ISSUE_REPORT_URL}");
-#endif
+            //if(TryGetAddonsListAsString(out string addonsListString))
+            //    SendChatMessage($"{addonsListString}", "Add-ons");
         }
 
         private bool TryGetAddonsListAsString(out string str)
@@ -92,15 +83,27 @@ namespace ImprovedHordes
             return hashCode;
         }
 
-        private static void SendChatMessage(string msg, string name = "Improved Hordes")
+        private static IEnumerator NotifyAllCoroutine()
         {
-            if (!SILENCE_INIT_MSG.Value)
+            yield return new WaitForSeconds(10.0f);
+
+            NotifyAll($"Initialized Improved Hordes ({VERSION} {BUILD_TYPE}).");
+
+#if EXPERIMENTAL
+            const string ISSUE_REPORT_URL = "github.com/FilUnderscore/ImprovedHordes/issues";
+            NotifyAll($"Please report any bugs/performance issues at {ISSUE_REPORT_URL}");
+#endif
+
+            yield return null;
+        }
+
+        private static void NotifyAll(string msg, string name = "Improved Hordes")
+        {
+            Log.Out($"[{name}] {msg}");
+
+            foreach (var player in GameManager.Instance.World.Players.list)
             {
-                GameManager.Instance.ChatMessageServer(null, EChatType.Global, -1, msg, name, null);
-            }
-            else
-            {
-                Log.Out($"[{name}] {msg}");
+                GameManager.ShowTooltipMP(player, msg);
             }
         }
     }
