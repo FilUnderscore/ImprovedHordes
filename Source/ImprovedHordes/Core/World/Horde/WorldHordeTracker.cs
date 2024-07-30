@@ -192,7 +192,8 @@ namespace ImprovedHordes.Core.World.Horde
         private readonly WorldPlayerTracker playerTracker;
         private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
 
-        private readonly List<WorldEventReportEvent> eventsToReport = new List<WorldEventReportEvent>();
+        private readonly ConcurrentQueue<WorldEventReportEvent> eventsToReport = new ConcurrentQueue<WorldEventReportEvent>();
+        private readonly List<WorldEventReportEvent> eventsToProcess = new List<WorldEventReportEvent>();
 
         private readonly Dictionary<Type, List<ClusterSnapshot>> clusterSnapshotsDict = new Dictionary<Type, List<ClusterSnapshot>>();
         private readonly ThreadSubscription<Dictionary<Type, List<ClusterSnapshot>>> clusterSnapshots = new ThreadSubscription<Dictionary<Type, List<ClusterSnapshot>>>();
@@ -231,7 +232,7 @@ namespace ImprovedHordes.Core.World.Horde
         {
             this.Logger.Verbose($"World Event Reported: Pos {e.GetLocation()} Location Interest {e.GetInterest()} Location Interest Distance {e.GetDistance()}");
 
-            this.eventsToReport.Add(e);
+            this.eventsToReport.Enqueue(e);
         }
 
         private void UpdateHordesList()
@@ -288,10 +289,9 @@ namespace ImprovedHordes.Core.World.Horde
 
             this.UpdateClusterSnapshots();
             
-            int eventsProcessed = UpdateTrackerAsync(playerGroups, this.eventsToReport.ToList(), dt);
+            this.UpdateTrackerAsync(playerGroups, dt);
 
-            if (eventsProcessed > 0)
-                this.eventsToReport.RemoveRange(0, eventsProcessed);
+            this.eventsToProcess.Clear();
         }
 
         public WorldPlayerTracker GetPlayerTracker()
@@ -483,11 +483,16 @@ namespace ImprovedHordes.Core.World.Horde
             }
         }
 
-        private int UpdateTrackerAsync(List<PlayerHordeGroup> playerHordeGroups, List<WorldEventReportEvent> eventReports, float dt)
+        private void UpdateTrackerAsync(List<PlayerHordeGroup> playerHordeGroups, float dt)
         {
+            while(this.eventsToReport.TryDequeue(out WorldEventReportEvent reportedEvent))
+            {
+                this.eventsToProcess.Add(reportedEvent);
+            }
+
             foreach(var horde in this.hordes)
             {
-                UpdateHorde(horde, dt, playerHordeGroups, eventReports);
+                UpdateHorde(horde, dt, playerHordeGroups, this.eventsToProcess);
             }
 
             // Merge nearby hordes.
@@ -532,8 +537,6 @@ namespace ImprovedHordes.Core.World.Horde
                     }
                 }
             }
-
-            return eventReports.Count;
         }
 
         public void Add(WorldHorde horde)
