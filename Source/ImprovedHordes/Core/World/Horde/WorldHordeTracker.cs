@@ -291,7 +291,10 @@ namespace ImprovedHordes.Core.World.Horde
             
             this.UpdateTrackerAsync(playerGroups, dt);
 
-            this.eventsToProcess.Clear();
+            if (this.eventsToProcess.Count > 0)
+            {
+                this.eventsToProcess.Clear();
+            }
         }
 
         public WorldPlayerTracker GetPlayerTracker()
@@ -485,9 +488,12 @@ namespace ImprovedHordes.Core.World.Horde
 
         private void UpdateTrackerAsync(List<PlayerHordeGroup> playerHordeGroups, float dt)
         {
-            while(this.eventsToReport.TryDequeue(out WorldEventReportEvent reportedEvent))
+            if (!this.eventsToReport.IsEmpty)
             {
-                this.eventsToProcess.Add(reportedEvent);
+                while (this.eventsToReport.TryDequeue(out WorldEventReportEvent reportedEvent))
+                {
+                    this.eventsToProcess.Add(reportedEvent);
+                }
             }
 
             foreach(var horde in this.hordes)
