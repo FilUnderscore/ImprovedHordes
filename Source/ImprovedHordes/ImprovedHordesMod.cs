@@ -154,12 +154,26 @@ namespace ImprovedHordes
             core = new ImprovedHordesCore(worldSize, this.loggerFactory, randomFactory, new ImprovedHordesEntitySpawner(this.poiScanner, randomFactory.GetSharedRandom()));
             this.dataParserRegistry = new ImprovedHordesDataParserRegistry(randomFactory, this.poiScanner, core.GetWorldEventReporter(), world);
 
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner, core.GetWorldEventReporter()));
+            if (HordesFromXml.TryGetHordeDefinition("wandering_enemy", out _))
+            {
+                core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneWanderingEnemyHordePopulator(this.poiScanner));
+                core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
+            }
 
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
-            core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
+            if (HordesFromXml.TryGetHordeDefinition("screamer", out _))
+            {
+                core.GetWorldHordePopulator().RegisterPopulator(new WorldZoneScreamerHordePopulator(this.poiScanner, core.GetWorldEventReporter()));
+            }
+
+            if (HordesFromXml.TryGetHordeDefinition("wandering_animal", out _))
+            {
+                core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
+            }
+
+            if (HordesFromXml.TryGetHordeDefinition("wandering_animal_enemy", out _))
+            {
+                core.GetWorldHordePopulator().RegisterPopulator(new WorldWildernessWanderingAnimalEnemyHordePopulator(core.GetWorldSize(), this.poiScanner, new HordeSpawnParams(15)));
+            }
 
             if (this.TryLoadData())
                 this.logger.Info("Loaded data.");
