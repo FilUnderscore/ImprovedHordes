@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Platform;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,12 @@ namespace ImprovedHordes.Core.Command
         public virtual int DefaultPermissionLevel => 0;
 
         public virtual bool AllowedInMainMenu => false;
+
+        public virtual DeviceFlag AllowedDeviceTypes => DeviceFlag.StandaloneWindows | DeviceFlag.StandaloneOSX | DeviceFlag.StandaloneLinux;
+
+        public virtual DeviceFlag AllowedDeviceTypesClient => DeviceFlag.StandaloneWindows | DeviceFlag.StandaloneOSX | DeviceFlag.StandaloneLinux;
+
+        public virtual bool CanExecuteForDevice => AllowedDeviceTypes.IsCurrent();
 
         public void Execute(List<string> _params, CommandSenderInfo _senderInfo)
         {
