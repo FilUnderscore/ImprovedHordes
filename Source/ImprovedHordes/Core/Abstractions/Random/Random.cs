@@ -10,7 +10,7 @@ namespace ImprovedHordes.Core.Abstractions.Random
         bool RandomChance(float pct);
 
         int RandomRange(int maxExclusive);
-        T Random<T>(IList<T> collection);
+        T Random<T>(IEnumerable<T> collection);
 
         Vector2 RandomOnUnitCircle { get; }
         Vector2 RandomInsideUnitCircle { get; }

@@ -17,11 +17,14 @@ namespace ImprovedHordes.POI
         private readonly List<PrefabPOI> pois = new List<PrefabPOI>();
 
         private readonly List<PrefabPOIZone> zones = new List<PrefabPOIZone>();
-        private readonly Dictionary<BiomeDefinition, List<PrefabPOIZone>> biomeZones = new Dictionary<BiomeDefinition, List<PrefabPOIZone>>();
+        
+        private readonly WorldPOITracker tracker;
 
-        public WorldPrefabPOIScanner(ILoggerFactory loggerFactory)
+        public WorldPrefabPOIScanner(ILoggerFactory loggerFactory, WorldPOITracker tracker)
         {
             this.logger = loggerFactory.Create(typeof(WorldPrefabPOIScanner));
+            this.tracker = tracker;
+
             this.ScanZones();
         }
 

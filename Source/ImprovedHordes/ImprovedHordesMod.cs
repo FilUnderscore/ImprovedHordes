@@ -41,6 +41,7 @@ namespace ImprovedHordes
         private ISettingLoader settingLoader;
 
         private ImprovedHordesCore core;
+        private WorldPOITracker poiTracker;
         private WorldPrefabPOIScanner poiScanner;
 
         public event EventHandler<ImprovedHordesCoreInitializedEvent> OnCoreInitialized;
@@ -150,7 +151,8 @@ namespace ImprovedHordes
 
             IRandomFactory<IWorldRandom> randomFactory = new ImprovedHordesWorldRandomFactory(worldSize, world);
 
-            this.poiScanner = new WorldPrefabPOIScanner(this.loggerFactory);
+            this.poiTracker = new WorldPOITracker();
+            this.poiScanner = new WorldPrefabPOIScanner(this.loggerFactory, this.poiTracker);
             core = new ImprovedHordesCore(worldSize, this.loggerFactory, randomFactory, new ImprovedHordesEntitySpawner(this.poiScanner, randomFactory.GetSharedRandom()));
             this.dataParserRegistry = new ImprovedHordesDataParserRegistry(randomFactory, this.poiScanner, core.GetWorldEventReporter(), world);
 

@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.Abstractions.World.Random;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ImprovedHordes.Implementations.World.Random
@@ -37,13 +38,13 @@ namespace ImprovedHordes.Implementations.World.Random
             }
         }
 
-        public T Random<T>(IList<T> collection)
+        public T Random<T>(IEnumerable<T> collection)
         {
-            if (collection == null || collection.Count == 0)
+            if (collection == null || collection.Count() == 0)
                 return default(T);
 
-            int randomIndex = RandomRange(collection.Count);
-            return collection[randomIndex];
+            int randomIndex = RandomRange(collection.Count());
+            return collection.ElementAt(randomIndex);
         }
 
         public int RandomRange(int maxExclusive)

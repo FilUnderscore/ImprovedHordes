@@ -15,9 +15,9 @@ namespace ImprovedHordes.Test.Models
 
         public Vector2 RandomInsideUnitCircle => Vector2.zero;
 
-        public T Random<T>(IList<T> collection)
+        public T Random<T>(IEnumerable<T> collection)
         {
-            return collection[0];
+            return collection.ElementAt(0);
         }
 
         public bool RandomChance(float pct)

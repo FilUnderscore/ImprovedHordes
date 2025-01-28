@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ImprovedHordes.POI.Prefab
 {
-    public sealed class PrefabPOI
+    public sealed class PrefabPOI : POI
     {
         private PrefabInstance prefab;
         private float weight;

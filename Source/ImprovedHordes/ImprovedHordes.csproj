@@ -185,12 +185,14 @@
     <Compile Include="Implementations\World\Random\ImprovedHordesWorldRandom.cs" />
     <Compile Include="Implementations\World\Random\ImprovedHordesWorldRandomFactory.cs" />
     <Compile Include="ImprovedHordesMod.cs" />
-    <Compile Include="POI\Prefab\Commands\GoToWorldZoneAICommandGenerator.cs" />
+    <Compile Include="POI\GoToWorldZoneAICommandGenerator.cs" />
+    <Compile Include="POI\POI.cs" />
     <Compile Include="POI\Prefab\PrefabPOI.cs" />
     <Compile Include="POI\Prefab\PrefabPOIZone.cs" />
     <Compile Include="POI\Prefab\WorldPrefabPOIScanner.cs" />
+    <Compile Include="POI\WorldPOITracker.cs" />
     <Compile Include="POI\WorldWildernessHordePopulator.cs" />
-    <Compile Include="POI\WorldPrefabPOIZoneHordePopulator.cs" />
+    <Compile Include="POI\Prefab\WorldPrefabPOIZoneHordePopulator.cs" />
     <Compile Include="Screamer\Commands\ScreamerEntityAICommand.cs" />
     <Compile Include="POI\Prefab\Commands\PrefabPOIZoneWanderAICommand.cs" />
     <Compile Include="Screamer\ScreamerAIState.cs" />
