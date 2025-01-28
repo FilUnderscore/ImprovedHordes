@@ -1,13 +1,13 @@
 ﻿using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
-using ImprovedHordes.POI;
 using ImprovedHordes.POI.Commands;
+using ImprovedHordes.POI.Prefab;
 
 namespace ImprovedHordes.Screamer
 {
     public sealed class WorldZoneScreamerAICommandGenerator : AIStateCommandGenerator<ScreamerAIState, AICommand>
     {
-        public WorldZoneScreamerAICommandGenerator(WorldPOIScanner.POIZone zone) : base(new ScreamerAIState(zone))
+        public WorldZoneScreamerAICommandGenerator(PrefabPOIZone zone) : base(new ScreamerAIState(zone))
         {
         }
 
@@ -30,7 +30,7 @@ namespace ImprovedHordes.Screamer
 
             if(state.GetWanderState() != ScreamerAIState.WanderState.IDLE)
             {
-                command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetPOIZone(), worldRandom, false), (_) =>
+                command = new GeneratedAICommand<AICommand>(new PrefabPOIZoneWanderAICommand(state.GetPOIZone(), worldRandom, false), (_) =>
                 {
                     state.SetWanderState(ScreamerAIState.WanderState.IDLE);
                 });

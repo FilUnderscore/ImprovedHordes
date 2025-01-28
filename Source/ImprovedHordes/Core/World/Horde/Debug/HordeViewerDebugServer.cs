@@ -11,6 +11,7 @@ using ImprovedHordes.Core.Abstractions.Random;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 using UnityEngine;
 
 namespace ImprovedHordes.Core.World.Horde.Debug
@@ -20,9 +21,9 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly int worldSize;
         private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
-        private readonly List<WorldPOIScanner.POIZone> zones;
+        private readonly List<PrefabPOIZone> zones;
 
-        public WorldHordeState(int worldSize, WorldPOIScanner scanner, ThreadSubscriber<List<PlayerHordeGroup>> playerGroups, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
+        public WorldHordeState(int worldSize, WorldPrefabPOIScanner scanner, ThreadSubscriber<List<PlayerHordeGroup>> playerGroups, ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters)
         {
             this.worldSize = worldSize;
             this.playerGroups = playerGroups;
@@ -120,7 +121,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
 
         private readonly int worldSize;
         private readonly WorldHordeTracker tracker;
-        private readonly WorldPOIScanner scanner;
+        private readonly WorldPrefabPOIScanner scanner;
 
         private readonly TcpListener listener;
 
@@ -130,7 +131,7 @@ namespace ImprovedHordes.Core.World.Horde.Debug
         private readonly ThreadSubscriber<List<PlayerHordeGroup>> playerGroups;
         private readonly ThreadSubscriber<Dictionary<Type, List<ClusterSnapshot>>> clusters;
 
-        public HordeViewerDebugServer(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, int worldSize, WorldHordeTracker tracker, WorldPOIScanner scanner) : base(loggerFactory, randomFactory)
+        public HordeViewerDebugServer(ILoggerFactory loggerFactory, IRandomFactory<IWorldRandom> randomFactory, int worldSize, WorldHordeTracker tracker, WorldPrefabPOIScanner scanner) : base(loggerFactory, randomFactory)
         {
             this.worldSize = worldSize;
             this.tracker = tracker;

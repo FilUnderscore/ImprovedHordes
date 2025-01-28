@@ -1,15 +1,15 @@
-﻿using HarmonyLib;
-using ImprovedHordes.Core.AI;
+﻿using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Event;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 
 namespace ImprovedHordes.Screamer
 {
-    public sealed class WorldZoneScreamerHordePopulator : WorldZoneHordePopulator<ScreamerHorde>
+    public sealed class WorldZoneScreamerHordePopulator : WorldPrefabPOIZoneHordePopulator<ScreamerHorde>
     {
         private readonly WorldEventReporter worldEventReporter;
 
-        public WorldZoneScreamerHordePopulator(WorldPOIScanner scanner, WorldEventReporter worldEventReporter) : base(scanner)
+        public WorldZoneScreamerHordePopulator(WorldPrefabPOIScanner scanner, WorldEventReporter worldEventReporter) : base(scanner)
         {
             this.worldEventReporter = worldEventReporter;
         }
@@ -19,12 +19,12 @@ namespace ImprovedHordes.Screamer
             return new ScreamerEntityAICommandGenerator(this.worldEventReporter);
         }
 
-        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone)
+        public override IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(PrefabPOIZone zone)
         {
             return new WorldZoneScreamerAICommandGenerator(zone);
         }
 
-        protected override int CalculateHordeCount(WorldPOIScanner.POIZone zone)
+        protected override int CalculateHordeCount(PrefabPOIZone zone)
         {
             return 1;
         }

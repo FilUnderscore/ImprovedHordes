@@ -10,6 +10,7 @@ using ImprovedHordes.Implementations.Data.Parsers;
 using ImprovedHordes.Implementations.Data.Parsers.Horde;
 using ImprovedHordes.Implementations.Data.Parsers.POI;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 using ImprovedHordes.Screamer;
 using ImprovedHordes.Wandering.Enemy.Wilderness;
 using ImprovedHordes.Wandering.Enemy.Zone;
@@ -23,7 +24,7 @@ namespace ImprovedHordes.Implementations.Data
     {
         private readonly Dictionary<Type, IDataParser> parsers = new Dictionary<Type, IDataParser>();
 
-        public ImprovedHordesDataParserRegistry(IRandomFactory<IWorldRandom> randomFactory, WorldPOIScanner poiScanner, WorldEventReporter worldEventReporter, global::World world)
+        public ImprovedHordesDataParserRegistry(IRandomFactory<IWorldRandom> randomFactory, WorldPrefabPOIScanner poiScanner, WorldEventReporter worldEventReporter, global::World world)
         {
             // Default data parser for types.
             this.RegisterDataParser<Type>(new TypeDataParser());
@@ -49,16 +50,16 @@ namespace ImprovedHordes.Implementations.Data
 
             this.RegisterDataParser<List<IHordeCharacteristic>>(new ListDataParser<IHordeCharacteristic>());
 
-            this.RegisterDataParser<WorldPOIScanner.POIZone>(new POIZoneDataParser(poiScanner));
+            this.RegisterDataParser<PrefabPOIZone>(new POIZoneDataParser(poiScanner));
 
-            this.RegisterDataParser<WorldZoneWanderingEnemyAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneWanderingEnemyAICommandGenerator>((loader) => new WorldZoneWanderingEnemyAICommandGenerator(poiScanner, loader.Load<WorldPOIScanner.POIZone>()), (wanderingCommandGenerator, saver) => saver.Save<WorldPOIScanner.POIZone>(wanderingCommandGenerator.GetState().GetTargetZone())));
+            this.RegisterDataParser<WorldZoneWanderingEnemyAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneWanderingEnemyAICommandGenerator>((loader) => new WorldZoneWanderingEnemyAICommandGenerator(poiScanner, loader.Load<PrefabPOIZone>()), (wanderingCommandGenerator, saver) => saver.Save<PrefabPOIZone>(wanderingCommandGenerator.GetState().GetTargetZone())));
             this.RegisterDataParser<WorldWildernessWanderingEnemyAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldWildernessWanderingEnemyAICommandGenerator>((loader) => new WorldWildernessWanderingEnemyAICommandGenerator(poiScanner, loader.Load<BiomeDefinition>()), (wanderingCommandGenerator, saver) => saver.Save(wanderingCommandGenerator.Biome)));
-            this.RegisterDataParser<WorldZoneScreamerAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneScreamerAICommandGenerator>((loader) => new WorldZoneScreamerAICommandGenerator(loader.Load<WorldPOIScanner.POIZone>()), (screamerCommandGenerator, saver) => saver.Save<WorldPOIScanner.POIZone>(screamerCommandGenerator.GetState().GetPOIZone())));
+            this.RegisterDataParser<WorldZoneScreamerAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<WorldZoneScreamerAICommandGenerator>((loader) => new WorldZoneScreamerAICommandGenerator(loader.Load<PrefabPOIZone>()), (screamerCommandGenerator, saver) => saver.Save<PrefabPOIZone>(screamerCommandGenerator.GetState().GetPOIZone())));
 
             this.RegisterDataParser<ScreamerEntityAICommandGenerator>(new ParameterizedConstructorRuntimeDataParser<ScreamerEntityAICommandGenerator>((loader) => new ScreamerEntityAICommandGenerator(worldEventReporter)));
 
             this.RegisterDataParser<Dictionary<Vector2i, ulong>>(new DictionaryTypeParser<Vector2i, ulong>());
-            this.RegisterDataParser<Dictionary<WorldPOIScanner.POIZone, ulong>>(new DictionaryTypeParser<WorldPOIScanner.POIZone, ulong>());
+            this.RegisterDataParser<Dictionary<PrefabPOIZone, ulong>>(new DictionaryTypeParser<PrefabPOIZone, ulong>());
         }
 
         public IDataParser<T> GetDataParser<T>()

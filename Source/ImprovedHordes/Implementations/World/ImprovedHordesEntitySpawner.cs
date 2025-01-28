@@ -1,16 +1,17 @@
 ﻿using ImprovedHordes.Core.Abstractions.World;
 using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 using UnityEngine;
 
 namespace ImprovedHordes.Implementations.World
 {
     public sealed class ImprovedHordesEntitySpawner : IEntitySpawner
     {
-        private readonly WorldPOIScanner poiScanner;
+        private readonly WorldPrefabPOIScanner poiScanner;
         private readonly IWorldRandom worldRandom;
 
-        public ImprovedHordesEntitySpawner(WorldPOIScanner poiScanner, IWorldRandom worldRandom)
+        public ImprovedHordesEntitySpawner(WorldPrefabPOIScanner poiScanner, IWorldRandom worldRandom)
         {
             this.poiScanner = poiScanner;
             this.worldRandom = worldRandom;
@@ -60,7 +61,7 @@ namespace ImprovedHordes.Implementations.World
             if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 15, -1, true, out Vector3 spawnLocation, false))
             {
                 // Check for POI
-                WorldPOIScanner.POI poi = this.poiScanner.GetPOIAt(location);
+                PrefabPOI poi = this.poiScanner.GetPOIAt(location);
 
                 if (poi == null)
                 {

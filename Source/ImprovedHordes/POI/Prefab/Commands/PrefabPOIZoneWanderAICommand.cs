@@ -1,19 +1,20 @@
 ﻿using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
+using ImprovedHordes.POI.Prefab;
 using UnityEngine;
 
 namespace ImprovedHordes.POI.Commands
 {
-    public sealed class ZoneWanderAICommand : GoToTargetAICommand
+    public sealed class PrefabPOIZoneWanderAICommand : GoToTargetAICommand
     {
-        private readonly WorldPOIScanner.POIZone zone;
+        private readonly PrefabPOIZone zone;
         private readonly IWorldRandom random;
         private readonly bool useWanderCount;
 
         private int wanderCount;
 
-        public ZoneWanderAICommand(WorldPOIScanner.POIZone zone, IWorldRandom random, bool useWanderCount) : base(GetNextTarget(zone, random, out int wanderCount, out float wanderTicks), false, false)
+        public PrefabPOIZoneWanderAICommand(PrefabPOIZone zone, IWorldRandom random, bool useWanderCount) : base(GetNextTarget(zone, random, out int wanderCount, out float wanderTicks), false, false)
         {
             this.zone = zone;
             this.random = random;
@@ -31,7 +32,7 @@ namespace ImprovedHordes.POI.Commands
             }
         }
 
-        private static Vector3 GetNextTarget(WorldPOIScanner.POIZone zone, IWorldRandom random, out int wanderCount, out float wanderTicks)
+        private static Vector3 GetNextTarget(PrefabPOIZone zone, IWorldRandom random, out int wanderCount, out float wanderTicks)
         {
             zone.GetLocationOutside(random, out Vector2 targetPos2);
             float y = GameManager.Instance.World.GetHeightAt(targetPos2.x, targetPos2.y) + 1.0f;

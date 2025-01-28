@@ -6,10 +6,10 @@ namespace ImprovedHordes.POI
 {
     public sealed class GoToWorldZoneAICommandGenerator : IAICommandGenerator<AICommand>
     {
-        private readonly WorldPOIScanner scanner;
+        private readonly WorldPrefabPOIScanner scanner;
         private readonly BiomeDefinition biome;
 
-        public GoToWorldZoneAICommandGenerator(WorldPOIScanner scanner, BiomeDefinition biome)
+        public GoToWorldZoneAICommandGenerator(WorldPrefabPOIScanner scanner, BiomeDefinition biome)
         {
             this.scanner = scanner;
             this.biome = biome;

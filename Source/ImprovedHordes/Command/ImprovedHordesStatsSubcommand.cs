@@ -2,6 +2,7 @@
 using ImprovedHordes.Core.Threading;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,7 +158,7 @@ namespace ImprovedHordes.Command
                 const float MIN_ZONE_EDGE_DISTANCE = 20.0f;
 
                 Vector3 playerPos = GameManager.Instance.World.GetPrimaryPlayer().position;
-                ICollection<WorldPOIScanner.POIZone> nearbyZones = mod.GetPOIScanner().GetAllZones().Where(z => Vector3.Distance(playerPos, z.GetBounds().ClosestPoint(playerPos)) <= MIN_ZONE_EDGE_DISTANCE).ToList();
+                ICollection<PrefabPOIZone> nearbyZones = mod.GetPOIScanner().GetAllZones().Where(z => Vector3.Distance(playerPos, z.GetBounds().ClosestPoint(playerPos)) <= MIN_ZONE_EDGE_DISTANCE).ToList();
 
                 if (!nearbyZones.Any())
                 {
@@ -165,7 +166,7 @@ namespace ImprovedHordes.Command
                     return;
                 }
 
-                WorldPOIScanner.POIZone zone = nearbyZones.First();
+                PrefabPOIZone zone = nearbyZones.First();
                 Bounds zoneBounds = zone.GetBounds();
 
                 message += $"\n    Size: {zoneBounds.size.magnitude / 2}";

@@ -3,6 +3,7 @@ using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
 using ImprovedHordes.POI.Commands;
+using ImprovedHordes.POI.Prefab;
 using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy.Zone
@@ -11,10 +12,10 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
     {
         private const float BIOME_CROSS_CHANCE = 0.2f;
 
-        private readonly WorldPOIScanner scanner;
+        private readonly WorldPrefabPOIScanner scanner;
         private readonly BiomeDefinition biome;
 
-        public WorldZoneWanderingEnemyAICommandGenerator(WorldPOIScanner scanner, WorldPOIScanner.POIZone zone) : base(new WanderingEnemyAIState(zone))
+        public WorldZoneWanderingEnemyAICommandGenerator(WorldPrefabPOIScanner scanner, PrefabPOIZone zone) : base(new WanderingEnemyAIState(zone))
         {
             this.scanner = scanner;
             this.biome = zone.GetBiome();
@@ -36,7 +37,7 @@ namespace ImprovedHordes.Wandering.Enemy.Zone
 
                     break;
                 case WanderingEnemyAIState.WanderingState.WANDER:
-                    command = new GeneratedAICommand<AICommand>(new ZoneWanderAICommand(state.GetTargetZone(), worldRandom, true), (_) =>
+                    command = new GeneratedAICommand<AICommand>(new PrefabPOIZoneWanderAICommand(state.GetTargetZone(), worldRandom, true), (_) =>
                     {
                         // On complete, change to idle.
                         state.SetWanderingState(WanderingEnemyAIState.WanderingState.IDLE);

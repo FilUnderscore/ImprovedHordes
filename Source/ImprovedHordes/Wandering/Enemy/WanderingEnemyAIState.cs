@@ -1,12 +1,12 @@
 ﻿using ImprovedHordes.Core.AI;
-using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy
 {
     public sealed class WanderingEnemyAIState : IAIState
     {
-        private WorldPOIScanner.POIZone targetZone;
+        private PrefabPOIZone targetZone;
         private Vector3? targetLocation;
         private WanderingState wanderingState;
         private float remainingWanderTime;
@@ -17,7 +17,7 @@ namespace ImprovedHordes.Wandering.Enemy
             this.wanderingState = WanderingState.IDLE;
         }
 
-        public WanderingEnemyAIState(WorldPOIScanner.POIZone targetZone) : base()
+        public WanderingEnemyAIState(PrefabPOIZone targetZone) : base()
         {
             this.targetZone = targetZone;
             this.wanderingState = WanderingState.WANDER;
@@ -30,7 +30,7 @@ namespace ImprovedHordes.Wandering.Enemy
             IDLE
         }
 
-        public void SetTargetZone(WorldPOIScanner.POIZone targetZone)
+        public void SetTargetZone(PrefabPOIZone targetZone)
         {
             this.targetZone = targetZone;
         }
@@ -45,7 +45,7 @@ namespace ImprovedHordes.Wandering.Enemy
             this.wanderingState = wanderingState;
         }
 
-        public WorldPOIScanner.POIZone GetTargetZone()
+        public PrefabPOIZone GetTargetZone()
         {
             return this.targetZone;
         }

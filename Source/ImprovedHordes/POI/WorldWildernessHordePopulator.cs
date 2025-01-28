@@ -17,7 +17,7 @@ namespace ImprovedHordes.POI
         private static readonly Setting<ulong> WILDERNESS_HORDE_REPOPULATION_DAYS = new Setting<ulong>("wilderness_horde_repopulation_days", 7);
         
         private readonly float worldSize;
-        protected readonly WorldPOIScanner scanner;
+        protected readonly WorldPrefabPOIScanner scanner;
 
         private readonly HordeSpawnParams spawnData;
         private readonly int sparsityFactor;
@@ -33,7 +33,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldWildernessHordePopulator(float worldSize, WorldPOIScanner scanner, HordeSpawnParams spawnData, int sparsityFactor, bool biomeAffectsSparsity)
+        public WorldWildernessHordePopulator(float worldSize, WorldPrefabPOIScanner scanner, HordeSpawnParams spawnData, int sparsityFactor, bool biomeAffectsSparsity)
         {
             this.worldSize = worldSize;
             this.scanner = scanner;

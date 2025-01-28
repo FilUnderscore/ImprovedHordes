@@ -1,5 +1,6 @@
 ﻿using ImprovedHordes.Core.AI;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 
 namespace ImprovedHordes.Screamer
 {
@@ -12,10 +13,10 @@ namespace ImprovedHordes.Screamer
         }
 
         private WanderState wanderState;
-        private readonly WorldPOIScanner.POIZone zone;
+        private readonly PrefabPOIZone zone;
         private float remainingWanderTime;
 
-        public ScreamerAIState(WorldPOIScanner.POIZone zone)
+        public ScreamerAIState(PrefabPOIZone zone)
         {
             this.zone = zone;
             this.wanderState = WanderState.IDLE;
@@ -26,7 +27,7 @@ namespace ImprovedHordes.Screamer
             return this.wanderState;
         }
 
-        public WorldPOIScanner.POIZone GetPOIZone()
+        public PrefabPOIZone GetPOIZone()
         {
             return this.zone;
         }

@@ -2,6 +2,7 @@
 using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde.AI.Commands;
 using ImprovedHordes.POI;
+using ImprovedHordes.POI.Prefab;
 using UnityEngine;
 
 namespace ImprovedHordes.Wandering.Enemy.Wilderness
@@ -10,10 +11,10 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
     {
         private const float SLEEP_CHANCE = 0.7f;
 
-        private readonly WorldPOIScanner worldPOIScanner;
+        private readonly WorldPrefabPOIScanner worldPOIScanner;
         public readonly BiomeDefinition Biome;
 
-        public WorldWildernessWanderingEnemyAICommandGenerator(WorldPOIScanner worldPOIScanner, BiomeDefinition biome) : base(new WanderingEnemyAIState())
+        public WorldWildernessWanderingEnemyAICommandGenerator(WorldPrefabPOIScanner worldPOIScanner, BiomeDefinition biome) : base(new WanderingEnemyAIState())
         {
             this.worldPOIScanner = worldPOIScanner;
             this.Biome = biome;
@@ -26,7 +27,7 @@ namespace ImprovedHordes.Wandering.Enemy.Wilderness
                 case WanderingEnemyAIState.WanderingState.IDLE:
                     // Set next target zone / location.
                     bool zoneOrWild = worldRandom.RandomChance(0.1f);
-                    WorldPOIScanner.POIZone zone;
+                    PrefabPOIZone zone;
 
                     if(zoneOrWild && (zone = worldRandom.Random(this.worldPOIScanner.GetBiomeZones(this.Biome))) != null)
                     {

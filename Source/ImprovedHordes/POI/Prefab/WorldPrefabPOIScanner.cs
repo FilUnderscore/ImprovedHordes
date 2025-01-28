@@ -1,29 +1,27 @@
 ﻿using ImprovedHordes.Core.Abstractions.Logging;
-using ImprovedHordes.Core.Abstractions.World.Random;
 using ImprovedHordes.Core.World.Horde;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using ImprovedHordes.POI.Prefab;
 
 namespace ImprovedHordes.POI
 {
-    public sealed class WorldPOIScanner
+    public sealed class WorldPrefabPOIScanner
     {
-        private static int HIGHEST_COUNT;
         private float avgZoneDensity;
 
         private const float TOWN_WEIGHT = 3.0f;
         private readonly Core.Abstractions.Logging.ILogger logger;
 
-        private readonly List<POI> pois = new List<POI>();
+        private readonly List<PrefabPOI> pois = new List<PrefabPOI>();
 
-        private readonly List<POIZone> zones = new List<POIZone>();
-        private readonly Dictionary<BiomeDefinition, List<POIZone>> biomeZones = new Dictionary<BiomeDefinition, List<POIZone>>();
+        private readonly List<PrefabPOIZone> zones = new List<PrefabPOIZone>();
+        private readonly Dictionary<BiomeDefinition, List<PrefabPOIZone>> biomeZones = new Dictionary<BiomeDefinition, List<PrefabPOIZone>>();
 
-        public WorldPOIScanner(ILoggerFactory loggerFactory)
+        public WorldPrefabPOIScanner(ILoggerFactory loggerFactory)
         {
-            this.logger = loggerFactory.Create(typeof(WorldPOIScanner));
+            this.logger = loggerFactory.Create(typeof(WorldPrefabPOIScanner));
             this.ScanZones();
         }
 
@@ -39,11 +37,11 @@ namespace ImprovedHordes.POI
 
             foreach (var prefab in prefabs)
             {
-                this.pois.Add(new POI(prefab));
+                this.pois.Add(new PrefabPOI(prefab));
             }
 
-            List<POI> toZone = new List<POI>(this.pois);
-            List<POIZone> poiZones = new List<POIZone>();
+            List<PrefabPOI> toZone = new List<PrefabPOI>(this.pois);
+            List<PrefabPOIZone> poiZones = new List<PrefabPOIZone>();
 
             // Get avg weight first of POIS
             for (int i = 0; i < toZone.Count - 1; i++)
@@ -80,7 +78,7 @@ namespace ImprovedHordes.POI
 
             for (int i = 0; i < toZone.Count - 1; i++)
             {
-                POIZone zone = new POIZone(toZone[i]);
+                PrefabPOIZone zone = new PrefabPOIZone(toZone[i]);
 
                 for (int j = i + 1; j < toZone.Count; j++)
                 {
@@ -111,7 +109,7 @@ namespace ImprovedHordes.POI
                 for (int i = 0; i < poiZones.Count - 1; i++)
                 {
                     var zone = poiZones[i];
-                    var near = new List<POIZone>();
+                    var near = new List<PrefabPOIZone>();
 
                     for (int j = i + 1; j < poiZones.Count; j++)
                     {
@@ -190,7 +188,7 @@ namespace ImprovedHordes.POI
 
                 if(!biomeZones.TryGetValue(biome, out var biomeZonesList))                
                 {
-                    biomeZones.Add(biome, biomeZonesList = new List<POIZone>());
+                    biomeZones.Add(biome, biomeZonesList = new List<PrefabPOIZone>());
                 }
 
                 biomeZones[biome].Add(zone);
@@ -206,7 +204,7 @@ namespace ImprovedHordes.POI
             }
 
             // Calculate zone density.
-            HIGHEST_COUNT = zones.Max(z => z.GetCount());
+            PrefabPOIZone.HIGHEST_COUNT = zones.Max(z => z.GetCount());
             avgZoneDensity = zones.Average(z => z.GetDensity());
         }
 
@@ -215,12 +213,12 @@ namespace ImprovedHordes.POI
             return this.avgZoneDensity;
         }
 
-        public List<POIZone> GetAllZones()
+        public List<PrefabPOIZone> GetAllZones()
         {
             return this.zones;
         }
 
-        public List<POIZone> GetBiomeZones(BiomeDefinition biome)
+        public List<PrefabPOIZone> GetBiomeZones(BiomeDefinition biome)
         {
             if(biome != null && this.biomeZones.TryGetValue(biome, out var biomeZoneList))
                 return biomeZoneList;
@@ -228,7 +226,7 @@ namespace ImprovedHordes.POI
             return this.GetAllZones();
         }
 
-        public POI GetPOIAt(Vector3 location)
+        public PrefabPOI GetPOIAt(Vector3 location)
         {
             foreach (var zone in this.zones)
             {
@@ -240,162 +238,6 @@ namespace ImprovedHordes.POI
             }
 
             return null;
-        }
-
-        public sealed class POIZone
-        {
-            private List<POI> pois = new List<POI>();
-            internal BiomeDefinition biome;
-
-            public POIZone(POI poi)
-            {
-                this.pois.Add(poi);
-            }
-
-            public void Add(POI poi)
-            {
-                this.pois.Add(poi);
-            }
-
-            public List<POI> GetPOIs()
-            {
-                return this.pois;
-            }
-
-            public void Merge(POIZone other)
-            {
-                other.pois.ForEach(z => this.pois.Add(z));
-            }
-
-            public int GetCount()
-            {
-                return this.pois.Count;
-            }
-
-            public Vector2 GetCenter()
-            {
-                Vector2 center = this.pois[0].GetLocation();
-
-                for (int i = 1; i < this.pois.Count; i++)
-                {
-                    center += this.pois[i].GetLocation();
-                }
-
-                center /= this.pois.Count;
-                return center;
-            }
-
-            public Bounds GetBounds()
-            {
-                Bounds bounds = this.pois[0].GetBounds();
-
-                for (int i = 1; i < this.pois.Count; i++)
-                {
-                    bounds.Encapsulate(this.pois[i].GetBounds());
-                }
-
-                return bounds;
-            }
-
-            public float GetDensity()
-            {
-                return (float)this.GetCount() / HIGHEST_COUNT;
-            }
-
-            public void GetLocationOutside(IWorldRandom worldRandom, out Vector2 location)
-            {
-                if (GameManager.Instance.World.ChunkClusters?[0]?.ChunkProvider?.GetDynamicPrefabDecorator() != null) // NRE fix for LCB/trader area detection.
-                {
-                    List<POI> remainingPOIs = this.pois.ToList();
-                    POI randomPOI;
-
-                    do
-                    {
-                        randomPOI = worldRandom.Random<POI>(this.pois);
-
-                        if (!randomPOI.IsPlayerConvertedPOI())
-                        {
-                            randomPOI.GetLocationOutside(worldRandom, out location);
-                            remainingPOIs.Clear();
-
-                            return;
-                        }
-
-                        remainingPOIs.Remove(randomPOI);
-                    } while (remainingPOIs.Count > 0);
-                }
-
-                // If all zone POIs have land claim blocks nearby, then spawn on the outskirts of the zone.
-                float size = this.GetBounds().size.magnitude / 2;
-                location = this.GetCenter() + worldRandom.RandomOnUnitCircle * size;
-            }
-
-            public BiomeDefinition GetBiome()
-            {
-                return this.biome;
-            }
-        }
-
-        public sealed class POI
-        {
-            private PrefabInstance prefab;
-            private float weight;
-
-            private POI closestPOI;
-
-            public POI(PrefabInstance prefab)
-            {
-                this.prefab = prefab;
-                this.weight = 0.0f;
-            }
-
-            public void MarkZoned(POI other)
-            {
-                this.weight += 1.0f;
-
-                if (this.closestPOI == null || Vector2.Distance(this.GetLocation(), other.GetLocation()) < Vector2.Distance(closestPOI.GetLocation(), other.GetLocation()))
-                    this.closestPOI = other;
-            }
-
-            public float GetWeight()
-            {
-                return this.weight;
-            }
-
-            public Vector2 GetLocation()
-            {
-                return this.prefab.GetCenterXZ();
-            }
-
-            public Bounds GetBounds()
-            {
-                return this.prefab.GetAABB();
-            }
-
-            public void GetLocationOutside(IWorldRandom worldRandom, out Vector2 location)
-            {
-                float minRange = this.GetBounds().size.magnitude / 2;
-
-                if (this.closestPOI == null)
-                {
-                    location = this.GetLocation() + worldRandom.RandomOnUnitCircle * minRange;
-                    return;
-                }
-
-                float closestPOIDistance = Vector2.Distance(this.GetLocation(), this.closestPOI.GetLocation());
-                float closestPOIMinRange = this.closestPOI.GetBounds().size.magnitude / 2;
-
-                float maxRange = closestPOIDistance - closestPOIMinRange;
-
-                float range = worldRandom.RandomFloat * (maxRange - minRange) + minRange;
-                location = this.GetLocation() + worldRandom.RandomOnUnitCircle * range;
-            }
-
-            public bool IsPlayerConvertedPOI()
-            {
-                Vector3i position = new Vector3i(this.GetBounds().center);
-                return GameManager.Instance.World.GetLandClaimOwner(position, GameManager.Instance.GetPersistentLocalPlayer()) != EnumLandClaimOwner.None || GameManager.Instance.World.IsWithinTraderArea(position);
-            }
         }
     }
 }

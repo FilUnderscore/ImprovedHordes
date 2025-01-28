@@ -5,19 +5,20 @@ using ImprovedHordes.Core.AI;
 using ImprovedHordes.Core.World.Horde;
 using ImprovedHordes.Core.World.Horde.Populator;
 using ImprovedHordes.Core.World.Horde.Spawn;
+using ImprovedHordes.POI.Prefab;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace ImprovedHordes.POI
 {
-    public abstract class WorldZoneHordePopulator<Horde> : HordePopulator<WorldPOIScanner.POIZone> where Horde: IHorde
+    public abstract class WorldPrefabPOIZoneHordePopulator<Horde> : HordePopulator<PrefabPOIZone> where Horde: IHorde
     {
         private static readonly Setting<ulong> ZONE_HORDE_REPOPULATION_DAYS = new Setting<ulong>("zone_horde_repopulation_days", 7);
         
-        private readonly Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawned = new Dictionary<WorldPOIScanner.POIZone, ulong>();
+        private readonly Dictionary<PrefabPOIZone, ulong> lastSpawned = new Dictionary<PrefabPOIZone, ulong>();
 
-        protected readonly WorldPOIScanner scanner;
+        protected readonly WorldPrefabPOIScanner scanner;
 
         private int MAX_VIEW_DISTANCE
         {
@@ -27,7 +28,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public WorldZoneHordePopulator(WorldPOIScanner scanner)
+        public WorldPrefabPOIZoneHordePopulator(WorldPrefabPOIScanner scanner)
         {
             this.scanner = scanner;
         }
@@ -37,7 +38,7 @@ namespace ImprovedHordes.POI
             return this.scanner.HasScanCompleted();
         }
 
-        public override void Populate(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
+        public override void Populate(PrefabPOIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
             if (zone != null)
             {
@@ -45,9 +46,9 @@ namespace ImprovedHordes.POI
             }
         }
 
-        public override bool CanPopulate(float dt, out WorldPOIScanner.POIZone zone, List<PlayerHordeGroup> playerGroups, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
+        public override bool CanPopulate(float dt, out PrefabPOIZone zone, List<PlayerHordeGroup> playerGroups, Dictionary<Type, List<ClusterSnapshot>> clusters, IWorldRandom worldRandom)
         {
-            WorldPOIScanner.POIZone randomZone = worldRandom.Random<WorldPOIScanner.POIZone>(this.scanner.GetAllZones());
+            PrefabPOIZone randomZone = worldRandom.Random<PrefabPOIZone>(this.scanner.GetAllZones());
 
             if(randomZone.GetDensity() < this.GetMinimumDensity())
             {
@@ -94,7 +95,7 @@ namespace ImprovedHordes.POI
             return true;
         }
 
-        protected abstract int CalculateHordeCount(WorldPOIScanner.POIZone zone);
+        protected abstract int CalculateHordeCount(PrefabPOIZone zone);
 
         protected virtual bool IsDensityInfluencedByZoneProperties()
         {
@@ -106,7 +107,7 @@ namespace ImprovedHordes.POI
             return 0.0f;
         }
 
-        private void SpawnHordesAt(WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
+        private void SpawnHordesAt(PrefabPOIZone zone, WorldHordeSpawner spawner, IWorldRandom worldRandom)
         {
             float biomeSparsityFactor = HordeBiomes.DetermineBiomeSparsityFactor(zone.GetCenter());
             int hordeCount = Mathf.CeilToInt(Mathf.Max(1, Mathf.FloorToInt(CalculateHordeCount(zone))) * (biomeSparsityFactor / 2));
@@ -129,7 +130,7 @@ namespace ImprovedHordes.POI
             }
         }
 
-        private void SpawnHordeAt(Vector2 location, WorldPOIScanner.POIZone zone, WorldHordeSpawner spawner, int hordeCount)
+        private void SpawnHordeAt(Vector2 location, PrefabPOIZone zone, WorldHordeSpawner spawner, int hordeCount)
         {
             float densitySizeRatio = 1.0f;
 
@@ -139,12 +140,12 @@ namespace ImprovedHordes.POI
             spawner.Spawn<Horde, LocationHordeSpawn>(new LocationHordeSpawn(location), new HordeSpawnParams(20), densitySizeRatio, CreateHordeAICommandGenerator(zone), CreateEntityAICommandGenerator());
         }
 
-        public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(WorldPOIScanner.POIZone zone);
+        public abstract IAICommandGenerator<AICommand> CreateHordeAICommandGenerator(PrefabPOIZone zone);
         public abstract IAICommandGenerator<EntityAICommand> CreateEntityAICommandGenerator();
 
         public override IData Load(IDataLoader loader)
         {
-            Dictionary<WorldPOIScanner.POIZone, ulong> lastSpawnedDictionary = loader.Load<Dictionary<WorldPOIScanner.POIZone, ulong>>();
+            Dictionary<PrefabPOIZone, ulong> lastSpawnedDictionary = loader.Load<Dictionary<PrefabPOIZone, ulong>>();
 
             foreach (var lastSpawnedEntry in lastSpawnedDictionary)
             {
@@ -156,7 +157,7 @@ namespace ImprovedHordes.POI
 
         public override void Save(IDataSaver saver)
         {
-            saver.Save<Dictionary<WorldPOIScanner.POIZone, ulong>>(this.lastSpawned);
+            saver.Save<Dictionary<PrefabPOIZone, ulong>>(this.lastSpawned);
         }
 
         public override void Flush()
