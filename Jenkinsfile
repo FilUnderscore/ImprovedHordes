@@ -98,6 +98,7 @@ pipeline
             sh "mv ImprovedHordes ImprovedHordes-temp"
             sh "mkdir ImprovedHordes"
             sh "mv ImprovedHordes-temp ImprovedHordes/ImprovedHordes"
+			sh "cp LICENSE ImprovedHordes/ImprovedHordes/LICENSE"
             zip zipFile: 'ImprovedHordes.zip', archive: false, dir: 'ImprovedHordes'
             archiveArtifacts artifacts: 'ImprovedHordes.zip', onlyIfSuccessful: true, fingerprint: true
 
