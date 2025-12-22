@@ -6,8 +6,8 @@ curl -JL "https://github.com/SteamRE/DepotDownloader/releases/latest/download/De
 echo "Extracting DepotDownloader"
 unzip "DepotDownloader-linux-x64.zip"
 echo "Downloading Latest Binaries"
-sudo chmod 777 ./DepotDownloader
-sudo ./DepotDownloader -app 294420 -beta ${1:-Public} -filelist "../setup-filelist.txt" -dir "../Dependencies"
+chmod 755 ./DepotDownloader
+./DepotDownloader -app 294420 -beta ${1:-Public} -filelist "../setup-filelist.txt" -dir "../Dependencies"
 echo "Dependencies successfully downloaded"
 echo "Cleaning up"
 cd "../"
