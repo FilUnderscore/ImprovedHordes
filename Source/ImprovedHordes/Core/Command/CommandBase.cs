@@ -29,6 +29,8 @@ namespace ImprovedHordes.Core.Command
 
         public virtual bool CanExecuteForDevice => AllowedDeviceTypes.IsCurrent();
 
+        public string PrimaryCommand => throw new NotImplementedException();
+
         public void Execute(List<string> _params, CommandSenderInfo _senderInfo)
         {
             string message = "";

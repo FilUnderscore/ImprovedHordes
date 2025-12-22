@@ -43,7 +43,7 @@ namespace ImprovedHordes
         }
 
         // Called on first time initialization of a world/update.
-        private void PlayerSpawnedInWorld(ClientInfo clientInfo, RespawnType respawnType, Vector3i pos)
+        private void PlayerSpawnedInWorld(ref ModEvents.SPlayerSpawnedInWorldData data)
         {
             // Post on first player login.
             ModEvents.PlayerSpawnedInWorld.UnregisterHandler(PlayerSpawnedInWorld);

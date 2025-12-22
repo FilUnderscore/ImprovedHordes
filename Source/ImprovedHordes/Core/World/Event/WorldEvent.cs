@@ -40,6 +40,8 @@ namespace ImprovedHordes.Core.World.Event
 
             this.time = Time.timeAsDouble;
             this.expire_time = GetExpireTime();
+
+            this.ignoreCap = ignoreCap;
         }
 
         public Vector2i GetChunkLocation()

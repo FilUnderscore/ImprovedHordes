@@ -91,7 +91,7 @@ namespace ImprovedHordes
 
         public override void StartWorkerThreads()
         {
-            this.threadInfo = ThreadManager.StartThread("IH-ThreadSafeAStarPathFinder", StartThread, LoopThread, EndThread, System.Threading.ThreadPriority.Lowest, null, null, false);
+            this.threadInfo = ThreadManager.StartThread("IH-ThreadSafeAStarPathFinder", StartThread, LoopThread, EndThread, null, null, false);
         }
 
         protected override void Shutdown()

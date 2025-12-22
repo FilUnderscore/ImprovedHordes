@@ -57,7 +57,7 @@ namespace ImprovedHordes.Implementations.World
 
         private Vector3 FindSpawnLocationNear(Vector3 location)
         {
-            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 15, -1, true, out Vector3 spawnLocation, false))
+            if (!GameManager.Instance.World.GetRandomSpawnPositionMinMaxToPosition(location, 0, 15, -1, true, out Vector3 spawnLocation))
             {
                 // Check for POI
                 WorldPOIScanner.POI poi = this.poiScanner.GetPOIAt(location);

@@ -244,12 +244,12 @@ namespace ImprovedHordes
             return false;
         }
 
-        private static void GameStartDone()
+        private static void GameStartDone(ref ModEvents.SGameStartDoneData data)
         {
             Instance.InitializeCore(GameManager.Instance.World);
         }
 
-        private static void GameUpdate()
+        private static void GameUpdate(ref ModEvents.SGameUpdateData data)
         {
             if (Instance.core == null || GameManager.Instance.IsPaused())
                 return;
@@ -257,7 +257,7 @@ namespace ImprovedHordes
             Instance.core.Update();
         }
 
-        private static void GameShutdown() 
+        private static void GameShutdown(ref ModEvents.SGameShutdownData data) 
         {
             if (Instance.core == null)
                 return;
@@ -288,7 +288,8 @@ namespace ImprovedHordes
                     return;
                 }
 
-                GameShutdown();
+                ModEvents.SGameShutdownData data = new ModEvents.SGameShutdownData();
+                GameShutdown(ref data);
             }
         }
 

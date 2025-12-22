@@ -59,6 +59,10 @@
       <HintPath>..\..\Dependencies\7DaysToDieServer_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\Dependencies\7DaysToDieServer_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\Dependencies\7DaysToDieServer_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
