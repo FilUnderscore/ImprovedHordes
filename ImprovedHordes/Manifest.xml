@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModManifest>
   <ManifestUrl>https://raw.githubusercontent.com/FilUnderscore/ImprovedHordes/dev/ImprovedHordes/Manifest.xml</ManifestUrl>
-  <Version>2.0.3-RC.1</Version>
+  <Version>2.0.4-RC.1</Version>
   <GameVersion ReleaseType="V" Major="2" Minor="5" Build="23"/>
 </ModManifest>
