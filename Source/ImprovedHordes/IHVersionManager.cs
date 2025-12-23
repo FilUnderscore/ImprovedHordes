@@ -9,6 +9,8 @@ namespace ImprovedHordes
         private static string VERSION;
         private static string BUILD_TYPE;
 
+        private bool triggeredOnSpawn = false;
+
         private readonly List<Mod> addons = new List<Mod>();
 
         static IHVersionManager()
@@ -46,9 +48,11 @@ namespace ImprovedHordes
         private void PlayerSpawnedInWorld(ref ModEvents.SPlayerSpawnedInWorldData data)
         {
             // Post on first player login.
-            ModEvents.PlayerSpawnedInWorld.UnregisterHandler(PlayerSpawnedInWorld);
-
-            GameManager.Instance.StartCoroutine(NotifyAllCoroutine());
+            if (!this.triggeredOnSpawn)
+            {
+                this.triggeredOnSpawn = true;
+                GameManager.Instance.StartCoroutine(NotifyAllCoroutine());
+            }
 
             //if(TryGetAddonsListAsString(out string addonsListString))
             //    SendChatMessage($"{addonsListString}", "Add-ons");
